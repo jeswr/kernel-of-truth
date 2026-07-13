@@ -1,0 +1,130 @@
+{
+  "id": "urn:kernel-v1:medium",
+  "label": "medium (spiritualist intermediary)",
+  "synset": "urn:lexical-wn31:n-10325946",
+  "pattern": "InstanceSchema; claimed conduit — hears the dead, relays their words to the living",
+  "gloss": "A person believed able to communicate with the spirits of the dead and to convey messages between them and living people, acting as a channel through which the dead are said to speak.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          {
+            "kind": "prime",
+            "prime": "NOW"
+          },
+          {
+            "type": "pred",
+            "pred": "DIE",
+            "roles": {
+              "undergoer": {
+                "kind": "sp",
+                "det": "SOME",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMEONE"
+                },
+                "bind": 2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            },
+            "bind": 3
+          },
+          "quote": {
+            "kind": "quote",
+            "clauses": [
+              {
+                "type": "op",
+                "op": "CAN",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "HEAR",
+                    "roles": {
+                      "experiencer": {
+                        "kind": "ref",
+                        "index": 1
+                      },
+                      "stimulus": {
+                        "kind": "sp",
+                        "mods": [],
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "WORDS"
+                        },
+                        "restrictedBy": {
+                          "type": "pred",
+                          "pred": "SAY",
+                          "roles": {
+                            "agent": {
+                              "kind": "ref",
+                              "index": 2
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "SAY",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "addressee": {
+            "kind": "ref",
+            "index": 3
+          },
+          "topic": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WORDS"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — captures a living person who (people believe) can hear the words of one who died and relays them to the living, but 'spirit of the dead' and the two-way intermediary role are only approximated through belief and hearsay."
+}

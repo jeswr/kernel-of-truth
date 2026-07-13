@@ -1,0 +1,128 @@
+{
+  "id": "urn:kernel-v1:initiation",
+  "label": "initiation",
+  "synset": "urn:lexical-wn31:n-00241051",
+  "pattern": "InstanceSchema; agentive DO causing THERE-IS, with BEFORE-negated existence",
+  "gloss": "The act of bringing something new into being or into practice for the first time, whereby someone's doing causes a thing to exist that did not exist before.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "TimeRef"
+      },
+      {
+        "index": 4,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "time": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMEONE"
+            },
+            "bind": 2
+          },
+          "time": {
+            "kind": "ref",
+            "index": 3
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "THERE-IS",
+            "roles": {
+              "undergoer": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                },
+                "bind": 4
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 3
+          },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "THERE-IS",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 4
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: faithful — an event at a time in which someone's doing causes a thing to exist that did not exist before that time; this carries both the agentive act (genus) and the first-time novelty (differentia)."
+}

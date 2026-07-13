@@ -1,0 +1,145 @@
+{
+  "id": "urn:kernel-v1:builder",
+  "label": "builder (one who creates a business or develops a country)",
+  "synset": "urn:lexical-wn31:n-09898025",
+  "pattern": "InstanceSchema; sustained agency causing a big new existent that many people belong to",
+  "gloss": "A person who brings into being and develops a large enterprise, such as a commercial concern or a nation, so that through sustained effort an organized whole involving many people comes to exist where none was before.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            }
+          },
+          "time": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "bind": 3
+          },
+          "duration": {
+            "kind": "prime",
+            "prime": "A-LONG-TIME"
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "THERE-IS",
+            "roles": {
+              "undergoer": {
+                "kind": "sp",
+                "mods": [
+                  {
+                    "mod": "BIG",
+                    "intensifier": "VERY"
+                  }
+                ],
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                },
+                "bind": 2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 3
+          },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "THERE-IS",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 2
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            }
+          },
+          "locus": {
+            "kind": "ref",
+            "index": 2
+          },
+          "manner": {
+            "kind": "prime",
+            "prime": "INSIDE"
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the primes cannot name a business, country, or economic-political enterprise; the AST renders sustained doing that causes a very big thing to exist which did not exist before and which many people are within, dropping the specifically commercial or national character."
+}

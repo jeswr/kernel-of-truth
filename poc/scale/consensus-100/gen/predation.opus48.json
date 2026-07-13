@@ -1,0 +1,126 @@
+{
+  "id": "urn:kernel-v1:predation",
+  "label": "predation",
+  "synset": "urn:lexical-wn31:n-00713150",
+  "pattern": "InstanceSchema; killing another living thing in order to eat it",
+  "gloss": "The act of one living creature hunting, killing, and eating another living creature as food.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "LIVE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "det": "OTHER~ELSE~ANOTHER",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "restrictedBy": {
+              "type": "pred",
+              "pred": "LIVE",
+              "roles": {
+                "undergoer": {
+                  "kind": "ref",
+                  "index": 2
+                }
+              }
+            },
+            "bind": 2
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "DIE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "DO",
+              "roles": {
+                "agent": {
+                  "kind": "ref",
+                  "index": 1
+                },
+                "undergoer": {
+                  "kind": "ref",
+                  "index": 2
+                },
+                "manner": {
+                  "kind": "prime",
+                  "prime": "INSIDE"
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — killing another living thing is rendered exactly (acts on it so that it dies), but 'eating' is approximated only as wanting to do something to it INSIDE the body; there is no prime for ingesting as food."
+}

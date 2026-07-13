@@ -1,0 +1,44 @@
+{
+  "id": "urn:kernel-v1:coiner",
+  "label": "coiner",
+  "synset": "urn:lexical-wn31:n-09954565",
+  "pattern": "InstanceSchema; speech-source approximation over words",
+  "gloss": "A person who invents and brings into use a word or expression that was not previously established in the language.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "SAY",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "topic": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WORDS"
+            },
+            "bind": 2
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — it renders a person saying words but cannot represent invention, first introduction into use, novelty, or language."
+}

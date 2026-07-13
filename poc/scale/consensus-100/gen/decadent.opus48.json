@@ -1,0 +1,158 @@
+{
+  "id": "urn:kernel-v1:decadent",
+  "label": "decadent (person)",
+  "synset": "urn:lexical-wn31:n-10017477",
+  "pattern": "InstanceSchema; downward change from good to bad state + self-indulgence",
+  "gloss": "A person whose moral or artistic condition has declined from a former better state, given over to self-indulgence and lacking the discipline or restraint that others judge good.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "bind": 2
+          },
+          {
+            "type": "pred",
+            "pred": "BE-SPEC",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "attribute": {
+                "kind": "sp",
+                "mods": [
+                  {
+                    "mod": "GOOD"
+                  }
+                ],
+                "head": {
+                  "kind": "kindFrame",
+                  "of": {
+                    "kind": "sp",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMEONE"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "AFTER",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 2
+          },
+          {
+            "type": "pred",
+            "pred": "BE-SPEC",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "attribute": {
+                "kind": "sp",
+                "mods": [
+                  {
+                    "mod": "BAD"
+                  }
+                ],
+                "head": {
+                  "kind": "kindFrame",
+                  "of": {
+                    "kind": "sp",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMEONE"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            }
+          },
+          "topic": {
+            "kind": "ref",
+            "index": 1
+          },
+          "quote": {
+            "kind": "quote",
+            "clauses": [
+              {
+                "type": "pred",
+                "pred": "BE-SPEC",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 1
+                  },
+                  "attribute": {
+                    "kind": "sp",
+                    "mods": [
+                      {
+                        "mod": "BAD"
+                      }
+                    ],
+                    "head": {
+                      "kind": "kindFrame",
+                      "of": {
+                        "kind": "sp",
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "SOMEONE"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the downward change from a good to a bad condition, judged bad by others, is rendered; but the specific moral/artistic domain and the connotation of luxurious self-indulgence cannot be carried by the primes."
+}

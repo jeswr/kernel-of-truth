@@ -1,0 +1,111 @@
+{
+  "id": "urn:kernel-v1:peer",
+  "label": "peer (X is a peer of Y)",
+  "synset": "urn:lexical-wn31:n-09649426",
+  "pattern": "RelationalSchema; shared group membership + reciprocal ABOVE negation",
+  "gloss": "A person who holds the same rank, standing, or status as another within a group, being neither above nor below that person in position or authority.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "RelationalSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "locus": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            },
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "locus": {
+            "kind": "ref",
+            "index": 3
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "BE-SOMEWHERE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "locus": {
+                "kind": "ref",
+                "index": 2
+              },
+              "manner": {
+                "kind": "prime",
+                "prime": "ABOVE"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "BE-SOMEWHERE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "locus": {
+                "kind": "ref",
+                "index": 1
+              },
+              "manner": {
+                "kind": "prime",
+                "prime": "ABOVE"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — shared group membership and reciprocal absence of being above are represented, but social rank, standing, status, and authority are rendered only through spatial relations."
+}

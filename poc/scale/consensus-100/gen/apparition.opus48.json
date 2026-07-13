@@ -1,0 +1,192 @@
+{
+  "id": "urn:kernel-v1:apparition",
+  "label": "apparition (sudden appearing)",
+  "synset": "urn:lexical-wn31:n-00051304",
+  "pattern": "InstanceSchema; SEE polarity across a time boundary, unexpected + sudden",
+  "gloss": "The event of someone or something coming suddenly and unexpectedly into view, so that people who could not see it before now see it, in a way they had not thought would happen.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "TimeRef"
+      },
+      {
+        "index": 4,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 1
+          },
+          "time": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 3
+          },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "op",
+                "op": "CAN",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "SEE",
+                    "roles": {
+                      "experiencer": {
+                        "kind": "sp",
+                        "quant": "MUCH~MANY",
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "PEOPLE"
+                        },
+                        "bind": 4
+                      },
+                      "stimulus": {
+                        "kind": "sp",
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "SOMETHING~THING"
+                        },
+                        "bind": 2
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "AFTER",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 3
+          },
+          {
+            "type": "pred",
+            "pred": "SEE",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 4
+              },
+              "stimulus": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 4
+          },
+          "quote": {
+            "kind": "quote",
+            "clauses": [
+              {
+                "type": "op",
+                "op": "BEFORE",
+                "args": [
+                  {
+                    "kind": "prime",
+                    "prime": "NOW"
+                  },
+                  {
+                    "type": "op",
+                    "op": "NOT",
+                    "args": [
+                      {
+                        "type": "pred",
+                        "pred": "THINK",
+                        "roles": {
+                          "experiencer": {
+                            "kind": "prime",
+                            "prime": "I"
+                          },
+                          "quote": {
+                            "kind": "quote",
+                            "clauses": [
+                              {
+                                "type": "op",
+                                "op": "CAN",
+                                "args": [
+                                  {
+                                    "type": "pred",
+                                    "pred": "SEE",
+                                    "roles": {
+                                      "experiencer": {
+                                        "kind": "prime",
+                                        "prime": "I"
+                                      },
+                                      "stimulus": {
+                                        "kind": "ref",
+                                        "index": 2
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: faithful — the thing cannot be seen before the time and is seen after, and the beholders had not thought they would see it, rendering both the coming-into-view and the unexpectedness."
+}

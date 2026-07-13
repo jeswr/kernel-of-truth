@@ -1,0 +1,150 @@
+{
+  "id": "urn:kernel-v1:insulation",
+  "label": "insulation",
+  "synset": "urn:lexical-wn31:n-00828671",
+  "pattern": "InstanceSchema; surrounding material that blocks passage across a boundary",
+  "gloss": "The act of protecting something by enclosing it in material that stops or lessens the passing of heat, sound, or electric current between it and its surroundings.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 4,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "BE-SOMEWHERE",
+            "roles": {
+              "undergoer": {
+                "kind": "sp",
+                "det": "SOME",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                },
+                "bind": 3
+              },
+              "locus": {
+                "kind": "ref",
+                "index": 2
+              },
+              "manner": {
+                "kind": "prime",
+                "prime": "NEAR"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "BE-SOMEWHERE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 3
+              },
+              "locus": {
+                "kind": "ref",
+                "index": 2
+              },
+              "manner": {
+                "kind": "prime",
+                "prime": "NEAR"
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "op",
+                "op": "CAN",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "MOVE",
+                    "roles": {
+                      "undergoer": {
+                        "kind": "sp",
+                        "det": "OTHER~ELSE~ANOTHER",
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "SOMETHING~THING"
+                        },
+                        "bind": 4
+                      },
+                      "locus": {
+                        "kind": "ref",
+                        "index": 2
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the surrounding material and the blocking of something's passage are rendered as material near the thing so that something else cannot move to it; heat, sound, and electricity as such, and the sense of 'protection', are not expressible in the primes."
+}

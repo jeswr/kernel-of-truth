@@ -1,0 +1,190 @@
+{
+  "id": "urn:kernel-v1:drive",
+  "label": "drive (act of driving a herd overland)",
+  "synset": "urn:lexical-wn31:n-00318420",
+  "pattern": "InstanceSchema; agent-caused mass motion with BEFORE/AFTER place polarity",
+  "gloss": "The act of moving a herd of animals overland under human direction, in which people make many animals travel together across country for a long time from one place to another distant place.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "TimeRef"
+      },
+      {
+        "index": 4,
+        "refKind": "PlaceRef"
+      },
+      {
+        "index": 5,
+        "refKind": "PlaceRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          },
+          "time": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "bind": 3
+          },
+          "duration": {
+            "kind": "prime",
+            "prime": "A-LONG-TIME"
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "LIVE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 2
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 3
+          },
+          {
+            "type": "pred",
+            "pred": "BE-SOMEWHERE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "locus": {
+                "kind": "sp",
+                "det": "SOME",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "WHERE~PLACE"
+                },
+                "bind": 4
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "MOVE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "duration": {
+                "kind": "prime",
+                "prime": "A-LONG-TIME"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "AFTER",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 3
+          },
+          {
+            "type": "pred",
+            "pred": "BE-SOMEWHERE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "locus": {
+                "kind": "sp",
+                "det": "OTHER~ELSE~ANOTHER",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "WHERE~PLACE"
+                },
+                "bind": 5
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 5
+          },
+          "locus": {
+            "kind": "ref",
+            "index": 4
+          },
+          "manner": {
+            "kind": "prime",
+            "prime": "FAR"
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — 'herd of animals' is rendered as many living things and 'overland' as prolonged agent-caused movement from one place to another far place; the animal species, herd cohesion, and the land (not water or air) route cannot be expressed in the primes."
+}

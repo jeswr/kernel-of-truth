@@ -1,0 +1,142 @@
+{
+  "id": "urn:kernel-v1:overseer",
+  "label": "overseer",
+  "synset": "urn:lexical-wn31:n-10408431",
+  "pattern": "InstanceSchema; directive speech + compliance-because + epistemic monitoring",
+  "gloss": "A person charged with directing and managing an organization, who decides and tells its members what they are to do, whose word they act upon, and who keeps watch over what they do.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "SAY",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "addressee": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            },
+            "bind": 2
+          },
+          "quote": {
+            "kind": "quote",
+            "clauses": [
+              {
+                "type": "pred",
+                "pred": "WANT",
+                "roles": {
+                  "experiencer": {
+                    "kind": "prime",
+                    "prime": "I"
+                  },
+                  "complement": {
+                    "kind": "clause",
+                    "clause": {
+                      "type": "pred",
+                      "pred": "DO",
+                      "roles": {
+                        "agent": {
+                          "kind": "prime",
+                          "prime": "YOU"
+                        },
+                        "undergoer": {
+                          "kind": "sp",
+                          "quant": "SOME",
+                          "head": {
+                            "kind": "primeHead",
+                            "prime": "SOMETHING~THING"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "SAY",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "addressee": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 2
+              },
+              "undergoer": {
+                "kind": "sp",
+                "quant": "MUCH~MANY",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "KNOW",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "DO",
+              "roles": {
+                "agent": {
+                  "kind": "ref",
+                  "index": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the institutional notion of an organization and the overseer's formal authority and accountability cannot be rendered; the AST gives one who tells many people what to do, because of whose word they act, and who keeps informed of their doings."
+}

@@ -1,0 +1,89 @@
+{
+  "id": "urn:kernel-v1:combustion",
+  "label": "combustion (violent disturbance)",
+  "synset": "urn:lexical-wn31:n-14002399",
+  "pattern": "WhenTrue; agitated feeling + turbulent doing among many",
+  "gloss": "A state of intense agitation and turmoil, in which many people feel strongly stirred up and things happen in a disorderly, forceful way.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "FEEL",
+        "roles": {
+          "experiencer": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            },
+            "bind": 2
+          },
+          "attribute": {
+            "kind": "prime",
+            "prime": "BAD"
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "MOVE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "manner": {
+                "kind": "prime",
+                "prime": "FAR"
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "FEEL",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "attribute": {
+                "kind": "prime",
+                "prime": "BAD"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the primes render agitated bad feeling and forceful stirring motion among many, but 'violent disturbance and excitement' as a heightened intensity of unrest cannot be carried; the excitement/turbulence reads only as generic bad feeling plus movement."
+}

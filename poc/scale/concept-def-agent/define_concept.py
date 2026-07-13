@@ -65,15 +65,17 @@ ROOT = HERE.parents[2]
 PROMPT_PATH = HERE / "concept-def-prompt.md"
 POOL_PATH = ROOT / "poc/scale/f1k-eligibility/candidate-pool.json"
 
-CLAUDE_MODELS = ("claude-opus-4-8", "claude-fable-5")
-CODEX_MODEL = "gpt-5.6-sol"
+CLAUDE_MODELS = ("claude-opus-4-8", "claude-fable-5", "claude-haiku-4-5")
+CODEX_MODELS = ("gpt-5.6-sol", "gpt-5.6-luna", "gpt-5.6-terra")
 CODEX_PKG = "@openai/codex@0.144.1"   # npx-pinned, never the global codex
 SIDECAR_PREFIX = "claude-haiku-4-5"   # disclosed CLI-internal sidecar allowance
 MAX_CONTENT = 3                        # fresh attempts on NON-JSON output only
 ALLOWED_FIELDS = ["id", "label", "synset", "pattern", "gloss", "explication",
                   "references", "status", "notes"]
 MODEL_SHORT = {"claude-opus-4-8": "opus48", "claude-fable-5": "fable5",
-               "gpt-5.6-sol": "gpt56sol"}
+               "claude-haiku-4-5": "haiku45",
+               "gpt-5.6-sol": "gpt56sol", "gpt-5.6-luna": "gpt56luna",
+               "gpt-5.6-terra": "gpt56terra"}
 
 
 def die(msg):
@@ -197,7 +199,7 @@ def run_claude(model, sys_prompt, user_msg, attempt_dir):
 # ---------------------------------------------------------------------------
 # model invocation -- gpt-5.6-sol (pinned codex isolated-home pattern)
 # ---------------------------------------------------------------------------
-def run_codex(sys_prompt, user_msg, attempt_dir):
+def run_codex(model, sys_prompt, user_msg, attempt_dir):
     attempt_dir.mkdir(parents=True, exist_ok=True)
     auth = pathlib.Path.home() / ".codex/auth.json"
     if not auth.exists():
@@ -218,7 +220,7 @@ def run_codex(sys_prompt, user_msg, attempt_dir):
         env = dict(os.environ)
         env["CODEX_HOME"] = str(iso)
         cmd = ["npx", "-y", CODEX_PKG, "exec",
-               "-m", CODEX_MODEL,
+               "-m", model,
                "-c", "model_reasoning_effort=xhigh",
                "-s", "read-only",
                "--ignore-user-config", "--skip-git-repo-check", "--ephemeral",
@@ -339,7 +341,7 @@ def main():
     ap.add_argument("label")
     ap.add_argument("synset")
     ap.add_argument("--model", default="claude-opus-4-8",
-                    choices=list(CLAUDE_MODELS) + [CODEX_MODEL])
+                    choices=list(CLAUDE_MODELS) + list(CODEX_MODELS))
     ap.add_argument("--out", default=str(HERE / "out"))
     ap.add_argument("--prompt", default=str(PROMPT_PATH),
                     help="system-prompt file (default: concept-def-prompt.md)")
@@ -377,7 +379,7 @@ def main():
         if args.model in CLAUDE_MODELS:
             raw, meta = run_claude(args.model, sys_prompt, user_msg, adir)
         else:
-            raw, meta = run_codex(sys_prompt, user_msg, adir)
+            raw, meta = run_codex(args.model, sys_prompt, user_msg, adir)
         obj, fmt_warn, perr = extract_json(raw)
         report["attempts"].append({"n": k, "meta": meta,
                                    "parse_error": perr, "fenced": bool(fmt_warn)})

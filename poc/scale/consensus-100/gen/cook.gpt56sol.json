@@ -1,0 +1,109 @@
+{
+  "id": "urn:kernel-v1:cook",
+  "label": "cook",
+  "synset": "urn:lexical-wn31:n-09982799",
+  "pattern": "InstanceSchema; action + intended BODY-inside consequence",
+  "gloss": "A person who prepares food for eating, especially by applying heat and combining or otherwise treating ingredients.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "quant": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "op",
+              "op": "CAN",
+              "args": [
+                {
+                  "type": "op",
+                  "op": "BECAUSE",
+                  "args": [
+                    {
+                      "type": "pred",
+                      "pred": "DO",
+                      "roles": {
+                        "agent": {
+                          "kind": "sp",
+                          "quant": "MUCH~MANY",
+                          "head": {
+                            "kind": "primeHead",
+                            "prime": "PEOPLE"
+                          }
+                        },
+                        "undergoer": {
+                          "kind": "ref",
+                          "index": 2
+                        }
+                      }
+                    },
+                    {
+                      "type": "pred",
+                      "pred": "BE-SOMEWHERE",
+                      "roles": {
+                        "undergoer": {
+                          "kind": "ref",
+                          "index": 2
+                        },
+                        "locus": {
+                          "kind": "sp",
+                          "head": {
+                            "kind": "primeHead",
+                            "prime": "BODY"
+                          }
+                        },
+                        "manner": {
+                          "kind": "prime",
+                          "prime": "INSIDE"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the explication renders acting on things so that people can put them inside a body, but cannot express food, applied heat, ingredients, or culinary preparation."
+}

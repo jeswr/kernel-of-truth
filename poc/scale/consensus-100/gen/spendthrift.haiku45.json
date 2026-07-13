@@ -1,0 +1,110 @@
+{
+  "id": "urn:kernel-v1:spendthrift",
+  "label": "spendthrift",
+  "synset": "urn:lexical-wn31:n-10654858",
+  "pattern": "InstanceSchema; WANT + DO money-outflow without restraint",
+  "gloss": "A person who spends money freely and excessively, without regard for saving or future need; someone inclined by habit or disposition to use up money rapidly and wastefully.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "DO",
+              "roles": {
+                "agent": {
+                  "kind": "ref",
+                  "index": 1
+                },
+                "undergoer": {
+                  "kind": "sp",
+                  "head": {
+                    "kind": "primeHead",
+                    "prime": "SOMETHING~THING"
+                  },
+                  "bind": 2
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "ref",
+            "index": 2
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "WANT",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "complement": {
+                "kind": "clause",
+                "clause": {
+                  "type": "op",
+                  "op": "NOT",
+                  "args": [
+                    {
+                      "type": "pred",
+                      "pred": "DO",
+                      "roles": {
+                        "agent": {
+                          "kind": "ref",
+                          "index": 1
+                        },
+                        "undergoer": {
+                          "kind": "ref",
+                          "index": 2
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — renders the habitual wanting and doing without restraint, but cannot mark 'money' or 'prodigally' or the evaluative 'wasteful'; reads as a general person who wants and does things without holding back."
+}

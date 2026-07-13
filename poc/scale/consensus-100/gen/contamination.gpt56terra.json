@@ -1,0 +1,53 @@
+{
+  "id": "urn:kernel-v1:contamination",
+  "label": "contamination",
+  "synset": "urn:lexical-wn31:n-14511315",
+  "pattern": "WhenTrue; BAD matter INSIDE the affected thing",
+  "gloss": "A state in which something has been rendered impure, unclean, or unfit for use by the presence or admixture of harmful or unwanted matter.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "mods": [
+              {
+                "mod": "BAD"
+              }
+            ],
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          },
+          "locus": {
+            "kind": "ref",
+            "index": 1
+          },
+          "manner": {
+            "kind": "prime",
+            "prime": "INSIDE"
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — it renders harmful matter as being inside the thing, but cannot express the resulting impurity, uncleanness, or unfitness for use."
+}

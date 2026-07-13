@@ -1,0 +1,204 @@
+{
+  "id": "urn:kernel-v1:coercion",
+  "label": "coercion",
+  "synset": "urn:lexical-wn31:n-01129566",
+  "pattern": "InstanceSchema; want-against-will enforced by threat of harm",
+  "gloss": "The act of forcing someone to do something against their will by threatening harm or bringing pressure to bear, so that they act not because they wish to but because they fear what will otherwise befall them.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "DO",
+              "roles": {
+                "agent": {
+                  "kind": "sp",
+                  "det": "OTHER~ELSE~ANOTHER",
+                  "head": {
+                    "kind": "primeHead",
+                    "prime": "SOMEONE"
+                  },
+                  "bind": 2
+                },
+                "undergoer": {
+                  "kind": "sp",
+                  "head": {
+                    "kind": "primeHead",
+                    "prime": "SOMETHING~THING"
+                  },
+                  "bind": 3
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "DON'T-WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "DO",
+              "roles": {
+                "agent": {
+                  "kind": "ref",
+                  "index": 2
+                },
+                "undergoer": {
+                  "kind": "ref",
+                  "index": 3
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "SAY",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "addressee": {
+            "kind": "ref",
+            "index": 2
+          },
+          "quote": {
+            "kind": "quote",
+            "clauses": [
+              {
+                "type": "op",
+                "op": "IF",
+                "args": [
+                  {
+                    "type": "op",
+                    "op": "NOT",
+                    "args": [
+                      {
+                        "type": "pred",
+                        "pred": "DO",
+                        "roles": {
+                          "agent": {
+                            "kind": "prime",
+                            "prime": "YOU"
+                          },
+                          "undergoer": {
+                            "kind": "ref",
+                            "index": 3
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "type": "pred",
+                    "pred": "HAPPEN",
+                    "roles": {
+                      "undergoer": {
+                        "kind": "sp",
+                        "mods": [
+                          {
+                            "mod": "BAD"
+                          }
+                        ],
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "SOMETHING~THING"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 2
+          },
+          "undergoer": {
+            "kind": "ref",
+            "index": 3
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 2
+              },
+              "undergoer": {
+                "kind": "ref",
+                "index": 3
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "FEEL",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "attribute": {
+                "kind": "prime",
+                "prime": "BAD"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: faithful — one wants another to do a thing the other does not want to do, threatens that something bad will happen otherwise, and the other does it because of fear; the 'force of authority' nuance is rendered only as threat, not institutional standing."
+}

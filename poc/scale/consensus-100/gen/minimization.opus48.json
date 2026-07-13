@@ -1,0 +1,150 @@
+{
+  "id": "urn:kernel-v1:minimization",
+  "label": "minimization",
+  "synset": "urn:lexical-wn31:n-00356745",
+  "pattern": "InstanceSchema; agent acts so that a thing becomes as small as it can be",
+  "gloss": "The act of making something as small in amount, degree, or extent as it can possibly be, so that after it is done the thing cannot be made smaller.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          },
+          "time": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "BE-SPEC",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "attribute": {
+                "kind": "sp",
+                "mods": [
+                  {
+                    "mod": "SMALL"
+                  }
+                ],
+                "head": {
+                  "kind": "kindFrame",
+                  "of": {
+                    "kind": "ref",
+                    "index": 2
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "AFTER",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 3
+          },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "op",
+                "op": "CAN",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "BE-SPEC",
+                    "roles": {
+                      "undergoer": {
+                        "kind": "ref",
+                        "index": 2
+                      },
+                      "attribute": {
+                        "kind": "sp",
+                        "mods": [
+                          {
+                            "mod": "SMALL",
+                            "intensifier": "MORE"
+                          }
+                        ],
+                        "head": {
+                          "kind": "kindFrame",
+                          "of": {
+                            "kind": "ref",
+                            "index": 2
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — 'least possible amount or degree' is approximated by SMALL/MORE-SMALL and a post-state where the thing cannot be made any smaller; amount versus degree versus extent is not distinguished."
+}

@@ -1,0 +1,86 @@
+{
+  "id": "urn:kernel-v1:slicing",
+  "label": "slicing",
+  "synset": "urn:lexical-wn31:n-00388232",
+  "pattern": "InstanceSchema; action causing one thing to have many parts",
+  "gloss": "The act of dividing something into thin, flat pieces by making one or more cuts through it, typically with a sharp-edged implement.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "THERE-IS",
+            "roles": {
+              "undergoer": {
+                "kind": "sp",
+                "quant": "MUCH~MANY",
+                "head": {
+                  "kind": "partFrame",
+                  "of": {
+                    "kind": "ref",
+                    "index": 2
+                  }
+                },
+                "bind": 3
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — it renders acting on one thing so that it has many parts, but cannot specify cutting, thin flat pieces, or a sharp-edged implement."
+}

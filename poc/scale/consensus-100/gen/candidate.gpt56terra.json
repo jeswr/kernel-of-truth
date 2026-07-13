@@ -1,0 +1,57 @@
+{
+  "id": "urn:kernel-v1:candidate",
+  "label": "candidate",
+  "synset": "urn:lexical-wn31:n-09910201",
+  "pattern": "InstanceSchema; collective consideration + possible future action",
+  "gloss": "A person considered as a possible choice for a position, prize, honour, or other sought appointment or distinction.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            }
+          },
+          "quote": {
+            "kind": "quote",
+            "clauses": [
+              {
+                "type": "op",
+                "op": "CAN",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "DO",
+                    "roles": {
+                      "agent": {
+                        "kind": "ref",
+                        "index": 1
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — it renders collective thought that the person can act, but cannot express selection for a particular office, prize, honour, or distinction."
+}

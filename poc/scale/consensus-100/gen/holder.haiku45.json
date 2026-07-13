@@ -1,0 +1,109 @@
+{
+  "id": "urn:kernel-v1:holder",
+  "label": "holder",
+  "synset": "urn:lexical-wn31:n-10199809",
+  "pattern": "InstanceSchema; possession via physical or institutional grasp",
+  "gloss": "A person who has or possesses something, either by holding it physically in hand or body, or by possessing it as a legal or rightful owner.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          },
+          "locus": {
+            "kind": "sp",
+            "head": {
+              "kind": "partFrame",
+              "of": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          },
+          "manner": {
+            "kind": "prime",
+            "prime": "TOUCH"
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "BE-SOMEWHERE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "locus": {
+                "kind": "ref",
+                "index": 1
+              },
+              "manner": {
+                "kind": "prime",
+                "prime": "TOUCH"
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "op",
+                "op": "CAN",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "DO",
+                    "roles": {
+                      "agent": {
+                        "kind": "sp",
+                        "quant": "MUCH~MANY",
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "PEOPLE"
+                        },
+                        "bind": 3
+                      },
+                      "undergoer": {
+                        "kind": "ref",
+                        "index": 2
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — renders holding via physical touch and exclusion of others' control; cannot express the institutional/legal senses (passport holder, title holder) which lie outside the primitive vocabulary."
+}

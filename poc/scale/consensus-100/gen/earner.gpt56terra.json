@@ -1,0 +1,44 @@
+{
+  "id": "urn:kernel-v1:earner",
+  "label": "earner",
+  "synset": "urn:lexical-wn31:n-10061695",
+  "pattern": "InstanceSchema; person performing work for another",
+  "gloss": "A person who receives wages from an employer as payment for work performed, typically through regular employment.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the explication renders a person performing work but cannot express wages, payment, or the employment relation."
+}

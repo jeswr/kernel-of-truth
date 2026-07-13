@@ -1,0 +1,93 @@
+{
+  "id": "urn:kernel-v1:wealth",
+  "label": "wealth (profuse abundance)",
+  "synset": "urn:lexical-wn31:n-05123428",
+  "pattern": "WhenTrue; abundance as a great-many quantifier",
+  "gloss": "The quality of being present in a great and more-than-ample quantity; a plentiful abundance of some thing, such that there is much more of it than one would ordinarily expect or need.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "THERE-IS",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "refHead",
+              "index": 1
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "MORE",
+        "args": [
+          {
+            "kind": "prime",
+            "prime": "MUCH~MANY"
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            }
+          },
+          "quote": {
+            "kind": "quote",
+            "clauses": [
+              {
+                "type": "pred",
+                "pred": "BE-SPEC",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 1
+                  },
+                  "attribute": {
+                    "kind": "sp",
+                    "mods": [
+                      {
+                        "mod": "BIG"
+                      }
+                    ],
+                    "head": {
+                      "kind": "kindFrame",
+                      "of": {
+                        "kind": "sp",
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "SOMETHING~THING"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — 'much of it, more than usual' is rendered, but the qualitative surplus ('profuse', beyond need or expectation) is only weakly carried by MORE(MUCH~MANY) and a 'people think it big' clause."
+}

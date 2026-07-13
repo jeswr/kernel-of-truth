@@ -1,0 +1,119 @@
+{
+  "id": "urn:kernel-v1:coiner",
+  "label": "coiner (of words)",
+  "synset": "urn:lexical-wn31:n-09954565",
+  "pattern": "InstanceSchema; agent who first makes new words that others then use",
+  "gloss": "A person who invents new words or expressions, being the first to make and use them, after which other people take up and use the same words.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "SAY",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "topic": {
+            "kind": "sp",
+            "det": "SOME",
+            "mods": [
+              {
+                "mod": "GOOD"
+              }
+            ],
+            "head": {
+              "kind": "primeHead",
+              "prime": "WORDS"
+            },
+            "bind": 2
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          {
+            "kind": "prime",
+            "prime": "NOW"
+          },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "SAY",
+                "roles": {
+                  "agent": {
+                    "kind": "sp",
+                    "det": "OTHER~ELSE~ANOTHER",
+                    "quant": "SOME",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "PEOPLE"
+                    }
+                  },
+                  "topic": {
+                    "kind": "ref",
+                    "index": 2
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "AFTER",
+        "args": [
+          {
+            "kind": "prime",
+            "prime": "NOW"
+          },
+          {
+            "type": "pred",
+            "pred": "SAY",
+            "roles": {
+              "agent": {
+                "kind": "sp",
+                "det": "OTHER~ELSE~ANOTHER",
+                "quant": "MUCH~MANY",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "PEOPLE"
+                },
+                "bind": 3
+              },
+              "topic": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — 'new words' is rendered as words no one said before this person and that many say afterward; the notion of a word as a coined lexical form (rather than an occasion of speech) is not primitive."
+}

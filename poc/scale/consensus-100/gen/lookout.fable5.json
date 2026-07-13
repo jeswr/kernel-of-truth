@@ -1,0 +1,136 @@
+{
+  "id": "urn:kernel-v1:lookout",
+  "label": "lookout",
+  "synset": "urn:lexical-wn31:n-00883223",
+  "pattern": "InstanceSchema; sustained SEE + conditional want-to-see (vigilance)",
+  "gloss": "The act of keeping attentive watch over a place for a time, directing one's gaze so as to notice at once anything that may happen or arrive there.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "PlaceRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "SEE",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "stimulus": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHERE~PLACE"
+            },
+            "bind": 2
+          },
+          "duration": {
+            "kind": "prime",
+            "prime": "FOR-SOME-TIME"
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "op",
+              "op": "IF",
+              "args": [
+                {
+                  "type": "pred",
+                  "pred": "HAPPEN",
+                  "roles": {
+                    "undergoer": {
+                      "kind": "sp",
+                      "det": "SOME",
+                      "head": {
+                        "kind": "primeHead",
+                        "prime": "SOMETHING~THING"
+                      },
+                      "bind": 3
+                    },
+                    "place": {
+                      "kind": "ref",
+                      "index": 2
+                    }
+                  }
+                },
+                {
+                  "type": "pred",
+                  "pred": "SEE",
+                  "roles": {
+                    "experiencer": {
+                      "kind": "ref",
+                      "index": 1
+                    },
+                    "stimulus": {
+                      "kind": "ref",
+                      "index": 3
+                    },
+                    "duration": {
+                      "kind": "prime",
+                      "prime": "MOMENT"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "KNOW",
+              "roles": {
+                "experiencer": {
+                  "kind": "ref",
+                  "index": 1
+                },
+                "topic": {
+                  "kind": "ref",
+                  "index": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: faithful — sustained watching of a place, wanting to see at once whatever happens there and to know about that place, captures the vigilant genus and differentia of keeping watch."
+}

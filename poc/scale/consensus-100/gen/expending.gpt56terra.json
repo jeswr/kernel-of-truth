@@ -1,0 +1,44 @@
+{
+  "id": "urn:kernel-v1:expending",
+  "label": "expending",
+  "synset": "urn:lexical-wn31:n-01124922",
+  "pattern": "InstanceSchema; agent's action on a thing",
+  "gloss": "The act of using money to obtain goods or services, by giving it in payment and thereby diminishing the funds available to the person or organization making the payment.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the AST renders only a person's action on a thing; it cannot express money, payment, acquisition of goods or services, or the resulting reduction of funds."
+}

@@ -1,0 +1,109 @@
+{
+  "id": "urn:kernel-v1:neglecter",
+  "label": "neglecter",
+  "synset": "urn:lexical-wn31:n-10371356",
+  "pattern": "InstanceSchema; knows-of duty but does-not-do + withholds attention",
+  "gloss": "A person who fails to give due care, attention, or regard to people or duties, leaving undone what one ought to do for them.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "KNOW",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "DO",
+              "roles": {
+                "agent": {
+                  "kind": "ref",
+                  "index": 1
+                },
+                "undergoer": {
+                  "kind": "sp",
+                  "det": "SOME",
+                  "head": {
+                    "kind": "primeHead",
+                    "prime": "SOMETHING~THING"
+                  },
+                  "bind": 2
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "THINK",
+                "roles": {
+                  "experiencer": {
+                    "kind": "ref",
+                    "index": 1
+                  },
+                  "topic": {
+                    "kind": "ref",
+                    "index": 2
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "type": "pred",
+            "pred": "NOT",
+            "roles": {}
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the third clause is malformed and the notion of 'due care/regard owed to others' cannot be rendered; the AST carries only 'knows one should do something, does not do it, does not attend to it', missing the normative 'ought'."
+}

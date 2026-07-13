@@ -1,0 +1,149 @@
+{
+  "id": "urn:kernel-v1:shoring",
+  "label": "shoring",
+  "synset": "urn:lexical-wn31:n-01019492",
+  "pattern": "InstanceSchema; placement of a support below blocking downward motion",
+  "gloss": "The act of keeping a weakened structure from falling or collapsing by setting stout timbers or braces beneath or against it, so that its weight is carried and it remains in place.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "MAYBE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "MOVE",
+            "roles": {
+              "undergoer": {
+                "kind": "sp",
+                "mods": [
+                  {
+                    "mod": "BIG"
+                  }
+                ],
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                },
+                "bind": 2
+              },
+              "manner": {
+                "kind": "prime",
+                "prime": "BELOW"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "DON'T-WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "MOVE",
+              "roles": {
+                "undergoer": {
+                  "kind": "ref",
+                  "index": 2
+                },
+                "manner": {
+                  "kind": "prime",
+                  "prime": "BELOW"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "det": "OTHER~ELSE~ANOTHER",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "BE-SOMEWHERE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 3
+              },
+              "locus": {
+                "kind": "ref",
+                "index": 2
+              },
+              "manner": {
+                "kind": "prime",
+                "prime": "BELOW"
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "MOVE",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 2
+                  },
+                  "manner": {
+                    "kind": "prime",
+                    "prime": "BELOW"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the skeleton (a big thing might move downward; the agent, not wanting this, puts another thing below it so it does not move downward) carries the supportive act, but the primes cannot name the built-structure genus or the timber/brace character of the supports."
+}

@@ -1,0 +1,74 @@
+{
+  "id": "urn:kernel-v1:equality",
+  "label": "equality",
+  "synset": "urn:lexical-wn31:n-13969940",
+  "pattern": "WhenTrue; sameness-of-measure across distinct things",
+  "gloss": "A state or condition in which two or more things are the same in some respect of value, magnitude, status, or standing, neither exceeding nor falling short of the other.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "BE-SOMEWHERE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "locus": {
+                "kind": "ref",
+                "index": 2
+              },
+              "manner": {
+                "kind": "prime",
+                "prime": "ABOVE"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "BE-SOMEWHERE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "locus": {
+                "kind": "ref",
+                "index": 1
+              },
+              "manner": {
+                "kind": "prime",
+                "prime": "ABOVE"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — neither thing positioned above the other renders mutual non-dominance, but cannot express the positive requirement of sameness in measure (magnitude, value, status); reads as reciprocal negation rather than positive equivalence."
+}

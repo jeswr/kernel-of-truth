@@ -1,0 +1,75 @@
+{
+  "id": "urn:kernel-v1:cook",
+  "label": "cook",
+  "synset": "urn:lexical-wn31:n-09982799",
+  "pattern": "InstanceSchema; person acting on food with a body part",
+  "gloss": "A person whose work or regular role is to prepare food for eating, especially by combining ingredients and applying heat.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          },
+          "instrument": {
+            "kind": "sp",
+            "head": {
+              "kind": "partFrame",
+              "of": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "BODY"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            }
+          },
+          "complement": {
+            "kind": "ref",
+            "index": 2
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — it renders a person acting on something wanted by many people, but cannot express food, preparation, ingredients, heating, or the occupational role."
+}

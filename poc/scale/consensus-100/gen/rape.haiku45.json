@@ -1,0 +1,123 @@
+{
+  "id": "urn:kernel-v1:rape",
+  "label": "rape (plunder in warfare)",
+  "synset": "urn:lexical-wn31:n-00968488",
+  "pattern": "InstanceSchema; destructive seizure + multiple undergoers across a place",
+  "gloss": "The act of systematically plundering and destroying a country or region in warfare, seizing and carrying off goods, valuables, and resources by force.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "PlaceRef"
+      },
+      {
+        "index": 4,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            },
+            "bind": 1
+          },
+          "locus": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHERE~PLACE"
+            },
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "THERE-IS",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 4
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "ref",
+            "index": 4
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "undergoer": {
+                "kind": "ref",
+                "index": 4
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "MOVE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 4
+              },
+              "place": {
+                "kind": "ref",
+                "index": 3
+              },
+              "manner": {
+                "kind": "prime",
+                "prime": "FAR"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — renders seizure and removal of goods from a place by force, but cannot mark 'destruction' or 'systematic devastation' as distinct from mere plunder; the schema captures taking-away but not the destructive intent and scale criterial to rapine in warfare."
+}

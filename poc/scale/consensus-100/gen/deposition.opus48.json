@@ -1,0 +1,128 @@
+{
+  "id": "urn:kernel-v1:deposition",
+  "label": "deposition (removal from office)",
+  "synset": "urn:lexical-wn31:n-00209792",
+  "pattern": "InstanceSchema; ABOVE-standing negated across a time boundary",
+  "gloss": "The act of removing a powerful person from a position of rule or authority, so that afterward they no longer hold the high standing over others that they held before.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 4,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 4
+          },
+          {
+            "type": "pred",
+            "pred": "BE-SOMEWHERE",
+            "roles": {
+              "undergoer": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMEONE"
+                },
+                "bind": 2
+              },
+              "locus": {
+                "kind": "sp",
+                "quant": "MUCH~MANY",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "PEOPLE"
+                },
+                "bind": 3
+              },
+              "manner": {
+                "kind": "prime",
+                "prime": "ABOVE"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "time": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "bind": 4
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "AFTER",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 4
+          },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "BE-SOMEWHERE",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 2
+                  },
+                  "locus": {
+                    "kind": "ref",
+                    "index": 3
+                  },
+                  "manner": {
+                    "kind": "prime",
+                    "prime": "ABOVE"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — high office and authority are rendered spatially as standing above many people; the political/institutional character of rule and its formal removal is not primitive."
+}

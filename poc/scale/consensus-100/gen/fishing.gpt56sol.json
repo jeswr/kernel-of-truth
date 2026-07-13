@@ -1,0 +1,134 @@
+{
+  "id": "urn:kernel-v1:fishing",
+  "label": "fishing (recreational)",
+  "synset": "urn:lexical-wn31:n-00454959",
+  "pattern": "InstanceSchema; purposive action + NEAR capture-goal + pleasure motivation",
+  "gloss": "A recreational activity of trying to catch finned aquatic animals, typically with a hook and line, undertaken for pleasure rather than livelihood or subsistence.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "PlaceRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "quant": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          },
+          "locus": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHERE~PLACE"
+            },
+            "bind": 3
+          },
+          "manner": {
+            "kind": "prime",
+            "prime": "INSIDE"
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "place": {
+            "kind": "ref",
+            "index": 3
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "BE-SOMEWHERE",
+              "roles": {
+                "undergoer": {
+                  "kind": "ref",
+                  "index": 2
+                },
+                "locus": {
+                  "kind": "ref",
+                  "index": 1
+                },
+                "manner": {
+                  "kind": "prime",
+                  "prime": "NEAR"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "FEEL",
+              "roles": {
+                "experiencer": {
+                  "kind": "ref",
+                  "index": 1
+                },
+                "attribute": {
+                  "kind": "prime",
+                  "prime": "GOOD"
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the primes cannot specify aquatic animals, capture, hook-and-line equipment, or the contrast with livelihood, so the AST renders action on things in a place with the goals of bringing them near and feeling good."
+}

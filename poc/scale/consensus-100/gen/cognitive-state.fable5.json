@@ -1,0 +1,129 @@
+{
+  "id": "urn:kernel-v1:cognitive-state",
+  "label": "cognitive state",
+  "synset": "urn:lexical-wn31:n-05677778",
+  "pattern": "InstanceSchema; internal something equated via LIKE with concurrent thinking and knowing",
+  "gloss": "The condition of a person's mind at a given time, constituted by what that person is then thinking and knowing; the overall standing of mental activity as it is at that moment.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "locus": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMEONE"
+            },
+            "bind": 2
+          },
+          "manner": {
+            "kind": "prime",
+            "prime": "INSIDE"
+          },
+          "time": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "topic": {
+            "kind": "sp",
+            "quant": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            }
+          },
+          "time": {
+            "kind": "ref",
+            "index": 3
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "KNOW",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "topic": {
+            "kind": "sp",
+            "quant": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            }
+          },
+          "time": {
+            "kind": "ref",
+            "index": 3
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "LIKE",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 1
+          },
+          {
+            "type": "pred",
+            "pred": "THINK",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "time": {
+                "kind": "ref",
+                "index": 3
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the abstract genus 'state of processes' has no prime; the AST renders something inside a person that is like how that person thinks and knows at a time, dropping the notion of an overall configuration of mental activity."
+}

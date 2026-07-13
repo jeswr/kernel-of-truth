@@ -1,0 +1,99 @@
+{
+  "id": "urn:kernel-v1:inhabitancy",
+  "label": "inhabitancy",
+  "synset": "urn:lexical-wn31:n-01056469",
+  "pattern": "InstanceSchema; long-duration LIVE at one place",
+  "gloss": "The sustained state of a person or animal living in a particular place as its settled home, rather than staying there temporarily.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "PlaceRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "duration": {
+            "kind": "prime",
+            "prime": "A-LONG-TIME"
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "LIVE",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "restrictedBy": {
+              "type": "pred",
+              "pred": "LIVE",
+              "roles": {
+                "undergoer": {
+                  "kind": "refHead",
+                  "index": 2
+                }
+              }
+            },
+            "bind": 2
+          },
+          "place": {
+            "kind": "sp",
+            "det": "THIS",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHERE~PLACE"
+            },
+            "bind": 3
+          },
+          "duration": {
+            "kind": "prime",
+            "prime": "A-LONG-TIME"
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "locus": {
+            "kind": "ref",
+            "index": 3
+          },
+          "duration": {
+            "kind": "prime",
+            "prime": "A-LONG-TIME"
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — long-duration living at one place is preserved, but the metalanguage cannot distinguish a settled home from an unusually prolonged temporary stay."
+}

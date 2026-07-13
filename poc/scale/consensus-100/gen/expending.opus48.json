@@ -1,0 +1,162 @@
+{
+  "id": "urn:kernel-v1:expending",
+  "label": "expending (of money)",
+  "synset": "urn:lexical-wn31:n-01124922",
+  "pattern": "InstanceSchema; agent gives a thing away to get another thing",
+  "gloss": "The act of paying out money in order to obtain goods or services, whereby one gives up a sum one holds so as to receive something wanted in return.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 4,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "THERE-IS",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "restrictedBy": {
+              "type": "pred",
+              "pred": "IS-MINE",
+              "roles": {
+                "undergoer": {
+                  "kind": "sp",
+                  "head": {
+                    "kind": "primeHead",
+                    "prime": "SOMETHING~THING"
+                  }
+                },
+                "possessor": {
+                  "kind": "prime",
+                  "prime": "I"
+                }
+              }
+            },
+            "bind": 2
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "THERE-IS",
+              "roles": {
+                "undergoer": {
+                  "kind": "sp",
+                  "det": "OTHER~ELSE~ANOTHER",
+                  "head": {
+                    "kind": "primeHead",
+                    "prime": "SOMETHING~THING"
+                  },
+                  "bind": 3
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "ref",
+            "index": 2
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "IS-MINE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "possessor": {
+                "kind": "prime",
+                "prime": "I"
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "AFTER",
+            "args": [
+              {
+                "kind": "prime",
+                "prime": "NOW"
+              },
+              {
+                "type": "op",
+                "op": "NOT",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "IS-MINE",
+                    "roles": {
+                      "undergoer": {
+                        "kind": "ref",
+                        "index": 2
+                      },
+                      "possessor": {
+                        "kind": "prime",
+                        "prime": "I"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "BECAUSE",
+        "roles": {}
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — money, goods, and services are not primitive; the AST renders only that one gives up a thing one owns in order to get another wanted thing, and the last node oversteps the grammar."
+}

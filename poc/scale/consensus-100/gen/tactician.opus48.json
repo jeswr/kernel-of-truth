@@ -1,0 +1,142 @@
+{
+  "id": "urn:kernel-v1:tactician",
+  "label": "tactician",
+  "synset": "urn:lexical-wn31:n-10707852",
+  "pattern": "InstanceSchema; skilled planner of means to an end",
+  "gloss": "A person adept at devising the particular moves and manoeuvres by which an aim is achieved, thinking out well in advance how best to act in order to gain an advantage.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "ClauseRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "HAPPEN",
+              "roles": {
+                "undergoer": {
+                  "kind": "sp",
+                  "det": "SOME",
+                  "head": {
+                    "kind": "primeHead",
+                    "prime": "SOMETHING~THING"
+                  },
+                  "bind": 2
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "topic": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "restrictedBy": {
+              "type": "pred",
+              "pred": "DO",
+              "roles": {
+                "agent": {
+                  "kind": "ref",
+                  "index": 1
+                },
+                "undergoer": {
+                  "kind": "ref",
+                  "index": 2
+                }
+              }
+            },
+            "bind": 3
+          },
+          "time": {
+            "kind": "temporal",
+            "op": "BEFORE",
+            "anchor": {
+              "kind": "prime",
+              "prime": "NOW"
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "KNOW",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "complement": {
+                "kind": "clause",
+                "clause": {
+                  "type": "pred",
+                  "pred": "DO",
+                  "roles": {
+                    "agent": {
+                      "kind": "ref",
+                      "index": 1
+                    },
+                    "undergoer": {
+                      "kind": "ref",
+                      "index": 3
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "HAPPEN",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the skill and the specifically 'tactical' (means-toward-an-end manoeuvre) character are rendered only as thinking beforehand about what to do so that a wanted thing happens; expertise and the tactics/strategy distinction are not primitive."
+}

@@ -1,0 +1,113 @@
+{
+  "id": "urn:kernel-v1:grazing",
+  "label": "grazing (brushing against while passing)",
+  "synset": "urn:lexical-wn31:n-00151582",
+  "pattern": "InstanceSchema; brief TOUCH concurrent with a MOVE past",
+  "gloss": "The act of lightly touching something in passing, so that a moving body comes for a moment into slight contact with it and then continues on without stopping.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "MOVE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "place": {
+            "kind": "sp",
+            "det": "OTHER~ELSE~ANOTHER",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2,
+            "restrictedBy": {
+              "type": "pred",
+              "pred": "BE-SOMEWHERE",
+              "roles": {
+                "undergoer": {
+                  "kind": "ref",
+                  "index": 2
+                },
+                "locus": {
+                  "kind": "ref",
+                  "index": 1
+                },
+                "manner": {
+                  "kind": "prime",
+                  "prime": "NEAR"
+                }
+              }
+            },
+            "manner": {
+              "kind": "prime",
+              "prime": "NEAR"
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "locus": {
+            "kind": "ref",
+            "index": 2
+          },
+          "manner": {
+            "kind": "prime",
+            "prime": "TOUCH"
+          },
+          "duration": {
+            "kind": "prime",
+            "prime": "MOMENT"
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "AFTER",
+        "args": [
+          {
+            "kind": "prime",
+            "prime": "NOW"
+          },
+          {
+            "type": "pred",
+            "pred": "MOVE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "manner": {
+                "kind": "prime",
+                "prime": "FAR"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: faithful — a thing moves past another, touches it for a moment, and moves on away — a sound reading of brushing against in passing, though 'lightly' is rendered only as brief momentary contact."
+}

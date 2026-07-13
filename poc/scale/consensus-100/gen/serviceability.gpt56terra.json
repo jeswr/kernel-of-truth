@@ -1,0 +1,78 @@
+{
+  "id": "urn:kernel-v1:serviceability",
+  "label": "serviceability",
+  "synset": "urn:lexical-wn31:n-05157376",
+  "pattern": "WhenTrue; functional capacity rendered as CAN + GOOD effect",
+  "gloss": "The quality of being capable of performing effectively and reliably the function for which a thing is intended.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "CAN",
+        "args": [
+          {
+            "type": "op",
+            "op": "BECAUSE",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "DO",
+                "roles": {
+                  "agent": {
+                    "kind": "ref",
+                    "index": 1
+                  },
+                  "undergoer": {
+                    "kind": "sp",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMETHING~THING"
+                    },
+                    "bind": 2
+                  }
+                }
+              },
+              {
+                "type": "pred",
+                "pred": "FEEL",
+                "roles": {
+                  "experiencer": {
+                    "kind": "sp",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMEONE"
+                    },
+                    "bind": 3
+                  },
+                  "attribute": {
+                    "kind": "prime",
+                    "prime": "GOOD"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — it renders a thing's capacity to do something that makes someone feel good, but cannot express its intended function or effectiveness and reliability."
+}

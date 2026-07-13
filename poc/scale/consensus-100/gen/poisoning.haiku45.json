@@ -1,0 +1,101 @@
+{
+  "id": "urn:kernel-v1:poisoning",
+  "label": "poisoning",
+  "synset": "urn:lexical-wn31:n-00225605",
+  "pattern": "InstanceSchema; DO + harmful substance + lethal intent",
+  "gloss": "The act of administering poison to a person or animal with the deliberate intention to cause death; a harmful action involving the ingestion or introduction of a toxic substance into a body.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 3
+          },
+          "comitative": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMEONE"
+            },
+            "bind": 2
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 3
+          },
+          "attribute": {
+            "kind": "sp",
+            "mods": [
+              {
+                "mod": "BAD"
+              }
+            ],
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "DIE",
+              "roles": {
+                "undergoer": {
+                  "kind": "ref",
+                  "index": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — renders the act of doing something bad with someone and wanting them to die, but cannot mark 'poison' or 'toxin' as a substance-kind or the mechanism of harm (ingestion/absorption causing internal damage); uses BAD thing as a proxy for the lethal substance itself."
+}

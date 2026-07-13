@@ -1,0 +1,93 @@
+{
+  "id": "urn:kernel-v1:bill-poster",
+  "label": "bill poster",
+  "synset": "urn:lexical-wn31:n-09873916",
+  "pattern": "InstanceSchema; agent + affixing sheets bearing words to a surface",
+  "gloss": "A person whose work is to fix printed sheets bearing words or pictures onto walls, boards, or other surfaces, so that many people can see them.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "restrictedBy": {
+              "type": "pred",
+              "pred": "THERE-IS",
+              "roles": {
+                "undergoer": {
+                  "kind": "sp",
+                  "head": {
+                    "kind": "primeHead",
+                    "prime": "WORDS"
+                  }
+                }
+              }
+            },
+            "bind": 2
+          },
+          "duration": {
+            "kind": "prime",
+            "prime": "FOR-SOME-TIME"
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "locus": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 3
+          },
+          "manner": {
+            "kind": "prime",
+            "prime": "TOUCH"
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "BECAUSE",
+        "roles": {}
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the AST renders someone who repeatedly places a words-bearing thing so it touches a surface, but 'placard/bill', the purpose of public display, and the walls/billboards specifics are not primitive; the third clause is malformed and dropped in a clean render."
+}

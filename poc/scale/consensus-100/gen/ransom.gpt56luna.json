@@ -1,0 +1,211 @@
+{
+  "id": "urn:kernel-v1:ransom",
+  "label": "ransom",
+  "synset": "urn:lexical-wn31:n-00097671",
+  "pattern": "InstanceSchema; agentive release + conditional state-change pair",
+  "gloss": "The act by which someone is released from captivity or from an imposed punishment, ending the condition of being held or penalised.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "PlaceRef"
+      },
+      {
+        "index": 4,
+        "refKind": "TimeRef"
+      },
+      {
+        "index": 5,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "time": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "bind": 4
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMEONE"
+            },
+            "bind": 5
+          },
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMEONE"
+            },
+            "bind": 2
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "IF",
+        "args": [
+          {
+            "type": "op",
+            "op": "BEFORE",
+            "args": [
+              {
+                "kind": "ref",
+                "index": 4
+              },
+              {
+                "type": "pred",
+                "pred": "BE-SOMEWHERE",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 2
+                  },
+                  "locus": {
+                    "kind": "sp",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "WHERE~PLACE"
+                    },
+                    "bind": 3
+                  },
+                  "manner": {
+                    "kind": "prime",
+                    "prime": "INSIDE"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "type": "op",
+            "op": "AFTER",
+            "args": [
+              {
+                "kind": "ref",
+                "index": 4
+              },
+              {
+                "type": "op",
+                "op": "NOT",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "BE-SOMEWHERE",
+                    "roles": {
+                      "undergoer": {
+                        "kind": "ref",
+                        "index": 2
+                      },
+                      "locus": {
+                        "kind": "ref",
+                        "index": 3
+                      },
+                      "manner": {
+                        "kind": "prime",
+                        "prime": "INSIDE"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "IF",
+        "args": [
+          {
+            "type": "op",
+            "op": "BEFORE",
+            "args": [
+              {
+                "kind": "ref",
+                "index": 4
+              },
+              {
+                "type": "pred",
+                "pred": "FEEL",
+                "roles": {
+                  "experiencer": {
+                    "kind": "ref",
+                    "index": 2
+                  },
+                  "attribute": {
+                    "kind": "prime",
+                    "prime": "BAD"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "type": "op",
+            "op": "AFTER",
+            "args": [
+              {
+                "kind": "ref",
+                "index": 4
+              },
+              {
+                "type": "op",
+                "op": "NOT",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "FEEL",
+                    "roles": {
+                      "experiencer": {
+                        "kind": "ref",
+                        "index": 2
+                      },
+                      "attribute": {
+                        "kind": "prime",
+                        "prime": "BAD"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the 65-prime AST renders captivity as being inside a place and punishment as feeling BAD before the event, so it cannot encode imposed penal treatment or the exact captivity-or-punishment disjunction."
+}

@@ -1,0 +1,45 @@
+{
+  "id": "urn:kernel-v1:spendthrift",
+  "label": "spendthrift",
+  "synset": "urn:lexical-wn31:n-10654858",
+  "pattern": "InstanceSchema; DO upon MUCH~MANY things",
+  "gloss": "Someone who habitually uses money or other resources in excessive and wasteful amounts, without prudent restraint or regard for future needs.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — it represents acting upon many things but cannot express habitual expenditure of money or its excessive, wasteful character."
+}

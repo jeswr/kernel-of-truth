@@ -1,0 +1,171 @@
+{
+  "id": "urn:kernel-v1:rape",
+  "label": "rape (plundering in warfare)",
+  "synset": "urn:lexical-wn31:n-00968488",
+  "pattern": "InstanceSchema; violent seizure + ruin of a place in war",
+  "gloss": "The violent seizing and carrying off of goods, together with the wanton destruction of a place, committed by an armed force overrunning a country in war.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "PlaceRef"
+      },
+      {
+        "index": 4,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            },
+            "bind": 2
+          },
+          "locus": {
+            "kind": "sp",
+            "det": "OTHER~ELSE~ANOTHER",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHERE~PLACE"
+            },
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 2
+          },
+          "undergoer": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 4
+          },
+          "place": {
+            "kind": "ref",
+            "index": 3
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 2
+              },
+              "undergoer": {
+                "kind": "ref",
+                "index": 4
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "THERE-IS",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 4
+                  },
+                  "place": {
+                    "kind": "ref",
+                    "index": 3
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "FEEL",
+              "roles": {
+                "experiencer": {
+                  "kind": "sp",
+                  "quant": "MUCH~MANY",
+                  "mods": [
+                    {
+                      "mod": "BAD"
+                    }
+                  ],
+                  "head": {
+                    "kind": "primeHead",
+                    "prime": "PEOPLE"
+                  },
+                  "restrictedBy": {
+                    "type": "pred",
+                    "pred": "BE-SOMEWHERE",
+                    "roles": {
+                      "undergoer": {
+                        "kind": "ref",
+                        "index": 1
+                      },
+                      "locus": {
+                        "kind": "ref",
+                        "index": 3
+                      }
+                    }
+                  }
+                },
+                "attribute": {
+                  "kind": "prime",
+                  "prime": "BAD"
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — armed force, warfare, and the notion of property/goods as such are not primitive; the AST renders many people coming into a place and doing violence there so that things cease to be and the people of that place feel bad, but cannot mark 'in war' or 'plunder' specifically."
+}

@@ -1,0 +1,104 @@
+{
+  "id": "urn:kernel-v1:repeater",
+  "label": "repeater",
+  "synset": "urn:lexical-wn31:n-10541063",
+  "pattern": "InstanceSchema; iterative participation or attendance",
+  "gloss": "A person who does or experiences the same thing multiple times; especially one who attends or participates in an event, activity, or venue repeatedly rather than only once.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "TimeRef"
+      },
+      {
+        "index": 4,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          }
+        },
+        "time": {
+          "kind": "sp",
+          "det": "SOME",
+          "head": {
+            "kind": "primeHead",
+            "prime": "WHEN~TIME"
+          },
+          "bind": 3
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "ref",
+            "index": 2
+          }
+        },
+        "time": {
+          "kind": "sp",
+          "det": "SOME",
+          "head": {
+            "kind": "primeHead",
+            "prime": "WHEN~TIME"
+          },
+          "bind": 4
+        }
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "BE-SPEC",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 3
+              },
+              "attribute": {
+                "kind": "ref",
+                "index": 4
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: faithful — someone does something at one time and at another different time — a clean rendering of repeated action through iteration of times."
+}

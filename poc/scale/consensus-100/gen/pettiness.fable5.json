@@ -1,0 +1,125 @@
+{
+  "id": "urn:kernel-v1:pettiness",
+  "label": "pettiness (triviality, unimportance)",
+  "synset": "urn:lexical-wn31:n-05180732",
+  "pattern": "WhenTrue; VERY-SMALL specification + conditional inconsequence of inattention",
+  "gloss": "The quality of a thing whereby it is of very slight importance or consequence, such that no harm follows if people give it no attention or concern.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "attribute": {
+            "kind": "sp",
+            "mods": [
+              {
+                "mod": "SMALL",
+                "intensifier": "VERY"
+              }
+            ],
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "THINK",
+            "roles": {
+              "experiencer": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "PEOPLE"
+                }
+              },
+              "topic": {
+                "kind": "ref",
+                "index": 1
+              },
+              "duration": {
+                "kind": "prime",
+                "prime": "A-LONG-TIME"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "IF",
+        "args": [
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "THINK",
+                "roles": {
+                  "experiencer": {
+                    "kind": "sp",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "PEOPLE"
+                    }
+                  },
+                  "topic": {
+                    "kind": "ref",
+                    "index": 1
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "HAPPEN",
+                "roles": {
+                  "undergoer": {
+                    "kind": "sp",
+                    "mods": [
+                      {
+                        "mod": "BAD"
+                      }
+                    ],
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMETHING~THING"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: faithful — the thing is something very small, people do not dwell on it, and if people do not think about it nothing bad happens; this carries slightness of importance and inconsequence, the criterial differentia of triviality."
+}

@@ -1,0 +1,103 @@
+{
+  "id": "urn:kernel-v1:depletion",
+  "label": "depletion",
+  "synset": "urn:lexical-wn31:n-00357025",
+  "pattern": "InstanceSchema; MUCH-before / LITTLE-after across a HAPPEN",
+  "gloss": "The act or process of greatly reducing the amount of something, so that after it there is much less of that thing than there was before.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 1
+          },
+          "time": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "bind": 2
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 2
+          },
+          {
+            "type": "pred",
+            "pred": "THERE-IS",
+            "roles": {
+              "undergoer": {
+                "kind": "sp",
+                "quant": "MUCH~MANY",
+                "head": {
+                  "kind": "partFrame",
+                  "of": {
+                    "kind": "ref",
+                    "index": 1
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "AFTER",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 2
+          },
+          {
+            "type": "pred",
+            "pred": "THERE-IS",
+            "roles": {
+              "undergoer": {
+                "kind": "sp",
+                "quant": "LITTLE~FEW",
+                "head": {
+                  "kind": "partFrame",
+                  "of": {
+                    "kind": "ref",
+                    "index": 1
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: faithful — much of the thing before, little after the event — a sound reading of marked decrease, with 'part of it' standing for its amount."
+}

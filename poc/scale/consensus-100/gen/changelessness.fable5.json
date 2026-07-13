@@ -1,0 +1,132 @@
+{
+  "id": "urn:kernel-v1:changelessness",
+  "label": "changelessness",
+  "synset": "urn:lexical-wn31:n-04745174",
+  "pattern": "WhenTrue; THE-SAME specification held across AFTER + CAN-negation of becoming otherwise",
+  "gloss": "The quality of something whose nature and condition persist the same through time, such that long afterward it remains as it was before and cannot become otherwise.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "attribute": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "kindFrame",
+              "of": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                }
+              }
+            },
+            "bind": 2
+          },
+          "time": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "AFTER",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 3
+          },
+          {
+            "type": "pred",
+            "pred": "BE-SPEC",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "attribute": {
+                "kind": "sp",
+                "det": "THE-SAME",
+                "head": {
+                  "kind": "refHead",
+                  "index": 2
+                }
+              },
+              "duration": {
+                "kind": "prime",
+                "prime": "A-LONG-TIME"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "op",
+            "op": "CAN",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "BE-SPEC",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 1
+                  },
+                  "attribute": {
+                    "kind": "sp",
+                    "det": "OTHER~ELSE~ANOTHER",
+                    "head": {
+                      "kind": "kindFrame",
+                      "of": {
+                        "kind": "sp",
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "SOMETHING~THING"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: faithful — the thing is of some kind at a time, remains the same kind long after, and cannot come to be of another kind; the 'marked tendency' nuance is rendered as a strict CAN-negation, which is the unchangeability core of this sense."
+}

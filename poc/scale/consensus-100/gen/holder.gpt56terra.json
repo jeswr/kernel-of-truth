@@ -1,0 +1,48 @@
+{
+  "id": "urn:kernel-v1:holder",
+  "label": "holder",
+  "synset": "urn:lexical-wn31:n-10199809",
+  "pattern": "InstanceSchema; person–thing contact as a possession skeleton",
+  "gloss": "A person who has something in possession, custody, or control, whether by physically keeping it, retaining it, or being entitled to it.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "locus": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          },
+          "manner": {
+            "kind": "prime",
+            "prime": "TOUCH"
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — possession, custody, control, and legal entitlement are not primitive; the AST renders only a person in contact with a thing."
+}

@@ -1,0 +1,84 @@
+{
+  "id": "urn:kernel-v1:feasibility",
+  "label": "feasibility",
+  "synset": "urn:lexical-wn31:n-05159611",
+  "pattern": "WhenTrue; conditional WANT-to-do licensing CAN-do",
+  "gloss": "The quality of a plan or course of action such that it can actually be carried out; the property of lying within the power of those who would undertake it to accomplish.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "IF",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "WANT",
+            "roles": {
+              "experiencer": {
+                "kind": "sp",
+                "det": "SOME",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMEONE"
+                },
+                "bind": 2
+              },
+              "complement": {
+                "kind": "clause",
+                "clause": {
+                  "type": "pred",
+                  "pred": "DO",
+                  "roles": {
+                    "agent": {
+                      "kind": "ref",
+                      "index": 2
+                    },
+                    "undergoer": {
+                      "kind": "ref",
+                      "index": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "CAN",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "DO",
+                "roles": {
+                  "agent": {
+                    "kind": "ref",
+                    "index": 2
+                  },
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 1
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: faithful — if someone wants to do this thing, that person can do it; the conditional CAN-do carries both the genus (a quality of an undertakable thing) and the criterial differentia of doability."
+}

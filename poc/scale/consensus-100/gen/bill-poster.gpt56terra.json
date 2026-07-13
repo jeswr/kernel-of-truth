@@ -1,0 +1,70 @@
+{
+  "id": "urn:kernel-v1:bill-poster",
+  "label": "bill poster",
+  "synset": "urn:lexical-wn31:n-09873916",
+  "pattern": "InstanceSchema; agent acts on notices to make them touch a surface",
+  "gloss": "A worker whose occupation is to affix printed notices or advertisements to walls, hoardings, or other public surfaces, ordinarily by applying an adhesive substance.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "locus": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 3
+          },
+          "manner": {
+            "kind": "prime",
+            "prime": "TOUCH"
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — it renders acting on a thing so that it touches another thing, but cannot mark occupational practice, printed notices, public surfaces, or adhesive attachment."
+}

@@ -1,0 +1,93 @@
+{
+  "id": "urn:kernel-v1:combustion",
+  "label": "combustion",
+  "synset": "urn:lexical-wn31:n-14002399",
+  "pattern": "InstanceSchema; FEEL BAD + collective agitation polarity",
+  "gloss": "A state of intense agitation, turmoil, and heightened emotion within a group, in which people feel strongly disturbed and excitement builds toward outward action or conflict.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "THERE-IS",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            },
+            "bind": 2
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "FEEL",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "attribute": {
+            "kind": "prime",
+            "prime": "BAD"
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WORDS"
+            },
+            "bind": 1
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "DO",
+              "roles": {
+                "agent": {
+                  "kind": "ref",
+                  "index": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — renders collective bad feeling, much speech/agitation, and a urge to act, but cannot mark the metaphorical heat-intensity or the specific social/political differentia of mounting unrest or revolutionary ferment; reads as generalized communal disturbance."
+}

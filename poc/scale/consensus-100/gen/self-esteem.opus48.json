@@ -1,0 +1,99 @@
+{
+  "id": "urn:kernel-v1:self-esteem",
+  "label": "self-esteem",
+  "synset": "urn:lexical-wn31:n-07523944",
+  "pattern": "WhenTrue; self-directed thought yielding a good feeling",
+  "gloss": "A settled sense of one's own worth: the state in which a person thinks well of themselves and, on that account, feels good about the kind of person they are.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "topic": {
+            "kind": "ref",
+            "index": 1
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "THINK",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "quote": {
+                "kind": "quote",
+                "clauses": [
+                  {
+                    "type": "pred",
+                    "pred": "BE-SPEC",
+                    "roles": {
+                      "undergoer": {
+                        "kind": "prime",
+                        "prime": "I"
+                      },
+                      "attribute": {
+                        "kind": "sp",
+                        "head": {
+                          "kind": "kindFrame",
+                          "of": {
+                            "kind": "sp",
+                            "mods": [
+                              {
+                                "mod": "GOOD"
+                              }
+                            ],
+                            "head": {
+                              "kind": "primeHead",
+                              "prime": "SOMEONE"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "FEEL",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "attribute": {
+                "kind": "prime",
+                "prime": "GOOD"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: faithful — the bearer thinks of themselves as a good kind of person and, because of this, feels good — a clean reading of pride in oneself."
+}

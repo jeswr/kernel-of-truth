@@ -1,0 +1,157 @@
+{
+  "id": "urn:kernel-v1:spendthrift",
+  "label": "spendthrift",
+  "synset": "urn:lexical-wn31:n-10654858",
+  "pattern": "InstanceSchema; possession-dissipation across a time boundary + negated prudential thought",
+  "gloss": "A person who habitually squanders money or resources, using up what he or she possesses freely and quickly, with no thought for future want or for the ill that may follow.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          },
+          "locus": {
+            "kind": "ref",
+            "index": 1
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "time": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "bind": 3
+          },
+          "duration": {
+            "kind": "prime",
+            "prime": "A-SHORT-TIME"
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "AFTER",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 3
+          },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "BE-SOMEWHERE",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 2
+                  },
+                  "locus": {
+                    "kind": "ref",
+                    "index": 1
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "THINK",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "quote": {
+                "kind": "quote",
+                "clauses": [
+                  {
+                    "type": "op",
+                    "op": "MAYBE",
+                    "args": [
+                      {
+                        "type": "op",
+                        "op": "AFTER",
+                        "args": [
+                          {
+                            "kind": "prime",
+                            "prime": "NOW"
+                          },
+                          {
+                            "type": "pred",
+                            "pred": "FEEL",
+                            "roles": {
+                              "experiencer": {
+                                "kind": "prime",
+                                "prime": "I"
+                              },
+                              "attribute": {
+                                "kind": "prime",
+                                "prime": "BAD"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — money is not primitive; prodigal spending is rendered as many possessed things ceasing to be with the person after a short time of acting on them, plus absence of the thought that bad may follow, which loses the specifically monetary and excess-beyond-means character."
+}

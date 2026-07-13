@@ -1,0 +1,75 @@
+{
+  "id": "urn:kernel-v1:suicide",
+  "label": "suicide (person who takes his own life)",
+  "synset": "urn:lexical-wn31:n-10693108",
+  "pattern": "InstanceSchema; reflexive DO + BECAUSE-caused DIE + WANT for intentionality",
+  "gloss": "A person who deliberately ends his or her own life; one who, wanting to die, does something to himself or herself that causes his or her own death.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "DIE",
+              "roles": {
+                "undergoer": {
+                  "kind": "ref",
+                  "index": 1
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "DIE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: faithful — the person wants to die, does something to himself, and dies because of that doing; both the reflexive killing and the intentionality are carried."
+}

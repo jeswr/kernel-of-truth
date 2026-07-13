@@ -1,0 +1,133 @@
+{
+  "id": "urn:kernel-v1:decadent",
+  "label": "decadent (person)",
+  "synset": "urn:lexical-wn31:n-10017477",
+  "pattern": "InstanceSchema; BEFORE/NOW decline contrast + pleasure-driven cause",
+  "gloss": "A person whose conduct or creative work has sunk from earlier standards of moral or artistic worth, given over to self-indulgent pleasure rather than to what is good.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          {
+            "kind": "prime",
+            "prime": "NOW"
+          },
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "undergoer": {
+                "kind": "sp",
+                "quant": "MUCH~MANY",
+                "mods": [
+                  {
+                    "mod": "GOOD"
+                  }
+                ],
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "WANT",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "complement": {
+                "kind": "clause",
+                "clause": {
+                  "type": "pred",
+                  "pred": "FEEL",
+                  "roles": {
+                    "experiencer": {
+                      "kind": "ref",
+                      "index": 1
+                    },
+                    "attribute": {
+                      "kind": "prime",
+                      "prime": "GOOD"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "undergoer": {
+                "kind": "sp",
+                "quant": "MUCH~MANY",
+                "mods": [
+                  {
+                    "mod": "BAD"
+                  }
+                ],
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                }
+              },
+              "time": {
+                "kind": "prime",
+                "prime": "NOW"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "KNOW",
+        "roles": {
+          "experiencer": {
+            "kind": "sp",
+            "det": "OTHER~ELSE~ANOTHER",
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            }
+          },
+          "topic": {
+            "kind": "ref",
+            "index": 1
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the decline from good doings to bad, pleasure-driven doings visible to others is rendered, but the specifically moral-versus-artistic dimension of the fall cannot be carried by the primes."
+}

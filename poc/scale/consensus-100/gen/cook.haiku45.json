@@ -1,0 +1,99 @@
+{
+  "id": "urn:kernel-v1:cook",
+  "label": "cook",
+  "synset": "urn:lexical-wn31:n-09982799",
+  "pattern": "InstanceSchema; DO + heat + food",
+  "gloss": "A person who prepares food for eating by applying heat to it, whether as a profession, occupation, or regular household activity.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "attribute": {
+            "kind": "sp",
+            "head": {
+              "kind": "kindFrame",
+              "of": {
+                "kind": "prime",
+                "prime": "SOMETHING~THING"
+              }
+            },
+            "mods": [
+              {
+                "mod": "GOOD"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "HAPPEN",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — renders someone who does something to food so that it becomes good (via doing/heating), but cannot mark the specific mechanism of heat application or the transformative food-preparation context; reads as generic agent of food-change."
+}

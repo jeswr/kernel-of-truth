@@ -1,0 +1,101 @@
+{
+  "id": "urn:kernel-v1:toaster",
+  "label": "toaster",
+  "synset": "urn:lexical-wn31:n-10733151",
+  "pattern": "InstanceSchema; SAY + benefactive WANT via ritual drinking",
+  "gloss": "A person who raises a glass and speaks words wishing health, happiness, or success to another person or an undertaking, typically as part of a social gathering or ceremony.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "SAY",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "addressee": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            },
+            "bind": 2
+          },
+          "topic": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "FEEL",
+              "roles": {
+                "experiencer": {
+                  "kind": "ref",
+                  "index": 3
+                },
+                "attribute": {
+                  "kind": "prime",
+                  "prime": "GOOD"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "instrument": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — renders the speaker's utterance wishing good to a person/thing and the performative act of raising and drinking from a vessel; cannot mark the specifically ceremonial or ritualistic nature of the practice with primitive vocabulary."
+}

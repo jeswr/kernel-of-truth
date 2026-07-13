@@ -1,0 +1,79 @@
+{
+  "id": "urn:kernel-v1:grazing",
+  "label": "grazing",
+  "synset": "urn:lexical-wn31:n-00151582",
+  "pattern": "InstanceSchema; concurrent MOVE + momentary TOUCH",
+  "gloss": "An act of making light, momentary contact with someone or something while moving past it, without a direct collision or interruption of motion.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "MOVE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "time": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "locus": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          },
+          "manner": {
+            "kind": "prime",
+            "prime": "TOUCH"
+          },
+          "time": {
+            "kind": "ref",
+            "index": 3
+          },
+          "duration": {
+            "kind": "prime",
+            "prime": "MOMENT"
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the AST renders movement and momentary contact at the same time but cannot specify the lightness of contact or the passing trajectory."
+}

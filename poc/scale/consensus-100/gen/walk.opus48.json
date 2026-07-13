@@ -1,0 +1,103 @@
+{
+  "id": "urn:kernel-v1:walk",
+  "label": "walk",
+  "synset": "urn:lexical-wn31:n-00285642",
+  "pattern": "InstanceSchema; agentive body-borne movement to another place",
+  "gloss": "The act of moving from one place to another on foot, by setting one's legs in motion at an ordinary unhurried pace.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "PlaceRef"
+      },
+      {
+        "index": 3,
+        "refKind": "PlaceRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "locus": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHERE~PLACE"
+            },
+            "bind": 2
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "MOVE",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "partFrame",
+              "of": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "BODY"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "MOVE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "BE-SOMEWHERE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "locus": {
+                "kind": "sp",
+                "det": "OTHER~ELSE~ANOTHER",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "WHERE~PLACE"
+                },
+                "bind": 3
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — captures moving one's body-parts so as to come to be at another place, but the criterial 'on foot at an ordinary unhurried pace' is only gestured at by moving legs; gait cannot be marked in the primes."
+}

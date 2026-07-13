@@ -1,0 +1,72 @@
+{
+  "id": "urn:kernel-v1:self-esteem",
+  "label": "self-esteem",
+  "synset": "urn:lexical-wn31:n-07523944",
+  "pattern": "WhenTrue; self-directed FEEL GOOD + belief in own worth",
+  "gloss": "A feeling of satisfaction and approval directed toward oneself, grounded in a sense of one's own value and capability; the regard in which one holds oneself.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "FEEL",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "attribute": {
+            "kind": "prime",
+            "prime": "GOOD"
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "topic": {
+            "kind": "ref",
+            "index": 1
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "attribute": {
+            "kind": "sp",
+            "mods": [
+              {
+                "mod": "GOOD"
+              }
+            ],
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMEONE"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: faithful — someone feels good, thinks about themselves, and believes themselves to be good — a sound core rendering of self-directed positive regard."
+}

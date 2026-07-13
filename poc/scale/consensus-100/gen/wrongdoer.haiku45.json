@@ -1,0 +1,111 @@
+{
+  "id": "urn:kernel-v1:wrongdoer",
+  "label": "wrongdoer",
+  "synset": "urn:lexical-wn31:n-09657157",
+  "pattern": "InstanceSchema; DO bad + transgression of shared rule",
+  "gloss": "A person who commits an act that violates moral or legal norms established within a society or community, thereby doing something that is considered bad or wrong.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "attribute": {
+            "kind": "prime",
+            "prime": "BAD"
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "KNOW",
+        "roles": {
+          "experiencer": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            },
+            "bind": 3
+          },
+          "topic": {
+            "kind": "ref",
+            "index": 2
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "DON'T-WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 3
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "DO",
+              "roles": {
+                "agent": {
+                  "kind": "sp",
+                  "head": {
+                    "kind": "primeHead",
+                    "prime": "SOMEONE"
+                  }
+                },
+                "undergoer": {
+                  "kind": "ref",
+                  "index": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — renders the core as someone doing something bad that many people know about and do not want done; cannot distinguish the force of moral versus civil law, or mark formal legal authority as distinct from communal disapproval."
+}

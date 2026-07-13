@@ -1,0 +1,132 @@
+{
+  "id": "urn:kernel-v1:conception",
+  "label": "conception (becoming pregnant)",
+  "synset": "urn:lexical-wn31:n-00846508",
+  "pattern": "InstanceSchema; onset of a new living thing inside the body across a time boundary",
+  "gloss": "The event within a woman's body in which a new living being begins to exist through the joining of a seed from a man with an egg from her, so that a life not present before now grows inside her.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          },
+          "place": {
+            "kind": "sp",
+            "det": "THIS",
+            "head": {
+              "kind": "partFrame",
+              "of": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "BODY"
+                }
+              }
+            }
+          },
+          "time": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 3
+          },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "THERE-IS",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 2
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "AFTER",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 3
+          },
+          {
+            "type": "pred",
+            "pred": "LIVE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "place": {
+                "kind": "sp",
+                "det": "THIS",
+                "head": {
+                  "kind": "partFrame",
+                  "of": {
+                    "kind": "sp",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "BODY"
+                    }
+                  }
+                },
+                "manner": {
+                  "kind": "prime",
+                  "prime": "INSIDE"
+                }
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the fusion of seed and egg (fertilization) and the femaleness of the bearer cannot be expressed; the AST renders only that a new living thing did not exist before and lives inside a body after."
+}

@@ -1,0 +1,50 @@
+{
+  "id": "urn:kernel-v1:wrongdoer",
+  "label": "wrongdoer",
+  "synset": "urn:lexical-wn31:n-09657157",
+  "pattern": "InstanceSchema; DO of a BAD thing",
+  "gloss": "A person who does something prohibited by moral standards or civil law.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "det": "SOME",
+            "mods": [
+              {
+                "mod": "BAD"
+              }
+            ],
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the metalanguage cannot express moral or civil law or the prohibition relation, so the AST renders only a person doing a BAD thing."
+}

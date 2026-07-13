@@ -1,0 +1,88 @@
+{
+  "id": "urn:kernel-v1:equality",
+  "label": "equality (X is equal to Y)",
+  "synset": "urn:lexical-wn31:n-13969940",
+  "pattern": "RelationalSchema; LIKE symmetry + ABOVE-negation pair",
+  "gloss": "A state in which two things or persons stand at the same level of value, measure, or standing, each being like the other and neither surpassing the other in the respect compared.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "RelationalSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "LIKE",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 1
+          },
+          {
+            "kind": "ref",
+            "index": 2
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "BE-SOMEWHERE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "locus": {
+                "kind": "ref",
+                "index": 2
+              },
+              "manner": {
+                "kind": "prime",
+                "prime": "ABOVE"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "BE-SOMEWHERE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "locus": {
+                "kind": "ref",
+                "index": 1
+              },
+              "manner": {
+                "kind": "prime",
+                "prime": "ABOVE"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — 'same level of value or measure' is rendered spatially as mutual likeness with neither standing above the other; the dimension of comparison (value, amount, standing) is not expressible in the primes."
+}

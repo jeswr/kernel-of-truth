@@ -1,0 +1,73 @@
+{
+  "id": "urn:kernel-v1:gather",
+  "label": "gather (act)",
+  "synset": "urn:lexical-wn31:n-01016932",
+  "pattern": "InstanceSchema; purposeful action resulting in co-location",
+  "gloss": "An act by which someone brings separate things or people into one place or group, thereby making them into a collection.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "PlaceRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "undergoer": {
+                "kind": "sp",
+                "quant": "MUCH~MANY",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                },
+                "bind": 2
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "BE-SOMEWHERE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "locus": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "WHERE~PLACE"
+                },
+                "bind": 3
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — it renders someone acting so that many things are in one place, but cannot express their prior separateness or their being formed into a collection."
+}

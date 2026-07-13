@@ -1,0 +1,149 @@
+{
+  "id": "urn:kernel-v1:disruption",
+  "label": "disruption",
+  "synset": "urn:lexical-wn31:n-00554210",
+  "pattern": "InstanceSchema; causal change from a prior regular course across a time boundary",
+  "gloss": "An act that causes an established arrangement or regular course to lose its order, so that its elements or activities no longer proceed together in the expected way.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "time": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 3
+          },
+          {
+            "type": "pred",
+            "pred": "HAPPEN",
+            "roles": {
+              "undergoer": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                },
+                "bind": 2
+              },
+              "duration": {
+                "kind": "prime",
+                "prime": "FOR-SOME-TIME"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "HAPPEN",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "time": {
+                "kind": "ref",
+                "index": 3
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "AFTER",
+            "args": [
+              {
+                "kind": "ref",
+                "index": 3
+              },
+              {
+                "type": "op",
+                "op": "NOT",
+                "args": [
+                  {
+                    "type": "op",
+                    "op": "LIKE",
+                    "args": [
+                      {
+                        "type": "pred",
+                        "pred": "HAPPEN",
+                        "roles": {
+                          "undergoer": {
+                            "kind": "ref",
+                            "index": 2
+                          }
+                        }
+                      },
+                      {
+                        "type": "op",
+                        "op": "BEFORE",
+                        "args": [
+                          {
+                            "kind": "ref",
+                            "index": 3
+                          },
+                          {
+                            "type": "pred",
+                            "pred": "HAPPEN",
+                            "roles": {
+                              "undergoer": {
+                                "kind": "ref",
+                                "index": 2
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the AST renders an event causing something thereafter to happen unlike its prior course, but cannot express the criterial loss of coordination among an arrangement's elements."
+}

@@ -1,0 +1,92 @@
+{
+  "id": "urn:kernel-v1:coiner",
+  "label": "coiner",
+  "synset": "urn:lexical-wn31:n-09954565",
+  "pattern": "InstanceSchema; WORDS creation + novelty",
+  "gloss": "A person who invents or first uses new words or expressions, thereby introducing them into a language or discourse.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "kindFrame",
+              "of": {
+                "kind": "prime",
+                "prime": "WORDS"
+              }
+            },
+            "bind": 2
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "SAY",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "quote": {
+            "kind": "quote",
+            "clauses": [
+              {
+                "type": "pred",
+                "pred": "WORDS",
+                "roles": {}
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "KNOW",
+            "roles": {
+              "experiencer": {
+                "kind": "sp",
+                "quant": "MUCH~MANY",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "PEOPLE"
+                }
+              },
+              "topic": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — renders someone who makes and speaks new words unknown to many people; cannot primitively capture 'source' or the linguistic fact of first use establishing currency in a speech community."
+}

@@ -1,0 +1,108 @@
+{
+  "id": "urn:kernel-v1:serviceability",
+  "label": "serviceability",
+  "synset": "urn:lexical-wn31:n-05157376",
+  "pattern": "WhenTrue; fitness-for-use as CAN-do-good-for-someone",
+  "gloss": "The quality of something whereby it is well fitted to be put to use, so that a person can employ it to do what they want and it does good work for them.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "CAN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMEONE"
+                },
+                "bind": 2
+              },
+              "instrument": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "WHEN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 2
+              },
+              "instrument": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "BECAUSE",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "HAPPEN",
+                "roles": {
+                  "undergoer": {
+                    "kind": "sp",
+                    "mods": [
+                      {
+                        "mod": "GOOD"
+                      }
+                    ],
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMETHING~THING"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "pred",
+                "pred": "DO",
+                "roles": {
+                  "agent": {
+                    "kind": "ref",
+                    "index": 2
+                  },
+                  "instrument": {
+                    "kind": "ref",
+                    "index": 1
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — 'fitness to give good service' is rendered as: someone can use it, and when they do a good thing happens because of it; the notion of dependable usefulness is approximated, not primitive."
+}

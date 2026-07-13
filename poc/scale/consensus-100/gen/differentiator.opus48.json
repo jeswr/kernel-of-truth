@@ -1,0 +1,113 @@
+{
+  "id": "urn:kernel-v1:differentiator",
+  "label": "differentiator",
+  "synset": "urn:lexical-wn31:n-10032560",
+  "pattern": "InstanceSchema; KNOW that two things are not the same",
+  "gloss": "Someone or something that marks or perceives the difference between two things, treating them as not the same rather than as one and the same.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "quant": "TWO",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "KNOW",
+            "roles": {
+              "experiencer": {
+                "kind": "sp",
+                "quant": "MUCH~MANY",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "PEOPLE"
+                },
+                "bind": 3
+              },
+              "complement": {
+                "kind": "clause",
+                "clause": {
+                  "type": "op",
+                  "op": "NOT",
+                  "args": [
+                    {
+                      "type": "pred",
+                      "pred": "BE-SPEC",
+                      "roles": {
+                        "undergoer": {
+                          "kind": "ref",
+                          "index": 2
+                        },
+                        "attribute": {
+                          "kind": "sp",
+                          "head": {
+                            "kind": "kindFrame",
+                            "of": {
+                              "kind": "ref",
+                              "index": 2
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the core notion 'X and Y are not the same' cannot be stated with an identity prime; it is approximated as people coming to know the two things are not of one kind, and 'marking a difference' is reduced to a bare DO."
+}

@@ -1,0 +1,103 @@
+{
+  "id": "urn:kernel-v1:candidate",
+  "label": "candidate",
+  "synset": "urn:lexical-wn31:n-09910201",
+  "pattern": "InstanceSchema; THINK + selection potential",
+  "gloss": "A person whom others are considering or evaluating for a particular position, prize, office, or honor; someone in whom the qualities, merits, or qualifications for such a role are recognized as possible.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "sp",
+            "quant": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            },
+            "bind": 2
+          },
+          "topic": {
+            "kind": "ref",
+            "index": 1
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "CAN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "undergoer": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                },
+                "bind": 3
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "topic": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "BE-SPEC",
+              "roles": {
+                "undergoer": {
+                  "kind": "ref",
+                  "index": 1
+                },
+                "attribute": {
+                  "kind": "sp",
+                  "head": {
+                    "kind": "primeHead",
+                    "prime": "GOOD"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — renders 'someone whom people think about as possibly able to do something good' but cannot capture the specific institutional or formal selection context (election, appointment, award); the explication reads as generic consideration rather than formal candidacy."
+}

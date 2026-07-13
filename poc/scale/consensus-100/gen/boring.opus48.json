@@ -1,0 +1,155 @@
+{
+  "id": "urn:kernel-v1:boring",
+  "label": "boring (drilling for oil)",
+  "synset": "urn:lexical-wn31:n-00924944",
+  "pattern": "InstanceSchema; making a hole downward + benefactive want of a substance",
+  "gloss": "The act of making a deep hole downward into the ground in order to obtain the liquid substance held beneath it that people can burn for fuel.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "mods": [
+              {
+                "mod": "BIG"
+              }
+            ],
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "restrictedBy": {
+              "type": "pred",
+              "pred": "BE-SOMEWHERE",
+              "roles": {
+                "undergoer": {
+                  "kind": "sp",
+                  "head": {
+                    "kind": "primeHead",
+                    "prime": "SOMETHING~THING"
+                  }
+                },
+                "locus": {
+                  "kind": "sp",
+                  "det": "THIS",
+                  "head": {
+                    "kind": "primeHead",
+                    "prime": "WHERE~PLACE"
+                  }
+                },
+                "manner": {
+                  "kind": "prime",
+                  "prime": "BELOW"
+                }
+              }
+            },
+            "bind": 2
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "restrictedBy": {
+              "type": "op",
+              "op": "CAN",
+              "args": [
+                {
+                  "type": "pred",
+                  "pred": "DO",
+                  "roles": {
+                    "agent": {
+                      "kind": "sp",
+                      "quant": "MUCH~MANY",
+                      "head": {
+                        "kind": "primeHead",
+                        "prime": "PEOPLE"
+                      }
+                    },
+                    "undergoer": {
+                      "kind": "ref",
+                      "index": 3
+                    }
+                  }
+                }
+              ]
+            },
+            "bind": 3
+          },
+          "locus": {
+            "kind": "ref",
+            "index": 2
+          },
+          "manner": {
+            "kind": "prime",
+            "prime": "BELOW"
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "BE-SOMEWHERE",
+              "roles": {
+                "undergoer": {
+                  "kind": "ref",
+                  "index": 3
+                },
+                "locus": {
+                  "kind": "ref",
+                  "index": 1
+                },
+                "manner": {
+                  "kind": "prime",
+                  "prime": "NEAR"
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the hole made downward into the earth and the wish to obtain a buried usable substance are rendered, but 'petroleum', 'oil', and the specific drilling technique cannot be named in the primes; the substance appears only as a below-ground thing people can act on."
+}

@@ -1,0 +1,149 @@
+{
+  "id": "urn:kernel-v1:differentiator",
+  "label": "differentiator",
+  "synset": "urn:lexical-wn31:n-10032560",
+  "pattern": "InstanceSchema; KNOW + negated THE-SAME specification between two attended things",
+  "gloss": "A person, or a thing, that discerns or marks distinctions, recognizing when one thing is not the same as another and treating the two accordingly as unlike.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "topic": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "topic": {
+            "kind": "sp",
+            "det": "OTHER~ELSE~ANOTHER",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "KNOW",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "op",
+              "op": "NOT",
+              "args": [
+                {
+                  "type": "pred",
+                  "pred": "BE-SPEC",
+                  "roles": {
+                    "undergoer": {
+                      "kind": "ref",
+                      "index": 2
+                    },
+                    "attribute": {
+                      "kind": "sp",
+                      "det": "THE-SAME",
+                      "head": {
+                        "kind": "refHead",
+                        "index": 3
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "CAN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "SAY",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "quote": {
+                "kind": "quote",
+                "clauses": [
+                  {
+                    "type": "op",
+                    "op": "NOT",
+                    "args": [
+                      {
+                        "type": "pred",
+                        "pred": "BE-SPEC",
+                        "roles": {
+                          "undergoer": {
+                            "kind": "ref",
+                            "index": 2
+                          },
+                          "attribute": {
+                            "kind": "sp",
+                            "det": "THE-SAME",
+                            "head": {
+                              "kind": "refHead",
+                              "index": 3
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — renders one who attends to two things, knows they are not the same, and can say so; the parenthetical inanimate reading (a device or factor that differentiates) cannot be carried by the mental-agent skeleton."
+}

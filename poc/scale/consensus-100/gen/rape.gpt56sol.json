@@ -1,0 +1,176 @@
+{
+  "id": "urn:kernel-v1:rape",
+  "label": "rape (wartime despoiling)",
+  "synset": "urn:lexical-wn31:n-00968488",
+  "pattern": "InstanceSchema; collective bad action causing removal from an inhabited place",
+  "gloss": "The act of stripping a country of goods and resources through widespread violent seizure and destruction during warfare.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "PlaceRef"
+      },
+      {
+        "index": 4,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 5,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 6,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "time": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "bind": 6
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "LIVE",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            },
+            "bind": 2
+          },
+          "place": {
+            "kind": "sp",
+            "mods": [
+              {
+                "mod": "BIG"
+              }
+            ],
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHERE~PLACE"
+            },
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "THERE-IS",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 5
+          },
+          "place": {
+            "kind": "ref",
+            "index": 3
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "sp",
+                "det": "OTHER~ELSE~ANOTHER",
+                "quant": "MUCH~MANY",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "PEOPLE"
+                },
+                "bind": 4
+              },
+              "undergoer": {
+                "kind": "ref",
+                "index": 5
+              },
+              "time": {
+                "kind": "ref",
+                "index": 6
+              },
+              "place": {
+                "kind": "ref",
+                "index": 3
+              },
+              "manner": {
+                "kind": "prime",
+                "prime": "BAD"
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "AFTER",
+            "args": [
+              {
+                "kind": "ref",
+                "index": 6
+              },
+              {
+                "type": "op",
+                "op": "NOT",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "BE-SOMEWHERE",
+                    "roles": {
+                      "undergoer": {
+                        "kind": "ref",
+                        "index": 5
+                      },
+                      "locus": {
+                        "kind": "ref",
+                        "index": 3
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the AST renders many outsiders acting badly on many things in a large inhabited place so that those things cease to be there, but cannot encode country, warfare, violent seizure, ownership, resources, or destruction."
+}

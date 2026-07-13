@@ -1,0 +1,993 @@
+{
+  "built": "consensus-100 scoring + cheapest-subset (tau=0.90 dim=256)",
+  "tau": 0.9,
+  "dim": 256,
+  "n_concepts_total": 100,
+  "n_with_strong_consensus": 83,
+  "per_model_agreement_vs_strong_consensus": {
+    "claude-opus-4-8": {
+      "in_consensus": 70,
+      "of_concepts_with_consensus_and_gloss": 83,
+      "agreement_rate": 0.8434
+    },
+    "claude-fable-5": {
+      "in_consensus": 72,
+      "of_concepts_with_consensus_and_gloss": 82,
+      "agreement_rate": 0.878
+    },
+    "claude-haiku-4-5": {
+      "in_consensus": 75,
+      "of_concepts_with_consensus_and_gloss": 83,
+      "agreement_rate": 0.9036
+    },
+    "gpt-5.6-sol": {
+      "in_consensus": 71,
+      "of_concepts_with_consensus_and_gloss": 83,
+      "agreement_rate": 0.8554
+    },
+    "gpt-5.6-luna": {
+      "in_consensus": 78,
+      "of_concepts_with_consensus_and_gloss": 83,
+      "agreement_rate": 0.9398
+    },
+    "gpt-5.6-terra": {
+      "in_consensus": 73,
+      "of_concepts_with_consensus_and_gloss": 83,
+      "agreement_rate": 0.8795
+    }
+  },
+  "reference": {
+    "models": [
+      "gpt-5.6-sol",
+      "claude-fable-5"
+    ],
+    "n_concepts_ref_defined": 75,
+    "sol_fable_agree": 75,
+    "sol_fable_disagree": 24
+  },
+  "cost_table_usd_per_concept": {
+    "claude-opus-4-8": 0.03572,
+    "claude-fable-5": 0.17594,
+    "claude-haiku-4-5": 0.0059,
+    "gpt-5.6-sol": 0.07318,
+    "gpt-5.6-luna": 0.00459,
+    "gpt-5.6-terra": 0.00369
+  },
+  "cost_provenance": {
+    "claude-opus-4-8": {
+      "kind": "measured_api_equiv_usd",
+      "n": 100,
+      "mean_usd_per_concept": 0.03572
+    },
+    "claude-fable-5": {
+      "kind": "measured_api_equiv_usd",
+      "n": 99,
+      "mean_usd_per_concept": 0.17594
+    },
+    "claude-haiku-4-5": {
+      "kind": "measured_api_equiv_usd",
+      "n": 100,
+      "mean_usd_per_concept": 0.0059
+    },
+    "gpt-5.6-sol": {
+      "kind": "measured_tokens_x_stated_price",
+      "n": 100,
+      "mean_in_tok": 20513,
+      "mean_out_tok": 2190,
+      "price_per_mtok_in_out": [
+        2.5,
+        10.0
+      ],
+      "mean_usd_per_concept": 0.07318,
+      "note": "subscription marginal = $0; this is a published-price proxy"
+    },
+    "gpt-5.6-luna": {
+      "kind": "measured_tokens_x_stated_price",
+      "n": 100,
+      "mean_in_tok": 19322,
+      "mean_out_tok": 2819,
+      "price_per_mtok_in_out": [
+        0.15,
+        0.6
+      ],
+      "mean_usd_per_concept": 0.00459,
+      "note": "subscription marginal = $0; this is a published-price proxy"
+    },
+    "gpt-5.6-terra": {
+      "kind": "measured_tokens_x_stated_price",
+      "n": 100,
+      "mean_in_tok": 20512,
+      "mean_out_tok": 1019,
+      "price_per_mtok_in_out": [
+        0.15,
+        0.6
+      ],
+      "mean_usd_per_concept": 0.00369,
+      "note": "subscription marginal = $0; this is a published-price proxy"
+    }
+  },
+  "subsets": [
+    {
+      "models": [
+        "claude-opus-4-8"
+      ],
+      "size": 1,
+      "cost_usd_per_concept": 0.03572,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": false
+    },
+    {
+      "models": [
+        "claude-fable-5"
+      ],
+      "size": 1,
+      "cost_usd_per_concept": 0.17594,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-haiku-4-5"
+      ],
+      "size": 1,
+      "cost_usd_per_concept": 0.0059,
+      "fidelity": 0.9733,
+      "reproduced": 73,
+      "denominator": 75,
+      "contains_ref_model": false
+    },
+    {
+      "models": [
+        "gpt-5.6-sol"
+      ],
+      "size": 1,
+      "cost_usd_per_concept": 0.07318,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "gpt-5.6-luna"
+      ],
+      "size": 1,
+      "cost_usd_per_concept": 0.00459,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": false
+    },
+    {
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "size": 1,
+      "cost_usd_per_concept": 0.00369,
+      "fidelity": 0.9733,
+      "reproduced": 73,
+      "denominator": 75,
+      "contains_ref_model": false
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-fable-5"
+      ],
+      "size": 2,
+      "cost_usd_per_concept": 0.21166,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-haiku-4-5"
+      ],
+      "size": 2,
+      "cost_usd_per_concept": 0.04162,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": false
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "gpt-5.6-sol"
+      ],
+      "size": 2,
+      "cost_usd_per_concept": 0.1089,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "gpt-5.6-luna"
+      ],
+      "size": 2,
+      "cost_usd_per_concept": 0.04031,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": false
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "gpt-5.6-terra"
+      ],
+      "size": 2,
+      "cost_usd_per_concept": 0.03941,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": false
+    },
+    {
+      "models": [
+        "claude-fable-5",
+        "claude-haiku-4-5"
+      ],
+      "size": 2,
+      "cost_usd_per_concept": 0.18184,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-fable-5",
+        "gpt-5.6-sol"
+      ],
+      "size": 2,
+      "cost_usd_per_concept": 0.24912,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-fable-5",
+        "gpt-5.6-luna"
+      ],
+      "size": 2,
+      "cost_usd_per_concept": 0.18053,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-fable-5",
+        "gpt-5.6-terra"
+      ],
+      "size": 2,
+      "cost_usd_per_concept": 0.17963,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-haiku-4-5",
+        "gpt-5.6-sol"
+      ],
+      "size": 2,
+      "cost_usd_per_concept": 0.07908,
+      "fidelity": 0.9733,
+      "reproduced": 73,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-haiku-4-5",
+        "gpt-5.6-luna"
+      ],
+      "size": 2,
+      "cost_usd_per_concept": 0.01049,
+      "fidelity": 0.9733,
+      "reproduced": 73,
+      "denominator": 75,
+      "contains_ref_model": false
+    },
+    {
+      "models": [
+        "claude-haiku-4-5",
+        "gpt-5.6-terra"
+      ],
+      "size": 2,
+      "cost_usd_per_concept": 0.00959,
+      "fidelity": 0.9733,
+      "reproduced": 73,
+      "denominator": 75,
+      "contains_ref_model": false
+    },
+    {
+      "models": [
+        "gpt-5.6-sol",
+        "gpt-5.6-luna"
+      ],
+      "size": 2,
+      "cost_usd_per_concept": 0.07777,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "gpt-5.6-sol",
+        "gpt-5.6-terra"
+      ],
+      "size": 2,
+      "cost_usd_per_concept": 0.07687,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "gpt-5.6-luna",
+        "gpt-5.6-terra"
+      ],
+      "size": 2,
+      "cost_usd_per_concept": 0.00828,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": false
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-fable-5",
+        "claude-haiku-4-5"
+      ],
+      "size": 3,
+      "cost_usd_per_concept": 0.21756,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-fable-5",
+        "gpt-5.6-sol"
+      ],
+      "size": 3,
+      "cost_usd_per_concept": 0.28484,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-fable-5",
+        "gpt-5.6-luna"
+      ],
+      "size": 3,
+      "cost_usd_per_concept": 0.21625,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-fable-5",
+        "gpt-5.6-terra"
+      ],
+      "size": 3,
+      "cost_usd_per_concept": 0.21535,
+      "fidelity": 0.9867,
+      "reproduced": 74,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-haiku-4-5",
+        "gpt-5.6-sol"
+      ],
+      "size": 3,
+      "cost_usd_per_concept": 0.1148,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-haiku-4-5",
+        "gpt-5.6-luna"
+      ],
+      "size": 3,
+      "cost_usd_per_concept": 0.04621,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": false
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-haiku-4-5",
+        "gpt-5.6-terra"
+      ],
+      "size": 3,
+      "cost_usd_per_concept": 0.04531,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": false
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "gpt-5.6-sol",
+        "gpt-5.6-luna"
+      ],
+      "size": 3,
+      "cost_usd_per_concept": 0.11349,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "gpt-5.6-sol",
+        "gpt-5.6-terra"
+      ],
+      "size": 3,
+      "cost_usd_per_concept": 0.11259,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "gpt-5.6-luna",
+        "gpt-5.6-terra"
+      ],
+      "size": 3,
+      "cost_usd_per_concept": 0.044,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": false
+    },
+    {
+      "models": [
+        "claude-fable-5",
+        "claude-haiku-4-5",
+        "gpt-5.6-sol"
+      ],
+      "size": 3,
+      "cost_usd_per_concept": 0.25502,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-fable-5",
+        "claude-haiku-4-5",
+        "gpt-5.6-luna"
+      ],
+      "size": 3,
+      "cost_usd_per_concept": 0.18643,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-fable-5",
+        "claude-haiku-4-5",
+        "gpt-5.6-terra"
+      ],
+      "size": 3,
+      "cost_usd_per_concept": 0.18553,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-fable-5",
+        "gpt-5.6-sol",
+        "gpt-5.6-luna"
+      ],
+      "size": 3,
+      "cost_usd_per_concept": 0.25371,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-fable-5",
+        "gpt-5.6-sol",
+        "gpt-5.6-terra"
+      ],
+      "size": 3,
+      "cost_usd_per_concept": 0.25281,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-fable-5",
+        "gpt-5.6-luna",
+        "gpt-5.6-terra"
+      ],
+      "size": 3,
+      "cost_usd_per_concept": 0.18422,
+      "fidelity": 0.9867,
+      "reproduced": 74,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-haiku-4-5",
+        "gpt-5.6-sol",
+        "gpt-5.6-luna"
+      ],
+      "size": 3,
+      "cost_usd_per_concept": 0.08367,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-haiku-4-5",
+        "gpt-5.6-sol",
+        "gpt-5.6-terra"
+      ],
+      "size": 3,
+      "cost_usd_per_concept": 0.08277,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-haiku-4-5",
+        "gpt-5.6-luna",
+        "gpt-5.6-terra"
+      ],
+      "size": 3,
+      "cost_usd_per_concept": 0.01418,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": false
+    },
+    {
+      "models": [
+        "gpt-5.6-sol",
+        "gpt-5.6-luna",
+        "gpt-5.6-terra"
+      ],
+      "size": 3,
+      "cost_usd_per_concept": 0.08146,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-fable-5",
+        "claude-haiku-4-5",
+        "gpt-5.6-sol"
+      ],
+      "size": 4,
+      "cost_usd_per_concept": 0.29074,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-fable-5",
+        "claude-haiku-4-5",
+        "gpt-5.6-luna"
+      ],
+      "size": 4,
+      "cost_usd_per_concept": 0.22215,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-fable-5",
+        "claude-haiku-4-5",
+        "gpt-5.6-terra"
+      ],
+      "size": 4,
+      "cost_usd_per_concept": 0.22125,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-fable-5",
+        "gpt-5.6-sol",
+        "gpt-5.6-luna"
+      ],
+      "size": 4,
+      "cost_usd_per_concept": 0.28943,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-fable-5",
+        "gpt-5.6-sol",
+        "gpt-5.6-terra"
+      ],
+      "size": 4,
+      "cost_usd_per_concept": 0.28853,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-fable-5",
+        "gpt-5.6-luna",
+        "gpt-5.6-terra"
+      ],
+      "size": 4,
+      "cost_usd_per_concept": 0.21994,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-haiku-4-5",
+        "gpt-5.6-sol",
+        "gpt-5.6-luna"
+      ],
+      "size": 4,
+      "cost_usd_per_concept": 0.11939,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-haiku-4-5",
+        "gpt-5.6-sol",
+        "gpt-5.6-terra"
+      ],
+      "size": 4,
+      "cost_usd_per_concept": 0.11849,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-haiku-4-5",
+        "gpt-5.6-luna",
+        "gpt-5.6-terra"
+      ],
+      "size": 4,
+      "cost_usd_per_concept": 0.0499,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": false
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "gpt-5.6-sol",
+        "gpt-5.6-luna",
+        "gpt-5.6-terra"
+      ],
+      "size": 4,
+      "cost_usd_per_concept": 0.11718,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-fable-5",
+        "claude-haiku-4-5",
+        "gpt-5.6-sol",
+        "gpt-5.6-luna"
+      ],
+      "size": 4,
+      "cost_usd_per_concept": 0.25961,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-fable-5",
+        "claude-haiku-4-5",
+        "gpt-5.6-sol",
+        "gpt-5.6-terra"
+      ],
+      "size": 4,
+      "cost_usd_per_concept": 0.25871,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-fable-5",
+        "claude-haiku-4-5",
+        "gpt-5.6-luna",
+        "gpt-5.6-terra"
+      ],
+      "size": 4,
+      "cost_usd_per_concept": 0.19012,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-fable-5",
+        "gpt-5.6-sol",
+        "gpt-5.6-luna",
+        "gpt-5.6-terra"
+      ],
+      "size": 4,
+      "cost_usd_per_concept": 0.2574,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-haiku-4-5",
+        "gpt-5.6-sol",
+        "gpt-5.6-luna",
+        "gpt-5.6-terra"
+      ],
+      "size": 4,
+      "cost_usd_per_concept": 0.08736,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-fable-5",
+        "claude-haiku-4-5",
+        "gpt-5.6-sol",
+        "gpt-5.6-luna"
+      ],
+      "size": 5,
+      "cost_usd_per_concept": 0.29533,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-fable-5",
+        "claude-haiku-4-5",
+        "gpt-5.6-sol",
+        "gpt-5.6-terra"
+      ],
+      "size": 5,
+      "cost_usd_per_concept": 0.29443,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-fable-5",
+        "claude-haiku-4-5",
+        "gpt-5.6-luna",
+        "gpt-5.6-terra"
+      ],
+      "size": 5,
+      "cost_usd_per_concept": 0.22584,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-fable-5",
+        "gpt-5.6-sol",
+        "gpt-5.6-luna",
+        "gpt-5.6-terra"
+      ],
+      "size": 5,
+      "cost_usd_per_concept": 0.29312,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-haiku-4-5",
+        "gpt-5.6-sol",
+        "gpt-5.6-luna",
+        "gpt-5.6-terra"
+      ],
+      "size": 5,
+      "cost_usd_per_concept": 0.12308,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-fable-5",
+        "claude-haiku-4-5",
+        "gpt-5.6-sol",
+        "gpt-5.6-luna",
+        "gpt-5.6-terra"
+      ],
+      "size": 5,
+      "cost_usd_per_concept": 0.2633,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-fable-5",
+        "claude-haiku-4-5",
+        "gpt-5.6-sol",
+        "gpt-5.6-luna",
+        "gpt-5.6-terra"
+      ],
+      "size": 6,
+      "cost_usd_per_concept": 0.29902,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": true
+    }
+  ],
+  "pareto_frontier": [
+    {
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "size": 1,
+      "cost_usd_per_concept": 0.00369,
+      "fidelity": 0.9733,
+      "reproduced": 73,
+      "denominator": 75,
+      "contains_ref_model": false
+    },
+    {
+      "models": [
+        "gpt-5.6-luna"
+      ],
+      "size": 1,
+      "cost_usd_per_concept": 0.00459,
+      "fidelity": 1.0,
+      "reproduced": 75,
+      "denominator": 75,
+      "contains_ref_model": false
+    }
+  ],
+  "recommended_cheapest_ge95": {
+    "models": [
+      "gpt-5.6-terra"
+    ],
+    "size": 1,
+    "cost_usd_per_concept": 0.00369,
+    "fidelity": 0.9733,
+    "reproduced": 73,
+    "denominator": 75,
+    "contains_ref_model": false
+  },
+  "recommended_cheapest_ge90": {
+    "models": [
+      "gpt-5.6-terra"
+    ],
+    "size": 1,
+    "cost_usd_per_concept": 0.00369,
+    "fidelity": 0.9733,
+    "reproduced": 73,
+    "denominator": 75,
+    "contains_ref_model": false
+  },
+  "rec95_tau_sensitivity": {
+    "0.85": {
+      "fidelity": 1.0,
+      "den": 75
+    },
+    "0.9": {
+      "fidelity": 0.9733,
+      "den": 75
+    },
+    "0.95": {
+      "fidelity": 0.6,
+      "den": 75
+    }
+  }
+}

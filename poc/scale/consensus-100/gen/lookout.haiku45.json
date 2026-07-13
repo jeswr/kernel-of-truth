@@ -1,0 +1,75 @@
+{
+  "id": "urn:kernel-v1:lookout",
+  "label": "lookout",
+  "synset": "urn:lexical-wn31:n-00883223",
+  "pattern": "InstanceSchema; SEE + directional orientation + vigilance",
+  "gloss": "The act of watching or observing attentively, especially to detect something or to maintain awareness of one's surroundings; a directed gaze outward or forward to perceive what lies ahead.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "SEE",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "stimulus": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          },
+          "manner": {
+            "kind": "prime",
+            "prime": "FAR"
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "KNOW",
+              "roles": {
+                "experiencer": {
+                  "kind": "ref",
+                  "index": 1
+                },
+                "topic": {
+                  "kind": "ref",
+                  "index": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — renders watching forward to know what is there, but cannot capture 'lookout' as a continuous vigilant stance or the role-sense of one who keeps watch; reads as a single act of directed perception rather than an ongoing attentive posture."
+}

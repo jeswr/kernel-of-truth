@@ -1,0 +1,139 @@
+{
+  "id": "urn:kernel-v1:contamination",
+  "label": "contamination",
+  "synset": "urn:lexical-wn31:n-14511315",
+  "pattern": "WhenTrue; bad-thing INSIDE + BECAUSE degradation + people's aversion",
+  "gloss": "The state of a substance, place, or body in which some harmful or impure matter is present within it, so that the whole is thereby made unclean or unfit and is something people wish free of it.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "mods": [
+              {
+                "mod": "BAD"
+              }
+            ],
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          },
+          "locus": {
+            "kind": "ref",
+            "index": 1
+          },
+          "manner": {
+            "kind": "prime",
+            "prime": "INSIDE"
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "BE-SOMEWHERE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "locus": {
+                "kind": "ref",
+                "index": 1
+              },
+              "manner": {
+                "kind": "prime",
+                "prime": "INSIDE"
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "BE-SPEC",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "attribute": {
+                "kind": "sp",
+                "mods": [
+                  {
+                    "mod": "BAD"
+                  }
+                ],
+                "head": {
+                  "kind": "kindFrame",
+                  "of": {
+                    "kind": "sp",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMETHING~THING"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "DON'T-WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            }
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "BE-SOMEWHERE",
+              "roles": {
+                "undergoer": {
+                  "kind": "ref",
+                  "index": 2
+                },
+                "locus": {
+                  "kind": "ref",
+                  "index": 1
+                },
+                "manner": {
+                  "kind": "prime",
+                  "prime": "INSIDE"
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the presence of a bad thing inside, the resulting badness of the whole, and people's aversion are rendered, but the specific notions of impurity and unfitness for use or health cannot be expressed in the primes."
+}

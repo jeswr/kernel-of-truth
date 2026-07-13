@@ -1,0 +1,100 @@
+{
+  "id": "urn:kernel-v1:cognitive-state",
+  "label": "cognitive state",
+  "synset": "urn:lexical-wn31:n-05677778",
+  "pattern": "InstanceSchema; a way one's thinking and knowing stands at a time",
+  "gloss": "A condition of a person's mind at a given time, comprising how one is thinking, what one knows or believes, and how these processes stand; the current disposition of someone's mental activity.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMEONE"
+            },
+            "bind": 2
+          },
+          "time": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "KNOW",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "topic": {
+            "kind": "sp",
+            "quant": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 1
+          },
+          "time": {
+            "kind": "ref",
+            "index": 3
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "attribute": {
+            "kind": "sp",
+            "head": {
+              "kind": "kindFrame",
+              "of": {
+                "kind": "sp",
+                "det": "THIS",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — renders that at a time someone is thinking and knows something of a certain kind, but the notion of 'state/condition' as an abstract standing of mental processes is only approximated, not carried as a primitive."
+}

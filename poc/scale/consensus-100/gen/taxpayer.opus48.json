@@ -1,0 +1,159 @@
+{
+  "id": "urn:kernel-v1:taxpayer",
+  "label": "taxpayer",
+  "synset": "urn:lexical-wn31:n-10713659",
+  "pattern": "InstanceSchema; compelled giving of one's own to a governing body",
+  "gloss": "A person who is required to give a part of what belongs to them, especially money, to the body that governs the place where they live, as a duty owed for living under its authority.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "IS-MINE",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          },
+          "possessor": {
+            "kind": "prime",
+            "prime": "I"
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "partFrame",
+              "of": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          },
+          "comitative": {
+            "kind": "sp",
+            "quant": "SOME",
+            "mods": [
+              {
+                "mod": "BIG"
+              }
+            ],
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            },
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "undergoer": {
+                "kind": "sp",
+                "head": {
+                  "kind": "partFrame",
+                  "of": {
+                    "kind": "ref",
+                    "index": 2
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "THINK",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "quote": {
+                "kind": "quote",
+                "clauses": [
+                  {
+                    "type": "op",
+                    "op": "IF",
+                    "args": [
+                      {
+                        "type": "op",
+                        "op": "NOT",
+                        "args": [
+                          {
+                            "type": "pred",
+                            "pred": "DO",
+                            "roles": {
+                              "agent": {
+                                "kind": "prime",
+                                "prime": "I"
+                              },
+                              "undergoer": {
+                                "kind": "ref",
+                                "index": 3
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "type": "pred",
+                        "pred": "HAPPEN",
+                        "roles": {
+                          "undergoer": {
+                            "kind": "prime",
+                            "prime": "I"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — 'money', 'tax', and the governmental/legal obligation cannot be primes; the AST renders giving a part of one's own to a large body of people under a felt compulsion, not the specific institution of taxation."
+}

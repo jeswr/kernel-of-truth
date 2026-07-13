@@ -1,0 +1,71 @@
+{
+  "id": "urn:kernel-v1:inhabitancy",
+  "label": "inhabitancy",
+  "synset": "urn:lexical-wn31:n-01056469",
+  "pattern": "InstanceSchema; LIVE anchored to a place with long duration + recurrent presence",
+  "gloss": "The act or condition of living in a place over an extended period as one's settled abode, whether the dweller is a person or an animal; sustained residence in a location.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "PlaceRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "LIVE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "place": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHERE~PLACE"
+            },
+            "bind": 2
+          },
+          "duration": {
+            "kind": "prime",
+            "prime": "A-LONG-TIME"
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "locus": {
+            "kind": "ref",
+            "index": 2
+          },
+          "time": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: faithful — a living thing lives in one place for a long time and is in that place at many times; permanence is rendered as long duration plus recurrent presence, which carries the criterial dwelling-in-a-place differentia for both people and animals."
+}

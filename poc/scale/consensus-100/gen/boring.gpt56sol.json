@@ -1,0 +1,180 @@
+{
+  "id": "urn:kernel-v1:boring",
+  "label": "boring (for petroleum)",
+  "synset": "urn:lexical-wn31:n-00924944",
+  "pattern": "InstanceSchema; instrumented action on a place + hoped-for INSIDE-to-not-INSIDE result",
+  "gloss": "The act of making a deep, narrow hole in the earth by mechanical means, undertaken in the hope of reaching and extracting petroleum.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "PlaceRef"
+      },
+      {
+        "index": 4,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 5,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "place": {
+            "kind": "sp",
+            "quant": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHERE~PLACE"
+            },
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "sp",
+            "quant": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMEONE"
+            },
+            "bind": 2
+          },
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "partFrame",
+              "of": {
+                "kind": "ref",
+                "index": 3
+              }
+            }
+          },
+          "instrument": {
+            "kind": "sp",
+            "quant": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 4
+          },
+          "place": {
+            "kind": "ref",
+            "index": 3
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "topic": {
+            "kind": "sp",
+            "quant": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 5
+          },
+          "quote": {
+            "kind": "quote",
+            "clauses": [
+              {
+                "type": "op",
+                "op": "MAYBE",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "BE-SOMEWHERE",
+                    "roles": {
+                      "undergoer": {
+                        "kind": "ref",
+                        "index": 5
+                      },
+                      "locus": {
+                        "kind": "ref",
+                        "index": 3
+                      },
+                      "manner": {
+                        "kind": "prime",
+                        "prime": "INSIDE"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "op",
+              "op": "NOT",
+              "args": [
+                {
+                  "type": "pred",
+                  "pred": "BE-SOMEWHERE",
+                  "roles": {
+                    "undergoer": {
+                      "kind": "ref",
+                      "index": 5
+                    },
+                    "locus": {
+                      "kind": "ref",
+                      "index": 3
+                    },
+                    "manner": {
+                      "kind": "prime",
+                      "prime": "INSIDE"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the primes cannot distinguish earth, mechanical hole-making, or petroleum; the AST instead renders an instrumented action on part of a place, motivated by a possibly hidden thing that the actor wants no longer inside."
+}

@@ -1,0 +1,109 @@
+{
+  "id": "urn:kernel-v1:stockholder",
+  "label": "stockholder",
+  "synset": "urn:lexical-wn31:n-10677408",
+  "pattern": "InstanceSchema; possession of a part of an owning entity",
+  "gloss": "A person who owns one or more shares in a business company, thereby holding a portion of it and a claim on part of what it earns.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "THERE-IS",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "restrictedBy": {
+              "type": "pred",
+              "pred": "DO",
+              "roles": {
+                "agent": {
+                  "kind": "sp",
+                  "quant": "MUCH~MANY",
+                  "head": {
+                    "kind": "primeHead",
+                    "prime": "PEOPLE"
+                  }
+                }
+              }
+            },
+            "bind": 2
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "IS-MINE",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "partFrame",
+              "of": {
+                "kind": "ref",
+                "index": 2
+              }
+            },
+            "bind": 3
+          },
+          "possessor": {
+            "kind": "prime",
+            "prime": "I"
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "quote": {
+            "kind": "quote",
+            "clauses": [
+              {
+                "type": "pred",
+                "pred": "IS-MINE",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 3
+                  },
+                  "possessor": {
+                    "kind": "prime",
+                    "prime": "I"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — 'share of stock in a corporation' is rendered as owning a part of a thing that many people do together; the legal notions of shares, corporate ownership, and claim on earnings are not primitive."
+}

@@ -1,0 +1,116 @@
+{
+  "id": "urn:kernel-v1:fishing",
+  "label": "fishing",
+  "synset": "urn:lexical-wn31:n-00454959",
+  "pattern": "InstanceSchema; recreational purpose + trying to catch water-animals",
+  "gloss": "The activity of trying to catch fish or other water animals, engaged in for pleasure or recreation rather than for a living.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "WANT",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "complement": {
+                "kind": "clause",
+                "clause": {
+                  "type": "pred",
+                  "pred": "BE-SOMEWHERE",
+                  "roles": {
+                    "undergoer": {
+                      "kind": "sp",
+                      "mods": [
+                        {
+                          "mod": "SMALL"
+                        }
+                      ],
+                      "head": {
+                        "kind": "primeHead",
+                        "prime": "SOMETHING~THING"
+                      },
+                      "restrictedBy": {
+                        "type": "pred",
+                        "pred": "LIVE",
+                        "roles": {
+                          "undergoer": {
+                            "kind": "ref",
+                            "index": 2
+                          }
+                        }
+                      },
+                      "bind": 2
+                    },
+                    "locus": {
+                      "kind": "ref",
+                      "index": 1
+                    },
+                    "manner": {
+                      "kind": "prime",
+                      "prime": "NEAR"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "FEEL",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "attribute": {
+            "kind": "prime",
+            "prime": "GOOD"
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the primes render doing something to bring a small living thing near oneself while feeling good, but 'fish', water, hook/line, and the for-pleasure-not-livelihood contrast cannot be carried; 'diversion' is approximated only by FEEL GOOD."
+}

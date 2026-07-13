@@ -1,0 +1,45 @@
+{
+  "id": "urn:kernel-v1:expensiveness",
+  "label": "expensiveness",
+  "synset": "urn:lexical-wn31:n-05153138",
+  "pattern": "WhenTrue; BE-SPEC with VERY BIG surrogate for price",
+  "gloss": "The quality of having a price greatly above the ordinary or expected amount for something of its kind, so that acquiring it requires an unusually large payment.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "attribute": {
+            "kind": "sp",
+            "mods": [
+              {
+                "mod": "BIG",
+                "intensifier": "VERY"
+              }
+            ],
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the rendering substitutes a very-big specification for a high monetary price because the metalanguage has no primitives for money, prices, or comparison of amounts."
+}

@@ -1,0 +1,107 @@
+{
+  "id": "urn:kernel-v1:lookout",
+  "label": "lookout (act of observing outward)",
+  "synset": "urn:lexical-wn31:n-00883223",
+  "pattern": "InstanceSchema; vantage-point SEE + distance",
+  "gloss": "An act of directing one’s gaze outward from a place or position in order to observe the area beyond it, especially for signs of something that may be approaching or happening there.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 4,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMEONE"
+            },
+            "bind": 2
+          },
+          "locus": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "op",
+              "op": "CAN",
+              "args": [
+                {
+                  "type": "pred",
+                  "pred": "SEE",
+                  "roles": {
+                    "experiencer": {
+                      "kind": "ref",
+                      "index": 2
+                    },
+                    "stimulus": {
+                      "kind": "sp",
+                      "head": {
+                        "kind": "primeHead",
+                        "prime": "SOMETHING~THING"
+                      },
+                      "bind": 4
+                    },
+                    "manner": {
+                      "kind": "prime",
+                      "prime": "FAR"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — it renders an event in which someone at a place wants to see something far away, but cannot encode the outward orientation or the anticipatory search for signs."
+}

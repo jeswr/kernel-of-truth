@@ -1,0 +1,188 @@
+{
+  "id": "urn:kernel-v1:conception",
+  "label": "conception",
+  "synset": "urn:lexical-wn31:n-00846508",
+  "pattern": "InstanceSchema; body-part contact + ensuing life inside a body",
+  "gloss": "A reproductive event in which a sperm cell fuses with an ovum, producing a fertilized ovum and initiating pregnancy.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "TimeRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 4,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 5,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 6,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "time": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "bind": 2
+          },
+          "place": {
+            "kind": "sp",
+            "quant": "ONE",
+            "head": {
+              "kind": "primeHead",
+              "prime": "BODY"
+            },
+            "bind": 3
+          },
+          "manner": {
+            "kind": "prime",
+            "prime": "INSIDE"
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "THERE-IS",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "mods": [
+              {
+                "mod": "SMALL"
+              }
+            ],
+            "head": {
+              "kind": "partFrame",
+              "of": {
+                "kind": "ref",
+                "index": 3
+              }
+            },
+            "bind": 4
+          },
+          "place": {
+            "kind": "ref",
+            "index": 3
+          },
+          "manner": {
+            "kind": "prime",
+            "prime": "INSIDE"
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "BE-SOMEWHERE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 4
+              },
+              "locus": {
+                "kind": "sp",
+                "mods": [
+                  {
+                    "mod": "SMALL"
+                  }
+                ],
+                "head": {
+                  "kind": "partFrame",
+                  "of": {
+                    "kind": "sp",
+                    "det": "OTHER~ELSE~ANOTHER",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "BODY"
+                    }
+                  }
+                },
+                "bind": 5
+              },
+              "manner": {
+                "kind": "prime",
+                "prime": "TOUCH"
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "AFTER",
+            "args": [
+              {
+                "kind": "ref",
+                "index": 2
+              },
+              {
+                "type": "op",
+                "op": "CAN",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "LIVE",
+                    "roles": {
+                      "undergoer": {
+                        "kind": "sp",
+                        "det": "SOME",
+                        "mods": [
+                          {
+                            "mod": "SMALL"
+                          }
+                        ],
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "SOMETHING~THING"
+                        },
+                        "bind": 6
+                      },
+                      "place": {
+                        "kind": "ref",
+                        "index": 3
+                      },
+                      "manner": {
+                        "kind": "prime",
+                        "prime": "INSIDE"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the metalanguage cannot distinguish sperm from ovum or express cellular fusion and fertilization, rendering contact between small parts of different bodies followed by something able to live inside one body."
+}

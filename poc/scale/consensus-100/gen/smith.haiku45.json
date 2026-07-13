@@ -1,0 +1,96 @@
+{
+  "id": "urn:kernel-v1:smith",
+  "label": "smith",
+  "synset": "urn:lexical-wn31:n-10634145",
+  "pattern": "InstanceSchema; skilled DO with heated metal + hammering instrument",
+  "gloss": "A person who shapes metal by heating it until it becomes soft and malleable, then hammering or otherwise working it into desired forms; a craftsperson skilled in metalworking.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "kindFrame",
+              "of": {
+                "kind": "concept",
+                "id": "urn:kernel-v1:metal"
+              }
+            },
+            "bind": 2
+          },
+          "instrument": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "BE-SPEC",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "attribute": {
+                "kind": "sp",
+                "mods": [
+                  {
+                    "mod": "GOOD"
+                  }
+                ],
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                }
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the explication renders a person who works metal into a good form by doing (hammering); it does not capture the specific criterion of heating the metal until malleable, nor the skilled/trained nature of the craft. These material and procedural specifics exceed the 65 primes."
+}

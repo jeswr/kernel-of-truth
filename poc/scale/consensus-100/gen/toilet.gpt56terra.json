@@ -1,0 +1,60 @@
+{
+  "id": "urn:kernel-v1:toilet",
+  "label": "toilet (personal preparation)",
+  "synset": "urn:lexical-wn31:n-00830365",
+  "pattern": "InstanceSchema; self-directed bodily action",
+  "gloss": "The routine of washing, grooming, and arranging one's clothing and person in preparation for the day or for social activity.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMEONE"
+            },
+            "bind": 2
+          },
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "partFrame",
+              "of": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — grooming, dressing, and preparatory purpose cannot be marked; the AST renders only a self-directed action involving the body."
+}

@@ -1,0 +1,97 @@
+{
+  "id": "urn:kernel-v1:invention",
+  "label": "invention",
+  "synset": "urn:lexical-wn31:n-00942228",
+  "pattern": "InstanceSchema; THINK + DO novelty (first-time making)",
+  "gloss": "The act of creating or producing something new that did not exist before; a deliberate act of thinking and making by which someone brings into being a thing or process previously unknown.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "topic": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "ref",
+            "index": 2
+          }
+        },
+        "time": {
+          "kind": "sp",
+          "det": "SOME",
+          "head": {
+            "kind": "primeHead",
+            "prime": "WHEN~TIME"
+          },
+          "bind": 3
+        }
+      },
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 3
+          },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "THERE-IS",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 2
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: faithful — someone thinks of a thing, does it, and before that time the thing did not exist — a clean rendering of bringing something new into being."
+}

@@ -1,0 +1,153 @@
+{
+  "id": "urn:kernel-v1:deposition",
+  "label": "deposition (removal from office)",
+  "synset": "urn:lexical-wn31:n-00209792",
+  "pattern": "InstanceSchema; action-caused loss of ABOVE standing across a time boundary",
+  "gloss": "The act of removing a powerful person from a position of authority or public office, thereby ending that person's tenure and power in the role.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "TimeRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 4,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 5,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "time": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "bind": 2
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 2
+          },
+          {
+            "type": "pred",
+            "pred": "BE-SOMEWHERE",
+            "roles": {
+              "undergoer": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMEONE"
+                },
+                "bind": 3
+              },
+              "locus": {
+                "kind": "sp",
+                "quant": "MUCH~MANY",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "PEOPLE"
+                },
+                "bind": 4
+              },
+              "manner": {
+                "kind": "prime",
+                "prime": "ABOVE"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "sp",
+                "det": "OTHER~ELSE~ANOTHER",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMEONE"
+                },
+                "bind": 5
+              },
+              "undergoer": {
+                "kind": "ref",
+                "index": 3
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "AFTER",
+            "args": [
+              {
+                "kind": "ref",
+                "index": 2
+              },
+              {
+                "type": "op",
+                "op": "NOT",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "BE-SOMEWHERE",
+                    "roles": {
+                      "undergoer": {
+                        "kind": "ref",
+                        "index": 3
+                      },
+                      "locus": {
+                        "kind": "ref",
+                        "index": 4
+                      },
+                      "manner": {
+                        "kind": "prime",
+                        "prime": "ABOVE"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the loss of a position or office is rendered as ceasing to be above many people after another person's act, so institutional authority is only approximated."
+}

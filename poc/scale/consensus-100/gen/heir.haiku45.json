@@ -1,0 +1,95 @@
+{
+  "id": "urn:kernel-v1:heir",
+  "label": "heir",
+  "synset": "urn:lexical-wn31:n-10188177",
+  "pattern": "InstanceSchema; legal entitlement + post-mortem possession transfer",
+  "gloss": "A person who is legally entitled to receive and possess the property, title, or estate of another upon that person's death, either by the terms of a will or by operation of law.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "attribute": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMEONE"
+            },
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "DIE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 2
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "AFTER",
+        "args": [
+          {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "DIE",
+              "roles": {
+                "undergoer": {
+                  "kind": "ref",
+                  "index": 2
+                }
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "IS-MINE",
+            "roles": {
+              "undergoer": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                },
+                "bind": 3
+              },
+              "possessor": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — renders the core legal entitlement as a future possession transfer upon death, but cannot encode the juridical mechanism (will, statute, succession law) that validates the claim or distinguish it from mere de facto possession."
+}

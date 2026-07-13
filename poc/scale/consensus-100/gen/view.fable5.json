@@ -1,0 +1,118 @@
+{
+  "id": "urn:kernel-v1:view",
+  "label": "view (act of looking)",
+  "synset": "urn:lexical-wn31:n-00883327",
+  "pattern": "InstanceSchema; want-to-see + bodily act + sustained SEE yielding KNOW",
+  "gloss": "The act of looking at something for a time in order to perceive it with the eyes; a deliberate exercise of vision by which one takes in, and comes to know something about, an object or scene.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "SEE",
+              "roles": {
+                "experiencer": {
+                  "kind": "ref",
+                  "index": 1
+                },
+                "stimulus": {
+                  "kind": "sp",
+                  "head": {
+                    "kind": "primeHead",
+                    "prime": "SOMETHING~THING"
+                  },
+                  "bind": 2
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "instrument": {
+            "kind": "sp",
+            "head": {
+              "kind": "partFrame",
+              "of": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "BODY"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "SEE",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "stimulus": {
+                "kind": "ref",
+                "index": 2
+              },
+              "duration": {
+                "kind": "prime",
+                "prime": "FOR-SOME-TIME"
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "KNOW",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "topic": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: faithful — wanting to see a thing, doing something with a body part, and seeing it for some time so as to know about it renders deliberate looking; 'eyes' is approximated as a body part, which SEE already makes visual."
+}

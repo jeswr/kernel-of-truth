@@ -1,0 +1,45 @@
+{
+  "id": "urn:kernel-v1:candidate",
+  "label": "candidate",
+  "synset": "urn:lexical-wn31:n-09910201",
+  "pattern": "InstanceSchema; thought-about-by-others skeleton for possible selection",
+  "gloss": "A person regarded as a possible choice for an office, prize, honour, or other distinction, and therefore considered by others when deciding whom to appoint, select, or reward.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "sp",
+            "quant": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            },
+            "bind": 2
+          },
+          "topic": {
+            "kind": "ref",
+            "index": 1
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — it renders a person being thought about by some people, but cannot encode the criterial possibility of choosing them for an office, prize, or honour."
+}

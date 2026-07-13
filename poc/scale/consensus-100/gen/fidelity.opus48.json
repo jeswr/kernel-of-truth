@@ -1,0 +1,98 @@
+{
+  "id": "urn:kernel-v1:fidelity",
+  "label": "fidelity",
+  "synset": "urn:lexical-wn31:n-04884180",
+  "pattern": "WhenTrue; undertaking + follow-through + non-betrayal",
+  "gloss": "Steadfast faithfulness in keeping one's promises and obligations to another, so that one continues to act as one has undertaken and does not betray the trust placed in one.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "SAY",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "addressee": {
+            "kind": "sp",
+            "det": "OTHER~ELSE~ANOTHER",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMEONE"
+            },
+            "bind": 2
+          },
+          "topic": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "ref",
+            "index": 3
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "DON'T-WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "FEEL",
+              "roles": {
+                "experiencer": {
+                  "kind": "ref",
+                  "index": 2
+                },
+                "attribute": {
+                  "kind": "prime",
+                  "prime": "BAD"
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: faithful — one says a thing to another, does that thing, and does not want the other to feel bad — a sound reading of the quality of keeping faith."
+}

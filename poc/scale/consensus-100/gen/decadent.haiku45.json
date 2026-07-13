@@ -1,0 +1,128 @@
+{
+  "id": "urn:kernel-v1:decadent",
+  "label": "decadent",
+  "synset": "urn:lexical-wn31:n-10017477",
+  "pattern": "InstanceSchema; deterioration from prior good state via moral/aesthetic neglect",
+  "gloss": "A person who has undergone moral or artistic decline from a formerly higher standard, having abandoned principle or craft in favor of excess, artifice, or corruption.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "TimeRef"
+      },
+      {
+        "index": 3,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "attribute": {
+            "kind": "sp",
+            "mods": [
+              {
+                "mod": "GOOD"
+              }
+            ],
+            "head": {
+              "kind": "kindFrame",
+              "of": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMEONE"
+                }
+              }
+            }
+          }
+        },
+        "time": {
+          "kind": "sp",
+          "det": "SOME",
+          "head": {
+            "kind": "primeHead",
+            "prime": "WHEN~TIME"
+          },
+          "bind": 2
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "attribute": {
+            "kind": "sp",
+            "mods": [
+              {
+                "mod": "BAD"
+              }
+            ],
+            "head": {
+              "kind": "kindFrame",
+              "of": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMEONE"
+                }
+              }
+            }
+          }
+        },
+        "time": {
+          "kind": "sp",
+          "det": "SOME",
+          "head": {
+            "kind": "primeHead",
+            "prime": "WHEN~TIME"
+          },
+          "bind": 3
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 2
+          },
+          {
+            "kind": "ref",
+            "index": 3
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the explication renders a person who was good then became bad; it cannot mark the specific moral or artistic domain, or the notions of excess and corruption that characterise decadence. The skeleton captures the core temporal polarity but drops the evaluative content particular to moral/aesthetic decay."
+}

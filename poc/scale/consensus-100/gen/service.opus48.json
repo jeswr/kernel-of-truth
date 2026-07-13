@@ -1,0 +1,127 @@
+{
+  "id": "urn:kernel-v1:service",
+  "label": "service (of process)",
+  "synset": "urn:lexical-wn31:n-00319217",
+  "pattern": "InstanceSchema; formal delivery of a document to a person by an authority",
+  "gloss": "The act of formally delivering a legal document, such as a writ or summons, to a person, so that this person comes to know of a demand or proceeding that concerns them and is bound to respond to it.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "mods": [
+              {
+                "mod": "BIG"
+              }
+            ],
+            "head": {
+              "kind": "primeHead",
+              "prime": "WORDS"
+            },
+            "bind": 2
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "MOVE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "locus": {
+            "kind": "sp",
+            "det": "OTHER~ELSE~ANOTHER",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMEONE"
+            },
+            "bind": 3,
+            "manner": {
+              "kind": "prime",
+              "prime": "NEAR"
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "KNOW",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 3
+          },
+          "topic": {
+            "kind": "ref",
+            "index": 2
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "KNOW",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 3
+              },
+              "topic": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 3
+              },
+              "undergoer": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                }
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the legal force of a writ/summons and the binding obligation to respond cannot be primes-encoded; the AST renders only that an agent conveys words to another person who thereby comes to know and must do something."
+}

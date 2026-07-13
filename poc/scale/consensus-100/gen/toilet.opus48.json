@@ -1,0 +1,109 @@
+{
+  "id": "urn:kernel-v1:toilet",
+  "label": "toilet (act of grooming oneself)",
+  "synset": "urn:lexical-wn31:n-00830365",
+  "pattern": "InstanceSchema; self-directed grooming act aimed at good appearance",
+  "gloss": "The act of washing, dressing, and grooming oneself, done so that afterward one's body looks the way one wants others to see it.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "mods": [
+              {
+                "mod": "GOOD"
+              }
+            ],
+            "head": {
+              "kind": "partFrame",
+              "of": {
+                "kind": "ref",
+                "index": 1
+              }
+            },
+            "bind": 2
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "WANT",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "complement": {
+                "kind": "clause",
+                "clause": {
+                  "type": "op",
+                  "op": "CAN",
+                  "args": [
+                    {
+                      "type": "pred",
+                      "pred": "SEE",
+                      "roles": {
+                        "experiencer": {
+                          "kind": "sp",
+                          "quant": "MUCH~MANY",
+                          "head": {
+                            "kind": "primeHead",
+                            "prime": "PEOPLE"
+                          }
+                        },
+                        "stimulus": {
+                          "kind": "ref",
+                          "index": 2
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — renders acting on one's own body so that it looks good and can be seen by others, but the specific components of washing, dressing, and grooming are collapsed into a generic self-directed act."
+}

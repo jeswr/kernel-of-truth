@@ -1,0 +1,40 @@
+{
+  "id": "urn:kernel-v1:continuousness",
+  "label": "continuousness",
+  "synset": "urn:lexical-wn31:n-05059738",
+  "pattern": "WhenTrue; ALL-times HAPPEN for unbounded, uninterrupted persistence",
+  "gloss": "The quality of a process or condition that persists at all times, without cessation, interruption, or any terminal point.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "time": {
+            "kind": "sp",
+            "quant": "ALL",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — ALL-times HAPPEN conveys the absence of cessation, interruption, and end, but cannot distinguish one persisting process or condition from occurrences recurring at every time."
+}

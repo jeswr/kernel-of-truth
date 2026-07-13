@@ -1,0 +1,81 @@
+{
+  "id": "urn:kernel-v1:stockholder",
+  "label": "stockholder",
+  "synset": "urn:lexical-wn31:n-10677408",
+  "pattern": "InstanceSchema; PART relation + quoted IS-MINE possession",
+  "gloss": "A person who owns one or more of the units into which a corporation's equity is divided, and thereby has a proportional financial interest in that corporation.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "THERE-IS",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "quant": "ONE",
+            "head": {
+              "kind": "partFrame",
+              "of": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                },
+                "bind": 3
+              }
+            },
+            "bind": 2
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "quote": {
+            "kind": "quote",
+            "clauses": [
+              {
+                "type": "pred",
+                "pred": "IS-MINE",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 2
+                  },
+                  "possessor": {
+                    "kind": "prime",
+                    "prime": "I"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — corporate equity, legal ownership, and proportional financial interest are unavailable, so the AST renders only someone thinking that a part of something is theirs."
+}

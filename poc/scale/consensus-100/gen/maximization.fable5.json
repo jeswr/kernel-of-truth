@@ -1,0 +1,165 @@
+{
+  "id": "urn:kernel-v1:maximization",
+  "label": "maximization",
+  "synset": "urn:lexical-wn31:n-00367892",
+  "pattern": "InstanceSchema; caused increase + NOT-CAN-MORE upper bound",
+  "gloss": "The act of raising something to the greatest degree, amount, or level that it can attain, so that afterwards no further increase is possible.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          },
+          "time": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "BE-SPEC",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "attribute": {
+                "kind": "sp",
+                "mods": [
+                  {
+                    "mod": "BIG",
+                    "intensifier": "VERY"
+                  }
+                ],
+                "head": {
+                  "kind": "kindFrame",
+                  "of": {
+                    "kind": "sp",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMETHING~THING"
+                    }
+                  }
+                }
+              },
+              "time": {
+                "kind": "temporal",
+                "op": "AFTER",
+                "anchor": {
+                  "kind": "ref",
+                  "index": 3
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "AFTER",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 3
+          },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "op",
+                "op": "CAN",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "BE-SPEC",
+                    "roles": {
+                      "undergoer": {
+                        "kind": "ref",
+                        "index": 2
+                      },
+                      "attribute": {
+                        "kind": "sp",
+                        "mods": [
+                          {
+                            "mod": "BIG",
+                            "intensifier": "MORE"
+                          }
+                        ],
+                        "head": {
+                          "kind": "kindFrame",
+                          "of": {
+                            "kind": "sp",
+                            "head": {
+                              "kind": "primeHead",
+                              "prime": "SOMETHING~THING"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the possibility-bounded increase is carried (because of the act the thing becomes very big, and after it cannot be a more-big thing), but BIG stands proxy for any scale of degree, condition, or position, flattening the gloss's generality over kinds of scales to sheer magnitude."
+}

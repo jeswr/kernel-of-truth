@@ -1,0 +1,51 @@
+{
+  "id": "urn:kernel-v1:feasibility",
+  "label": "feasibility",
+  "synset": "urn:lexical-wn31:n-05159611",
+  "pattern": "WhenTrue; CAN + DO possibility",
+  "gloss": "The quality or state of being capable of being done or accomplished; the degree to which something lies within the power or reach of human or practical effort.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "CAN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "sp",
+                "quant": "SOMEONE",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMEONE"
+                },
+                "bind": 2
+              },
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: faithful — someone can do it — a direct rendering of the core sense that something is within the realm of possible action."
+}

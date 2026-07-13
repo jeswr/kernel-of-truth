@@ -1,0 +1,65 @@
+{
+  "id": "urn:kernel-v1:candidate",
+  "label": "candidate (person under consideration)",
+  "synset": "urn:lexical-wn31:n-09910201",
+  "pattern": "InstanceSchema; third-party THINK + MAYBE WANT for possible selection",
+  "gloss": "A person being considered as a possible choice for a role, award, honour, or other opportunity.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "sp",
+            "quant": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            },
+            "bind": 2
+          },
+          "topic": {
+            "kind": "ref",
+            "index": 1
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "MAYBE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "WANT",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "complement": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the AST renders people thinking about and perhaps wanting the person but cannot express formal consideration for selection to a role, award, honour, or opportunity."
+}

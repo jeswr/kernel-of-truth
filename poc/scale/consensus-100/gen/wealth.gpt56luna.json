@@ -1,0 +1,52 @@
+{
+  "id": "urn:kernel-v1:wealth",
+  "label": "wealth (profuse abundance)",
+  "synset": "urn:lexical-wn31:n-05123428",
+  "pattern": "WhenTrue; profuse quantity via BE-SPEC and VERY BIG MUCH~MANY",
+  "gloss": "The quality of having something in a very large amount, far exceeding what is ordinary or merely sufficient.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "attribute": {
+            "kind": "sp",
+            "head": {
+              "kind": "kindFrame",
+              "of": {
+                "kind": "sp",
+                "quant": "MUCH~MANY",
+                "mods": [
+                  {
+                    "mod": "BIG",
+                    "intensifier": "VERY"
+                  }
+                ],
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: faithful — the quality frame and a very large amount of something are both represented, without restricting the abundance to money or any other domain."
+}

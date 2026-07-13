@@ -1,0 +1,65 @@
+{
+  "concept": "candidate",
+  "synset": "urn:lexical-wn31:n-09910201",
+  "model": "claude-opus-4-8",
+  "prompt_sha256": "fa2f80998bc4cb26166365505d88f12a9a7ee962fd9d108e5e195242ed76e12c",
+  "user_msg_sha256": "13b5bec61afb62e5f763b957a7d912cdb1319e7eb409d00a2ed429672253150e",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 17.2,
+        "cost_usd": 0.02674,
+        "duration_api_ms": 11514,
+        "usage": {
+          "input_tokens": 2,
+          "cache_creation_input_tokens": 211,
+          "cache_read_input_tokens": 12284,
+          "output_tokens": 713,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 211,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "not_available",
+          "iterations": [
+            {
+              "input_tokens": 2,
+              "output_tokens": 713,
+              "cache_read_input_tokens": 12284,
+              "cache_creation_input_tokens": 211,
+              "cache_creation": {
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 211
+              },
+              "type": "message"
+            }
+          ],
+          "speed": "standard"
+        },
+        "model_usage_keys": [
+          "claude-haiku-4-5-20251001",
+          "claude-opus-4-8"
+        ]
+      },
+      "parse_error": null,
+      "fenced": false
+    }
+  ],
+  "ok": false,
+  "record": "/home/ec2-user/css/kernel/kernel-of-truth/poc/scale/consensus-100/gen/candidate.opus48.json",
+  "record_sha256": "196da169f2eff79e6885ffc54465cc8be90c20200864d49246af2b8d9674c6c7",
+  "gloss": "A person whom others are thinking about as one who might receive some position, honour, or prize, being weighed as a possible choice for it.",
+  "ast_adequacy_self_flag": "lossy",
+  "mechanical_check_errors": [],
+  "warnings": [],
+  "gate_validateExplication_encode": {
+    "ok": false,
+    "code": "ERR_PRED_UNKNOWN",
+    "error": "ERR_PRED_UNKNOWN at $.clauses[1].roles.quote.clauses[0].args[0].pred: 'HAVE' has no predicate valency frame (gist §4.4)"
+  }
+}

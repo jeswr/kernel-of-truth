@@ -1,0 +1,112 @@
+{
+  "id": "urn:kernel-v1:lookout",
+  "label": "lookout (act of watching)",
+  "synset": "urn:lexical-wn31:n-00883223",
+  "pattern": "InstanceSchema; sustained watching for the sake of foreknowing",
+  "gloss": "The act of watching attentively over a period of time in order to see something that may come or happen, so as to know of it before others do.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "SEE",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "stimulus": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          },
+          "duration": {
+            "kind": "prime",
+            "prime": "FOR-SOME-TIME"
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "SEE",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "stimulus": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "WANT",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "complement": {
+                "kind": "clause",
+                "clause": {
+                  "type": "op",
+                  "op": "IF",
+                  "args": [
+                    {
+                      "type": "pred",
+                      "pred": "HAPPEN",
+                      "roles": {
+                        "undergoer": {
+                          "kind": "ref",
+                          "index": 2
+                        }
+                      }
+                    },
+                    {
+                      "type": "pred",
+                      "pred": "KNOW",
+                      "roles": {
+                        "experiencer": {
+                          "kind": "ref",
+                          "index": 1
+                        },
+                        "topic": {
+                          "kind": "ref",
+                          "index": 2
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: faithful — one watches for some time so as to know of a thing if it happens, which carries the vigilance-for-the-sake-of-foreknowing core of watching out."
+}

@@ -1,0 +1,131 @@
+{
+  "id": "urn:kernel-v1:cook",
+  "label": "cook (person who prepares food)",
+  "synset": "urn:lexical-wn31:n-09982799",
+  "pattern": "InstanceSchema; agent who acts on food with heat so it becomes fit to eat",
+  "gloss": "A person who prepares food for eating, especially by applying heat to it so that it becomes fit and good to consume.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "restrictedBy": {
+              "type": "pred",
+              "pred": "WANT",
+              "roles": {
+                "experiencer": {
+                  "kind": "sp",
+                  "quant": "MUCH~MANY",
+                  "head": {
+                    "kind": "primeHead",
+                    "prime": "PEOPLE"
+                  }
+                },
+                "complement": {
+                  "kind": "clause",
+                  "clause": {
+                    "type": "pred",
+                    "pred": "DO",
+                    "roles": {
+                      "agent": {
+                        "kind": "sp",
+                        "quant": "MUCH~MANY",
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "PEOPLE"
+                        }
+                      },
+                      "undergoer": {
+                        "kind": "ref",
+                        "index": 2
+                      },
+                      "manner": {
+                        "kind": "prime",
+                        "prime": "INSIDE"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "bind": 2
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "BE-SPEC",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "attribute": {
+                "kind": "sp",
+                "mods": [
+                  {
+                    "mod": "GOOD"
+                  }
+                ],
+                "head": {
+                  "kind": "kindFrame",
+                  "of": {
+                    "kind": "sp",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMETHING~THING"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — 'food' is rendered as a thing people want to take inside the body and 'prepares by cooking' as acting on it so it becomes a good thing; the specific role of heat and the habitual/occupational sense are not expressible."
+}

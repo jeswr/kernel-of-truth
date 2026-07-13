@@ -1,0 +1,79 @@
+{
+  "id": "urn:kernel-v1:self-esteem",
+  "label": "self-esteem",
+  "synset": "urn:lexical-wn31:n-07523944",
+  "pattern": "WhenTrue; quoted positive self-evaluation causing GOOD feeling",
+  "gloss": "A favourable sense of one's own worth, arising from the judgment that one's character or abilities merit respect.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "THINK",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "quote": {
+                "kind": "quote",
+                "clauses": [
+                  {
+                    "type": "pred",
+                    "pred": "BE-SPEC",
+                    "roles": {
+                      "undergoer": {
+                        "kind": "prime",
+                        "prime": "I"
+                      },
+                      "attribute": {
+                        "kind": "sp",
+                        "mods": [
+                          {
+                            "mod": "GOOD"
+                          }
+                        ],
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "SOMETHING~THING"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "FEEL",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "attribute": {
+                "kind": "prime",
+                "prime": "GOOD"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the primes preserve a good feeling caused by a positive judgment about one's own value, but cannot distinguish worth and deserved respect from undifferentiated goodness."
+}

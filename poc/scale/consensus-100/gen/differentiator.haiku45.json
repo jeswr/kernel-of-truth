@@ -1,0 +1,99 @@
+{
+  "id": "urn:kernel-v1:differentiator",
+  "label": "differentiator",
+  "synset": "urn:lexical-wn31:n-10032560",
+  "pattern": "InstanceSchema; agent of distinction-making via discrimination",
+  "gloss": "A person or thing that makes distinctions or perceives differences between entities, setting one apart from another by identifying what is not the same.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "SEE",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "stimulus": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "SEE",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "stimulus": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "KNOW",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "op",
+              "op": "NOT",
+              "args": [
+                {
+                  "type": "op",
+                  "op": "LIKE",
+                  "args": [
+                    {
+                      "kind": "ref",
+                      "index": 2
+                    },
+                    {
+                      "kind": "ref",
+                      "index": 3
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: faithful — one who perceives two things and knows they are not alike — a sound primitive rendering of the act of differentiation."
+}

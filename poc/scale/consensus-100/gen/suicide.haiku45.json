@@ -1,0 +1,89 @@
+{
+  "id": "urn:kernel-v1:suicide",
+  "label": "suicide",
+  "synset": "urn:lexical-wn31:n-10693108",
+  "pattern": "InstanceSchema; self-directed lethal action + intentionality",
+  "gloss": "A person who deliberately and intentionally ends their own life by causing their own death.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "DIE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "KNOW",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "topic": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "DIE",
+              "roles": {
+                "undergoer": {
+                  "kind": "ref",
+                  "index": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: faithful — someone does to themselves an act that causes them to die, and they know this will happen — a complete rendering of intentional self-killing."
+}

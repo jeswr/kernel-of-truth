@@ -1,0 +1,174 @@
+{
+  "id": "urn:kernel-v1:stockholder",
+  "label": "stockholder",
+  "synset": "urn:lexical-wn31:n-10677408",
+  "pattern": "InstanceSchema; possession via CAN-say IS-MINE quote over small parts of a big collective thing",
+  "gloss": "An investor who possesses one or more of the transferable units into which a corporation's capital is divided, thereby having a proportionate claim on the company's profits and, typically, a voice in its governance.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "THERE-IS",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "mods": [
+              {
+                "mod": "BIG"
+              }
+            ],
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "restrictedBy": {
+              "type": "pred",
+              "pred": "DO",
+              "roles": {
+                "agent": {
+                  "kind": "sp",
+                  "quant": "MUCH~MANY",
+                  "head": {
+                    "kind": "primeHead",
+                    "prime": "PEOPLE"
+                  }
+                },
+                "undergoer": {
+                  "kind": "sp",
+                  "quant": "MUCH~MANY",
+                  "head": {
+                    "kind": "primeHead",
+                    "prime": "SOMETHING~THING"
+                  }
+                }
+              }
+            },
+            "bind": 2
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "THERE-IS",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "quant": "SOME",
+            "mods": [
+              {
+                "mod": "SMALL"
+              }
+            ],
+            "head": {
+              "kind": "partFrame",
+              "of": {
+                "kind": "ref",
+                "index": 2
+              }
+            },
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "CAN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "SAY",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "quote": {
+                "kind": "quote",
+                "clauses": [
+                  {
+                    "type": "pred",
+                    "pred": "IS-MINE",
+                    "roles": {
+                      "undergoer": {
+                        "kind": "ref",
+                        "index": 3
+                      },
+                      "possessor": {
+                        "kind": "prime",
+                        "prime": "I"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "IF",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "HAPPEN",
+            "roles": {
+              "undergoer": {
+                "kind": "sp",
+                "det": "SOME",
+                "mods": [
+                  {
+                    "mod": "GOOD"
+                  }
+                ],
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                }
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "CAN",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "FEEL",
+                "roles": {
+                  "experiencer": {
+                    "kind": "ref",
+                    "index": 1
+                  },
+                  "attribute": {
+                    "kind": "prime",
+                    "prime": "GOOD"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the corporation, stock, and the financial-legal nature of the claim on profits are not primitive; rendered as small parts of a big thing (in which many people do many things) that the person can truly call theirs, benefiting when good things happen."
+}

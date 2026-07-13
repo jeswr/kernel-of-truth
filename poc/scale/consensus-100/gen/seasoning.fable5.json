@@ -1,0 +1,160 @@
+{
+  "id": "urn:kernel-v1:seasoning",
+  "label": "seasoning (act of flavouring food)",
+  "synset": "urn:lexical-wn31:n-00249235",
+  "pattern": "InstanceSchema; DO with small added thing + AFTER-placement + WANT good-feeling purpose",
+  "gloss": "The act of adding salt, a spice, herbs, or another flavouring substance to food during its preparation, done so that the food will taste better to those who eat it.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 4,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          },
+          "instrument": {
+            "kind": "sp",
+            "det": "OTHER~ELSE~ANOTHER",
+            "mods": [
+              {
+                "mod": "SMALL"
+              }
+            ],
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 3
+          },
+          "time": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "bind": 4
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "AFTER",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 4
+          },
+          {
+            "type": "pred",
+            "pred": "BE-SOMEWHERE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 3
+              },
+              "locus": {
+                "kind": "ref",
+                "index": 2
+              },
+              "manner": {
+                "kind": "prime",
+                "prime": "INSIDE"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "op",
+              "op": "WHEN",
+              "args": [
+                {
+                  "type": "pred",
+                  "pred": "BE-SOMEWHERE",
+                  "roles": {
+                    "undergoer": {
+                      "kind": "ref",
+                      "index": 2
+                    },
+                    "locus": {
+                      "kind": "sp",
+                      "head": {
+                        "kind": "primeHead",
+                        "prime": "BODY"
+                      }
+                    },
+                    "manner": {
+                      "kind": "prime",
+                      "prime": "INSIDE"
+                    }
+                  }
+                },
+                {
+                  "type": "pred",
+                  "pred": "FEEL",
+                  "roles": {
+                    "experiencer": {
+                      "kind": "sp",
+                      "head": {
+                        "kind": "primeHead",
+                        "prime": "PEOPLE"
+                      }
+                    },
+                    "attribute": {
+                      "kind": "prime",
+                      "prime": "GOOD"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — food, flavouring substances, and taste are not primitive; rendered as putting a small other thing into a thing, wanting people to feel good when that thing is inside the body, which drops the specifically gustatory differentia."
+}

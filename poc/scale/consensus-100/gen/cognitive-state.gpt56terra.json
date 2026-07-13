@@ -1,0 +1,42 @@
+{
+  "id": "urn:kernel-v1:cognitive-state",
+  "label": "cognitive state",
+  "synset": "urn:lexical-wn31:n-05677778",
+  "pattern": "WhenTrue; mental-process profile of a person",
+  "gloss": "A condition of a person's mental life, constituted by the ways in which that person is thinking, knowing, or otherwise processing information at a given time.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "KNOW",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: faithful — the explication renders the person's thinking and knowing as the mental processes that constitute the condition."
+}

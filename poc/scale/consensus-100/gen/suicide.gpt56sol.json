@@ -1,0 +1,95 @@
+{
+  "id": "urn:kernel-v1:suicide",
+  "label": "suicide",
+  "synset": "urn:lexical-wn31:n-10693108",
+  "pattern": "InstanceSchema; WANT of self-caused DIE + actual DO-causes-DIE",
+  "gloss": "A person who deliberately brings about his or her own death by an act undertaken for that purpose.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "op",
+              "op": "BECAUSE",
+              "args": [
+                {
+                  "type": "pred",
+                  "pred": "DO",
+                  "roles": {
+                    "agent": {
+                      "kind": "ref",
+                      "index": 1
+                    },
+                    "undergoer": {
+                      "kind": "ref",
+                      "index": 1
+                    }
+                  }
+                },
+                {
+                  "type": "pred",
+                  "pred": "DIE",
+                  "roles": {
+                    "undergoer": {
+                      "kind": "ref",
+                      "index": 1
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "DIE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: faithful — the person wants a self-directed act to cause death, performs such an act, and dies because of it."
+}

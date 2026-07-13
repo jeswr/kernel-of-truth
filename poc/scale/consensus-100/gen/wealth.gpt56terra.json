@@ -1,0 +1,39 @@
+{
+  "id": "urn:kernel-v1:wealth",
+  "label": "wealth (profuse abundance)",
+  "synset": "urn:lexical-wn31:n-05123428",
+  "pattern": "WhenTrue; MUCH~MANY instances of a kind",
+  "gloss": "The quality of existing in an exceptionally great amount, so that there is much more of something than is ordinarily needed or expected.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "THERE-IS",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "kindFrame",
+              "of": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — it renders abundance as the existence of very many things of a kind, but cannot express the criterial comparison with what is ordinarily needed or expected."
+}

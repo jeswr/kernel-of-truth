@@ -1,0 +1,232 @@
+{
+  "id": "urn:kernel-v1:boring",
+  "label": "boring (making a deep hole in the earth for petroleum)",
+  "synset": "urn:lexical-wn31:n-00924944",
+  "pattern": "InstanceSchema; instrumental act + resulting hole + hoped-for outcome (THINK/MAYBE + WANT in quote)",
+  "gloss": "The act of cutting a deep, narrow hole down into the earth with machinery, undertaken in the hope that petroleum lying beneath the surface will be found and brought up.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "PlaceRef"
+      },
+      {
+        "index": 4,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "det": "THIS",
+            "mods": [
+              {
+                "mod": "BIG",
+                "intensifier": "VERY"
+              }
+            ],
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "restrictedBy": {
+              "type": "pred",
+              "pred": "BE-SOMEWHERE",
+              "roles": {
+                "undergoer": {
+                  "kind": "sp",
+                  "quant": "ALL",
+                  "head": {
+                    "kind": "primeHead",
+                    "prime": "PEOPLE"
+                  }
+                },
+                "locus": {
+                  "kind": "ref",
+                  "index": 2
+                },
+                "manner": {
+                  "kind": "prime",
+                  "prime": "ABOVE"
+                }
+              }
+            },
+            "bind": 2
+          },
+          "instrument": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            }
+          },
+          "duration": {
+            "kind": "prime",
+            "prime": "FOR-SOME-TIME"
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "THERE-IS",
+            "roles": {
+              "undergoer": {
+                "kind": "sp",
+                "quant": "ONE",
+                "mods": [
+                  {
+                    "mod": "SMALL"
+                  }
+                ],
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "WHERE~PLACE"
+                },
+                "restrictedBy": {
+                  "type": "pred",
+                  "pred": "BE-SOMEWHERE",
+                  "roles": {
+                    "undergoer": {
+                      "kind": "ref",
+                      "index": 3
+                    },
+                    "locus": {
+                      "kind": "ref",
+                      "index": 2
+                    },
+                    "manner": {
+                      "kind": "prime",
+                      "prime": "INSIDE"
+                    }
+                  }
+                },
+                "bind": 3
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "quote": {
+            "kind": "quote",
+            "clauses": [
+              {
+                "type": "op",
+                "op": "MAYBE",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "THERE-IS",
+                    "roles": {
+                      "undergoer": {
+                        "kind": "sp",
+                        "det": "SOME",
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "SOMETHING~THING"
+                        },
+                        "restrictedBy": {
+                          "type": "pred",
+                          "pred": "BE-SOMEWHERE",
+                          "roles": {
+                            "undergoer": {
+                              "kind": "ref",
+                              "index": 4
+                            },
+                            "locus": {
+                              "kind": "ref",
+                              "index": 2
+                            },
+                            "manner": {
+                              "kind": "prime",
+                              "prime": "INSIDE"
+                            }
+                          }
+                        },
+                        "bind": 4
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "pred",
+                "pred": "WANT",
+                "roles": {
+                  "experiencer": {
+                    "kind": "prime",
+                    "prime": "I"
+                  },
+                  "complement": {
+                    "kind": "clause",
+                    "clause": {
+                      "type": "pred",
+                      "pred": "MOVE",
+                      "roles": {
+                        "undergoer": {
+                          "kind": "ref",
+                          "index": 4
+                        },
+                        "manner": {
+                          "kind": "prime",
+                          "prime": "ABOVE"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the primes cannot name petroleum or the machinery; the AST renders an act on the earth with some thing that makes a place inside it, done because the agent thinks something may be inside and wants it to move up, dropping the specific oily substance and its economic value."
+}

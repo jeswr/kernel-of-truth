@@ -1,0 +1,88 @@
+{
+  "id": "urn:kernel-v1:view",
+  "label": "view",
+  "synset": "urn:lexical-wn31:n-00883327",
+  "pattern": "InstanceSchema; SEE as a deliberate act over time",
+  "gloss": "The act of deliberately looking at or observing someone or something, often in order to examine or understand it; a period of directed attention through sight.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "SEE",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "stimulus": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          },
+          "time": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "SEE",
+              "roles": {
+                "experiencer": {
+                  "kind": "ref",
+                  "index": 1
+                },
+                "stimulus": {
+                  "kind": "ref",
+                  "index": 2
+                }
+              }
+            }
+          },
+          "time": {
+            "kind": "ref",
+            "index": 3
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: faithful — someone sees something over a time, doing this intentionally — a clean rendering of deliberate observation."
+}

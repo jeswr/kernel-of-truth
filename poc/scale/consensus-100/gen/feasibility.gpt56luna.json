@@ -1,0 +1,50 @@
+{
+  "id": "urn:kernel-v1:feasibility",
+  "label": "feasibility",
+  "synset": "urn:lexical-wn31:n-05159611",
+  "pattern": "WhenTrue; CAN applied to DO",
+  "gloss": "The quality of being capable of being carried out or brought about in fact, given the relevant conditions and available means.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "CAN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMEONE"
+                },
+                "bind": 2
+              },
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — it renders that someone can do the thing, but cannot represent the relevant conditions and available means that qualify real-world doability."
+}

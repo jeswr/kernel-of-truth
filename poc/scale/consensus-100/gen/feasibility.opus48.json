@@ -1,0 +1,50 @@
+{
+  "id": "urn:kernel-v1:feasibility",
+  "label": "feasibility",
+  "synset": "urn:lexical-wn31:n-05159611",
+  "pattern": "WhenTrue; CAN-DO possibility of accomplishment",
+  "gloss": "The quality of being capable of being done or accomplished; the state of a course of action such that someone is able to carry it through to completion.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "CAN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMEONE"
+                },
+                "bind": 2
+              },
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: faithful — the quality holds of something when someone can do it, which is a clean primitive reading of being doable."
+}

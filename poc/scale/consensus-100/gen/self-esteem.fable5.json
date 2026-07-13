@@ -1,0 +1,108 @@
+{
+  "id": "urn:kernel-v1:self-esteem",
+  "label": "self-esteem",
+  "synset": "urn:lexical-wn31:n-07523944",
+  "pattern": "WhenTrue; quoted positive self-evaluation as cause of good feeling",
+  "gloss": "A feeling of satisfaction and confidence directed toward oneself, grounded in the judgment that one is a good person capable of doing good things.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "THINK",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "quote": {
+                "kind": "quote",
+                "clauses": [
+                  {
+                    "type": "pred",
+                    "pred": "BE-SPEC",
+                    "roles": {
+                      "undergoer": {
+                        "kind": "prime",
+                        "prime": "I"
+                      },
+                      "attribute": {
+                        "kind": "sp",
+                        "mods": [
+                          {
+                            "mod": "GOOD"
+                          }
+                        ],
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "SOMEONE"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "op",
+                    "op": "CAN",
+                    "args": [
+                      {
+                        "type": "pred",
+                        "pred": "DO",
+                        "roles": {
+                          "agent": {
+                            "kind": "prime",
+                            "prime": "I"
+                          },
+                          "undergoer": {
+                            "kind": "sp",
+                            "quant": "MUCH~MANY",
+                            "mods": [
+                              {
+                                "mod": "GOOD"
+                              }
+                            ],
+                            "head": {
+                              "kind": "primeHead",
+                              "prime": "SOMETHING~THING"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "FEEL",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "attribute": {
+                "kind": "prime",
+                "prime": "GOOD"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: faithful — the bearer feels good because they think 'I am a good someone; I can do many good things', carrying both the good self-directed feeling (genus) and the positive self-judgment that grounds it (differentia)."
+}

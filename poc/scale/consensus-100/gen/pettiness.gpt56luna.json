@@ -1,0 +1,47 @@
+{
+  "id": "urn:kernel-v1:pettiness",
+  "label": "pettiness",
+  "synset": "urn:lexical-wn31:n-05180732",
+  "pattern": "WhenTrue; SMALL + BAD specification for low consequence and frivolousness",
+  "gloss": "A quality of being of little importance or seriousness, marked by narrow concern with minor matters or by an unserious, frivolous purpose.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "attribute": {
+            "kind": "sp",
+            "mods": [
+              {
+                "mod": "SMALL"
+              },
+              {
+                "mod": "BAD"
+              }
+            ],
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — SMALL and BAD render low consequence and negative unseriousness, but the specifically narrow concern and frivolous purpose are not expressible in the 65-prime metalanguage."
+}

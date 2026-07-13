@@ -1,0 +1,88 @@
+{
+  "id": "urn:kernel-v1:equality",
+  "label": "equality (between X and Y)",
+  "synset": "urn:lexical-wn31:n-13969940",
+  "pattern": "RelationalSchema; likeness + reciprocal ABOVE-negation",
+  "gloss": "A state of correspondence between persons or things that do not materially differ in the measure, value, rank, or standing under consideration.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "RelationalSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "LIKE",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 1
+          },
+          {
+            "kind": "ref",
+            "index": 2
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "BE-SOMEWHERE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "locus": {
+                "kind": "ref",
+                "index": 2
+              },
+              "manner": {
+                "kind": "prime",
+                "prime": "ABOVE"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "BE-SOMEWHERE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "locus": {
+                "kind": "ref",
+                "index": 1
+              },
+              "manner": {
+                "kind": "prime",
+                "prime": "ABOVE"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — likeness and reciprocal non-superiority approximate the relation, but the primes cannot express identity of a specified measure, value, rank, or standing."
+}

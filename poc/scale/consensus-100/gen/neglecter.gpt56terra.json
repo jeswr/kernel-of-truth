@@ -1,0 +1,54 @@
+{
+  "id": "urn:kernel-v1:neglecter",
+  "label": "neglecter",
+  "synset": "urn:lexical-wn31:n-10371356",
+  "pattern": "InstanceSchema; protracted non-attention to another thing",
+  "gloss": "A person who habitually gives too little attention or care to people or responsibilities that properly call for it, thereby failing to do what is needed for them.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "THINK",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "topic": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                },
+                "bind": 2
+              },
+              "duration": {
+                "kind": "prime",
+                "prime": "A-LONG-TIME"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — it renders sustained failure to think about a thing, but cannot express due attention or care, responsibility, or the required omission of needed action."
+}

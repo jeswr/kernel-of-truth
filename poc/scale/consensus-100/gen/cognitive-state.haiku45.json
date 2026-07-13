@@ -1,0 +1,59 @@
+{
+  "id": "urn:kernel-v1:cognitive-state",
+  "label": "cognitive state",
+  "synset": "urn:lexical-wn31:n-05677778",
+  "pattern": "InstanceSchema; THINK-KNOW composition at a moment",
+  "gloss": "A condition at a particular moment in which someone's thoughts, awareness, and mental processes exist in a certain way; how someone is thinking or knowing at that time.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          }
+        },
+        "time": {
+          "kind": "sp",
+          "det": "SOME",
+          "head": {
+            "kind": "primeHead",
+            "prime": "WHEN~TIME"
+          },
+          "bind": 2
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "KNOW",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          }
+        },
+        "time": {
+          "kind": "ref",
+          "index": 2
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — THINK and KNOW at a time capture the mental-process component but cannot express the full range of cognitive properties (perception, intention, emotion-blend, integration) that constitute a person's complete cognitive state; reads as thinking-and-knowing moment rather than holistic mental condition."
+}

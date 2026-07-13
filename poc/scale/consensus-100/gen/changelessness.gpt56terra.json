@@ -1,0 +1,44 @@
+{
+  "id": "urn:kernel-v1:changelessness",
+  "label": "changelessness",
+  "synset": "urn:lexical-wn31:n-04745174",
+  "pattern": "WhenTrue; negated possibility of an event affecting the bearer",
+  "gloss": "The quality of retaining the same condition or character over time, with a pronounced resistance to alteration.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "op",
+            "op": "CAN",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "HAPPEN",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 1
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the primes cannot express remaining the same over time or a marked tendency; the AST instead gives the overstrong skeleton that nothing can happen to the bearer."
+}

@@ -1,0 +1,90 @@
+{
+  "id": "urn:kernel-v1:continuousness",
+  "label": "continuousness",
+  "synset": "urn:lexical-wn31:n-05059738",
+  "pattern": "WhenTrue; ALL-times HAPPEN + negated existential gap-time",
+  "gloss": "The quality of an event, process, or state that goes on without pause, break, or end, holding or occurring at every moment throughout its whole course.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "duration": {
+            "kind": "prime",
+            "prime": "A-LONG-TIME"
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "time": {
+            "kind": "sp",
+            "quant": "ALL",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "THERE-IS",
+            "roles": {
+              "undergoer": {
+                "kind": "sp",
+                "det": "SOME",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "WHEN~TIME"
+                },
+                "restrictedBy": {
+                  "type": "op",
+                  "op": "NOT",
+                  "args": [
+                    {
+                      "type": "pred",
+                      "pred": "HAPPEN",
+                      "roles": {
+                        "undergoer": {
+                          "kind": "ref",
+                          "index": 1
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: faithful — it happens for a long time, at all times it happens, and there is no time such that it does not happen; this carries both the no-interruption and the no-end differentia."
+}

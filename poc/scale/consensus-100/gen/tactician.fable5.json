@@ -1,0 +1,174 @@
+{
+  "id": "urn:kernel-v1:tactician",
+  "label": "tactician",
+  "synset": "urn:lexical-wn31:n-10707852",
+  "pattern": "InstanceSchema; anticipatory THINK before acting + KNOW(IF do -> goal happens) + rarity clause for skill",
+  "gloss": "A person adept at devising the immediate moves and maneuvers by which an aim is achieved, able to judge in advance of acting which particular actions will bring about the wanted result.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "TimeRef"
+      },
+      {
+        "index": 4,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "HAPPEN",
+              "roles": {
+                "undergoer": {
+                  "kind": "sp",
+                  "det": "SOME",
+                  "head": {
+                    "kind": "primeHead",
+                    "prime": "SOMETHING~THING"
+                  },
+                  "bind": 2
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "bind": 3
+          },
+          {
+            "type": "pred",
+            "pred": "THINK",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "topic": {
+                "kind": "sp",
+                "quant": "MUCH~MANY",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                },
+                "bind": 4
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "KNOW",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "op",
+              "op": "IF",
+              "args": [
+                {
+                  "type": "pred",
+                  "pred": "DO",
+                  "roles": {
+                    "agent": {
+                      "kind": "ref",
+                      "index": 1
+                    },
+                    "undergoer": {
+                      "kind": "ref",
+                      "index": 4
+                    },
+                    "time": {
+                      "kind": "ref",
+                      "index": 3
+                    }
+                  }
+                },
+                {
+                  "type": "pred",
+                  "pred": "HAPPEN",
+                  "roles": {
+                    "undergoer": {
+                      "kind": "ref",
+                      "index": 2
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "op",
+            "op": "CAN",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "KNOW",
+                "roles": {
+                  "experiencer": {
+                    "kind": "sp",
+                    "det": "OTHER~ELSE~ANOTHER",
+                    "quant": "MUCH~MANY",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "PEOPLE"
+                    }
+                  },
+                  "topic": {
+                    "kind": "ref",
+                    "index": 4
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the AST renders foresight (thinking before the time of acting about what to do), knowing which acts will bring about the wanted outcome, and rarity of that knowing as a proxy for skill; it cannot carry the specifically tactical differentia of short-term maneuvering within a contest or conflict."
+}

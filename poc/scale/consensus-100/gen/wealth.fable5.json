@@ -1,0 +1,72 @@
+{
+  "id": "urn:kernel-v1:wealth",
+  "label": "wealth (profuse abundance)",
+  "synset": "urn:lexical-wn31:n-05123428",
+  "pattern": "WhenTrue; MUCH~MANY existence + negated cross-place comparison for excess over the usual",
+  "gloss": "The quality of being present in very great quantity; a profuse and generous abundance, such that far more of the thing is at hand than is usual or expected.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "THERE-IS",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "refHead",
+              "index": 1
+            }
+          },
+          "place": {
+            "kind": "prime",
+            "prime": "HERE"
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "THERE-IS",
+            "roles": {
+              "undergoer": {
+                "kind": "sp",
+                "quant": "MUCH~MANY",
+                "head": {
+                  "kind": "kindFrame",
+                  "of": {
+                    "kind": "ref",
+                    "index": 1
+                  }
+                }
+              },
+              "place": {
+                "kind": "sp",
+                "det": "OTHER~ELSE~ANOTHER",
+                "quant": "MUCH~MANY",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "WHERE~PLACE"
+                }
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — 'very much of it here, not so much of its kind in many other places' captures abundance beyond the usual, but the intensified degree of 'profuse' and the generous, overflowing connotation cannot be marked; the AST reads as plain relative plenty."
+}

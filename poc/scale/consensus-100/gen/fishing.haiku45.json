@@ -1,0 +1,96 @@
+{
+  "id": "urn:kernel-v1:fishing",
+  "label": "fishing",
+  "synset": "urn:lexical-wn31:n-00454959",
+  "pattern": "InstanceSchema; DO + water + instrument + want (recreation)",
+  "gloss": "The act of attempting to catch fish, typically pursued as a leisure activity or sport rather than as a primary livelihood; casting line or net into water with the intention of capturing fish.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 4,
+        "refKind": "PlaceRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          },
+          "instrument": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 3
+          },
+          "place": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHERE~PLACE"
+            },
+            "bind": 4,
+            "mods": [
+              {
+                "mod": "BIG"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "DO",
+              "roles": {
+                "agent": {
+                  "kind": "ref",
+                  "index": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the explication renders doing something with an instrument in water and wanting to do it (recreation), but cannot distinguish fish as the target, the catching intent, or sport/leisure from subsistence fishing without explicit fish-reference and intention predicates unavailable in the 65 primes."
+}

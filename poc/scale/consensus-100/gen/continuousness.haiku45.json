@@ -1,0 +1,124 @@
+{
+  "id": "urn:kernel-v1:continuousness",
+  "label": "continuousness",
+  "synset": "urn:lexical-wn31:n-05059738",
+  "pattern": "WhenTrue; negation of interval-gaps across all time",
+  "gloss": "The quality of persisting without break or interruption; a state in which something remains in progress at all moments, with no pause or cessation between its beginning and end.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "TimeRef"
+      },
+      {
+        "index": 3,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "time": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "bind": 2
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "time": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "THERE-IS",
+            "roles": {
+              "undergoer": {
+                "kind": "sp",
+                "det": "SOME",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "WHEN~TIME"
+                },
+                "restrictedBy": {
+                  "type": "op",
+                  "op": "AFTER",
+                  "args": [
+                    {
+                      "kind": "ref",
+                      "index": 2
+                    },
+                    {
+                      "type": "op",
+                      "op": "BEFORE",
+                      "args": [
+                        {
+                          "kind": "ref",
+                          "index": 3
+                        },
+                        {
+                          "type": "op",
+                          "op": "NOT",
+                          "args": [
+                            {
+                              "type": "pred",
+                              "pred": "HAPPEN",
+                              "roles": {
+                                "undergoer": {
+                                  "kind": "ref",
+                                  "index": 1
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — renders 'no gap between two times when it happens' but cannot mark the quantification over ALL possible intervening moments; reads as 'no gap exists between two occurrences' rather than the stricter 'happening at every moment.' The full sense requires a universal quantifier over time-points, not available in NSM."
+}

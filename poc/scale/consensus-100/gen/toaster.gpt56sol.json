@@ -1,0 +1,80 @@
+{
+  "id": "urn:kernel-v1:toaster",
+  "label": "toaster (proposer of a ceremonial drink)",
+  "synset": "urn:lexical-wn31:n-10733151",
+  "pattern": "InstanceSchema; public SAY + benefactive wish",
+  "gloss": "A person who ceremonially raises a drink and calls upon companions to drink in honor of a person or undertaking, expressing a wish for that person's health or the undertaking's success.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "SAY",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "addressee": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            }
+          },
+          "topic": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "HAPPEN",
+              "roles": {
+                "undergoer": {
+                  "kind": "ref",
+                  "index": 2
+                },
+                "manner": {
+                  "kind": "prime",
+                  "prime": "GOOD"
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the AST renders addressing people about a person or undertaking while wishing a good outcome, but cannot represent the ceremonial raising and drinking of a beverage."
+}

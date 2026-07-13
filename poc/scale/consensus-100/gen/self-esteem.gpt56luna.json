@@ -1,0 +1,50 @@
+{
+  "id": "urn:kernel-v1:self-esteem",
+  "label": "self-esteem",
+  "synset": "urn:lexical-wn31:n-07523944",
+  "pattern": "WhenTrue; self-directed positive feeling",
+  "gloss": "A favorable feeling a person has toward themselves, grounded in a positive assessment of their own worth, qualities, or achievements.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "topic": {
+            "kind": "ref",
+            "index": 1
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "FEEL",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "attribute": {
+            "kind": "prime",
+            "prime": "GOOD"
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — self-directed positive feeling is rendered, but the distinct evaluative character of pride in one's own worth or achievements cannot be expressed."
+}

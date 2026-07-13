@@ -1,0 +1,59 @@
+{
+  "id": "urn:kernel-v1:stockholder",
+  "label": "stockholder",
+  "synset": "urn:lexical-wn31:n-10677408",
+  "pattern": "InstanceSchema; self-ascribed possession",
+  "gloss": "A person who owns one or more units of equity issued by a corporation, thereby possessing a proportional legal and financial interest in that enterprise.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "quote": {
+            "kind": "quote",
+            "clauses": [
+              {
+                "type": "pred",
+                "pred": "IS-MINE",
+                "roles": {
+                  "undergoer": {
+                    "kind": "sp",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMETHING~THING"
+                    },
+                    "bind": 2
+                  },
+                  "possessor": {
+                    "kind": "prime",
+                    "prime": "I"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the AST renders self-ascribed possession of something but cannot express equity units, corporate issuance, or the proportional legal and financial interest."
+}

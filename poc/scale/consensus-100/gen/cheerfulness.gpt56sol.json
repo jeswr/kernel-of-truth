@@ -1,0 +1,117 @@
+{
+  "id": "urn:kernel-v1:cheerfulness",
+  "label": "cheerfulness",
+  "synset": "urn:lexical-wn31:n-04638046",
+  "pattern": "WhenTrue; encounter-conditioned GOOD feeling + BAD-feeling negation",
+  "gloss": "A bright, heartening quality of a person, manner, or setting, expressed in good spirits or pleasant liveliness and tending to lift sadness or despondency in those who encounter it.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "CAN",
+        "args": [
+          {
+            "type": "op",
+            "op": "WHEN",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "SEE",
+                "roles": {
+                  "experiencer": {
+                    "kind": "sp",
+                    "quant": "MUCH~MANY",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "PEOPLE"
+                    },
+                    "bind": 2
+                  },
+                  "stimulus": {
+                    "kind": "ref",
+                    "index": 1
+                  }
+                }
+              },
+              {
+                "type": "pred",
+                "pred": "FEEL",
+                "roles": {
+                  "experiencer": {
+                    "kind": "ref",
+                    "index": 2
+                  },
+                  "attribute": {
+                    "kind": "prime",
+                    "prime": "GOOD"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "CAN",
+        "args": [
+          {
+            "type": "op",
+            "op": "WHEN",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "SEE",
+                "roles": {
+                  "experiencer": {
+                    "kind": "ref",
+                    "index": 2
+                  },
+                  "stimulus": {
+                    "kind": "ref",
+                    "index": 1
+                  }
+                }
+              },
+              {
+                "type": "op",
+                "op": "NOT",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "FEEL",
+                    "roles": {
+                      "experiencer": {
+                        "kind": "ref",
+                        "index": 2
+                      },
+                      "attribute": {
+                        "kind": "prime",
+                        "prime": "BAD"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the explication renders a capacity to make observers feel good and cease feeling bad, but cannot distinguish bright, lively good spirits from generic pleasant feeling or sadness from other bad feelings."
+}

@@ -1,0 +1,148 @@
+{
+  "id": "urn:kernel-v1:candidate",
+  "label": "candidate (someone considered for something)",
+  "synset": "urn:lexical-wn31:n-09910201",
+  "pattern": "InstanceSchema; deliberators' MAYBE-quote over future possession, with an open alternative",
+  "gloss": "A person whom others are weighing as a possible recipient of some position, prize, honor, or other benefit, it being not yet settled whether this person or someone else will receive it.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "THERE-IS",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "det": "SOME",
+            "mods": [
+              {
+                "mod": "GOOD"
+              }
+            ],
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "sp",
+            "quant": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            },
+            "bind": 3
+          },
+          "topic": {
+            "kind": "ref",
+            "index": 1
+          },
+          "duration": {
+            "kind": "prime",
+            "prime": "FOR-SOME-TIME"
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 3
+          },
+          "quote": {
+            "kind": "quote",
+            "clauses": [
+              {
+                "type": "op",
+                "op": "MAYBE",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "BE-SOMEWHERE",
+                    "roles": {
+                      "undergoer": {
+                        "kind": "ref",
+                        "index": 2
+                      },
+                      "locus": {
+                        "kind": "ref",
+                        "index": 1
+                      },
+                      "time": {
+                        "kind": "temporal",
+                        "op": "AFTER",
+                        "anchor": {
+                          "kind": "prime",
+                          "prime": "NOW"
+                        }
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "op",
+                "op": "MAYBE",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "BE-SOMEWHERE",
+                    "roles": {
+                      "undergoer": {
+                        "kind": "ref",
+                        "index": 2
+                      },
+                      "locus": {
+                        "kind": "sp",
+                        "det": "OTHER~ELSE~ANOTHER",
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "SOMEONE"
+                        }
+                      },
+                      "time": {
+                        "kind": "temporal",
+                        "op": "AFTER",
+                        "anchor": {
+                          "kind": "prime",
+                          "prime": "NOW"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — deliberation and the undecided outcome (maybe this person, maybe someone else) are carried, but the office/prize/honor is flattened to 'something good' and receiving it to the thing coming to be where the person is; the institutional selection setting is not expressible in the primes."
+}

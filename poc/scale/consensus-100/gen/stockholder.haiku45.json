@@ -1,0 +1,103 @@
+{
+  "id": "urn:kernel-v1:stockholder",
+  "label": "stockholder",
+  "synset": "urn:lexical-wn31:n-10677408",
+  "pattern": "InstanceSchema; ownership via possession of fractional certificates",
+  "gloss": "A person who owns one or more shares of stock in a corporation, thereby holding a fractional claim on the company's assets and profits.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "attribute": {
+            "kind": "sp",
+            "head": {
+              "kind": "kindFrame",
+              "of": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMEONE"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "IS-MINE",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          },
+          "possessor": {
+            "kind": "prime",
+            "prime": "I"
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "attribute": {
+            "kind": "sp",
+            "quant": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "PART"
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "IS-MINE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 3
+          },
+          "possessor": {
+            "kind": "prime",
+            "prime": "I"
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — renders stock ownership as possession of a part-thing belonging to the shareholder, but cannot express the juridical certificate structure, limited liability, or claim-to-profits that mark true corporate equity."
+}

@@ -1,0 +1,58 @@
+{
+  "id": "urn:kernel-v1:grazing",
+  "label": "grazing (brushing while passing)",
+  "synset": "urn:lexical-wn31:n-00151582",
+  "pattern": "InstanceSchema; MOVE with incidental TOUCH",
+  "gloss": "An act in which a moving person or thing lightly touches the surface of another thing as it passes by, without stopping or entering into sustained contact.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "MOVE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "locus": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          },
+          "manner": {
+            "kind": "prime",
+            "prime": "TOUCH"
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — it renders movement involving contact with another thing, but cannot mark the contact as light, superficial, and merely incidental to passing."
+}

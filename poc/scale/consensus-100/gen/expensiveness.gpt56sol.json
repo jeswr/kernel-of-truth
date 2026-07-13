@@ -1,0 +1,85 @@
+{
+  "id": "urn:kernel-v1:expensiveness",
+  "label": "expensiveness",
+  "synset": "urn:lexical-wn31:n-05153138",
+  "pattern": "WhenTrue; reported demand for MUCH~MANY other things as price surrogate",
+  "gloss": "A quality of something for which a comparatively large amount of money is asked in exchange.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "SAY",
+        "roles": {
+          "agent": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMEONE"
+            },
+            "bind": 2
+          },
+          "addressee": {
+            "kind": "prime",
+            "prime": "I"
+          },
+          "topic": {
+            "kind": "ref",
+            "index": 1
+          },
+          "quote": {
+            "kind": "quote",
+            "clauses": [
+              {
+                "type": "pred",
+                "pred": "WANT",
+                "roles": {
+                  "experiencer": {
+                    "kind": "prime",
+                    "prime": "I"
+                  },
+                  "complement": {
+                    "kind": "clause",
+                    "clause": {
+                      "type": "pred",
+                      "pred": "DO",
+                      "roles": {
+                        "agent": {
+                          "kind": "prime",
+                          "prime": "YOU"
+                        },
+                        "undergoer": {
+                          "kind": "sp",
+                          "det": "OTHER~ELSE~ANOTHER",
+                          "quant": "MUCH~MANY",
+                          "head": {
+                            "kind": "primeHead",
+                            "prime": "SOMETHING~THING"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the primes lack money, exchange, and comparative monetary amount, so the AST substitutes a seller's demand that the addressee do much with other things."
+}

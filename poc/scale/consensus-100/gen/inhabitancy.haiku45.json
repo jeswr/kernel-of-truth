@@ -1,0 +1,70 @@
+{
+  "id": "urn:kernel-v1:inhabitancy",
+  "label": "inhabitancy",
+  "synset": "urn:lexical-wn31:n-01056469",
+  "pattern": "InstanceSchema; BE-SOMEWHERE persistence (long-term dwelling)",
+  "gloss": "The act or state of living permanently or for an extended time in a particular place, dwelling there as one's regular home or habitual residence.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMEONE"
+            },
+            "bind": 1
+          },
+          "locus": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "locus": {
+            "kind": "ref",
+            "index": 2
+          },
+          "duration": {
+            "kind": "prime",
+            "prime": "A-LONG-TIME"
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — renders someone being in a place for a long time but cannot mark the notions of 'permanent', 'regular home', or the distinction between animals and humans; A-LONG-TIME captures extended dwelling imperfectly."
+}

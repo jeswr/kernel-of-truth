@@ -1,0 +1,78 @@
+{
+  "id": "urn:kernel-v1:wrongdoer",
+  "label": "wrongdoer",
+  "synset": "urn:lexical-wn31:n-09657157",
+  "pattern": "InstanceSchema; rule-words + prohibited action",
+  "gloss": "A person who violates a moral precept or civil law, either by committing a forbidden act or by failing to fulfil a required duty.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "SAY",
+        "roles": {
+          "agent": {
+            "kind": "sp",
+            "quant": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WORDS"
+            }
+          },
+          "quote": {
+            "kind": "quote",
+            "clauses": [
+              {
+                "type": "pred",
+                "pred": "DON'T-WANT",
+                "roles": {
+                  "experiencer": {
+                    "kind": "sp",
+                    "quant": "MUCH~MANY",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "PEOPLE"
+                    }
+                  },
+                  "complement": {
+                    "kind": "clause",
+                    "clause": {
+                      "type": "pred",
+                      "pred": "DO",
+                      "roles": {
+                        "agent": {
+                          "kind": "ref",
+                          "index": 1
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — The primes render a person acting against what shared rule-words oppose, but cannot encode moral or civil authority or violations committed by failing to fulfil a duty."
+}

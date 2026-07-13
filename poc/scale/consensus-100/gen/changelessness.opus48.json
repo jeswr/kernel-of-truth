@@ -1,0 +1,91 @@
+{
+  "id": "urn:kernel-v1:changelessness",
+  "label": "changelessness",
+  "synset": "urn:lexical-wn31:n-04745174",
+  "pattern": "WhenTrue; persistent sameness across time (negated becoming-other)",
+  "gloss": "The quality of remaining the same over time, so that what has it does not become other than it is and cannot be made different.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "time": {
+            "kind": "sp",
+            "quant": "ALL",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "bind": 2
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "op",
+            "op": "CAN",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "HAPPEN",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 1
+                  },
+                  "manner": {
+                    "kind": "clause",
+                    "clause": {
+                      "type": "pred",
+                      "pred": "BE-SPEC",
+                      "roles": {
+                        "undergoer": {
+                          "kind": "ref",
+                          "index": 1
+                        },
+                        "attribute": {
+                          "kind": "sp",
+                          "det": "OTHER~ELSE~ANOTHER",
+                          "head": {
+                            "kind": "kindFrame",
+                            "of": {
+                              "kind": "ref",
+                              "index": 1
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — 'remaining the same' is rendered as being at all times while nothing can happen to make it become another kind; the manner-clause is a strained device, and the notion of not-changing is only approximated by negated becoming-other."
+}

@@ -1,0 +1,141 @@
+{
+  "id": "urn:kernel-v1:tactician",
+  "label": "tactician",
+  "synset": "urn:lexical-wn31:n-10707852",
+  "pattern": "InstanceSchema; CAN-THINK + wanted-result causal knowledge",
+  "gloss": "A person adept at devising practical courses of action to secure particular, usually immediate, objectives, especially by selecting and arranging effective means under the circumstances.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 4,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "CAN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "THINK",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "topic": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                },
+                "bind": 2
+              },
+              "duration": {
+                "kind": "prime",
+                "prime": "FOR-SOME-TIME"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "HAPPEN",
+              "roles": {
+                "undergoer": {
+                  "kind": "sp",
+                  "mods": [
+                    {
+                      "mod": "GOOD"
+                    }
+                  ],
+                  "head": {
+                    "kind": "primeHead",
+                    "prime": "SOMETHING~THING"
+                  },
+                  "bind": 3
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "KNOW",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "op",
+              "op": "BECAUSE",
+              "args": [
+                {
+                  "type": "pred",
+                  "pred": "DO",
+                  "roles": {
+                    "agent": {
+                      "kind": "sp",
+                      "head": {
+                        "kind": "primeHead",
+                        "prime": "SOMEONE"
+                      },
+                      "bind": 4
+                    },
+                    "undergoer": {
+                      "kind": "ref",
+                      "index": 2
+                    }
+                  }
+                },
+                {
+                  "type": "pred",
+                  "pred": "HAPPEN",
+                  "roles": {
+                    "undergoer": {
+                      "kind": "ref",
+                      "index": 3
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the primes render someone able to conceive an action known to produce a wanted good result, but cannot encode high aptitude, practical means-selection, short-term scope, or responsiveness to circumstances."
+}

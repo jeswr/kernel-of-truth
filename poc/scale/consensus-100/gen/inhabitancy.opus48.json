@@ -1,0 +1,67 @@
+{
+  "id": "urn:kernel-v1:inhabitancy",
+  "label": "inhabitancy",
+  "synset": "urn:lexical-wn31:n-01056469",
+  "pattern": "InstanceSchema; sustained LIVE + BE-SOMEWHERE over a long time",
+  "gloss": "The state of someone or something living in a particular place and remaining there over a long stretch of time, so that this place is where they continuously reside.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "PlaceRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "LIVE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "place": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHERE~PLACE"
+            },
+            "bind": 2
+          },
+          "duration": {
+            "kind": "prime",
+            "prime": "A-LONG-TIME"
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "locus": {
+            "kind": "ref",
+            "index": 2
+          },
+          "duration": {
+            "kind": "prime",
+            "prime": "A-LONG-TIME"
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: faithful — someone lives in some place and is there for a long time, which carries the genus (living/dwelling) and the differentia (permanence, a fixed place)."
+}

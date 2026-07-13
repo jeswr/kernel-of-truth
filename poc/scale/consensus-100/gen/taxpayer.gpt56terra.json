@@ -1,0 +1,44 @@
+{
+  "id": "urn:kernel-v1:taxpayer",
+  "label": "taxpayer",
+  "synset": "urn:lexical-wn31:n-10713659",
+  "pattern": "InstanceSchema; person acting upon a thing (payment skeleton)",
+  "gloss": "A person who is legally required to make payments to a public authority in support of its revenues.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — it renders only a person acting upon a thing; the legally required payment to a public authority for public revenue cannot be expressed with the available primes."
+}

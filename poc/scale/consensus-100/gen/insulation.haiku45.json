@@ -1,0 +1,80 @@
+{
+  "id": "urn:kernel-v1:insulation",
+  "label": "insulation",
+  "synset": "urn:lexical-wn31:n-00828671",
+  "pattern": "InstanceSchema; protective enclosure + transmission-blocking material",
+  "gloss": "The act of surrounding or covering something with material that stops or greatly reduces the passage of heat, sound, or electrical current through it.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          },
+          "locus": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 3
+          },
+          "manner": {
+            "kind": "prime",
+            "prime": "INSIDE"
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "MOVE",
+            "roles": {
+              "undergoer": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                },
+                "bind": 1
+              }
+            },
+            "place": {
+              "kind": "ref",
+              "index": 3
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — renders material wrapped inside and blocking transmission as non-movement of the energy, but cannot mark the specific nature of heat/sound/electricity or the precise mechanism of blocking; reads as a generic barrier rather than a functional material property."
+}

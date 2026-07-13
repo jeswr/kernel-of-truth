@@ -1,0 +1,54 @@
+{
+  "id": "urn:kernel-v1:conveyer",
+  "label": "conveyer",
+  "synset": "urn:lexical-wn31:n-09982268",
+  "pattern": "InstanceSchema; agentive DO + resulting MOVE",
+  "gloss": "A person who causes something to pass from one place or person to another, either by carrying it bodily or by communicating it.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "MOVE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 2
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — it renders a person acting on a thing that moves, but cannot represent the alternative between bodily carrying and communicating, nor transmission from one person to another."
+}
