@@ -1,0 +1,116 @@
+{
+ "id": "urn:kernel-v1:access",
+ "label": "access (act of approaching or entering)",
+ "synset": "urn:lexical-wn31:n-00281976",
+ "pattern": "InstanceSchema; INSIDE polarity across a MOVE (entry direction)",
+ "gloss": "The act of drawing near to or going into a place, a movement by which someone who was not within it comes to be present inside it.",
+ "explication": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "PlaceRef"
+   },
+   {
+    "index": 3,
+    "refKind": "TimeRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "MOVE",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "time": {
+      "kind": "sp",
+      "det": "SOME",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WHEN~TIME"
+      },
+      "bind": 3
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "BEFORE",
+    "args": [
+     {
+      "kind": "ref",
+      "index": 3
+     },
+     {
+      "type": "op",
+      "op": "NOT",
+      "args": [
+       {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+         "undergoer": {
+          "kind": "ref",
+          "index": 1
+         },
+         "locus": {
+          "kind": "sp",
+          "det": "SOME",
+          "head": {
+           "kind": "primeHead",
+           "prime": "WHERE~PLACE"
+          },
+          "bind": 2
+         },
+         "manner": {
+          "kind": "prime",
+          "prime": "INSIDE"
+         }
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "AFTER",
+    "args": [
+     {
+      "kind": "ref",
+      "index": 3
+     },
+     {
+      "type": "pred",
+      "pred": "BE-SOMEWHERE",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "locus": {
+        "kind": "ref",
+        "index": 2
+       },
+       "manner": {
+        "kind": "prime",
+        "prime": "INSIDE"
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "references": [],
+ "status": "draft",
+ "notes": "AST adequacy: lossy — the entering reading is rendered exactly (not inside before the movement, inside after), but the weaker 'approaching' disjunct of the sense (drawing near without passing inside) is collapsed into full entry."
+}

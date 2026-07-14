@@ -1,0 +1,166 @@
+{
+  "id": "urn:molaug-v0:authority",
+  "label": "authority (X has authority over Ys)",
+  "status": "research-grade",
+  "pattern": "RelationalSchema; imperative-quote SAY + obedience-because-of-saying + group-endorsed rightness (concept-right attribute)",
+  "gloss": "The standing of one whose word directs the actions of others in a group: when this person tells them to do something they do it because this person has said it, and the group holds this arrangement to be right.",
+  "notes": "AST adequacy: lossy — legitimacy is rendered as the group's thinking the obedience right (via the kernel right reference); the source and limits of the entitlement (office, law, sanction, scope of command) are dropped, and the commanded content is carried anaphorically by THE-SAME rather than bound across the quote boundary.",
+  "references": [
+    "urn:kernel-v0:right",
+    "urn:molaug-v0:group"
+  ],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "RelationalSchema",
+    "referents": [
+      { "index": 1, "refKind": "SomeoneRef" },
+      { "index": 2, "refKind": "SomeoneRef" },
+      { "index": 3, "refKind": "SomethingRef" },
+      { "index": 4, "refKind": "SomeoneRef" }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": { "kind": "ref", "index": 2 },
+          "attribute": {
+            "kind": "sp",
+            "head": {
+              "kind": "partFrame",
+              "of": {
+                "kind": "sp",
+                "head": {
+                  "kind": "kindFrame",
+                  "of": { "kind": "concept", "id": "urn:molaug-v0:group" }
+                },
+                "bind": 3
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "WHEN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "SAY",
+            "roles": {
+              "agent": { "kind": "ref", "index": 1 },
+              "addressee": { "kind": "ref", "index": 2 },
+              "quote": {
+                "kind": "quote",
+                "clauses": [
+                  {
+                    "type": "pred",
+                    "pred": "WANT",
+                    "roles": {
+                      "experiencer": { "kind": "prime", "prime": "I" },
+                      "complement": {
+                        "kind": "clause",
+                        "clause": {
+                          "type": "pred",
+                          "pred": "DO",
+                          "roles": {
+                            "agent": { "kind": "prime", "prime": "YOU" },
+                            "undergoer": {
+                              "kind": "sp",
+                              "det": "THIS",
+                              "head": { "kind": "primeHead", "prime": "SOMETHING~THING" }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": { "kind": "ref", "index": 2 },
+              "undergoer": {
+                "kind": "sp",
+                "det": "THE-SAME",
+                "head": { "kind": "primeHead", "prime": "SOMETHING~THING" }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "SAY",
+            "roles": {
+              "agent": { "kind": "ref", "index": 1 },
+              "addressee": { "kind": "ref", "index": 2 }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": { "kind": "ref", "index": 2 },
+              "undergoer": {
+                "kind": "sp",
+                "det": "THE-SAME",
+                "head": { "kind": "primeHead", "prime": "SOMETHING~THING" }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "sp",
+            "head": { "kind": "primeHead", "prime": "PEOPLE" },
+            "bind": 4,
+            "restrictedBy": {
+              "type": "pred",
+              "pred": "BE-SPEC",
+              "roles": {
+                "undergoer": { "kind": "ref", "index": 4 },
+                "attribute": {
+                  "kind": "sp",
+                  "head": {
+                    "kind": "partFrame",
+                    "of": { "kind": "ref", "index": 3 }
+                  }
+                }
+              }
+            }
+          },
+          "quote": {
+            "kind": "quote",
+            "clauses": [
+              {
+                "type": "pred",
+                "pred": "BE-SPEC",
+                "roles": {
+                  "undergoer": {
+                    "kind": "sp",
+                    "det": "THIS",
+                    "head": { "kind": "primeHead", "prime": "SOMETHING~THING" }
+                  },
+                  "attribute": { "kind": "concept", "id": "urn:kernel-v0:right" }
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

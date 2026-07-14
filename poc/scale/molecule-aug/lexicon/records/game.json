@@ -1,0 +1,130 @@
+{
+  "id": "urn:molaug-v0:game",
+  "label": "game",
+  "status": "research-grade",
+  "pattern": "InstanceSchema; done-for-felt-good BECAUSE + prior-words rule-following manner + competitive MORE-GOOD want",
+  "gloss": "An activity that people engage in for the pleasure of the doing itself, carried on in the way that words agreed beforehand lay down, and in which players commonly seek to do better than one another.",
+  "notes": "AST adequacy: lossy — play's non-seriousness and the win-condition are beyond the primes: rendered as pleasurable doing, conformity to previously said words, and some players' want to do it in a more-good way, which loses the comparative object ('better than the others') and the notion of winning.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      { "index": 1, "refKind": "SomethingRef" },
+      { "index": 2, "refKind": "SomethingRef" },
+      { "index": 3, "refKind": "SomeoneRef" }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "op",
+            "op": "WHEN",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "DO",
+                "roles": {
+                  "agent": {
+                    "kind": "sp",
+                    "head": { "kind": "primeHead", "prime": "PEOPLE" }
+                  },
+                  "undergoer": { "kind": "ref", "index": 1 }
+                }
+              },
+              {
+                "type": "pred",
+                "pred": "FEEL",
+                "roles": {
+                  "experiencer": {
+                    "kind": "sp",
+                    "head": { "kind": "primeHead", "prime": "PEOPLE" }
+                  },
+                  "attribute": { "kind": "prime", "prime": "GOOD" }
+                }
+              }
+            ]
+          },
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "sp",
+                "head": { "kind": "primeHead", "prime": "PEOPLE" }
+              },
+              "undergoer": { "kind": "ref", "index": 1 },
+              "time": {
+                "kind": "sp",
+                "quant": "MUCH~MANY",
+                "head": { "kind": "primeHead", "prime": "WHEN~TIME" }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "sp",
+            "head": { "kind": "primeHead", "prime": "PEOPLE" }
+          },
+          "undergoer": { "kind": "ref", "index": 1 },
+          "manner": {
+            "kind": "sp",
+            "head": { "kind": "primeHead", "prime": "WORDS" },
+            "bind": 2,
+            "restrictedBy": {
+              "type": "pred",
+              "pred": "SAY",
+              "roles": {
+                "agent": {
+                  "kind": "sp",
+                  "head": { "kind": "primeHead", "prime": "PEOPLE" }
+                },
+                "topic": { "kind": "ref", "index": 2 },
+                "time": {
+                  "kind": "temporal",
+                  "op": "BEFORE",
+                  "anchor": { "kind": "prime", "prime": "NOW" }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "sp",
+            "quant": "SOME",
+            "head": { "kind": "primeHead", "prime": "PEOPLE" },
+            "bind": 3
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "DO",
+              "roles": {
+                "agent": { "kind": "ref", "index": 3 },
+                "undergoer": { "kind": "ref", "index": 1 },
+                "manner": {
+                  "kind": "sp",
+                  "mods": [ { "mod": "GOOD", "intensifier": "MORE" } ],
+                  "head": { "kind": "primeHead", "prime": "SOMETHING~THING" }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

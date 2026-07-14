@@ -1,0 +1,83 @@
+{
+  "id": "urn:molaug-v0:ill",
+  "label": "ill (sick)",
+  "status": "research-grade",
+  "pattern": "WhenTrue; ongoing bad process INSIDE the body + felt badness + incapacity",
+  "gloss": "Affected by sickness: in a state in which something harmful is going on within the body, so that one feels bad and cannot do many of the things one otherwise could.",
+  "notes": "AST adequacy: faithful — the folk sense (bad bodily process, felt badness, incapacity) is rendered; the body-to-bearer linkage is approximate (no possessive frame outside first-person quotes, as flagged for kernel-v0 alive), and specific pathology is encyclopedic rather than criterial.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      { "index": 1, "refKind": "SomeoneRef" },
+      { "index": 2, "refKind": "SomethingRef" }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "det": "SOME",
+            "mods": [ { "mod": "BAD" } ],
+            "head": { "kind": "primeHead", "prime": "SOMETHING~THING" },
+            "bind": 2
+          },
+          "time": { "kind": "prime", "prime": "NOW" },
+          "place": {
+            "kind": "sp",
+            "head": { "kind": "primeHead", "prime": "BODY" }
+          },
+          "manner": { "kind": "prime", "prime": "INSIDE" }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "HAPPEN",
+            "roles": {
+              "undergoer": { "kind": "ref", "index": 2 }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "FEEL",
+            "roles": {
+              "experiencer": { "kind": "ref", "index": 1 },
+              "attribute": { "kind": "prime", "prime": "BAD" }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "op",
+            "op": "CAN",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "DO",
+                "roles": {
+                  "agent": { "kind": "ref", "index": 1 },
+                  "undergoer": {
+                    "kind": "sp",
+                    "quant": "MUCH~MANY",
+                    "head": { "kind": "primeHead", "prime": "SOMETHING~THING" }
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "id": "urn:molaug-v0:machine",
+  "label": "machine",
+  "status": "research-grade",
+  "pattern": "InstanceSchema; tool-kind genus + many-parts mereology + small-action-to-much-doing via moving parts",
+  "gloss": "A made device of the tool kind having many parts, which, set going by a small brief action of a person, moves in its parts of itself and does much beyond that action.",
+  "notes": "AST adequacy: faithful — kind-of-tool genus (importing madeness and instrumental purpose), many parts, and the small-input/large-output pattern through the parts' movement are rendered; the power source and internal mechanism are not decomposed, and 'small action' is approximated as brief.",
+  "references": [
+    "urn:molaug-v0:tool"
+  ],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      { "index": 1, "refKind": "SomethingRef" },
+      { "index": 2, "refKind": "SomethingRef" },
+      { "index": 3, "refKind": "SomeoneRef" }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": { "kind": "ref", "index": 1 },
+          "attribute": {
+            "kind": "sp",
+            "head": {
+              "kind": "kindFrame",
+              "of": { "kind": "concept", "id": "urn:molaug-v0:tool" }
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "THERE-IS",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "partFrame",
+              "of": { "kind": "ref", "index": 1 }
+            },
+            "bind": 2
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "WHEN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "sp",
+                "det": "SOME",
+                "head": { "kind": "primeHead", "prime": "SOMEONE" },
+                "bind": 3
+              },
+              "undergoer": { "kind": "ref", "index": 1 },
+              "duration": { "kind": "prime", "prime": "A-SHORT-TIME" }
+            }
+          },
+          {
+            "type": "op",
+            "op": "BECAUSE",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "MOVE",
+                "roles": {
+                  "undergoer": { "kind": "ref", "index": 2 }
+                }
+              },
+              {
+                "type": "pred",
+                "pred": "DO",
+                "roles": {
+                  "agent": { "kind": "ref", "index": 1 },
+                  "undergoer": {
+                    "kind": "sp",
+                    "quant": "MUCH~MANY",
+                    "head": { "kind": "primeHead", "prime": "SOMETHING~THING" }
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

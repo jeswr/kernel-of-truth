@@ -1,0 +1,133 @@
+{
+  "id": "urn:molaug-v0:duty",
+  "label": "duty",
+  "status": "research-grade",
+  "pattern": "InstanceSchema; work-tied obligation as known conditional social judgment (concept-wrong quote)",
+  "gloss": "Something a person is bound to do by virtue of their work or position, the leaving-undone of which is counted a wrong in them.",
+  "notes": "AST adequacy: lossy — deontic 'must' has no prime: obligation is rendered as the person's knowledge that not doing this thing would be judged wrong by others; duties of station beyond employment are narrowed to the work case, and the binding source (agreement, role) is not decomposed.",
+  "references": [
+    "urn:kernel-v0:wrong",
+    "urn:molaug-v0:work"
+  ],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      { "index": 1, "refKind": "SomethingRef" },
+      { "index": 2, "refKind": "SomeoneRef" },
+      { "index": 3, "refKind": "SomethingRef" }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": { "kind": "primeHead", "prime": "SOMEONE" },
+            "bind": 2
+          },
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "kindFrame",
+              "of": { "kind": "concept", "id": "urn:molaug-v0:work" }
+            },
+            "bind": 3
+          },
+          "time": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": { "kind": "primeHead", "prime": "WHEN~TIME" }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": { "kind": "ref", "index": 2 },
+              "undergoer": { "kind": "ref", "index": 3 }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "KNOW",
+            "roles": {
+              "experiencer": { "kind": "ref", "index": 2 },
+              "complement": {
+                "kind": "clause",
+                "clause": {
+                  "type": "op",
+                  "op": "IF",
+                  "args": [
+                    {
+                      "type": "op",
+                      "op": "NOT",
+                      "args": [
+                        {
+                          "type": "pred",
+                          "pred": "DO",
+                          "roles": {
+                            "agent": { "kind": "ref", "index": 2 },
+                            "undergoer": { "kind": "ref", "index": 1 }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "pred",
+                      "pred": "THINK",
+                      "roles": {
+                        "experiencer": {
+                          "kind": "sp",
+                          "quant": "MUCH~MANY",
+                          "head": { "kind": "primeHead", "prime": "PEOPLE" }
+                        },
+                        "quote": {
+                          "kind": "quote",
+                          "clauses": [
+                            {
+                              "type": "pred",
+                              "pred": "BE-SPEC",
+                              "roles": {
+                                "undergoer": {
+                                  "kind": "sp",
+                                  "det": "THIS",
+                                  "head": { "kind": "primeHead", "prime": "SOMETHING~THING" }
+                                },
+                                "attribute": { "kind": "concept", "id": "urn:kernel-v0:wrong" }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": { "kind": "ref", "index": 2 },
+          "undergoer": { "kind": "ref", "index": 1 },
+          "time": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": { "kind": "primeHead", "prime": "WHEN~TIME" }
+          }
+        }
+      }
+    ]
+  }
+}

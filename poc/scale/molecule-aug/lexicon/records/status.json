@@ -1,0 +1,119 @@
+{
+  "id": "urn:molaug-v0:status",
+  "label": "status (X's standing in group Y)",
+  "status": "research-grade",
+  "pattern": "RelationalSchema; group reference + ABOVE-metaphor rank inside a THINK quote + literal-place negation",
+  "gloss": "A person's standing within a group: the position, higher or lower relative to the other members, that the group's members accord the person in their shared thinking of one another — a place held in esteem, not in space.",
+  "notes": "AST adequacy: lossy — social rank is rendered through a spatial above/below metaphor scoped inside the members' thinking, with the literal spatial reading explicitly negated; the evaluative and normative content of standing (esteem, deference, entitlement) is dropped, and the generic quote (above some, below others) overstates the extreme top and bottom ranks.",
+  "references": [
+    "urn:molaug-v0:group"
+  ],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "RelationalSchema",
+    "referents": [
+      { "index": 1, "refKind": "SomeoneRef" },
+      { "index": 2, "refKind": "SomethingRef" },
+      { "index": 3, "refKind": "SomeoneRef" }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": { "kind": "ref", "index": 2 },
+          "attribute": {
+            "kind": "sp",
+            "head": {
+              "kind": "kindFrame",
+              "of": { "kind": "concept", "id": "urn:molaug-v0:group" }
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "sp",
+            "head": { "kind": "primeHead", "prime": "PEOPLE" },
+            "bind": 3,
+            "restrictedBy": {
+              "type": "pred",
+              "pred": "BE-SPEC",
+              "roles": {
+                "undergoer": { "kind": "ref", "index": 3 },
+                "attribute": {
+                  "kind": "sp",
+                  "head": {
+                    "kind": "partFrame",
+                    "of": { "kind": "ref", "index": 2 }
+                  }
+                }
+              }
+            }
+          },
+          "quote": {
+            "kind": "quote",
+            "clauses": [
+              {
+                "type": "pred",
+                "pred": "BE-SOMEWHERE",
+                "roles": {
+                  "undergoer": { "kind": "ref", "index": 1 },
+                  "locus": {
+                    "kind": "sp",
+                    "det": "OTHER~ELSE~ANOTHER",
+                    "quant": "SOME",
+                    "head": { "kind": "primeHead", "prime": "SOMEONE" }
+                  },
+                  "manner": { "kind": "prime", "prime": "ABOVE" }
+                }
+              },
+              {
+                "type": "pred",
+                "pred": "BE-SOMEWHERE",
+                "roles": {
+                  "undergoer": {
+                    "kind": "sp",
+                    "det": "OTHER~ELSE~ANOTHER",
+                    "quant": "SOME",
+                    "head": { "kind": "primeHead", "prime": "SOMEONE" }
+                  },
+                  "locus": { "kind": "ref", "index": 1 },
+                  "manner": { "kind": "prime", "prime": "ABOVE" }
+                }
+              }
+            ]
+          },
+          "time": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": { "kind": "primeHead", "prime": "WHEN~TIME" }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "BE-SOMEWHERE",
+            "roles": {
+              "undergoer": { "kind": "ref", "index": 1 },
+              "locus": {
+                "kind": "sp",
+                "det": "OTHER~ELSE~ANOTHER",
+                "quant": "SOME",
+                "head": { "kind": "primeHead", "prime": "SOMEONE" }
+              },
+              "manner": { "kind": "prime", "prime": "ABOVE" }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

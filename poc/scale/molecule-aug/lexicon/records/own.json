@@ -1,0 +1,137 @@
+{
+  "id": "urn:molaug-v0:own",
+  "label": "own (X owns Y)",
+  "status": "research-grade",
+  "pattern": "RelationalSchema; quote-re-anchored IS-MINE (kernel give/take idiom) + community recognition + wrongness of others' taking",
+  "gloss": "To have a thing as one's property: to stand to it in the relation, recognized by others, in which one may truly say of it 'this is mine', so that for another to take it is counted a wrong.",
+  "notes": "AST adequacy: faithful — folk ownership (recognized mine-sayability plus the wrongness of others' taking) is rendered with the kernel possession idiom and a take reference; legal title, transfer and abandonment are institutional refinements beyond the folk sense and are not attempted.",
+  "references": [
+    "urn:kernel-v0:take",
+    "urn:kernel-v0:wrong"
+  ],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "RelationalSchema",
+    "referents": [
+      { "index": 1, "refKind": "SomeoneRef" },
+      { "index": 2, "refKind": "SomethingRef" },
+      { "index": 3, "refKind": "SomeoneRef" }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "CAN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "SAY",
+            "roles": {
+              "agent": { "kind": "ref", "index": 1 },
+              "quote": {
+                "kind": "quote",
+                "clauses": [
+                  {
+                    "type": "pred",
+                    "pred": "IS-MINE",
+                    "roles": {
+                      "undergoer": { "kind": "ref", "index": 2 },
+                      "possessor": { "kind": "prime", "prime": "I" }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "KNOW",
+        "roles": {
+          "experiencer": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": { "kind": "primeHead", "prime": "PEOPLE" }
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "op",
+              "op": "CAN",
+              "args": [
+                {
+                  "type": "pred",
+                  "pred": "SAY",
+                  "roles": {
+                    "agent": { "kind": "ref", "index": 1 },
+                    "quote": {
+                      "kind": "quote",
+                      "clauses": [
+                        {
+                          "type": "pred",
+                          "pred": "IS-MINE",
+                          "roles": {
+                            "undergoer": { "kind": "ref", "index": 2 },
+                            "possessor": { "kind": "prime", "prime": "I" }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "IF",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "sp",
+                "det": "OTHER~ELSE~ANOTHER",
+                "head": { "kind": "primeHead", "prime": "SOMEONE" },
+                "bind": 3
+              },
+              "undergoer": { "kind": "ref", "index": 2 },
+              "manner": { "kind": "concept", "id": "urn:kernel-v0:take" }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "THINK",
+            "roles": {
+              "experiencer": {
+                "kind": "sp",
+                "quant": "MUCH~MANY",
+                "head": { "kind": "primeHead", "prime": "PEOPLE" }
+              },
+              "quote": {
+                "kind": "quote",
+                "clauses": [
+                  {
+                    "type": "pred",
+                    "pred": "BE-SPEC",
+                    "roles": {
+                      "undergoer": {
+                        "kind": "sp",
+                        "det": "THIS",
+                        "head": { "kind": "primeHead", "prime": "SOMETHING~THING" }
+                      },
+                      "attribute": { "kind": "concept", "id": "urn:kernel-v0:wrong" }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

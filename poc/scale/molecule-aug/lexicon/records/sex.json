@@ -1,0 +1,160 @@
+{
+  "id": "urn:molaug-v0:sex",
+  "label": "sex (mating)",
+  "status": "research-grade",
+  "pattern": "InstanceSchema; two-agent bodily act + felt-good clause + man/woman-conditioned birth-possibility",
+  "gloss": "Bodily activity in which two people engage together, characteristically pleasurable, and of the kind such that when the partners are a man and a woman a birth can later come of it.",
+  "notes": "AST adequacy: lossy — the specifically genital character and the erotic quality of the act are beyond the primes; rendered as joint two-person bodily doing, felt bodily pleasure, and the man-woman-conditioned birth linkage, which underdetermines the act against other joint bodily activity.",
+  "references": [
+    "urn:kernel-v0:birth",
+    "urn:molaug-v0:man",
+    "urn:molaug-v0:woman"
+  ],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      { "index": 1, "refKind": "SomethingRef" },
+      { "index": 2, "refKind": "SomeoneRef" },
+      { "index": 3, "refKind": "TimeRef" }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "sp",
+            "quant": "TWO",
+            "head": { "kind": "primeHead", "prime": "PEOPLE" },
+            "bind": 2
+          },
+          "undergoer": { "kind": "ref", "index": 1 },
+          "instrument": {
+            "kind": "sp",
+            "quant": "TWO",
+            "head": { "kind": "primeHead", "prime": "BODY" }
+          },
+          "time": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": { "kind": "primeHead", "prime": "WHEN~TIME" },
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "WHEN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": { "kind": "ref", "index": 2 },
+              "undergoer": { "kind": "ref", "index": 1 }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "FEEL",
+            "roles": {
+              "experiencer": { "kind": "ref", "index": 2 },
+              "attribute": { "kind": "prime", "prime": "GOOD" },
+              "place": {
+                "kind": "sp",
+                "head": { "kind": "primeHead", "prime": "BODY" }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "IF",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "BE-SPEC",
+            "roles": {
+              "undergoer": {
+                "kind": "sp",
+                "quant": "ONE",
+                "head": { "kind": "refHead", "index": 2 }
+              },
+              "attribute": {
+                "kind": "sp",
+                "head": {
+                  "kind": "kindFrame",
+                  "of": { "kind": "concept", "id": "urn:molaug-v0:man" }
+                }
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "IF",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "BE-SPEC",
+                "roles": {
+                  "undergoer": {
+                    "kind": "sp",
+                    "det": "OTHER~ELSE~ANOTHER",
+                    "quant": "ONE",
+                    "head": { "kind": "refHead", "index": 2 }
+                  },
+                  "attribute": {
+                    "kind": "sp",
+                    "head": {
+                      "kind": "kindFrame",
+                      "of": { "kind": "concept", "id": "urn:molaug-v0:woman" }
+                    }
+                  }
+                }
+              },
+              {
+                "type": "op",
+                "op": "BECAUSE",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "HAPPEN",
+                    "roles": {
+                      "undergoer": { "kind": "ref", "index": 1 }
+                    }
+                  },
+                  {
+                    "type": "op",
+                    "op": "CAN",
+                    "args": [
+                      {
+                        "type": "pred",
+                        "pred": "HAPPEN",
+                        "roles": {
+                          "undergoer": {
+                            "kind": "sp",
+                            "head": {
+                              "kind": "kindFrame",
+                              "of": { "kind": "concept", "id": "urn:kernel-v0:birth" }
+                            }
+                          },
+                          "time": {
+                            "kind": "temporal",
+                            "op": "AFTER",
+                            "anchor": { "kind": "ref", "index": 3 }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,859 @@
+{
+  "corpus": "molaug-v0 referenceable lexicon (S5)",
+  "design": "poc/scale/molecule-aug/DESIGN.md §3; lexicon/PLAN.md",
+  "generated": "2026-07-14T01:11:01.069Z",
+  "encoderContentHash": "40e8c8ba4c3d081c5051ea62d946d2ee9ee9f3205853b5c377a4c1e647e2d10c",
+  "kernelV0ManifestSha256": "da56bf1f912cdc24229a7cac5ca32fdb902fd0bac01fd90790438aac70a26c41",
+  "conceptCount": 85,
+  "bridgeCount": 31,
+  "bridgeSelfFlags": {
+    "faithful": 13,
+    "lossy": 18
+  },
+  "planOrder": [
+    "money",
+    "surface",
+    "hot",
+    "material",
+    "group",
+    "fight",
+    "measure",
+    "kill",
+    "animal",
+    "eat",
+    "food",
+    "grow",
+    "name",
+    "write",
+    "own",
+    "ill",
+    "man",
+    "woman",
+    "sex",
+    "work",
+    "status",
+    "authority",
+    "law",
+    "country",
+    "institution",
+    "duty",
+    "worth",
+    "tool",
+    "machine",
+    "art",
+    "game"
+  ],
+  "lexiconSetHash": "a9284e6fcc1801df01302480bc6e35c6c2616f2fc1cdc08c1433db4628ff84d5",
+  "slugCollisionGate": {
+    "checked": [
+      "consensus-100"
+    ],
+    "collisions": 0,
+    "lemmaWarnings": [
+      "lemma-level near-collision (consensus-100): 'initiation' lemma 'institution' matches urn:molaug-v0:institution"
+    ]
+  },
+  "records": [
+    {
+      "id": "urn:kernel-v0:event",
+      "tier": "kernel-v0",
+      "label": "event",
+      "file": "data/kernel-v0/concepts/event.json",
+      "sha256": "0240edb6a27c05a7e0c374a448738a007e13ee22a31ad0dc2d9f3dd2866863d4",
+      "references": []
+    },
+    {
+      "id": "urn:kernel-v0:archived",
+      "tier": "kernel-v0",
+      "label": "archived (bookmark boolean property)",
+      "file": "data/kernel-v0/concepts/archived.json",
+      "sha256": "371b1441fed72899d316935d9f7919eda3557b0f81ad2b62059e5432d6e5553a",
+      "references": []
+    },
+    {
+      "id": "urn:kernel-v0:bookmark",
+      "tier": "kernel-v0",
+      "label": "bookmark",
+      "file": "data/kernel-v0/concepts/bookmark.json",
+      "sha256": "bb64932b322d02b90461858f312d5ed391f8abca28c67b0612ca9d8a05bba1b3",
+      "references": []
+    },
+    {
+      "id": "urn:kernel-v0:kind",
+      "tier": "kernel-v0",
+      "label": "kind (gufo:Kind, sortal type)",
+      "file": "data/kernel-v0/concepts/kind.json",
+      "sha256": "97be3daca2dfd3524a4eabff2785583973e238ab7261d291935ec91ccf28ab34",
+      "references": []
+    },
+    {
+      "id": "urn:kernel-v0:happy",
+      "tier": "kernel-v0",
+      "label": "happy",
+      "file": "data/kernel-v0/concepts/happy.json",
+      "sha256": "dc154e6dac786d95a2b6e80012f2c7e2910275e469bc11f685acd4e072b5415d",
+      "references": []
+    },
+    {
+      "id": "urn:kernel-v0:sad",
+      "tier": "kernel-v0",
+      "label": "sad",
+      "file": "data/kernel-v0/concepts/sad.json",
+      "sha256": "4fd77ec53fe883863b60944a2b0ec4354bfec43db1cac8c373a899a652a91837",
+      "references": []
+    },
+    {
+      "id": "urn:kernel-v0:afraid",
+      "tier": "kernel-v0",
+      "label": "afraid",
+      "file": "data/kernel-v0/concepts/afraid.json",
+      "sha256": "ad108d5161b4ea075c7de33b17779c88a0974fca009da7ca7f4681b388212dfb",
+      "references": []
+    },
+    {
+      "id": "urn:kernel-v0:angry",
+      "tier": "kernel-v0",
+      "label": "angry",
+      "file": "data/kernel-v0/concepts/angry.json",
+      "sha256": "19d4e78d8264ea22b8f977a1b2e2fb562da7e738f0d0c5cfb586ae781723b3d8",
+      "references": []
+    },
+    {
+      "id": "urn:kernel-v0:friend",
+      "tier": "kernel-v0",
+      "label": "friend (X is a friend of Y)",
+      "file": "data/kernel-v0/concepts/friend.json",
+      "sha256": "a0ffd3745823149bc3946d0ea811f12a9de490570e8c1e79e389a05ef1f71e6f",
+      "references": []
+    },
+    {
+      "id": "urn:kernel-v0:promise",
+      "tier": "kernel-v0",
+      "label": "promise (the words)",
+      "file": "data/kernel-v0/concepts/promise.json",
+      "sha256": "f5c6009b291f83a4ec8250223ab21c1279227e69a65c29752adcfd0ebdb50d24",
+      "references": []
+    },
+    {
+      "id": "urn:kernel-v0:lie",
+      "tier": "kernel-v0",
+      "label": "lie (the words)",
+      "file": "data/kernel-v0/concepts/lie.json",
+      "sha256": "da7732987ef15c294213e2a79ca1cd676a4aa37db11484a522a4cdfdcda86994",
+      "references": []
+    },
+    {
+      "id": "urn:kernel-v0:help",
+      "tier": "kernel-v0",
+      "label": "help (X helps Y)",
+      "file": "data/kernel-v0/concepts/help.json",
+      "sha256": "94b2c437308047f7c4f1bd97ac678e98b94abb8d08de0b5972f985270a634dd2",
+      "references": []
+    },
+    {
+      "id": "urn:kernel-v0:remember",
+      "tier": "kernel-v0",
+      "label": "remember (X remembers Y)",
+      "file": "data/kernel-v0/concepts/remember.json",
+      "sha256": "c12ac57b5c6048f1edc58ee47f42cc4fe99bdcce32783a5e024912dcf94e64c5",
+      "references": []
+    },
+    {
+      "id": "urn:kernel-v0:forget",
+      "tier": "kernel-v0",
+      "label": "forget (X forgets Y)",
+      "file": "data/kernel-v0/concepts/forget.json",
+      "sha256": "30897e9011c2a258ae11665829718816726b868dd20188df4604d18947f791ee",
+      "references": []
+    },
+    {
+      "id": "urn:kernel-v0:learn",
+      "tier": "kernel-v0",
+      "label": "learn (X learns Y)",
+      "file": "data/kernel-v0/concepts/learn.json",
+      "sha256": "090f1d5fdd8bcef20a07e3bfe0d41a4024472fcf1a77b4c08c8621fbf2e714cb",
+      "references": []
+    },
+    {
+      "id": "urn:kernel-v0:believe",
+      "tier": "kernel-v0",
+      "label": "believe (X believes Y)",
+      "file": "data/kernel-v0/concepts/believe.json",
+      "sha256": "2db9d4eba3c6a7a3ddfa5ee76a3eb368196292ff7e9b1d83b8411fcc29b734b9",
+      "references": []
+    },
+    {
+      "id": "urn:kernel-v0:make",
+      "tier": "kernel-v0",
+      "label": "make (X makes Y)",
+      "file": "data/kernel-v0/concepts/make.json",
+      "sha256": "eb181f40bcc7d622177e3a5cca5e4f371506c9e43f45fdac41879731bec0036e",
+      "references": []
+    },
+    {
+      "id": "urn:kernel-v0:break",
+      "tier": "kernel-v0",
+      "label": "break (X breaks Y)",
+      "file": "data/kernel-v0/concepts/break.json",
+      "sha256": "0a15099c740eb0ba6e02e1139eb0a3e9d08ea1272b50fbbb5bcd86db56da2e8f",
+      "references": []
+    },
+    {
+      "id": "urn:kernel-v0:give",
+      "tier": "kernel-v0",
+      "label": "give (X gives Y to someone)",
+      "file": "data/kernel-v0/concepts/give.json",
+      "sha256": "ec62c59af5aa264513a844bc003d949cd41a7308f3363ccec7854be806996b9e",
+      "references": []
+    },
+    {
+      "id": "urn:kernel-v0:take",
+      "tier": "kernel-v0",
+      "label": "take (X takes Y)",
+      "file": "data/kernel-v0/concepts/take.json",
+      "sha256": "f6015fc916e42584e736ef231396e77dbee40fc14d86cddb1d00e0ba14a60b54",
+      "references": []
+    },
+    {
+      "id": "urn:kernel-v0:find",
+      "tier": "kernel-v0",
+      "label": "find (X finds Y)",
+      "file": "data/kernel-v0/concepts/find.json",
+      "sha256": "671ffd68f4558376ef708b771db96a9774ca8be8a165a06a34db68f586cea403",
+      "references": []
+    },
+    {
+      "id": "urn:kernel-v0:lose",
+      "tier": "kernel-v0",
+      "label": "lose (X loses Y)",
+      "file": "data/kernel-v0/concepts/lose.json",
+      "sha256": "e2ae9fb99a36a6347e298327a878dd704fc6ca40c5ceee1a4dca6ae34210bb62",
+      "references": []
+    },
+    {
+      "id": "urn:kernel-v0:right",
+      "tier": "kernel-v0",
+      "label": "right (of a doable something)",
+      "file": "data/kernel-v0/concepts/right.json",
+      "sha256": "8cdbeb51213b95967181fa2e3dc88444cbcbe836543272e363f46692e41fc568",
+      "references": []
+    },
+    {
+      "id": "urn:kernel-v0:wrong",
+      "tier": "kernel-v0",
+      "label": "wrong (of a doable something)",
+      "file": "data/kernel-v0/concepts/wrong.json",
+      "sha256": "a3c89ec4b6142f62e11c39750e9589435a1ee47e878c8d850c05707dd8ce52dd",
+      "references": []
+    },
+    {
+      "id": "urn:kernel-v0:useful",
+      "tier": "kernel-v0",
+      "label": "useful (of a something)",
+      "file": "data/kernel-v0/concepts/useful.json",
+      "sha256": "d9e9fb3d8943ac5c21a2b6facf4cecb212b853e9a923bdde31aff29e33129264",
+      "references": []
+    },
+    {
+      "id": "urn:kernel-v0:cause",
+      "tier": "kernel-v0",
+      "label": "cause (happening X causes happening Y)",
+      "file": "data/kernel-v0/concepts/cause.json",
+      "sha256": "211b0184ed5bb640e55adbe13675301b05890510aaa1a4d04fb3accf8daeaef7",
+      "references": []
+    },
+    {
+      "id": "urn:kernel-v0:change",
+      "tier": "kernel-v0",
+      "label": "change (the event)",
+      "file": "data/kernel-v0/concepts/change.json",
+      "sha256": "ff93a26fdbe569b6b6ca74de6d455c1b5a8353cf779f4a34f87879e7244836b3",
+      "references": []
+    },
+    {
+      "id": "urn:kernel-v0:begin",
+      "tier": "kernel-v0",
+      "label": "begin (happening X begins at time T)",
+      "file": "data/kernel-v0/concepts/begin.json",
+      "sha256": "f0654ad0abe1a43d663a9480be0759f3ffc22072408647bfd1948b6009da4fdf",
+      "references": []
+    },
+    {
+      "id": "urn:kernel-v0:end",
+      "tier": "kernel-v0",
+      "label": "end (happening X ends at time T)",
+      "file": "data/kernel-v0/concepts/end.json",
+      "sha256": "b3bee69f92722c6c1f2048ab824d52610fe5fab550cb15dac3b621cb03dfc6f3",
+      "references": []
+    },
+    {
+      "id": "urn:kernel-v0:part-of",
+      "tier": "kernel-v0",
+      "label": "part of (X is part of Y)",
+      "file": "data/kernel-v0/concepts/part-of.json",
+      "sha256": "f6652fb40fa58f48fe07d73d0a76d646561d63c3f54c643be3da37b2222ac00e",
+      "references": []
+    },
+    {
+      "id": "urn:kernel-v0:has-part",
+      "tier": "kernel-v0",
+      "label": "has part (X has part Y)",
+      "file": "data/kernel-v0/concepts/has-part.json",
+      "sha256": "48876304b0e38b2fdf659fe9c10ca5a9743fc605f0ff6aff7d414f0e1f13999e",
+      "references": []
+    },
+    {
+      "id": "urn:kernel-v0:inside",
+      "tier": "kernel-v0",
+      "label": "inside (X is inside Y)",
+      "file": "data/kernel-v0/concepts/inside.json",
+      "sha256": "6cc72993e4a45b720465ada577ba5f8749edf879062a32fd578b8269971d47f0",
+      "references": []
+    },
+    {
+      "id": "urn:kernel-v0:near",
+      "tier": "kernel-v0",
+      "label": "near (X is near Y)",
+      "file": "data/kernel-v0/concepts/near.json",
+      "sha256": "a4f63eaaf91b7bbb9153c2b88bd2bbe46b927d609642f74b134e9774a590d040",
+      "references": []
+    },
+    {
+      "id": "urn:kernel-v0:alive",
+      "tier": "kernel-v0",
+      "label": "alive",
+      "file": "data/kernel-v0/concepts/alive.json",
+      "sha256": "c6198935f36988706716d47970cc2517040b820ccee8f44dfdf4dd0bf6493340",
+      "references": []
+    },
+    {
+      "id": "urn:kernel-v0:dead",
+      "tier": "kernel-v0",
+      "label": "dead",
+      "file": "data/kernel-v0/concepts/dead.json",
+      "sha256": "92334ce8aca672ed426b86636324e7980f0eea1a9088532e89e592db505a9907",
+      "references": []
+    },
+    {
+      "id": "urn:kernel-v0:visible",
+      "tier": "kernel-v0",
+      "label": "visible",
+      "file": "data/kernel-v0/concepts/visible.json",
+      "sha256": "de26af0dcc284b99d2b6c418706dce23a7f962c5ceb8ef9bfa170d81a843c546",
+      "references": []
+    },
+    {
+      "id": "urn:kernel-v0:broken",
+      "tier": "kernel-v0",
+      "label": "broken",
+      "file": "data/kernel-v0/concepts/broken.json",
+      "sha256": "f06a4333ae518274f59c6ba3809438a385df58f01b7bbc851aae793602e2ca8f",
+      "references": [
+        "urn:kernel-v0:break"
+      ]
+    },
+    {
+      "id": "urn:kernel-v0:lost",
+      "tier": "kernel-v0",
+      "label": "lost",
+      "file": "data/kernel-v0/concepts/lost.json",
+      "sha256": "b6d3390b8a28e41b56af1b022f8819414a4fea7fe098bad16e50ae93d35a2931",
+      "references": [
+        "urn:kernel-v0:lose"
+      ]
+    },
+    {
+      "id": "urn:kernel-v0:helpful",
+      "tier": "kernel-v0",
+      "label": "helpful (of a someone)",
+      "file": "data/kernel-v0/concepts/helpful.json",
+      "sha256": "64511bbf8606674b3f2b4c608134a70a0ee6154b28044172ba0bf8b4388e32d3",
+      "references": [
+        "urn:kernel-v0:help"
+      ]
+    },
+    {
+      "id": "urn:kernel-v0:trustworthy",
+      "tier": "kernel-v0",
+      "label": "trustworthy",
+      "file": "data/kernel-v0/concepts/trustworthy.json",
+      "sha256": "77005ccc94d87ce657fec7ea4ce49375cc2eaf29027c667796912ab2af1c2a3c",
+      "references": [
+        "urn:kernel-v0:lie",
+        "urn:kernel-v0:promise"
+      ]
+    },
+    {
+      "id": "urn:kernel-v0:grieving",
+      "tier": "kernel-v0",
+      "label": "grieving",
+      "file": "data/kernel-v0/concepts/grieving.json",
+      "sha256": "28b37ffb3a0f25ae94e301a6a0ff3324e6b7da9e014515cd96f85d7c60c52cbd",
+      "references": [
+        "urn:kernel-v0:death",
+        "urn:kernel-v0:sad"
+      ]
+    },
+    {
+      "id": "urn:kernel-v0:gift",
+      "tier": "kernel-v0",
+      "label": "gift",
+      "file": "data/kernel-v0/concepts/gift.json",
+      "sha256": "21d1c4e4cca354dec14fe90886530b4677fca89146b4e75bcc6013e5e22ce70f",
+      "references": [
+        "urn:kernel-v0:give"
+      ]
+    },
+    {
+      "id": "urn:kernel-v0:death",
+      "tier": "kernel-v0",
+      "label": "death (the event)",
+      "file": "data/kernel-v0/concepts/death.json",
+      "sha256": "fea82160d891e820f137186d26625e71a843c693f5fc1aaeab5c05b0b381c0f0",
+      "references": [
+        "urn:kernel-v0:event"
+      ]
+    },
+    {
+      "id": "urn:kernel-v0:birth",
+      "tier": "kernel-v0",
+      "label": "birth (the event)",
+      "file": "data/kernel-v0/concepts/birth.json",
+      "sha256": "cd46c83ad9684e07422bf678629f84234eed54413ce4bf9ee34e896f7d8f6bfb",
+      "references": [
+        "urn:kernel-v0:event"
+      ]
+    },
+    {
+      "id": "urn:kernel-v0:teacher",
+      "tier": "kernel-v0",
+      "label": "teacher",
+      "file": "data/kernel-v0/concepts/teacher.json",
+      "sha256": "bf5c24281e00ab5ffcd4255ea4815171dae6bd82191a7caefd05477959baf946",
+      "references": [
+        "urn:kernel-v0:learn"
+      ]
+    },
+    {
+      "id": "urn:kernel-v0:liar",
+      "tier": "kernel-v0",
+      "label": "liar",
+      "file": "data/kernel-v0/concepts/liar.json",
+      "sha256": "ccbcdadf07a9c98823c016b4a512a6aaae5b8411c0a055a0a2b94079a4ce516d",
+      "references": [
+        "urn:kernel-v0:lie"
+      ]
+    },
+    {
+      "id": "urn:kernel-v0:memory",
+      "tier": "kernel-v0",
+      "label": "memory (a stored something)",
+      "file": "data/kernel-v0/concepts/memory.json",
+      "sha256": "2fd8ce367378b96e09775119f2893650aadf5ac59acb21f5a6b956c5f0544a17",
+      "references": [
+        "urn:kernel-v0:remember"
+      ]
+    },
+    {
+      "id": "urn:kernel-v0:conversation",
+      "tier": "kernel-v0",
+      "label": "conversation",
+      "file": "data/kernel-v0/concepts/conversation.json",
+      "sha256": "a857fff91833997e3a5b15b70cbb9f3d4585d22cec2f56d5ee7ef80aa4f77d0c",
+      "references": [
+        "urn:kernel-v0:event"
+      ]
+    },
+    {
+      "id": "urn:kernel-v0:reminder",
+      "tier": "kernel-v0",
+      "label": "reminder (the made something)",
+      "file": "data/kernel-v0/concepts/reminder.json",
+      "sha256": "d44bac23e39b063a4c95a074ebf4af213127bc47507acee525a48d024c59a519",
+      "references": [
+        "urn:kernel-v0:forget",
+        "urn:kernel-v0:remember"
+      ]
+    },
+    {
+      "id": "urn:kernel-v0:thief",
+      "tier": "kernel-v0",
+      "label": "thief",
+      "file": "data/kernel-v0/concepts/thief.json",
+      "sha256": "39da7c546788043546227815ea2ddc1b039f18ef50b74fba735e0efb3e00a463",
+      "references": [
+        "urn:kernel-v0:take"
+      ]
+    },
+    {
+      "id": "urn:kernel-v0:celebration",
+      "tier": "kernel-v0",
+      "label": "celebration",
+      "file": "data/kernel-v0/concepts/celebration.json",
+      "sha256": "5db1ae1ed15e268c44bb62174a19b7823c1c4cbc1af1cb0e2668583edc396ff5",
+      "references": [
+        "urn:kernel-v0:event",
+        "urn:kernel-v0:happy"
+      ]
+    },
+    {
+      "id": "urn:kernel-v0:condolence",
+      "tier": "kernel-v0",
+      "label": "condolence (the words)",
+      "file": "data/kernel-v0/concepts/condolence.json",
+      "sha256": "f6f407621f2048d21e33e33e06ef0fd0114c4bcdca0e36d3edf0406a53826c83",
+      "references": [
+        "urn:kernel-v0:grieving"
+      ]
+    },
+    {
+      "id": "urn:kernel-v0:repair",
+      "tier": "kernel-v0",
+      "label": "repair (X repairs Y)",
+      "file": "data/kernel-v0/concepts/repair.json",
+      "sha256": "1ddb0892dfa56b43436098f4607ebeab1a6c980ad3217ed1727b9c8c57d864ab",
+      "references": [
+        "urn:kernel-v0:broken"
+      ]
+    },
+    {
+      "id": "urn:kernel-v0:maker-of",
+      "tier": "kernel-v0",
+      "label": "maker of (X is the maker of Y)",
+      "file": "data/kernel-v0/concepts/maker-of.json",
+      "sha256": "7a3414d9ea39aeac23b831baed4d33b7d1d9f83b2f0ffe5404d1261914513ed6",
+      "references": [
+        "urn:kernel-v0:make"
+      ]
+    },
+    {
+      "id": "urn:molaug-v0:money",
+      "tier": "molaug-v0",
+      "label": "money",
+      "file": "poc/scale/molecule-aug/lexicon/records/money.json",
+      "sha256": "541b6838158ac46c09ea1230c4c7dca032c048c9b079edabc434d0bf129a4835",
+      "references": [
+        "urn:kernel-v0:give",
+        "urn:kernel-v0:take"
+      ],
+      "astAdequacySelfFlag": "lossy"
+    },
+    {
+      "id": "urn:molaug-v0:surface",
+      "tier": "molaug-v0",
+      "label": "surface (of a thing)",
+      "file": "poc/scale/molecule-aug/lexicon/records/surface.json",
+      "sha256": "23be58c650f4a1c54a2d012c8f7c981182625df068aae25e38f003648343eb9b",
+      "references": [],
+      "astAdequacySelfFlag": "faithful"
+    },
+    {
+      "id": "urn:molaug-v0:hot",
+      "tier": "molaug-v0",
+      "label": "hot (heat)",
+      "file": "poc/scale/molecule-aug/lexicon/records/hot.json",
+      "sha256": "0a355ac0eb1f36041a8b303a8cf27a9e139c3c8b302f0dd3c2ea60d0babe9f6b",
+      "references": [],
+      "astAdequacySelfFlag": "lossy"
+    },
+    {
+      "id": "urn:molaug-v0:material",
+      "tier": "molaug-v0",
+      "label": "material (what a thing is made of)",
+      "file": "poc/scale/molecule-aug/lexicon/records/material.json",
+      "sha256": "8c25345b8640a424a2c478b67b43f16c9e6cb63a70259f5f11e2fa9791f54075",
+      "references": [
+        "urn:kernel-v0:make"
+      ],
+      "astAdequacySelfFlag": "lossy"
+    },
+    {
+      "id": "urn:molaug-v0:group",
+      "tier": "molaug-v0",
+      "label": "group (organized people)",
+      "file": "poc/scale/molecule-aug/lexicon/records/group.json",
+      "sha256": "148237bb0d2b86aaac4ae57840ec1821ef08e814a1b140df9ba2cc6916164289",
+      "references": [],
+      "astAdequacySelfFlag": "lossy"
+    },
+    {
+      "id": "urn:molaug-v0:fight",
+      "tier": "molaug-v0",
+      "label": "fight (X fights Y)",
+      "file": "poc/scale/molecule-aug/lexicon/records/fight.json",
+      "sha256": "42ef12ba70e33570644d60895c95e3a043657a7a2736fc485a2929804a6c132c",
+      "references": [],
+      "astAdequacySelfFlag": "lossy"
+    },
+    {
+      "id": "urn:molaug-v0:measure",
+      "tier": "molaug-v0",
+      "label": "measure (X measures Y)",
+      "file": "poc/scale/molecule-aug/lexicon/records/measure.json",
+      "sha256": "b9bef89830e8af6bac2bb5efce9292504d2159fbc0aa3d24c84b6010f97548bf",
+      "references": [],
+      "astAdequacySelfFlag": "lossy"
+    },
+    {
+      "id": "urn:molaug-v0:kill",
+      "tier": "molaug-v0",
+      "label": "kill (X kills Y)",
+      "file": "poc/scale/molecule-aug/lexicon/records/kill.json",
+      "sha256": "5bcee8964d0de0f0f5dc926e868afe3dd98c435d273f01a90e7ae5c6dca0de1a",
+      "references": [
+        "urn:kernel-v0:death"
+      ],
+      "astAdequacySelfFlag": "faithful"
+    },
+    {
+      "id": "urn:molaug-v0:animal",
+      "tier": "molaug-v0",
+      "label": "animal",
+      "file": "poc/scale/molecule-aug/lexicon/records/animal.json",
+      "sha256": "f24d7ef0966eb5084ca0b73d65fdd95e0ee69a83abeb76ceccea59c8055e625d",
+      "references": [],
+      "astAdequacySelfFlag": "faithful"
+    },
+    {
+      "id": "urn:molaug-v0:eat",
+      "tier": "molaug-v0",
+      "label": "eat (X eats Y)",
+      "file": "poc/scale/molecule-aug/lexicon/records/eat.json",
+      "sha256": "58a23a9aa00864e5c84c2e295b6434e63b2324ff18305f2b604ee6ca1179086c",
+      "references": [],
+      "astAdequacySelfFlag": "lossy"
+    },
+    {
+      "id": "urn:molaug-v0:food",
+      "tier": "molaug-v0",
+      "label": "food",
+      "file": "poc/scale/molecule-aug/lexicon/records/food.json",
+      "sha256": "3d473ece0a9290218722f9a5583918c284373229974d67130284c8ffb3f75338",
+      "references": [
+        "urn:molaug-v0:eat"
+      ],
+      "astAdequacySelfFlag": "faithful"
+    },
+    {
+      "id": "urn:molaug-v0:grow",
+      "tier": "molaug-v0",
+      "label": "grow",
+      "file": "poc/scale/molecule-aug/lexicon/records/grow.json",
+      "sha256": "7cc2ea7e74e4793df565cc84522301e2737936e9074cb91036c203e73f22a2c6",
+      "references": [],
+      "astAdequacySelfFlag": "faithful"
+    },
+    {
+      "id": "urn:molaug-v0:name",
+      "tier": "molaug-v0",
+      "label": "name (the word for X)",
+      "file": "poc/scale/molecule-aug/lexicon/records/name.json",
+      "sha256": "307de9171f873d269252ba009be12c5a52785ff045859b3d6cc4d8f01e56bfae",
+      "references": [],
+      "astAdequacySelfFlag": "faithful"
+    },
+    {
+      "id": "urn:molaug-v0:write",
+      "tier": "molaug-v0",
+      "label": "write (X writes Y)",
+      "file": "poc/scale/molecule-aug/lexicon/records/write.json",
+      "sha256": "3f74a5dc75168a628629aacf2fc07976c0088238b141c3ada164a0cf25669cdb",
+      "references": [
+        "urn:kernel-v0:make",
+        "urn:molaug-v0:surface"
+      ],
+      "astAdequacySelfFlag": "faithful"
+    },
+    {
+      "id": "urn:molaug-v0:own",
+      "tier": "molaug-v0",
+      "label": "own (X owns Y)",
+      "file": "poc/scale/molecule-aug/lexicon/records/own.json",
+      "sha256": "966a7c22c0402c215e7631fd843487df59d5215c0930b17a1aa7264cc061c3b3",
+      "references": [
+        "urn:kernel-v0:take",
+        "urn:kernel-v0:wrong"
+      ],
+      "astAdequacySelfFlag": "faithful"
+    },
+    {
+      "id": "urn:molaug-v0:ill",
+      "tier": "molaug-v0",
+      "label": "ill (sick)",
+      "file": "poc/scale/molecule-aug/lexicon/records/ill.json",
+      "sha256": "da2a0845bb6dbb12bfb57f4ef6d980665455fa6e7c4ab8be5cb1bdf9c7dc1f36",
+      "references": [],
+      "astAdequacySelfFlag": "faithful"
+    },
+    {
+      "id": "urn:molaug-v0:man",
+      "tier": "molaug-v0",
+      "label": "man (adult male)",
+      "file": "poc/scale/molecule-aug/lexicon/records/man.json",
+      "sha256": "212d93be7e55353cf0bc827a7f7bfc8e722f94cba314ed99bbef4e299b0db25a",
+      "references": [
+        "urn:kernel-v0:birth"
+      ],
+      "astAdequacySelfFlag": "lossy"
+    },
+    {
+      "id": "urn:molaug-v0:woman",
+      "tier": "molaug-v0",
+      "label": "woman (adult female)",
+      "file": "poc/scale/molecule-aug/lexicon/records/woman.json",
+      "sha256": "13b48c7b9b05996c592ffe3e75e24a0a6f89b93e76089b5f4943e7a1e49dc391",
+      "references": [
+        "urn:kernel-v0:birth"
+      ],
+      "astAdequacySelfFlag": "faithful"
+    },
+    {
+      "id": "urn:molaug-v0:sex",
+      "tier": "molaug-v0",
+      "label": "sex (mating)",
+      "file": "poc/scale/molecule-aug/lexicon/records/sex.json",
+      "sha256": "5726fe6b119d5053d8ca8acae9e67281313c131d252b00b171427814d6f82971",
+      "references": [
+        "urn:kernel-v0:birth",
+        "urn:molaug-v0:man",
+        "urn:molaug-v0:woman"
+      ],
+      "astAdequacySelfFlag": "lossy"
+    },
+    {
+      "id": "urn:molaug-v0:work",
+      "tier": "molaug-v0",
+      "label": "work (job)",
+      "file": "poc/scale/molecule-aug/lexicon/records/work.json",
+      "sha256": "a1d86937b9cf601d0ddb675d5a1ac7a05ce35fc623493d9037e2e9ca4fb7d377",
+      "references": [
+        "urn:kernel-v0:give",
+        "urn:molaug-v0:money"
+      ],
+      "astAdequacySelfFlag": "lossy"
+    },
+    {
+      "id": "urn:molaug-v0:status",
+      "tier": "molaug-v0",
+      "label": "status (X's standing in group Y)",
+      "file": "poc/scale/molecule-aug/lexicon/records/status.json",
+      "sha256": "74cca1c65b27710a66f9bc1497b57e51ccd9e4d7961abab6a05e47279145d58e",
+      "references": [
+        "urn:molaug-v0:group"
+      ],
+      "astAdequacySelfFlag": "lossy"
+    },
+    {
+      "id": "urn:molaug-v0:authority",
+      "tier": "molaug-v0",
+      "label": "authority (X has authority over Ys)",
+      "file": "poc/scale/molecule-aug/lexicon/records/authority.json",
+      "sha256": "e6b27bdf3fc4e7af3fc49c8c9d62cbe023357ec9418738e6c5d362e5d09a381a",
+      "references": [
+        "urn:kernel-v0:right",
+        "urn:molaug-v0:group"
+      ],
+      "astAdequacySelfFlag": "lossy"
+    },
+    {
+      "id": "urn:molaug-v0:law",
+      "tier": "molaug-v0",
+      "label": "law",
+      "file": "poc/scale/molecule-aug/lexicon/records/law.json",
+      "sha256": "f29b080928bb74302fb1fa34b82acadefa75fd702e118d5dc82c8503ec348b23",
+      "references": [
+        "urn:molaug-v0:authority"
+      ],
+      "astAdequacySelfFlag": "lossy"
+    },
+    {
+      "id": "urn:molaug-v0:country",
+      "tier": "molaug-v0",
+      "label": "country",
+      "file": "poc/scale/molecule-aug/lexicon/records/country.json",
+      "sha256": "a1258cb1ff728eae9190b88bc6858e604c0b0e07c9c18bd548f1fa467c3b5ff6",
+      "references": [
+        "urn:molaug-v0:authority"
+      ],
+      "astAdequacySelfFlag": "lossy"
+    },
+    {
+      "id": "urn:molaug-v0:institution",
+      "tier": "molaug-v0",
+      "label": "institution",
+      "file": "poc/scale/molecule-aug/lexicon/records/institution.json",
+      "sha256": "5676eaaab09bc06d5616050fc159383d8f22888f01aed626e4e5a6afd37d2730",
+      "references": [
+        "urn:molaug-v0:group",
+        "urn:molaug-v0:law"
+      ],
+      "astAdequacySelfFlag": "faithful"
+    },
+    {
+      "id": "urn:molaug-v0:duty",
+      "tier": "molaug-v0",
+      "label": "duty",
+      "file": "poc/scale/molecule-aug/lexicon/records/duty.json",
+      "sha256": "9fe3b275d53c4c5ba76a00f3ec23a4e8d579b900d686eb6014f46f2f05c1ffec",
+      "references": [
+        "urn:kernel-v0:wrong",
+        "urn:molaug-v0:work"
+      ],
+      "astAdequacySelfFlag": "lossy"
+    },
+    {
+      "id": "urn:molaug-v0:worth",
+      "tier": "molaug-v0",
+      "label": "worth (X is the worth of thing Y)",
+      "file": "poc/scale/molecule-aug/lexicon/records/worth.json",
+      "sha256": "efecdc75775438436f33bf730a7e7df8f363df777a02f23067aeefde951be5db",
+      "references": [
+        "urn:kernel-v0:give",
+        "urn:molaug-v0:money"
+      ],
+      "astAdequacySelfFlag": "lossy"
+    },
+    {
+      "id": "urn:molaug-v0:tool",
+      "tier": "molaug-v0",
+      "label": "tool",
+      "file": "poc/scale/molecule-aug/lexicon/records/tool.json",
+      "sha256": "c3f85967ef5825f5d9ab6f28b378b75ab709898e1fbfd80f1ded6094e21db630",
+      "references": [
+        "urn:kernel-v0:make"
+      ],
+      "astAdequacySelfFlag": "faithful"
+    },
+    {
+      "id": "urn:molaug-v0:machine",
+      "tier": "molaug-v0",
+      "label": "machine",
+      "file": "poc/scale/molecule-aug/lexicon/records/machine.json",
+      "sha256": "d49117388d6c15bfa5ea8ab9b04ba9f1f9202f1eb1a7ced0934a2bde28c43a60",
+      "references": [
+        "urn:molaug-v0:tool"
+      ],
+      "astAdequacySelfFlag": "faithful"
+    },
+    {
+      "id": "urn:molaug-v0:art",
+      "tier": "molaug-v0",
+      "label": "art",
+      "file": "poc/scale/molecule-aug/lexicon/records/art.json",
+      "sha256": "ba86531bb0b6a733f19df8edcdc4a93375ff9b2dad8fb6d3e9d02ae36afa4881",
+      "references": [
+        "urn:kernel-v0:make"
+      ],
+      "astAdequacySelfFlag": "lossy"
+    },
+    {
+      "id": "urn:molaug-v0:game",
+      "tier": "molaug-v0",
+      "label": "game",
+      "file": "poc/scale/molecule-aug/lexicon/records/game.json",
+      "sha256": "8e18cbe477ab0c7c9df2f002aa53b2812c1c5479da3da3dbaf2124d811f3603d",
+      "references": [],
+      "astAdequacySelfFlag": "lossy"
+    }
+  ]
+}
