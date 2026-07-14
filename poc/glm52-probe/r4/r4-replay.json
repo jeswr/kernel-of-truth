@@ -1,0 +1,410 @@
+{
+  "spec": "interpretation-fable.md \u00a72 R4; ASM-2013 quantities; analysis-only replay",
+  "data_integrity_finding": "committed .stats files are SESSION-CUMULATIVE usage dumps (per-cell monotone across f000..f023, 0/328193 violations; totals 111904->371336; f000 contains the 99752 pre-P3 selections). Per-prompt fingerprints recovered exactly by first-differencing; f000 dropped (baseline not committed) -> n=23, break.shatter n=2. All committed analyses that read .stats as per-prompt fingerprints (analyze_routing.py, _v2.py, the pinned routing-analysis-v2.json numbers) ran on cumulative histograms; within-concept prompts are adjacent in run order, so concept structure and adjacency were confounded there. MEASURED: this run.",
+  "structure_on_differenced_fingerprints": {
+    "raw_cosine": {
+      "within": 0.7276,
+      "across": 0.609,
+      "delta": 0.1187,
+      "perm_p_10k": 0.0001
+    },
+    "mean_centered": {
+      "within": 0.2566,
+      "across": -0.0736,
+      "delta": 0.3303,
+      "perm_p_10k": 0.0001
+    }
+  },
+  "n_prompts": 23,
+  "keyspace_cells": 15850,
+  "budget_primary_cells": 1048,
+  "budget_note": "realized probe pin store grew 522->1048 experts (9.9->19.8GB) across the 24 fresh-process runs; 1048 (13/24 runs, the ~20GB RAM_GB auto cap) taken as the matched budget; sweep reported",
+  "uniform_expert_bytes": "STIPULATED-not-MEASURED (19.8GB/1048~18.9MB int4; shards not on box)",
+  "static_replay_no_LRU": "STIPULATED approximation per interpretation-fable \u00a72 R4",
+  "embedding": {
+    "model": "sentence-transformers/all-MiniLM-L6-v2 (ONNX runtime realization)",
+    "model_sha256": "6fd5d72fe4589f189f8ebc006442dbb529bb7ce38f8082112682524616046452",
+    "tokenizer_sha256": "be50c3628f2bf5bb5e3a7f17b1f74611b2561a3a27eeab05e5aa30f411572037",
+    "deviation": "ONNX artifact, not the design \u00a73.1 freeze-pinned safetensors; k-means RNG = stdlib MT streams, not the house SHA-256 DRBG. Replay-grade, not freeze-grade.",
+    "kmeans": {
+      "k": 8,
+      "seed": 20260724,
+      "n_init": 10,
+      "winning_init": 3,
+      "inertia": 13.455962841968645,
+      "cluster_sizes": [
+        2,
+        2,
+        2,
+        3,
+        3,
+        3,
+        3,
+        5
+      ],
+      "assignment": {
+        "f001": 1,
+        "f002": 1,
+        "f003": 6,
+        "f004": 5,
+        "f005": 6,
+        "f006": 3,
+        "f007": 3,
+        "f008": 3,
+        "f009": 7,
+        "f010": 7,
+        "f011": 7,
+        "f012": 0,
+        "f013": 4,
+        "f014": 0,
+        "f015": 6,
+        "f016": 2,
+        "f017": 2,
+        "f018": 5,
+        "f019": 4,
+        "f020": 4,
+        "f021": 2,
+        "f022": 4,
+        "f023": 4
+      },
+      "ari_vs_concept_partition": 0.4608
+    }
+  },
+  "budgets": {
+    "262": {
+      "emb_singleton_fallbacks": 0,
+      "median_miss_frac": {
+        "oracle": 0.7906,
+        "global_hot": 0.8319,
+        "kernel": 0.839,
+        "emb": 0.8435
+      },
+      "M_oracle_median_relred_vs_globalhot": 0.05,
+      "M_oracle_mean": 0.0545,
+      "M_oracle_clusterflip_p": 0.00391,
+      "stronger_deflator": "global_hot",
+      "M_kernel_median_relred_vs_stronger": 0.0001,
+      "M_kernel_median_relred_vs_globalhot": 0.0001,
+      "kernel_vs_globalhot_clusterflip_p": 0.61719,
+      "M_emb_median_relred_vs_globalhot": -0.012,
+      "kernel_vs_emb": {
+        "median_paired_missfrac_diff_emb_minus_kernel": 0.00832,
+        "mean_diff": 0.00869,
+        "prompts_kernel_better": 12,
+        "clusterflip_exact256_p_onesided": 0.03125,
+        "promptflip_10k_p_onesided": 0.0016
+      },
+      "per_prompt": null
+    },
+    "524": {
+      "emb_singleton_fallbacks": 0,
+      "median_miss_frac": {
+        "oracle": 0.6723,
+        "global_hot": 0.7477,
+        "kernel": 0.7508,
+        "emb": 0.7591
+      },
+      "M_oracle_median_relred_vs_globalhot": 0.0975,
+      "M_oracle_mean": 0.1046,
+      "M_oracle_clusterflip_p": 0.00391,
+      "stronger_deflator": "global_hot",
+      "M_kernel_median_relred_vs_stronger": 0.0066,
+      "M_kernel_median_relred_vs_globalhot": 0.0066,
+      "kernel_vs_globalhot_clusterflip_p": 0.16797,
+      "M_emb_median_relred_vs_globalhot": -0.0132,
+      "kernel_vs_emb": {
+        "median_paired_missfrac_diff_emb_minus_kernel": 0.00813,
+        "mean_diff": 0.01074,
+        "prompts_kernel_better": 13,
+        "clusterflip_exact256_p_onesided": 0.0625,
+        "promptflip_10k_p_onesided": 0.0062
+      },
+      "per_prompt": null
+    },
+    "786": {
+      "emb_singleton_fallbacks": 0,
+      "median_miss_frac": {
+        "oracle": 0.585,
+        "global_hot": 0.6887,
+        "kernel": 0.6874,
+        "emb": 0.6941
+      },
+      "M_oracle_median_relred_vs_globalhot": 0.1513,
+      "M_oracle_mean": 0.1544,
+      "M_oracle_clusterflip_p": 0.00391,
+      "stronger_deflator": "global_hot",
+      "M_kernel_median_relred_vs_stronger": 0.0166,
+      "M_kernel_median_relred_vs_globalhot": 0.0166,
+      "kernel_vs_globalhot_clusterflip_p": 0.04688,
+      "M_emb_median_relred_vs_globalhot": -0.0106,
+      "kernel_vs_emb": {
+        "median_paired_missfrac_diff_emb_minus_kernel": 0.00295,
+        "mean_diff": 0.01148,
+        "prompts_kernel_better": 12,
+        "clusterflip_exact256_p_onesided": 0.09375,
+        "promptflip_10k_p_onesided": 0.0105
+      },
+      "per_prompt": null
+    },
+    "1048": {
+      "emb_singleton_fallbacks": 0,
+      "median_miss_frac": {
+        "oracle": 0.5123,
+        "global_hot": 0.6401,
+        "kernel": 0.6384,
+        "emb": 0.6434
+      },
+      "M_oracle_median_relred_vs_globalhot": 0.1975,
+      "M_oracle_mean": 0.1996,
+      "M_oracle_clusterflip_p": 0.00391,
+      "stronger_deflator": "global_hot",
+      "M_kernel_median_relred_vs_stronger": 0.0264,
+      "M_kernel_median_relred_vs_globalhot": 0.0264,
+      "kernel_vs_globalhot_clusterflip_p": 0.03516,
+      "M_emb_median_relred_vs_globalhot": -0.0051,
+      "kernel_vs_emb": {
+        "median_paired_missfrac_diff_emb_minus_kernel": 0.00274,
+        "mean_diff": 0.01243,
+        "prompts_kernel_better": 12,
+        "clusterflip_exact256_p_onesided": 0.09375,
+        "promptflip_10k_p_onesided": 0.0161
+      },
+      "per_prompt": [
+        {
+          "fid": "f001",
+          "concept": "break.shatter",
+          "oracle": 0.5075,
+          "global_hot": 0.6416,
+          "kernel": 0.6516,
+          "emb": 0.6516
+        },
+        {
+          "fid": "f002",
+          "concept": "break.shatter",
+          "oracle": 0.5129,
+          "global_hot": 0.6259,
+          "kernel": 0.6446,
+          "emb": 0.6446
+        },
+        {
+          "fid": "f003",
+          "concept": "break.violate",
+          "oracle": 0.5256,
+          "global_hot": 0.6509,
+          "kernel": 0.6384,
+          "emb": 0.6445
+        },
+        {
+          "fid": "f004",
+          "concept": "break.violate",
+          "oracle": 0.5123,
+          "global_hot": 0.6411,
+          "kernel": 0.6351,
+          "emb": 0.6614
+        },
+        {
+          "fid": "f005",
+          "concept": "break.violate",
+          "oracle": 0.5249,
+          "global_hot": 0.637,
+          "kernel": 0.6196,
+          "emb": 0.6302
+        },
+        {
+          "fid": "f006",
+          "concept": "break.interrupt",
+          "oracle": 0.5092,
+          "global_hot": 0.6345,
+          "kernel": 0.6052,
+          "emb": 0.6052
+        },
+        {
+          "fid": "f007",
+          "concept": "break.interrupt",
+          "oracle": 0.5338,
+          "global_hot": 0.6663,
+          "kernel": 0.6416,
+          "emb": 0.6416
+        },
+        {
+          "fid": "f008",
+          "concept": "break.interrupt",
+          "oracle": 0.5363,
+          "global_hot": 0.6617,
+          "kernel": 0.6647,
+          "emb": 0.6647
+        },
+        {
+          "fid": "f009",
+          "concept": "bank.river",
+          "oracle": 0.4986,
+          "global_hot": 0.6161,
+          "kernel": 0.5748,
+          "emb": 0.5748
+        },
+        {
+          "fid": "f010",
+          "concept": "bank.river",
+          "oracle": 0.5028,
+          "global_hot": 0.6104,
+          "kernel": 0.5839,
+          "emb": 0.5839
+        },
+        {
+          "fid": "f011",
+          "concept": "bank.river",
+          "oracle": 0.5258,
+          "global_hot": 0.6624,
+          "kernel": 0.6174,
+          "emb": 0.6174
+        },
+        {
+          "fid": "f012",
+          "concept": "bank.finance",
+          "oracle": 0.51,
+          "global_hot": 0.621,
+          "kernel": 0.6385,
+          "emb": 0.6379
+        },
+        {
+          "fid": "f013",
+          "concept": "bank.finance",
+          "oracle": 0.4954,
+          "global_hot": 0.6442,
+          "kernel": 0.6438,
+          "emb": 0.6017
+        },
+        {
+          "fid": "f014",
+          "concept": "bank.finance",
+          "oracle": 0.5204,
+          "global_hot": 0.6375,
+          "kernel": 0.6307,
+          "emb": 0.6434
+        },
+        {
+          "fid": "f015",
+          "concept": "animal",
+          "oracle": 0.5022,
+          "global_hot": 0.6122,
+          "kernel": 0.5927,
+          "emb": 0.6778
+        },
+        {
+          "fid": "f016",
+          "concept": "animal",
+          "oracle": 0.4978,
+          "global_hot": 0.627,
+          "kernel": 0.5858,
+          "emb": 0.6302
+        },
+        {
+          "fid": "f017",
+          "concept": "animal",
+          "oracle": 0.4907,
+          "global_hot": 0.5923,
+          "kernel": 0.5722,
+          "emb": 0.6064
+        },
+        {
+          "fid": "f018",
+          "concept": "finance",
+          "oracle": 0.5094,
+          "global_hot": 0.6401,
+          "kernel": 0.635,
+          "emb": 0.6601
+        },
+        {
+          "fid": "f019",
+          "concept": "finance",
+          "oracle": 0.5011,
+          "global_hot": 0.6785,
+          "kernel": 0.6436,
+          "emb": 0.6212
+        },
+        {
+          "fid": "f020",
+          "concept": "finance",
+          "oracle": 0.5151,
+          "global_hot": 0.6361,
+          "kernel": 0.6484,
+          "emb": 0.6512
+        },
+        {
+          "fid": "f021",
+          "concept": "mathematics",
+          "oracle": 0.5389,
+          "global_hot": 0.6944,
+          "kernel": 0.6729,
+          "emb": 0.7393
+        },
+        {
+          "fid": "f022",
+          "concept": "mathematics",
+          "oracle": 0.5648,
+          "global_hot": 0.7286,
+          "kernel": 0.7093,
+          "emb": 0.7361
+        },
+        {
+          "fid": "f023",
+          "concept": "mathematics",
+          "oracle": 0.542,
+          "global_hot": 0.6926,
+          "kernel": 0.6759,
+          "emb": 0.6864
+        }
+      ]
+    },
+    "1572": {
+      "emb_singleton_fallbacks": 0,
+      "median_miss_frac": {
+        "oracle": 0.4044,
+        "global_hot": 0.5556,
+        "kernel": 0.5545,
+        "emb": 0.5628
+      },
+      "M_oracle_median_relred_vs_globalhot": 0.2745,
+      "M_oracle_mean": 0.2751,
+      "M_oracle_clusterflip_p": 0.00391,
+      "stronger_deflator": "global_hot",
+      "M_kernel_median_relred_vs_stronger": 0.0357,
+      "M_kernel_median_relred_vs_globalhot": 0.0357,
+      "kernel_vs_globalhot_clusterflip_p": 0.07422,
+      "M_emb_median_relred_vs_globalhot": 0.0009,
+      "kernel_vs_emb": {
+        "median_paired_missfrac_diff_emb_minus_kernel": 0.00087,
+        "mean_diff": 0.01167,
+        "prompts_kernel_better": 13,
+        "clusterflip_exact256_p_onesided": 0.1875,
+        "promptflip_10k_p_onesided": 0.0433
+      },
+      "per_prompt": null
+    },
+    "2096": {
+      "emb_singleton_fallbacks": 0,
+      "median_miss_frac": {
+        "oracle": 0.3119,
+        "global_hot": 0.4908,
+        "kernel": 0.4925,
+        "emb": 0.4962
+      },
+      "M_oracle_median_relred_vs_globalhot": 0.3638,
+      "M_oracle_mean": 0.3635,
+      "M_oracle_clusterflip_p": 0.00391,
+      "stronger_deflator": "global_hot",
+      "M_kernel_median_relred_vs_stronger": 0.032,
+      "M_kernel_median_relred_vs_globalhot": 0.032,
+      "kernel_vs_globalhot_clusterflip_p": 0.125,
+      "M_emb_median_relred_vs_globalhot": 0.0066,
+      "kernel_vs_emb": {
+        "median_paired_missfrac_diff_emb_minus_kernel": 0.00113,
+        "mean_diff": 0.01093,
+        "prompts_kernel_better": 12,
+        "clusterflip_exact256_p_onesided": 0.21875,
+        "promptflip_10k_p_onesided": 0.05819
+      },
+      "per_prompt": null
+    }
+  }
+}
