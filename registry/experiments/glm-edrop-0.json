@@ -1,0 +1,362 @@
+{
+ "analysis_plan_ref": {
+  "anchor": "design SS5.2 statistics (cluster-balanced estimand T = mean_c D_c, C = 8; EXACT 2^8 = 256 sign-flip enumeration, one-sided p = #{s : T(s) >= T_obs}/256, identity included, effective size 12/256 ~ 0.0469 disclosed; joint licensing p <= 0.05 AND T >= +3.0 pts; imported F1-K sign-symmetry basis ASM-2122 with dev-selected cluster-BCa fallback frozen PRE-test) + SS5.3 decision ladder (D0 floor-bound check, D1 guided-vs-uniform, D2 three-leg conjunction ASM-2293, FAIL-TO-DEMONSTRATE vs UNINFORMATIVE distinct, equivalence discipline: NO outcome licenses an equivalence/sufficiency sentence) + SS4.1/SS3.1-item-6 load gate (+-5% arm-mean realized experts-loaded/token vs u-topk; violation VOIDs, never reinterpreted) + SS3.1-item-5 Jaccard non-distinctness gate (mean > 0.95 => leg UNINFORMATIVE)",
+  "path": "docs/next/design/glm52-expert-drop.md",
+  "sha256": "f1c8d0f603f7b92ab7e36527912fbda2f4740f5f3c6a9d43dfcbe71307b45a1c"
+ },
+ "budget": {
+  "usd_cap": 95,
+  "wall_clock_cap_hours": 320
+ },
+ "depends_on": [
+  "f1k"
+ ],
+ "design": {
+  "arms_mandatory_baselines": [
+   "b0-full: all 256 experts/layer candidate, TOPK=8 config default - the retention reference (SS3)",
+   "u-topk: all 256/layer candidate, TOPK=k* - uniform router-weight drop, deflator 1, the P0 free-knob bar (SS3; MEASURED P0 lever: probe-main.log SSP4 counter lines, sha256 77023d2b94e5f7719bdf86955de26cfb720ad33eb53521b48d47e50bc2a52592)",
+   "m-freq: universal core UNION top pooled-trace-usage experts, exactly f*256=64/layer, item-UNCONDITIONED by design - deflator 2a, D2 leg (a) (ASM-2343)",
+   "m-emb: universal core UNION summed mean-centred embedding-cluster-conditional fill, matched-multilabel (top-|C(item)| nearest k-means clusters), exactly 64/layer, pinned MiniLM encoder + own deterministic k-means (SS3.1 items 1-3) - deflator 2b, D2 leg (b)",
+   "m-kern: R_kern(item, f) per SS2.1 - universal core UNION concept-conditional fill for the item's active concepts, exactly 64/layer, leave-one-out within clusters - the kernel arm",
+   "m-drng x3: the m-kern pipeline VERBATIM under seeded set-distinct label DERANGEMENTS within equal-cardinality strata (seeds 20260721/20260722/20260723, SHA-256 DRBG, SS3.1 items 4+8), exactly 64/layer - the dose-exact knull analog, D2 leg (c) (ASM-2290/2293)",
+   "DOSE INVARIANT (ASM-2290/2343): every masked arm retains EXACTLY 64 experts/layer including the SAME universal core (2,108 cells, sha256 632bcd182ae8a716b3f8843d640d43772f9ddfac6880d12ac531cf974cd3f18f); per-item label-set cardinality matched across m-kern/m-emb/m-drng; any dose inequality VOIDs the affected contrast"
+  ],
+  "dependent_vars": [
+   {
+    "better": "higher",
+    "definition": "F1-K SSR1.1 frozen scoring reused verbatim (SS5.1): ONE prefill per item per arm on the frozen candidate-independent label-token template; per-option loglikelihood, argmax = answer; correct = match to gold. Generative benchmarking rejected (ASM-1988 carried).",
+    "name": "item_correct",
+    "unit": "0/1 per (item x arm x realization)"
+   },
+   {
+    "better": "higher",
+    "definition": "m-kern accuracy on the frozen eligible subset; ALL licensed claims ride on the paired CLUSTER-BALANCED statistic T = mean_c D_c (C = 8, ASM-2340), never absolute or item-weighted accuracy (item-weighted deltas are descriptive, disclosed when they disagree).",
+    "name": "accuracy",
+    "unit": "fraction (0..1)"
+   },
+   {
+    "better": "n/a",
+    "definition": "Host parameters UNCHANGED by construction: the DROP table selects among native experts; nothing writes activations or weights (SS6.3; not a Law-1 matter, but the C patch exceeds the P0 trace-only envelope and rides the named external maintainer approval gate).",
+    "name": "params",
+    "unit": "parameter count (0 added)"
+   },
+   {
+    "better": "lower",
+    "definition": "Immutable item-ID->mask table sidecar bytes per arm-realization (6 tables, canonical serialization + hash framing pinned SS6.3 [R4]) + the MEASURED per-mask union routed-expert footprint (SS5.1 [R2: ASM-2351]); NO shard-size or page-cache-pool claim attaches.",
+    "name": "memory",
+    "unit": "bytes (tables) + GB (union footprint, descriptive)"
+   },
+   {
+    "better": "lower",
+    "definition": "Realized experts-loaded-per-token from the engine's own deterministic counter - the ONLY systems endpoint (ASM-2348); routing-determined, cache-independent, absorbs MTP union-loading. Match gate: each masked arm's mean within +-5% of u-topk's on identical items, else that arm is VOID. Arm-level tok/s comparisons are DECLINED by design (SS4.3 [R2]). Plus one prefill per item per arm (8 pass-equivalents).",
+    "name": "inference_compute",
+    "unit": "experts loaded/token (arm-level mean) + prefills"
+   },
+   {
+    "better": "n/a",
+    "definition": "Identically ZERO by construction: masks are built offline, CPU-only, from the 24 committed P0 fingerprints (SS2.1); no gradients anywhere.",
+    "name": "training_compute",
+    "unit": "FLOPs"
+   }
+  ],
+  "independent_vars": [
+   {
+    "levels": [
+     "b0-full",
+     "u-topk",
+     "m-freq",
+     "m-emb",
+     "m-kern",
+     "m-drng"
+    ],
+    "name": "arm"
+   },
+   {
+    "levels": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "name": "realization"
+   },
+   {
+    "levels": [
+     4,
+     3,
+     2,
+     1
+    ],
+    "name": "k_star"
+   }
+  ],
+  "n_planned": {
+   "assumption_ids": "ASM-2230..2239 (R0, centrally registered, registry/assumptions.jsonl lines 1082-1091); ASM-2290..2293 (R1, lines 1106-1109); ASM-2340..2352 (R2 as R3/R4-amended, lines 1146-1158, centrally registered with amendment provenance notes; companion poc/glm52-probe/asm-glm-drop-r2-2340-2352.json sha256 286102b540ecd9d8025f4f1f7a82c931dc81bfa7cae5db9942f78757f3570209). OUTSTANDING coordinator transcription (SSR2.14/SS6.4 [R3]): the supersession EDITS to central ASM-2232..2239/2290..2293 have NOT landed - in particular central ASM-2238 (line 1090) still carries its VOIDED degradation clause verbatim; until the transcription lands, the SS6.4 interim precedence rule governs (any ASM-2238-vs-ASM-2350 conflict resolves to ASM-2350) and this record cites ASM-2238 only to record that supersession.",
+   "assumptions": [
+    {
+     "claim": "Design verbatim from docs/next/design/glm52-expert-drop.md R0 (designer-8) through REVISION 4 (designer-20), 2026-07-13; latest revision governs on conflict; GPT-5.6 xhigh review cycle R1->R4 (review artifacts pinned in the design header); findings 11/12 residuals are coordinator central-registration actions, findings 3/8 closed at R4",
+     "tag": "STIPULATED"
+    },
+    {
+     "claim": "Maintainer decisions consumed: issue 27 option A redirect (B1b = primary efficiency instrument, verbatim comment in design header) and the issue 28 standing cost directive (SPOT i4i, expert-pinning/warm-cache, KaE co-location as REQUIREMENTS)",
+     "tag": "STIPULATED"
+    },
+    {
+     "claim": "Universal core MATERIALIZED from committed fingerprints: 76 MoE layers (3-78), 2,108 cells, per-layer 15-46, no layer at the 48 cap; canonical-serialization sha256 632bcd182ae8a716b3f8843d640d43772f9ddfac6880d12ac531cf974cd3f18f; concept->cluster table sha256 10cb109d651727d89bbb575ae39690e1cb4a0081dd373a9eec139986e7ac5e38; stats roster sha256 e90a8d6e32bcd3abe8d4a7ef2334695d82ff5c0dd9670b83a8e853a5115cfcc0 (design SS2.1 [R3])",
+     "tag": "MEASURED"
+    },
+    {
+     "claim": "Pinned planning power simulation (code sha256 1dc1682a0cf37cec00b1f0f4444e54c27d6944b2fe70a870b7730b1ec801e3d4, output sha256 9cdd2c01d300b648d0ad7c30cdb3320b53731755046b98725e98e82f5ede1769, seed 20260728, double-run byte-identical): joint power 0.119 at true +3, simulated MDE_true = 16.0 pts at n = 300, C = 8 - HARSHER than the Gaussian ~12-pt figure, which it supersedes; the honest power lever is more trace clusters, not more items",
+     "tag": "MEASURED"
+    },
+    {
+     "claim": "Planning cost figures (SS6.4, ASM-2350): band ~68-279 instance-hours ~ USD 14-78 spot at the standing F1-K model (100 s/prefill pessimistic / 1.20 pinning speedup, spot 0.20-0.28/h); prefill throughput UNKNOWN until F1-K bring-up measures it; resolved ONLY against glm-drop/cost-ledger.json, never quality metrics",
+     "tag": "EXTRAPOLATION"
+    },
+    {
+     "claim": "Sign-flip exactness basis imported from F1-K verbatim (ASM-2122 / SSR-REV4.1a): cluster sign-symmetry of D_c under the sharp null; dev-selected cluster-BCa fallback IMPLEMENTED in analysis/glm_edrop_0_stdin.py and frozen PRE-test on the dev sign-symmetry check, never on test data",
+     "tag": "STIPULATED"
+    }
+   ],
+   "budget_note": "usd_cap = 95 spot dollars AND wall_clock_cap_hours = 320 instance-hours, WHICHEVER BINDS FIRST (SS6.4 [R2: ASM-2350] ceiling verbatim). Planning band ~68-279 h ~ USD 14-78 (n = 300 planning point: ~2,930 prefills ~ 68 h ~ USD 14-19; n = 1,440 pool cap: ~12,050 prefills ~ 279 h ~ USD 56-78; 8 pass-equivalents = b0-full, u-topk, m-freq, m-emb, m-kern, 3 x m-drng; pilot <= 530 prefills on dev-96). On-demand fallback (spot dry) ~ USD 193-220 worst case is a COORDINATOR SIGN-OFF DECISION, never a silent fallback. Pre-registered degradation order if the ceiling binds: (1) drop the k=1 escalation pilot cell; (2) return to the maintainer - NO masked arm dropped, R never below 3, n never cut (supersedes central ASM-2238's clause IN FULL). Mask/map construction CPU-only ~USD 0; S3 on the existing USD 8.5/mo line. EC2 instance compute only.",
+   "coverage_gates_pre_spend": "ALL fail to the maintainer BEFORE main-phase spend (SS5.1, MD-6): eligibility exclusions > 20% of the 1,440 test pool; n < 300; any of the 8 analysis clusters with m_c < 10. Pilot gate: >= 48 GLM-DROP-eligible dev-96 items. m-drng impossible-strata exclusions > 10% of eligible n => D2 leg (c) UNINFORMATIVE (never silently narrowed).",
+   "freeze_manifest": {
+    "ordering": "F1-K kot-reg/1 freeze -> GLM-DROP sequenced pins computed -> GLM-DROP prereg-freeze COMMITTED BEFORE F1-K test outcomes are generated (SS6.1 step 5; else F1-K test outcomes are FIREWALLED from every GLM-DROP role, access recorded in both manifests) -> pilot (dev-96 only, k* selection per SS4.2, continuous-statistic disagreement surfaces to maintainer BEFORE freeze completion) -> bring-up (cold/warm byte-identity check, knob-semantics re-verification, dose verification) -> main-phase spend -> analysis.",
+    "produced_at_freeze_sequenced_pins": "Each a PURE FUNCTION of frozen inputs with a fail-closed default, per SS7 item 3 [R3]: (i) eligible-item ID list + sha256 + exact n + per-cluster m_c + exclusion count (SEQUENCED-AFTER-F1-K-FREEZE: pure function of F1-K's frozen test-1440 id list, trigger-map version, span sidecars - input BYTES now committed at data/f1k-eval-v1/ + data/f1k-trigger-map-v1/ (built 2026-07-13) but F1-K itself UNFROZEN, so the pin computes ONLY from F1-K's freeze-pinned hashes); (ii) the R = 3 derangement realizations (same sequencing; DRBG-pure); (iii) the six mask-table whole-table + per-entry hashes (serialization + hash framing already pinned SS6.3 [R4]; ONLY the item list is waited on); (iv) the dev-96 id-list hash; (v) the MiniLM encoder weight-artifact file hashes (SEQUENCED-AT-FREEZE; missing/changed artifact HALTS, m-emb never built from unpinned weights); (vi) the power-simulation RE-RUN at realized (n, m_c) with code + output hashes; (vii) the pre-freeze skeptic attack. No eligible-ID hash in the manifest => freeze cannot complete => no spend.",
+    "re_verified_at_freeze_byte_identical_or_halt": "Already pinned in the design and in this record: all thresholds and the SS3.1-item-8 seed registry; the universal-core hash 632bcd18...f18f; the concept->cluster table hash 10cb109d...5e38; the planning power-simulation code + output hashes 1dc1682a.../9cdd2c01...; seed disjointness from F1-K's registered sets re-verified mechanically."
+   },
+   "n_test_items": "n = |eligible test items| EXACTLY (SS5.1 [R2]: no sampling step; <= 1,440 by construction; eligibility = non-empty G-lex active-concept set AND every active concept maps to a trace-covered cluster under the frozen SS2.1 table). PINNED-AT-FREEZE: the realized n, id-list sha256, and m_c enter the freeze manifest and the run sidecar; the pinned analysis verifies the scored universe against them fail-closed. Planning point n = 300; pool cap 1,440.",
+   "operating_point": "k* selected on F1-K's frozen dev-96 split reused verbatim (SS4.2 [R2: ASM-2345]): largest k in {4,3,2} with dev deficit acc(b0-full) - acc(u-topk@k) STRICTLY > 3.0 pts; escalation k=1 only, then STOP and report (TOPP branch REMOVED, SS3.1 item 7). Continuous pilot statistic (paired LL-margin, seeded 20260725 bootstrap 90% CI) reported; sign disagreement with the accuracy rule surfaces to the maintainer BEFORE freeze - fail-closed. Both directions pre-worded.",
+   "retained_fraction": "f = 0.25 (64/256 experts per layer) - a design constant, not a search dimension (SS3)",
+   "statistics": "Cluster-balanced T = mean_c D_c over C = 8 analysis clusters (deterministic multilabel->analysis-cluster rule: F1-K's registered span precedence longest-match -> earliest-span -> table-order, SS5.2 [R3]); EXACT 2^8 = 256 sign-flip enumeration, one-sided, identity included, effective size 12/256 ~ 0.0469 disclosed; joint licensing p <= 0.05 AND T >= +3.0 pts per named contrast; dev-selected cluster-BCa (B = 10,000, house SHA-256 DRBG, CI-inversion one-sided p) as the pre-registered fallback when the dev sign-symmetry check fails; NO equivalence/TOST test is powered or licensed anywhere (SS5.3 [R2]); no optional stopping; no post-hoc subgroups. All constants pinned in analysis/glm_edrop_0_stdin.py."
+  },
+  "scale_language_max": "none",
+  "scale_rungs": [
+   "glm52-744b"
+  ],
+  "seeds": [
+   20260721,
+   20260722,
+   20260723,
+   20260724,
+   20260725,
+   20260726,
+   20260727,
+   20260728
+  ]
+ },
+ "efficiency_relevant": true,
+ "endpoints": [
+  {
+   "id": "primary-d1-guided-vs-uniform",
+   "metric": "/analysis/d1_lift_points",
+   "role": "primary",
+   "smallest_effect_of_interest": {
+    "type": "absolute_accuracy_points_cluster_balanced",
+    "value": 3.0
+   },
+   "test": "EXACTLY ONE primary (SS5.3 D1): m-kern vs u-topk paired per-item correctness at matched realized experts-loaded/token (arm-mean within +-5% of u-topk, else VOID - /analysis/d1_status, never reinterpreted); statistic T = mean_c D_c over the C = 8 analysis clusters at /analysis/d1_lift_points; EXACT 256-sign-flip enumeration one-sided p at /analysis/d1_p (or the dev-selected BCa fallback, /analysis/inference_method); LICENSED iff p <= 0.05 AND T >= +3.0 (/analysis/d1_joint_pass) AND the D0 deficit check is not floor-bound (/analysis/floor_bound: test deficit T(b0-full vs u-topk) <= 3.0 => NO guided-vs-uniform contrast is licensed, report and stop). Cluster-BCa 95% CI at /analysis/d1_ci95. The record VERDICT PASS additionally requires the FULL D2 three-leg conjunction (/analysis/pass_gate = not floor_bound AND d1_joint_pass AND d2_status == PASS) - the deflator discipline (ASM-2236/2293). A non-demonstration is scoped 'not demonstrated at this resolution (simulated MDE_true ~ 16 pts at the n = 300 planning point, C = 8; refreshed at freeze)' - NEVER 'no effect', NEVER equivalence (SS5.3 [R2])."
+  },
+  {
+   "id": "sec-d0-deficit-regime",
+   "metric": "/analysis/d0_deficit_points",
+   "role": "secondary",
+   "test": "D0 (SS5.3): the test-split cluster-balanced deficit T(b0-full vs u-topk) at k*. Deficit <= 3.0 pts => FLOOR-BOUND (/analysis/floor_bound): the free uniform knob costs nothing measurable here, the guided-drop question is unanswerable (no measured deficit exists for guidance to recover), and the run reports the kernel-free efficiency datum scoped to panel and k values - NOT a claim that truncation is retention-free (unpowered equivalence, prohibited)."
+  },
+  {
+   "id": "sec-d2-kernel-specificity",
+   "metric": "/analysis/d2_status",
+   "role": "secondary",
+   "test": "D2 (ASM-2293): THREE separate named paired contrasts, EACH under the joint rule (+3.0 pts, p <= 0.05): (a) m-kern vs m-freq (/analysis/d2a_*); (b) m-kern vs m-emb (/analysis/d2b_*); (c) m-kern vs the per-item MEAN over the R = 3 m-drng realizations on the non-excluded subset (/analysis/d2c_*). D2 passes only if ALL THREE pass - never a best-of comparator; no multiplicity relief in the kernel's favour. FAIL-TO-DEMONSTRATE vs UNINFORMATIVE are DISTINCT recorded outcomes (SS5.3 [R2]): Jaccard-gated (mean > 0.95), load-voided, or exclusion-bound (> 10%) legs => UNINFORMATIVE ('not cleanly asked'); a clean joint-rule miss => FAIL-TO-DEMONSTRATE ('asked at the registered resolution, not shown'). Aggregation disclosed for the freeze skeptic: any CLEAN miss is decisive over another leg's void. Leg (c) is the sharpest deflation-shaped datum (knull analog, ASM-1977 discipline) and does NOT license 'mask structure did the work'."
+  },
+  {
+   "id": "sec-loads-per-token",
+   "metric": "/analysis/loads_per_token",
+   "role": "secondary",
+   "test": "Realized experts-loaded/token per arm from the engine counter - the ONLY systems endpoint (ASM-2348), DESCRIPTIVE: it verifies the matched-compute construction (the +-5% gate) and records the efficiency lever's physical size (P0 MEASURED reference: 1825.1 at TOPK=8 -> 606.3 at TOPK=2). Arm-level tok/s comparisons DECLINED by design (SS4.3 [R2]); the P0 1.9x/2.5x tok/s ratios are preliminary single-sweep observations, never arm-level estimates."
+  },
+  {
+   "id": "sec-mask-footprint",
+   "metric": "/analysis/mask_union_footprint",
+   "role": "secondary",
+   "test": "Per-mask union routed-expert footprint, MEASURED at pilot and reported (SS5.1/SS6.2 [R2: ASM-2351]); the withdrawn R1 'f x 370 GB ~ 93 GB shard' claim appears nowhere; NO shard-size or page-cache-pool claim attaches to this experiment."
+  },
+  {
+   "id": "sec-power-scope",
+   "metric": "/analysis/power_scope",
+   "role": "secondary",
+   "test": "The pinned planning simulation record (SS5.2 [R3]: joint power 0.119 at true +3, simulated MDE_true 16.0 pts at n = 300, C = 8, seed 20260728, code/output hashes in the record) plus the freeze-time RE-RUN at realized (n, m_c) carried from the sidecar; every non-demonstration is scoped 'powered to resolve >= MDE_true pts at C = 8 cluster coverage', never a clean null at +3; the named power lever is more trace clusters (C), not more items (n)."
+  }
+ ],
+ "extrapolation_envelope_verbatim": "Results bind ONLY to: GLM-5.2 at the weights pinned at bring-up, served by the colibri C engine at base commit a78a06fc5acc4b0dc0f9ef03987c66b0559d1250 with the maintainer-approved DROP item-ID->mask-table patch (approval = the named external gate bundled into the issue-28 review; sha pinned at freeze), on the single pinned i4i-class box under the SS6.1 sealed-checkpoint/fresh-process co-location protocol with F1-K; the frozen GLM-DROP-eligible subset of F1-K's known-concept test-1440 (composition reported verbatim; internal-relative numbers, never leaderboard-comparable); the pilot-selected operating point k* and fixed retained fraction f = 0.25; the C = 8 trace-cluster concept map built from 24 probe prompts on this box (kernel-concept coverage ceiling honestly disclosed: 8 clusters, 3 prompts each); F1-K's frozen single-prefill label-logit scoring; R = 3 registered derangement realizations. Realized experts-loaded/token is the ONLY systems endpoint; NOTHING here supports tok/s, latency, shard-size, page-cache, or deployment claims; NO outcome licenses an equivalence, sufficiency, 'adds nothing', or 'any drop works' sentence (no equivalence test is powered, SS5.3 [R2]); kernel-specificity claims are scoped by the D2 legs and by the OPEN R4 replay branch classifier (ASM-2013 HELD; the R4 replay must land before main-phase spend, SS7 item 1); nothing extends to other models, scales, engines, boxes, gating mechanisms, unlabelled-prompt workloads, or to any intelligence, parity, or general-capability claim; no outcome moves the EFFICIENCY or CORRECTNESS synthesis verdicts, which remain INCONCLUSIVE-PENDING under their own designated experiments (ASM-2236).",
+ "hypotheses": [
+  "H-D1 (guided beats uniform; the PRIMARY): at matched experts-computed-per-token k* on kernel-covered public QA items, restricting GLM-5.2's per-token candidate set to the kernel-concept-retained mask (m-kern) preserves more accuracy than the router's own uniform top-k* truncation (u-topk), by >= +3.0 cluster-balanced points with exact 256-flip enumeration p <= 0.05 - 'concept-conditioned survivors carry the concepts the item is about, so quality degrades less at the same compute' (design SS1).",
+  "H-D2a (beats workload-blind importance): m-kern beats m-freq (pooled usage-frequency retention, dose- and core-matched, item-unconditioned) at the same joint rule.",
+  "H-D2b (beats kernel-free conditioning - the crux): m-kern beats m-emb (matched-multilabel embedding-topic-cluster conditioning, identical pipeline, kernel-free labels) at the same joint rule. On the programme's four-deflation record a kern~emb tie is the modal expectation (designer prior, binding nothing); this is the arm that prices kernel-specificity.",
+  "H-D2c (beats deranged labels - the knull analog): m-kern beats the per-item mean over R = 3 dose-exact set-distinct label-DERANGED masks (m-drng) at the same joint rule; a pass licenses 'kernel-guided helps', never 'any-structured-drop helps' (ASM-1977 discipline carried).",
+  "PRE-NAMED NULL (stated, not asserted; design SS1): router weight is already a sufficient per-token relevance signal and any reasonable mask ties - 'any drop works'. Under this design that outcome reads 'a kernel-specific advantage was not demonstrated at the registered resolution (simulated MDE_true ~ 16 pts at n = 300, C = 8)' - it is NEVER read as demonstrated equivalence, and the uniform knob keeps the win with no kernel sentence attached.",
+  "H-D0 (regime existence, tested first): uniform truncation at k* costs > 3.0 cluster-balanced points vs b0-full on the test split; if NOT (floor-bound), the guided-drop question is unanswerable here and the run reports a kernel-free efficiency datum scoped to panel and tested k values."
+ ],
+ "id": "glm-edrop-0",
+ "kill_criterion_verbatim": "GLM-EDROP-0 is killed iff kernel guidance actively HARMS at matched compute: T(u-topk vs m-kern) >= +3.0 cluster-balanced accuracy points AND harm-direction p <= 0.05 (dev-selected method; /analysis/kill_fired), with m-kern load-valid and dose-valid - dropping to the experts the kernel's concept map retains costs MORE quality than the router's own uniform truncation at the same experts-loaded/token, so the concept->expert map is anti-informative on this workload and the guided-drop (B1b) lane stops pending redesign. NOT kills: D0 floor-bound (no deficit regime exists at tested k - a kernel-free efficiency datum, run returns with it); a D1 non-demonstration (uniform TOPK stands as a colibri-native concept-free lever, m-kern recorded NOT-DEMONSTRATED-at-this-resolution-scale-and-subset, never 'dead'); D2 FAIL-TO-DEMONSTRATE (the kernel-specificity sentence is simply not licensed, at equal prominence). VOIDS (INSTRUMENT-INVALID, not kills): any freeze-manifest/coverage/seed/dose/cold-warm-byte-identity/isolation-protocol/completeness gate failure. UNINFORMATIVE (neither pass nor deflation): Jaccard-gated, load-voided, or exclusion-bound D2 legs - 'the question was not cleanly asked', voided leg(s) named. A non-demonstration at any rung is a REAL RESULT filed at equal structural prominence, always carrying its resolution scope (simulated MDE_true ~ 16 pts at the n = 300 planning point, C = 8; refreshed at freeze at realized n, m_c). PROVENANCE NOTE for the freeze gate: the design doc pre-words every non-demonstration but words NO kill; this harm-direction criterion is this record's conservative operationalisation (the F1-K kill analog) and requires explicit coordinator + review-gate confirmation before prereg-freeze.",
+ "pins": {
+  "analysis_script": {
+   "output_fields": [
+    "/gates/freeze_manifest_valid",
+    "/gates/coverage_valid",
+    "/gates/seeds_valid",
+    "/gates/dose_exactness_valid",
+    "/gates/cold_warm_byte_identical",
+    "/gates/isolation_protocol_valid",
+    "/gates/completeness_valid",
+    "/analysis/n_items",
+    "/analysis/n_clusters",
+    "/analysis/m_per_cluster",
+    "/analysis/k_star",
+    "/analysis/inference_method",
+    "/analysis/floor_bound",
+    "/analysis/d0_deficit_points",
+    "/analysis/d1_lift_points",
+    "/analysis/d1_p",
+    "/analysis/d1_ci95",
+    "/analysis/d1_joint_pass",
+    "/analysis/d1_status",
+    "/analysis/d2a_lift_points",
+    "/analysis/d2a_p",
+    "/analysis/d2a_joint_pass",
+    "/analysis/d2a_status",
+    "/analysis/d2b_lift_points",
+    "/analysis/d2b_p",
+    "/analysis/d2b_joint_pass",
+    "/analysis/d2b_status",
+    "/analysis/d2c_lift_points",
+    "/analysis/d2c_p",
+    "/analysis/d2c_joint_pass",
+    "/analysis/d2c_status",
+    "/analysis/d2_status",
+    "/analysis/pass_gate",
+    "/analysis/kill_fired",
+    "/analysis/jaccard_gate",
+    "/analysis/load_match",
+    "/analysis/drng_exclusions",
+    "/analysis/arm_accuracies",
+    "/analysis/item_weighted_deltas",
+    "/analysis/loads_per_token",
+    "/analysis/mask_union_footprint",
+    "/analysis/power_scope",
+    "/analysis/accuracy",
+    "/analysis/params",
+    "/analysis/memory",
+    "/analysis/inference_compute",
+    "/analysis/training_compute",
+    "/analysis/cost_ledger"
+   ],
+   "path": "analysis/glm_edrop_0_stdin.py",
+   "sha256": "f6742504c4a63e25e3a876fe9edb6fdde3f4f4cd0e6b39157bfb453c66504326"
+  },
+  "corpus_hashes": {
+   "_recipe": "kot-corpus-hash/1: digest = sha256 over the UTF-8 concatenation of one line per regular file under data/<corpus>/ (recursive; symlinks and directories excluded), each line '<sha256-of-file-bytes-hex>  <relpath>\\n' with exactly two spaces, relpath POSIX-style ('/'-separated) relative to data/<corpus>/, lines sorted by the UTF-8 byte order of relpath; reference implementation tools/registry/corpus-pin.py",
+   "f1k-eval-v1": "PINNED-AT-INPUTS:inherited from F1-K's freeze (test/dev id lists + frozen templates + span sidecars) - the co-location dependency",
+   "f1k-trigger-map-v1": "PINNED-AT-INPUTS:inherited from F1-K's freeze - G-lex gating consumes no router signal (G-route unsupported per interpretation-fable.md SS4)",
+   "glm-drop-concept-cluster-table-v1": "PINNED-AT-INPUTS:frozen concept->cluster table, canonical serialization ALREADY pinned in the design (SS2.1 [R3]; expected plain-sha256 10cb109d651727d89bbb575ae39690e1cb4a0081dd373a9eec139986e7ac5e38); materialized under data/glm-drop-concept-cluster-table-v1/ at prereg-freeze; byte-identical or halt",
+   "glm-drop-derangements-v1": "PINNED-AT-INPUTS:the 3 realized permutations' canonical serializations (SS3.1 item 4) - SEQUENCED-AFTER-F1-K-FREEZE",
+   "glm-drop-dev96-idlist-v1": "PINNED-AT-INPUTS:F1-K frozen dev-96 split id-list hash, reused verbatim (SS4.2)",
+   "glm-drop-eligible-items-v1": "PINNED-AT-INPUTS:eligible-item ID list sha256 + exact n + m_c + exclusion count - SEQUENCED-AFTER-F1-K-FREEZE (pure function of F1-K's test-1440 id list, trigger-map version, per-item span sidecars). STATE UPDATE vs the design's R3 wording: the input BYTES now exist as committed repo files (data/f1k-eval-v1/items/test.jsonl = 1,440 rows with char_spans; dev.jsonl = 96; data/f1k-trigger-map-v1/trigger-map.json; built 2026-07-13) but F1-K is NOT frozen (absent from frozen-index; its corpus pins are placeholders) - the eligible set is computable the moment F1-K's freeze pins those bytes, and MUST NOT be computed from unfrozen bytes; no hash => freeze cannot complete => no spend (SS5.1 [R3])",
+   "glm-drop-mask-tables-v1": "PINNED-AT-INPUTS:six per-entry-hashed whole-table SHA-256s (m-freq, m-emb, m-kern, m-drng-1..3) under the SS6.3 [R4] canonical serialization - pure function of (eligible-item list, core + table hashes, SS3.1 parameters/seeds/DRBG, pinned encoder bytes); freeze regeneration byte-identical or halt",
+   "glm-drop-minilm-weights-v1": "PINNED-AT-INPUTS:sentence-transformers/all-MiniLM-L6-v2 artifact file sha256s (model.safetensors + config + tokenizer, enumerated) - SEQUENCED-AT-FREEZE; missing/changed/unhashable artifact HALTS the freeze (SS3.1 item 1 [R3])",
+   "glm-drop-power-rerun-v1": "PINNED-AT-INPUTS:re-run of the SAME pinned simulation code at realized (n, m_c) - SEQUENCED-AFTER-F1-K-FREEZE; code + output hashes enter the freeze manifest; becomes the MEASURED power record for MD-6",
+   "glm-drop-power-sim-v1": "PINNED-AT-INPUTS:pinned planning power simulation, code + output plain-sha256s ALREADY pinned in the design (SS5.2/Appendix A [R3]: code 1dc1682a0cf37cec00b1f0f4444e54c27d6944b2fe70a870b7730b1ec801e3d4, output 9cdd2c01d300b648d0ad7c30cdb3320b53731755046b98725e98e82f5ede1769, seed 20260728, double-run byte-identical) plus the freeze-time RE-RUN at realized (n, m_c); corpus dir materialized at prereg-freeze",
+   "glm-drop-stats-roster-v1": "PINNED-AT-INPUTS:the 24-fingerprint STATS ROSTER (ASCII 'fNNN.stats:<sha256>' lines, ascending; expected plain-sha256 e90a8d6e32bcd3abe8d4a7ef2334695d82ff5c0dd9670b83a8e853a5115cfcc0, design header [R3]); source files committed at poc/glm52-probe/results/stats/; corpus dir materialized at prereg-freeze",
+   "glm-drop-universal-core-v1": "PINNED-AT-INPUTS:realized universal core, canonical serialization ALREADY pinned in the design (SS2.1 [R3]; expected plain-sha256 632bcd182ae8a716b3f8843d640d43772f9ddfac6880d12ac531cf974cd3f18f); materialized under data/glm-drop-universal-core-v1/ at prereg-freeze, kot-corpus-hash/1 digest computed then; freeze regeneration byte-identical or halt",
+   "kernel-v0": "8209cadabcfc2eaa11631c5c1100c04a48f33673516780b1f36cbf957217c809"
+  },
+  "harness_manifest": "DROP item-ID->mask-table patch (SS6.3 [R4]): ~120-200 lines vs pinned colibri base commit a78a06fc5acc4b0dc0f9ef03987c66b0559d1250; immutable table loaded once at engine start; FAIL-CLOSED lookup (unknown item-ID refuses and halts - NEVER silent unmasked fall-through); per-entry SHA-256 frame 'glm-drop-mask:<arm-ID>:<record-line>' + whole-table SHA-256 over complete file bytes, both re-verified at engine start, refuse on mismatch; canonical serialization fully pinned in-design (ASCII/LF, 76 MoE layers 3..78 ascending, 64-hex per-layer masks with expert 4j at the nibble MSB, exactly 64 retained bits/layer verified at load, ascending byte-lexicographic item-ID order). PATCH APPROVAL = NAMED EXTERNAL GATE riding the issue-28 maintainer review (exceeds the P0 trace-only C envelope, ASM-1986/1989; not a Law-1 matter - selects among native experts, writes nothing); while unapproved: NO bring-up, NO freeze completion, NO spend. Patch diff sha256 PINNED-AT-FREEZE (diff not yet authored - the ONLY code artifact this design still owes). Instrument settings (SS4.3): DRAFT=0 greedy; PILOT/AUTOPIN/DIRECT off; PIN set = the universal core, IDENTICAL across ALL arms; block-level order randomization seed 20260726; cold/warm byte-identical per-option logits at bring-up (seeded 8-item spot set, stream spotset:20260727) else halt. Co-location isolation (SS6.1 [R2: ASM-2347]): F1-K seal -> terminate (PID logged) -> fresh GLM-DROP process, env echo verified, halt on inherited knob state -> distinct namespaces glm-drop/{checkpoints,results,manifest.json,cost-ledger.json} -> freeze-order firewall on F1-K test outcomes -> never interleaved. Analysis invocation: verdict-gen pipes eligible results-log records to analysis/glm_edrop_0_stdin.py on STDIN with NO argv; records pin rows + sidecar artifacts (path + sha256), re-verified fail-closed. Mock self-test green 2026-07-14: `python3 analysis/glm_edrop_0_stdin.py --selftest` (PASS shape on BOTH inference branches; not-demonstrated, KILL, floor-bound, D2-UNINFORMATIVE, clean-miss-decisive, load-VOID, gate-failure, exclusion-bound shapes; 11/11 hardened rejections fail-closed; pin round-trip byte-stable; 48/48 output fields on both branches; stdout byte-identical across reruns).",
+  "model_revisions": {
+   "colibri-base-commit": "a78a06fc5acc4b0dc0f9ef03987c66b0559d1250",
+   "drop-table-patch": "PINNED-AT-INPUTS:unified-diff sha256 after maintainer approval (the named external gate, SS6.3)",
+   "glm52-weights": "PINNED-AT-INPUTS:content hash of the GLM-5.2 weight set on the relaunched instance, pinned at bring-up per ASM-1971 discipline, before any test prefill"
+  }
+ },
+ "prereg_doc": {
+  "anchors": [
+   "SS1 (question, deflator crux, what this can and cannot feed)",
+   "SS2.1-2.2 (concept->expert map: materialized universal core + concept->cluster table + R4 multilabel combination rule; honest scope: C = 8, kernel-specificity OPEN, R4 replay held)",
+   "SS3 + SS3.1 (six arms, dose-exact mask protocol, frozen mask-construction parameters, SHA-256 DRBG + closed seed registry, Jaccard gate, load-gate aggregation)",
+   "SS4.1-4.3 (matched experts-loaded/token + ±5% gate; dev-96 pilot k* selection rule with STOP wording; correctness-vs-performance regime split, loads/token the ONLY systems endpoint)",
+   "SS5.1-5.3 (frozen analysis population as a sequenced pin; cluster-balanced estimand; exact 256-flip enumeration + BCa fallback; pinned planning simulation MDE_true ~ 16 pts; decision ladder with pre-worded sentences both directions; equivalence discipline)",
+   "SS6.1-6.4 (KaE co-location isolation protocol; cost measures; item-ID->mask table canonical serialization + hash framing; instance-hours and dollars separated, ceiling 320 h AND USD 95)",
+   "SS7 (sequencing: R4 replay before spend; ASM-2010 amendment; freeze produce-vs-reverify split; prerequisites)",
+   "SSR1-SSR4 (the four-revision review audit trail; latest revision governs)"
+  ],
+  "path": "docs/next/design/glm52-expert-drop.md",
+  "sha256": "f1c8d0f603f7b92ab7e36527912fbda2f4740f5f3c6a9d43dfcbe71307b45a1c"
+ },
+ "schema_version": "kot-reg/1",
+ "status": "DRAFT",
+ "title": "GLM-DROP (B1b) glm-edrop-0: kernel-guided GLM-5.2 expert-drop at matched experts-per-token - does restricting per-token expert selection to the kernel-concept-retained candidate set (m-kern, f = 0.25, universal core + concept-conditional fill from the 24-fingerprint P0 trace) preserve more accuracy than (D1) the router's own uniform TOPK=k* truncation, and (D2, ALL THREE) pooled usage-frequency retention (m-freq), matched-multilabel embedding-topic conditioning (m-emb), and R = 3 dose-exact label-deranged masks (m-drng), on the GLM-DROP-eligible subset of F1-K's known-concept QA test split, scored by frozen single-prefill label-logit argmax, co-located on the KaE issue-28 i4i spot instance under the sealed-checkpoint isolation protocol? Design: docs/next/design/glm52-expert-drop.md R0..R4 (GPT-5.6-reviewed through four cycles; latest revision governs). The maintainer issue-27 option-A redirect makes this the primary EFFICIENCY-thesis instrument; quality endpoints feed nothing until verdict-gen's registered pathway runs; realized loads/token is the only systems endpoint. ASMs: ASM-2230..2239 (R0), ASM-2290..2293 (R1), ASM-2340..2352 (R2 as R3/R4-amended) - all centrally registered; the SSR2.14 supersession transcriptions to the R0/R1 central rows remain the coordinator's landing-commit action.",
+ "verdict_rules": [
+  {
+   "verdict": "INSTRUMENT-INVALID",
+   "when": {
+    "a": {
+     "a": {
+      "a": {
+       "a": {
+        "a": {
+         "a": {
+          "a": {
+           "metric": "/gates/freeze_manifest_valid"
+          },
+          "b": {
+           "metric": "/gates/coverage_valid"
+          },
+          "op": "and"
+         },
+         "b": {
+          "metric": "/gates/seeds_valid"
+         },
+         "op": "and"
+        },
+        "b": {
+         "metric": "/gates/dose_exactness_valid"
+        },
+        "op": "and"
+       },
+       "b": {
+        "metric": "/gates/cold_warm_byte_identical"
+       },
+       "op": "and"
+      },
+      "b": {
+       "metric": "/gates/isolation_protocol_valid"
+      },
+      "op": "and"
+     },
+     "b": {
+      "metric": "/gates/completeness_valid"
+     },
+     "op": "and"
+    },
+    "op": "not"
+   }
+  },
+  {
+   "verdict": "FAIL",
+   "when": {
+    "metric": "/analysis/kill_fired"
+   }
+  },
+  {
+   "verdict": "PASS",
+   "when": {
+    "metric": "/analysis/pass_gate"
+   }
+  },
+  {
+   "verdict": "INCONCLUSIVE",
+   "when": {
+    "const": true
+   }
+  }
+ ]
+}
