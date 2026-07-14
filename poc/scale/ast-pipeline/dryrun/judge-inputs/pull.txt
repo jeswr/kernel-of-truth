@@ -1,0 +1,478 @@
+concept: pull
+synset: urn:lexical-wn31:n-00115251
+pos: n
+lemmas: pull, pulling
+wn31-gloss (sense-fixing only): the act of pulling; applying force to move something toward or with you; "the pull up the hill had him breathing harder"; "his strenuous pulling strained his back"
+
+=== CANDIDATE A ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomethingRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "DO",
+   "roles": {
+    "agent": {
+     "kind": "ref",
+     "index": 1
+    },
+    "undergoer": {
+     "kind": "sp",
+     "head": {
+      "kind": "primeHead",
+      "prime": "SOMETHING~THING"
+     },
+     "bind": 2
+    }
+   }
+  },
+  {
+   "type": "op",
+   "op": "BECAUSE",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "DO",
+     "roles": {
+      "agent": {
+       "kind": "ref",
+       "index": 1
+      },
+      "undergoer": {
+       "kind": "ref",
+       "index": 2
+      }
+     }
+    },
+    {
+     "type": "pred",
+     "pred": "MOVE",
+     "roles": {
+      "undergoer": {
+       "kind": "ref",
+       "index": 2
+      }
+     }
+    }
+   ]
+  },
+  {
+   "type": "pred",
+   "pred": "BE-SOMEWHERE",
+   "roles": {
+    "undergoer": {
+     "kind": "ref",
+     "index": 2
+    },
+    "locus": {
+     "kind": "ref",
+     "index": 1
+    },
+    "manner": {
+     "kind": "prime",
+     "prime": "NEAR"
+    }
+   }
+  }
+ ]
+}
+
+=== CANDIDATE B ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomethingRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "DO",
+   "roles": {
+    "agent": {
+     "kind": "ref",
+     "index": 1
+    },
+    "undergoer": {
+     "kind": "sp",
+     "head": {
+      "kind": "primeHead",
+      "prime": "SOMETHING~THING"
+     },
+     "bind": 2
+    }
+   }
+  },
+  {
+   "type": "op",
+   "op": "BECAUSE",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "DO",
+     "roles": {
+      "agent": {
+       "kind": "ref",
+       "index": 1
+      },
+      "undergoer": {
+       "kind": "ref",
+       "index": 2
+      }
+     }
+    },
+    {
+     "type": "pred",
+     "pred": "MOVE",
+     "roles": {
+      "undergoer": {
+       "kind": "ref",
+       "index": 2
+      },
+      "manner": {
+       "kind": "prime",
+       "prime": "NEAR"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "type": "op",
+   "op": "AFTER",
+   "args": [
+    {
+     "kind": "prime",
+     "prime": "NOW"
+    },
+    {
+     "type": "pred",
+     "pred": "BE-SOMEWHERE",
+     "roles": {
+      "undergoer": {
+       "kind": "ref",
+       "index": 2
+      },
+      "locus": {
+       "kind": "ref",
+       "index": 1
+      },
+      "manner": {
+       "kind": "prime",
+       "prime": "NEAR"
+      }
+     }
+    }
+   ]
+  }
+ ]
+}
+
+=== CANDIDATE C ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 3,
+   "refKind": "SomethingRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "DO",
+   "roles": {
+    "agent": {
+     "kind": "sp",
+     "head": {
+      "kind": "primeHead",
+      "prime": "SOMEONE"
+     },
+     "bind": 2
+    },
+    "undergoer": {
+     "kind": "sp",
+     "head": {
+      "kind": "primeHead",
+      "prime": "SOMETHING~THING"
+     },
+     "bind": 3
+    }
+   }
+  },
+  {
+   "type": "op",
+   "op": "BECAUSE",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "DO",
+     "roles": {
+      "agent": {
+       "kind": "ref",
+       "index": 2
+      },
+      "undergoer": {
+       "kind": "ref",
+       "index": 3
+      }
+     }
+    },
+    {
+     "type": "pred",
+     "pred": "MOVE",
+     "roles": {
+      "undergoer": {
+       "kind": "ref",
+       "index": 3
+      }
+     }
+    }
+   ]
+  },
+  {
+   "type": "pred",
+   "pred": "BE-SOMEWHERE",
+   "roles": {
+    "undergoer": {
+     "kind": "ref",
+     "index": 3
+    },
+    "locus": {
+     "kind": "ref",
+     "index": 2
+    },
+    "manner": {
+     "kind": "prime",
+     "prime": "NEAR"
+    }
+   }
+  }
+ ]
+}
+
+=== CANDIDATE D ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomethingRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "DO",
+   "roles": {
+    "agent": {
+     "kind": "ref",
+     "index": 1
+    },
+    "undergoer": {
+     "kind": "sp",
+     "head": {
+      "kind": "primeHead",
+      "prime": "SOMETHING~THING"
+     },
+     "bind": 2
+    }
+   }
+  },
+  {
+   "type": "op",
+   "op": "BECAUSE",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "DO",
+     "roles": {
+      "agent": {
+       "kind": "ref",
+       "index": 1
+      },
+      "undergoer": {
+       "kind": "ref",
+       "index": 2
+      }
+     }
+    },
+    {
+     "type": "pred",
+     "pred": "MOVE",
+     "roles": {
+      "undergoer": {
+       "kind": "ref",
+       "index": 2
+      },
+      "manner": {
+       "kind": "prime",
+       "prime": "NEAR"
+      }
+     }
+    }
+   ]
+  }
+ ]
+}
+
+=== CANDIDATE E ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 3,
+   "refKind": "TimeRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "DO",
+   "roles": {
+    "agent": {
+     "kind": "ref",
+     "index": 1
+    },
+    "undergoer": {
+     "kind": "sp",
+     "head": {
+      "kind": "primeHead",
+      "prime": "SOMETHING~THING"
+     },
+     "bind": 2
+    },
+    "time": {
+     "kind": "sp",
+     "det": "SOME",
+     "head": {
+      "kind": "primeHead",
+      "prime": "WHEN~TIME"
+     },
+     "bind": 3
+    }
+   }
+  },
+  {
+   "type": "pred",
+   "pred": "BE-SOMEWHERE",
+   "roles": {
+    "undergoer": {
+     "kind": "ref",
+     "index": 1
+    },
+    "locus": {
+     "kind": "ref",
+     "index": 2
+    },
+    "manner": {
+     "kind": "prime",
+     "prime": "TOUCH"
+    },
+    "time": {
+     "kind": "ref",
+     "index": 3
+    }
+   }
+  },
+  {
+   "type": "op",
+   "op": "BECAUSE",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "DO",
+     "roles": {
+      "agent": {
+       "kind": "ref",
+       "index": 1
+      },
+      "undergoer": {
+       "kind": "ref",
+       "index": 2
+      }
+     }
+    },
+    {
+     "type": "pred",
+     "pred": "MOVE",
+     "roles": {
+      "undergoer": {
+       "kind": "ref",
+       "index": 2
+      }
+     }
+    }
+   ]
+  },
+  {
+   "type": "op",
+   "op": "AFTER",
+   "args": [
+    {
+     "kind": "ref",
+     "index": 3
+    },
+    {
+     "type": "pred",
+     "pred": "BE-SOMEWHERE",
+     "roles": {
+      "undergoer": {
+       "kind": "ref",
+       "index": 2
+      },
+      "locus": {
+       "kind": "ref",
+       "index": 1
+      },
+      "manner": {
+       "kind": "prime",
+       "prime": "NEAR"
+      }
+     }
+    }
+   ]
+  }
+ ]
+}

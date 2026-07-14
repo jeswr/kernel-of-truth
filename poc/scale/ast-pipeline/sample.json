@@ -1,0 +1,464 @@
+{
+  "built": "ast-pipeline stratified sample (exploratory; DESIGN.md §4)",
+  "rule": "buckets from the 6 self-flags in consensus-100 reports (incomplete-flag concepts excluded); within each bucket sort by URN byte order, take stride indices floor(i*n/k)",
+  "stratum_counts": {
+    "unanimous-faithful": 4,
+    "split": 12,
+    "unanimous-lossy": 8
+  },
+  "concepts": [
+    {
+      "concept": "appearance",
+      "bucket": "unanimous-faithful",
+      "urn": "urn:lexical-wn31:n-00051015",
+      "pos": "n",
+      "lemmas": [
+        "appearance"
+      ],
+      "wn31_gloss": "the act of appearing in public view; \"the rookie made a brief appearance in the first period\"; \"it was Bernhardt's last appearance in America\"",
+      "self_flags": {
+        "claude-opus-4-8": "faithful",
+        "claude-fable-5": "faithful",
+        "claude-haiku-4-5": "faithful",
+        "gpt-5.6-sol": "faithful",
+        "gpt-5.6-luna": "faithful",
+        "gpt-5.6-terra": "faithful"
+      }
+    },
+    {
+      "concept": "exit",
+      "bucket": "unanimous-faithful",
+      "urn": "urn:lexical-wn31:n-00059339",
+      "pos": "n",
+      "lemmas": [
+        "exit"
+      ],
+      "wn31_gloss": "the act of going out",
+      "self_flags": {
+        "claude-opus-4-8": "faithful",
+        "claude-fable-5": "faithful",
+        "claude-haiku-4-5": "faithful",
+        "gpt-5.6-sol": "faithful",
+        "gpt-5.6-luna": "faithful",
+        "gpt-5.6-terra": "faithful"
+      }
+    },
+    {
+      "concept": "fidelity",
+      "bucket": "unanimous-faithful",
+      "urn": "urn:lexical-wn31:n-04884180",
+      "pos": "n",
+      "lemmas": [
+        "fidelity",
+        "faithfulness"
+      ],
+      "wn31_gloss": "the quality of being faithful",
+      "self_flags": {
+        "claude-opus-4-8": "faithful",
+        "claude-fable-5": "faithful",
+        "claude-haiku-4-5": "faithful",
+        "gpt-5.6-sol": "faithful",
+        "gpt-5.6-luna": "faithful",
+        "gpt-5.6-terra": "faithful"
+      }
+    },
+    {
+      "concept": "repeater",
+      "bucket": "unanimous-faithful",
+      "urn": "urn:lexical-wn31:n-10541063",
+      "pos": "n",
+      "lemmas": [
+        "repeater"
+      ],
+      "wn31_gloss": "a person who repeats; \"the audience consisted largely of repeaters who had seen the movie many times\"",
+      "self_flags": {
+        "claude-opus-4-8": "faithful",
+        "claude-fable-5": "faithful",
+        "claude-haiku-4-5": "faithful",
+        "gpt-5.6-sol": "faithful",
+        "gpt-5.6-luna": "faithful",
+        "gpt-5.6-terra": "faithful"
+      }
+    },
+    {
+      "concept": "apparition",
+      "bucket": "split",
+      "urn": "urn:lexical-wn31:n-00051304",
+      "pos": "n",
+      "lemmas": [
+        "apparition"
+      ],
+      "wn31_gloss": "an act of appearing or becoming visible unexpectedly; \"natives were amazed at the apparition of this white stranger\"",
+      "self_flags": {
+        "claude-opus-4-8": "faithful",
+        "claude-fable-5": "faithful",
+        "claude-haiku-4-5": "faithful",
+        "gpt-5.6-sol": "faithful",
+        "gpt-5.6-luna": "lossy",
+        "gpt-5.6-terra": "lossy"
+      }
+    },
+    {
+      "concept": "fastening",
+      "bucket": "split",
+      "urn": "urn:lexical-wn31:n-00148415",
+      "pos": "n",
+      "lemmas": [
+        "fastening",
+        "attachment"
+      ],
+      "wn31_gloss": "the act of fastening things together",
+      "self_flags": {
+        "claude-opus-4-8": "faithful",
+        "claude-fable-5": "faithful",
+        "claude-haiku-4-5": "lossy",
+        "gpt-5.6-sol": "lossy",
+        "gpt-5.6-luna": "lossy",
+        "gpt-5.6-terra": "lossy"
+      }
+    },
+    {
+      "concept": "poisoning",
+      "bucket": "split",
+      "urn": "urn:lexical-wn31:n-00225605",
+      "pos": "n",
+      "lemmas": [
+        "poisoning"
+      ],
+      "wn31_gloss": "the act of giving poison to a person or animal with the intent to kill",
+      "self_flags": {
+        "claude-opus-4-8": "lossy",
+        "claude-fable-5": "faithful",
+        "claude-haiku-4-5": "lossy",
+        "gpt-5.6-sol": "lossy",
+        "gpt-5.6-luna": "lossy",
+        "gpt-5.6-terra": "lossy"
+      }
+    },
+    {
+      "concept": "access",
+      "bucket": "split",
+      "urn": "urn:lexical-wn31:n-00281976",
+      "pos": "n",
+      "lemmas": [
+        "access"
+      ],
+      "wn31_gloss": "the act of approaching or entering; \"he gained access to the building\"",
+      "self_flags": {
+        "claude-opus-4-8": "faithful",
+        "claude-fable-5": "lossy",
+        "claude-haiku-4-5": "faithful",
+        "gpt-5.6-sol": "lossy",
+        "gpt-5.6-luna": "lossy",
+        "gpt-5.6-terra": "lossy"
+      }
+    },
+    {
+      "concept": "depletion",
+      "bucket": "split",
+      "urn": "urn:lexical-wn31:n-00357025",
+      "pos": "n",
+      "lemmas": [
+        "depletion"
+      ],
+      "wn31_gloss": "the act of decreasing something markedly",
+      "self_flags": {
+        "claude-opus-4-8": "faithful",
+        "claude-fable-5": "faithful",
+        "claude-haiku-4-5": "faithful",
+        "gpt-5.6-sol": "lossy",
+        "gpt-5.6-luna": "lossy",
+        "gpt-5.6-terra": "lossy"
+      }
+    },
+    {
+      "concept": "dissociation",
+      "bucket": "split",
+      "urn": "urn:lexical-wn31:n-00385610",
+      "pos": "n",
+      "lemmas": [
+        "dissociation"
+      ],
+      "wn31_gloss": "the act of removing from association",
+      "self_flags": {
+        "claude-opus-4-8": "lossy",
+        "claude-fable-5": "lossy",
+        "claude-haiku-4-5": "faithful",
+        "gpt-5.6-sol": "lossy",
+        "gpt-5.6-luna": "lossy",
+        "gpt-5.6-terra": "lossy"
+      }
+    },
+    {
+      "concept": "view",
+      "bucket": "split",
+      "urn": "urn:lexical-wn31:n-00883327",
+      "pos": "n",
+      "lemmas": [
+        "view",
+        "survey",
+        "sight"
+      ],
+      "wn31_gloss": "the act of looking or seeing or observing; \"he tried to get a better view of it\"; \"his survey of the battlefield was limited\"",
+      "self_flags": {
+        "claude-opus-4-8": "faithful",
+        "claude-fable-5": "faithful",
+        "claude-haiku-4-5": "faithful",
+        "gpt-5.6-sol": "lossy",
+        "gpt-5.6-luna": "lossy",
+        "gpt-5.6-terra": "lossy"
+      }
+    },
+    {
+      "concept": "inhabitancy",
+      "bucket": "split",
+      "urn": "urn:lexical-wn31:n-01056469",
+      "pos": "n",
+      "lemmas": [
+        "inhabitancy",
+        "inhabitation",
+        "habitation"
+      ],
+      "wn31_gloss": "the act of dwelling in or living permanently in a place (said of both animals and men); \"he studied the creation and inhabitation and demise of the colony\"",
+      "self_flags": {
+        "claude-opus-4-8": "faithful",
+        "claude-fable-5": "faithful",
+        "claude-haiku-4-5": "lossy",
+        "gpt-5.6-sol": "lossy",
+        "gpt-5.6-luna": "lossy",
+        "gpt-5.6-terra": "lossy"
+      }
+    },
+    {
+      "concept": "wealth",
+      "bucket": "split",
+      "urn": "urn:lexical-wn31:n-05123428",
+      "pos": "n",
+      "lemmas": [
+        "wealth"
+      ],
+      "wn31_gloss": "the quality of profuse abundance; \"she has a wealth of talent\"",
+      "self_flags": {
+        "claude-opus-4-8": "lossy",
+        "claude-fable-5": "lossy",
+        "claude-haiku-4-5": "faithful",
+        "gpt-5.6-sol": "lossy",
+        "gpt-5.6-luna": "faithful",
+        "gpt-5.6-terra": "lossy"
+      }
+    },
+    {
+      "concept": "feasibility",
+      "bucket": "split",
+      "urn": "urn:lexical-wn31:n-05159611",
+      "pos": "n",
+      "lemmas": [
+        "feasibility",
+        "feasibleness"
+      ],
+      "wn31_gloss": "the quality of being doable",
+      "self_flags": {
+        "claude-opus-4-8": "faithful",
+        "claude-fable-5": "faithful",
+        "claude-haiku-4-5": "faithful",
+        "gpt-5.6-sol": "lossy",
+        "gpt-5.6-luna": "lossy",
+        "gpt-5.6-terra": "lossy"
+      }
+    },
+    {
+      "concept": "builder",
+      "bucket": "split",
+      "urn": "urn:lexical-wn31:n-09898025",
+      "pos": "n",
+      "lemmas": [
+        "builder"
+      ],
+      "wn31_gloss": "a person who creates a business or who organizes and develops a country; \"empire builder\"",
+      "self_flags": {
+        "claude-opus-4-8": "lossy",
+        "claude-fable-5": "lossy",
+        "claude-haiku-4-5": "faithful",
+        "gpt-5.6-sol": "lossy",
+        "gpt-5.6-luna": "lossy",
+        "gpt-5.6-terra": "lossy"
+      }
+    },
+    {
+      "concept": "medium",
+      "bucket": "split",
+      "urn": "urn:lexical-wn31:n-10325946",
+      "pos": "n",
+      "lemmas": [
+        "medium",
+        "spiritualist",
+        "sensitive"
+      ],
+      "wn31_gloss": "someone who serves as an intermediary between the living and the dead; \"he consulted several mediums\"",
+      "self_flags": {
+        "claude-opus-4-8": "lossy",
+        "claude-fable-5": "lossy",
+        "claude-haiku-4-5": "lossy",
+        "gpt-5.6-sol": "lossy",
+        "gpt-5.6-luna": "faithful",
+        "gpt-5.6-terra": "lossy"
+      }
+    },
+    {
+      "concept": "ransom",
+      "bucket": "unanimous-lossy",
+      "urn": "urn:lexical-wn31:n-00097671",
+      "pos": "n",
+      "lemmas": [
+        "ransom"
+      ],
+      "wn31_gloss": "the act of freeing from captivity or punishment",
+      "self_flags": {
+        "claude-opus-4-8": "lossy",
+        "claude-fable-5": "lossy",
+        "claude-haiku-4-5": "lossy",
+        "gpt-5.6-sol": "lossy",
+        "gpt-5.6-luna": "lossy",
+        "gpt-5.6-terra": "lossy"
+      }
+    },
+    {
+      "concept": "service",
+      "bucket": "unanimous-lossy",
+      "urn": "urn:lexical-wn31:n-00319217",
+      "pos": "n",
+      "lemmas": [
+        "service",
+        "serving",
+        "service of process"
+      ],
+      "wn31_gloss": "the act of delivering a writ or summons upon someone; \"he accepted service of the subpoena\"",
+      "self_flags": {
+        "claude-opus-4-8": "lossy",
+        "claude-fable-5": "lossy",
+        "claude-haiku-4-5": "lossy",
+        "gpt-5.6-sol": "lossy",
+        "gpt-5.6-luna": "lossy",
+        "gpt-5.6-terra": "lossy"
+      }
+    },
+    {
+      "concept": "dislocation",
+      "bucket": "unanimous-lossy",
+      "urn": "urn:lexical-wn31:n-00554399",
+      "pos": "n",
+      "lemmas": [
+        "dislocation",
+        "breakdown"
+      ],
+      "wn31_gloss": "the act of disrupting an established order so it fails to continue; \"the social dislocations resulting from government policies\"; \"his warning came after the breakdown of talks in London\"",
+      "self_flags": {
+        "claude-opus-4-8": "lossy",
+        "claude-fable-5": "lossy",
+        "claude-haiku-4-5": "lossy",
+        "gpt-5.6-sol": "lossy",
+        "gpt-5.6-luna": "lossy",
+        "gpt-5.6-terra": "lossy"
+      }
+    },
+    {
+      "concept": "conception",
+      "bucket": "unanimous-lossy",
+      "urn": "urn:lexical-wn31:n-00846508",
+      "pos": "n",
+      "lemmas": [
+        "conception"
+      ],
+      "wn31_gloss": "the act of becoming pregnant; fertilization of an ovum by a spermatozoon",
+      "self_flags": {
+        "claude-opus-4-8": "lossy",
+        "claude-fable-5": "lossy",
+        "claude-haiku-4-5": "lossy",
+        "gpt-5.6-sol": "lossy",
+        "gpt-5.6-luna": "lossy",
+        "gpt-5.6-terra": "lossy"
+      }
+    },
+    {
+      "concept": "cheerfulness",
+      "bucket": "unanimous-lossy",
+      "urn": "urn:lexical-wn31:n-04638046",
+      "pos": "n",
+      "lemmas": [
+        "cheerfulness",
+        "cheer",
+        "sunniness",
+        "sunshine"
+      ],
+      "wn31_gloss": "the quality of being cheerful and dispelling gloom; \"flowers added a note of cheerfulness to the drab room\"",
+      "self_flags": {
+        "claude-opus-4-8": "lossy",
+        "claude-fable-5": "lossy",
+        "claude-haiku-4-5": "lossy",
+        "gpt-5.6-sol": "lossy",
+        "gpt-5.6-luna": "lossy",
+        "gpt-5.6-terra": "lossy"
+      }
+    },
+    {
+      "concept": "bill poster",
+      "bucket": "unanimous-lossy",
+      "urn": "urn:lexical-wn31:n-09873916",
+      "pos": "n",
+      "lemmas": [
+        "bill poster",
+        "poster",
+        "bill sticker"
+      ],
+      "wn31_gloss": "someone who pastes up bills or placards on walls or billboards",
+      "self_flags": {
+        "claude-opus-4-8": "lossy",
+        "claude-fable-5": "lossy",
+        "claude-haiku-4-5": "lossy",
+        "gpt-5.6-sol": "lossy",
+        "gpt-5.6-luna": "lossy",
+        "gpt-5.6-terra": "lossy"
+      }
+    },
+    {
+      "concept": "heir",
+      "bucket": "unanimous-lossy",
+      "urn": "urn:lexical-wn31:n-10188177",
+      "pos": "n",
+      "lemmas": [
+        "heir",
+        "inheritor",
+        "heritor"
+      ],
+      "wn31_gloss": "a person who is entitled by law or by the terms of a will to inherit the estate of another",
+      "self_flags": {
+        "claude-opus-4-8": "lossy",
+        "claude-fable-5": "lossy",
+        "claude-haiku-4-5": "lossy",
+        "gpt-5.6-sol": "lossy",
+        "gpt-5.6-luna": "lossy",
+        "gpt-5.6-terra": "lossy"
+      }
+    },
+    {
+      "concept": "stockholder",
+      "bucket": "unanimous-lossy",
+      "urn": "urn:lexical-wn31:n-10677408",
+      "pos": "n",
+      "lemmas": [
+        "stockholder",
+        "shareholder",
+        "shareowner"
+      ],
+      "wn31_gloss": "someone who holds shares of stock in a corporation",
+      "self_flags": {
+        "claude-opus-4-8": "lossy",
+        "claude-fable-5": "lossy",
+        "claude-haiku-4-5": "lossy",
+        "gpt-5.6-sol": "lossy",
+        "gpt-5.6-luna": "lossy",
+        "gpt-5.6-terra": "lossy"
+      }
+    }
+  ]
+}

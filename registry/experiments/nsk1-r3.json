@@ -1,0 +1,263 @@
+{
+ "schema_version": "kot-reg/1",
+ "id": "nsk1-r3",
+ "status": "DRAFT",
+ "title": "nsk1-R3 hardened CONFIRMATORY re-run of the internal-write keyed-delivery finding: does a norm-matched additive contrastive residual-stream write of a counterfactual name-pair difference vector, injected at the final prompt token at pre-registered cell (16,16) (PRIMARY) and (12,16) (independent replication) of SmolLM2-1.7B-Instruct, deliver item-specific content the host reads out (keyed accuracy real>coin, floor 0.70, co-gated real>role) - now on FRESH held-out CLUTRR covered items disjoint per cell, with a COMPLETE grid-wide FWER plan covering the paired-control tests and pre-registered confirmatory hypotheses; DRAFT skeleton for coordinator review, NOT frozen (fills marked PINNED-AT-FREEZE)",
+ "hypotheses": [
+  "HNSKR3D",
+  "HNSKR3S"
+ ],
+ "depends_on": [
+  "l3a"
+ ],
+ "efficiency_relevant": false,
+ "prereg_doc": {
+  "path": "docs/next/design/nsk1-r3-hardened.md",
+  "anchors": [
+   "section 3",
+   "section 4",
+   "section 5",
+   "section 6",
+   "section 7",
+   "section 9"
+  ],
+  "sha256": "PINNED-AT-FREEZE: sha256 of docs/next/design/nsk1-r3-hardened.md at freeze"
+ },
+ "analysis_plan_ref": {
+  "path": "docs/research-plan/08-stats-and-extrapolation.md",
+  "anchor": "1.6",
+  "sha256": "823b321d9b27d5648bfd6f8d9bf55d3b446712e91f9b6d444ac4cc9de98d5c86"
+ },
+ "design": {
+  "independent_vars": [
+   {
+    "name": "cell",
+    "levels": [
+     "16-16",
+     "12-16"
+    ]
+   },
+   {
+    "name": "arm",
+    "levels": [
+     "real",
+     "drg"
+    ]
+   },
+   {
+    "name": "sign",
+    "levels": [
+     "pos",
+     "neg"
+    ]
+   }
+  ],
+  "dependent_vars": [
+   {
+    "name": "keyed_success",
+    "unit": "boolean per (item, cell)",
+    "better": "higher",
+    "definition": "source-keyed counterfactual-pair discrimination on the teacher-forced logprob margin m = lp(top | v) - lp(bridge | v); real success bit = [m_real(+) > m_real(-)] (key=top maps to +, fixed semantics); ties and non-finite count as failure; kept verbatim from B\" (poc/nsk1/out/bprime2). The endpoint is measured on the FULL fresh covered partition (both text-only-correct and text-only-failure items), a DISCLOSED change from B\"'s failures-only Swept: the delivery read-out is a property of the item's counterfactual pair, not of host failure (disc-c100 replicated the keying on correct items at 0.90/0.88), and the full set is needed for adequate confirmatory n; the failure and correct substrata keyacc are reported (never gated)"
+   },
+   {
+    "name": "coin_success",
+    "unit": "boolean per (item, cell, seed)",
+    "better": "n/a",
+    "definition": "coin-XOR null anchor: coin bit = int(sha256('<seed>|<item_id>|<lh>|<lt>').hexdigest(),16)&1; success = (bit==1 ? m_drg(+)>m_drg(-) : m_drg(-)>m_drg(+)) on the deranged donor's margin; E[coin_success] <= 0.5 by arithmetic for any content-free perturbation"
+   },
+   {
+    "name": "role_success",
+    "unit": "boolean per (item, cell, seed)",
+    "better": "n/a",
+    "definition": "role-consistent control (mechanism separator): success = [m_drg(+) > m_drg(-)] with fixed key->sign on the deranged donor; measures the generic top-vs-bridge role direction a wrong item's vector retains"
+   }
+  ],
+  "arms_mandatory_baselines": [
+   "real: item's OWN Delta-hat-v = (v_top - v_bridge)/||.|| injected at s*alpha*||h_p|| into the final prompt-token residual at ell_t (alpha=1.0), both signs - the keyed delivery arm",
+   "deranged (drg): Delta-hat-v of sigma_seed(i) at both signs, three independent Sattolo derangement seeds per partition - the coin (null, <=0.5 by arithmetic) and role (mechanism separator) control series are BOTH derived from these shared forwards",
+   "baseline: unhooked teacher-forced candidate-pair margin per item (reported)",
+   "text-only: one greedy generation per item on the fresh set (headroom instrument gate + failure/correct substratum labels)"
+  ],
+  "scale_rungs": [
+   "R3"
+  ],
+  "model_scale_rungs": [
+   "R3"
+  ],
+  "scale_language_max": "none",
+  "seeds": [
+   20260720,
+   20260726
+  ],
+  "n_planned": {
+   "assumption_ids": [
+    "ASM-2353",
+    "ASM-2354",
+    "ASM-2355",
+    "ASM-2356",
+    "ASM-2357",
+    "ASM-2358",
+    "ASM-2359"
+   ],
+   "assumption_note": "ASM-2353..2359 are STIPULATED design choices registered by the coordinator at commit (see docs/next/design/nsk1-r3-hardened.md section 10); no measurement is asserted by this record pre-run",
+   "confirmatory_corpus": "data/nsk1-clutrr-r3: a FRESH held-out covered slice, never contacted by B'/B\"/Stage-1, built pre-freeze by the pinned CLUTRR generator (generator_commit d045fae289d3746503677ceed7631c999202501e) at NEW seed 20260720 under the SAME S4 covered predicate (clean k=2 up-edge-only chains over {mother,father}, released gold in {grandmother,grandfather}); required because the pinned-config covered pool is EXHAUSTED (data/nsk1-clutrr/manifest.json counts.remainder_unused=0, covered_pool_deduped=958 all consumed). Built by a committed runner-role converter/generator pinned at build; corpus digest PINNED-AT-FREEZE",
+   "partitions": "the fresh covered corpus is split by seed 20260726 into TWO DISJOINT partitions A and B; PRIMARY cell (16,16) is read out on A only, replication cell (12,16) on B only - genuinely independent cells (disjoint items + distinct derangement seed families {20260720,21,22} on A, {20260723,24,25} on B)",
+   "n_target_per_cell": 300,
+   "count_gate": "pre-freeze build gate: n_A = n_B = min(300, floor(fresh_covered_pool/2)); n_final >= 300/cell -> full-power branch (power >= 0.97 at planning keyacc 0.81 under the /6 Bonferroni floor, >= 0.99 at 0.85); 175 <= n_final < 300 -> power REDONE at achieved n and written here BEFORE freeze, freeze only if power >= 0.80 at planning 0.81; n_final < 175/cell -> DO NOT freeze, escalate (build more fresh items). Planning values anchored to B\" point estimates (MEASURED-exploratory, planning inputs only, never evidence)",
+   "power": "paired binary keyed accuracy, floor test = one-sided Wilson LB(keyacc_real, z=2.3940 = Phi^-1(1-0.05/6)) >= 0.70 (design-time arithmetic, not evidence): at n=300/cell, power 0.97 at true keyacc 0.81 and 0.99+ at 0.85; the coin (real vs coin, E[coin]<=0.5) and role (real vs role, ~0.58-0.60) paired conjuncts are non-binding at these separations (B\" p 4e-13 / 9e-11 at n=200). Pooled fresh-set keyacc is expected ~0.85-0.87 (failures ~0.81-0.85 per Swept, correct ~0.88-0.90 per disc-c100)",
+   "cells": "two pre-registered cells, no grid search: PRIMARY C1=(ell_h,ell_t)=(16,16) [B\" keyacc 0.850], replication C2=(12,16) [B\" 0.810], both at L=24; ASSERT config.num_hidden_layers==24",
+   "operator": "additive norm-matched contrastive injection h_p <- h_p + s*alpha*||h_p||*Delta-hat-v at the final prompt-token residual at ell_t, prefill only (seq==1 guard), alpha=1.0 fixed (the only measured keying strength; Stage-1 showed keying collapses into the control band below 1.0). Law 1 holds: no raw kernel/encoder coordinates enter the model - only harvested activations of the item's own donor sentences",
+   "fwer_plan": "COMPLETE Bonferroni across the whole pre-registered family of 6 elementary tests = {2 cells} x {floor, real>coin, real>role}; per-test alpha = 0.05/6 = 0.0083333 (z_floor=2.3940); paired sign-test conjuncts require p < 0.0083333 at ALL THREE derangement seeds (all-seeds conjunct). This corrects the paired-control tests across cells (the B\" spec corrected only the Wilson floor, leaving the paired tests at raw 0.05 per searched cell - Gate-A qualification a). Conservative: each cell PASS is an intersection-union conjunction, so true FWER < 0.05",
+   "instrument_gates": "computed in-run on the fresh set, all on the confirmatory surfaces: headroom text-only accuracy in [0.05,0.85] with >= 300 scored; coin-validity tripwire (no cell/seed coin keyacc Wilson-LB at z=Phi^-1(1-0.05/12)~2.638 exceeds 0.5 - a coin above chance impeaches the construction); zero non-finite margins; n>=175/cell; ties count as failure (reported)",
+   "stage0_note": "not a Stage-0 diagnostic and not the internal-vs-external campaign: this record confirms ONLY the DELIVERY-existence claim (keyed real>coin >= 0.70, item-specific), the single live kernel-specific-structure positive; it does NOT test integration (Stage-1 INCONCLUSIVE) or internal>external superiority (original nsk1 primary, unrun)",
+   "successors": "on PASS: the internal-vs-external primary campaign (original nsk1 endpoint) and/or a de-confounded integration operator (per the Stage-1 rank-2 path) register separately under their own gates; on FAIL/REFUTED: the internal-write delivery finding does not survive independent confirmation and the flagship redirects to engine-external topologies"
+  }
+ },
+ "pins": {
+  "corpus_hashes": {
+   "_recipe": "kot-corpus-hash/1 per tools/registry/corpus-pin.py (as in nsk1)",
+   "nsk1-clutrr-r3": "PINNED-AT-FREEZE: real kot-corpus-hash/1 digest of the built fresh held-out covered corpus; freeze blocked on the real digest + a green mock of the pinned analysis on synthetic rows"
+  },
+  "model_revisions": {
+   "R3": "HuggingFaceTB/SmolLM2-1.7B-Instruct, commit 31b70e2e869a7173562077fd711b654946d38674 (the B'/B\"/Stage-1 pin; ABORT on mismatch)"
+  },
+  "harness_manifest": "PINNED-AT-FREEZE: real-mode Modal harness (nsk1-r3 entrypoint appended to poc/modal/modal_nsk1_g2.py or a sibling reusing its B\" helpers _build_specs_bprime2 / injection hook / margin read-out) sha256 + the fresh-corpus builder sha256 + output digest, pinned at build BEFORE freeze; engine tools/axiom/kot_axiom.py sha256 b622694022000367349b158aea5322e63677379521c47b29a9d62f2e86e46ccf (not exercised - CLUTRR facts are in-context; carried for lineage)",
+  "analysis_script": {
+   "path": "analysis/nsk1_r3.py",
+   "sha256": "PINNED-AT-FREEZE: recompute sha256 of analysis/nsk1_r3.py after coordinator review; stdin-JSONL -> stdout-JSON, verdict-gen step 5 compatible",
+   "output_fields": [
+    "/gates/instrument_valid",
+    "/gates/headroom_ok",
+    "/gates/coin_validity_ok",
+    "/gates/acc_text_only",
+    "/gates/n_c1",
+    "/gates/n_c2",
+    "/gates/nonfinite_count",
+    "/analysis/primary_confirmed",
+    "/analysis/confirmed_replicated",
+    "/analysis/refuted",
+    "/analysis/primary_role_generic",
+    "/analysis/c1_keyacc_real",
+    "/analysis/c1_wilson_lb_floor",
+    "/analysis/c1_wilson_ub",
+    "/analysis/c1_floor_pass",
+    "/analysis/c1_coin_pass",
+    "/analysis/c1_role_pass",
+    "/analysis/c1_pass",
+    "/analysis/c2_keyacc_real",
+    "/analysis/c2_wilson_lb_floor",
+    "/analysis/c2_wilson_ub",
+    "/analysis/c2_pass"
+   ]
+  }
+ },
+ "endpoints": [
+  {
+   "id": "primary",
+   "role": "primary",
+   "metric": "/analysis/primary_confirmed",
+   "test": "PRIMARY CONFIRMATORY hypothesis H1: at the pre-registered PRIMARY cell (16,16) on fresh independent partition A, keyed accuracy (real) clears ALL THREE conjuncts under the complete /6 Bonferroni plan - floor: one-sided Wilson LB(keyacc_real, z=2.3940) >= 0.70; real>coin: paired exact one-sided sign p < 0.0083333 at all 3 derangement seeds; real>role: paired p < 0.0083333 at all 3 seeds. CONFIRMED iff /analysis/primary_confirmed==true (verdict PASS -> PASS-PENDING-AUDIT until a non-runner audit CONFIRMS)",
+   "smallest_effect_of_interest": {
+    "type": "keyed accuracy floor (real)",
+    "value": 0.7
+   }
+  },
+  {
+   "id": "sec-replication",
+   "role": "secondary",
+   "metric": "/analysis/confirmed_replicated",
+   "test": "STRONG independent replication (co-primary reading, same prominence): H1 AND H2 both pass, i.e. the replication cell (12,16) on the DISJOINT fresh partition B also clears all three conjuncts under the same /6 plan; genuinely independent cells (disjoint items + distinct seeds)"
+  },
+  {
+   "id": "sec-specificity",
+   "role": "secondary",
+   "metric": "/analysis/c1_role_pass",
+   "test": "item-specificity co-gate at the primary cell: real>role at all 3 seeds; if floor+coin clear but this fails, delivery is generic-direction not item-keyed (verdict FAIL via primary_role_generic - the E9-defl / B\" CHANNEL-ROLE discipline)"
+  },
+  {
+   "id": "sec-refute",
+   "role": "secondary",
+   "metric": "/analysis/refuted",
+   "test": "pre-registered decisive negative: BOTH cells' one-sided 95% Wilson UB(keyacc_real) < 0.70 => the B\" delivery finding did NOT replicate on fresh independent items (verdict FAIL); recorded with the same prominence as PASS"
+  },
+  {
+   "id": "sec-coin-validity",
+   "role": "secondary",
+   "metric": "/gates/coin_validity_ok",
+   "test": "coin-XOR construction check: no cell/seed coin keyacc Wilson-LB (z~2.638) exceeds 0.5 (E[coin]<=0.5 by arithmetic); a breach is INSTRUMENT-INVALID, not signal"
+  }
+ ],
+ "verdict_rules": [
+  {
+   "verdict": "INSTRUMENT-INVALID",
+   "when": {
+    "op": "not",
+    "a": {
+     "metric": "/gates/instrument_valid"
+    }
+   }
+  },
+  {
+   "verdict": "PASS",
+   "when": {
+    "op": "eq",
+    "a": {
+     "metric": "/analysis/primary_confirmed"
+    },
+    "b": {
+     "const": true
+    }
+   }
+  },
+  {
+   "verdict": "FAIL",
+   "when": {
+    "op": "or",
+    "a": {
+     "op": "eq",
+     "a": {
+      "metric": "/analysis/refuted"
+     },
+     "b": {
+      "const": true
+     }
+    },
+    "b": {
+     "op": "eq",
+     "a": {
+      "metric": "/analysis/primary_role_generic"
+     },
+     "b": {
+      "const": true
+     }
+    }
+   }
+  },
+  {
+   "verdict": "INCONCLUSIVE",
+   "when": {
+    "op": "eq",
+    "a": {
+     "const": 1
+    },
+    "b": {
+     "const": 1
+    }
+   }
+  }
+ ],
+ "kill_criterion_verbatim": "docs/next/design/nsk1-r3-hardened.md section 5 (verbatim): '1. INSTRUMENT-INVALID if any instrument gate fails (headroom text-only accuracy outside [0.05,0.85] or < 300 scored; any cell/seed coin keyacc Wilson-LB at z=Phi^-1(1-0.05/12) > 0.5; any non-finite margin; n < 175 at either cell). 2. PASS (CONFIRMED) iff the PRIMARY hypothesis H1 holds: at cell (16,16) on fresh partition A, one-sided Wilson LB(keyacc_real, z=2.3940) >= 0.70 AND paired real>coin p < 0.0083333 at all 3 seeds AND paired real>role p < 0.0083333 at all 3 seeds. PASS is emitted as PASS-PENDING-AUDIT until a non-runner CONFIRMED audit exists (verdict-gen step 8). Report /analysis/confirmed_replicated (H1 and H2 both pass on their disjoint partitions) with the same prominence. 3. FAIL iff REFUTED (both cells one-sided 95% Wilson UB(keyacc_real) < 0.70) OR primary role-generic (H1 floor+coin clear but real>role fails - delivery is generic-direction, not item-specific). 4. Anything else: INCONCLUSIVE (report bounds; no adjective).' The complete /6 Bonferroni multiplicity plan covers ALL SIX elementary tests (2 cells x floor/coin/role), fixing the Gate-A FWER under-correction; the two cells are genuinely independent (disjoint fresh partitions + distinct derangement seeds), fixing the Gate-A corroborating-not-independent defect; the record is pre-registered/frozen with hypotheses+floors declared BEFORE the run and a mandatory non-runner audit, fixing the Gate-A exploratory-not-confirmatory defect.",
+ "extrapolation_envelope_verbatim": "Measured range on any outcome: R3 (SmolLM2-1.7B-Instruct, pinned commit 31b70e2e...), ONE fresh third-party covered slice (data/nsk1-clutrr-r3: clean k=2 up-edge-only CLUTRR chains over {mother,father} with released gold in {grandmother,grandfather}, all facts in-context), ONE kernel instance's minted concepts (mother-of/father-of/man/woman), ONE write channel (additive norm-matched contrastive injection, alpha=1.0), ONE operator position (final prompt token), k=1 loop cadence, TWO pre-registered cells (16,16) and (12,16), teacher-forced paired margin read-out, n<=300/cell. A PASS licenses exactly: 'the B\" internal-write keyed-DELIVERY finding replicates on fresh independent items at R3 at the two pre-registered cells - a norm-matched additive contrastive residual write delivers item-specific content the host reads out at keyed accuracy beating an arithmetic-chance coin control and a role-consistent control above the 0.70 floor, under a complete grid-wide FWER correction'. It does NOT license: any INTEGRATION / real-generation / correctness-improvement claim (the read-out is a teacher-forced margin, not free generation; Stage-1 read integration INCONCLUSIVE and this record does not re-open it); any internal-vs-external superiority claim (the original nsk1 primary was never run); any breadth/scale claim (other hosts, R3+ scale, other forms, alpha<1.0, other operators/positions, other cells, multi-hop beyond 2); any CLUTRR leaderboard/SOTA claim; any efficiency-thesis claim; any 'the kernel powers the network' headline. A FAIL/REFUTED means the single live kernel-specific-structure positive did NOT survive independent confirmation and redirects the internal-write line to engine-external seams under their own gates.",
+ "budget": {
+  "usd_cap": 25,
+  "gpu_hours_cap": 10,
+  "wall_clock_cap_hours": 12
+ },
+ "runner_constraints": {
+  "provider": "modal",
+  "infra": "1x A10G (or L4), poc/modal harness pattern, fp32",
+  "concurrency_cap": 5,
+  "foreground_gates": true,
+  "gate": "Tier-2 GPU spend REQUIRES maintainer sign-off + the pre-freeze gates (fresh-corpus build+count gate with its own sign-off, harness+analysis pins, green mock of the pinned analysis) + prereg-freeze of this record; design-stage harness refuses real mode; the confirmatory campaign is runner-role work (run != audit) and PASS additionally requires a non-runner CONFIRMED audit under registry/audits/nsk1-r3/ before it is final"
+ }
+}
