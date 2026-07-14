@@ -1,0 +1,44 @@
+# generic-store-external-gold (gsx0) — GPT-5.6 readiness review (corrections owed to Fable ~07-18)
+
+**Status:** GPT-5.6-sol independent readiness review. Verdict: **NOT yet freeze-ready** — sound for the narrow question ('can a generic real-content store produce a positive external-gold lift?') but NOT decisive for 'as well as the kernel' / 'kernel-content premium is zero'. 7 corrections (estimand+licenses, opaque gate, FAIL/NULL logic, staged headroom, concise-plain sensitivity, adapter cell-integrity, human-gold sourcing) owed to a Fable revision. Transcribed verbatim by the coordinator from the read-only GPT-5.6 output.
+
+## Findings
+
+1. **Primary estimand does not support the headline comparative claim — does not hold.**  
+   The primary only tests whether the plain lift is greater than zero ([design:322](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/generic-store-external-gold.md:322), [analysis:512](/home/ec2-user/css/kernel/kernel-of-truth/analysis/generic_store_external_gold_stdin.py:512)). The frozen `+0.25067` is an observed effect, not the f2b rejection bar. Consequently, a small significant plain lift could PASS while the reported premium strongly favors the kernel, yet PASS is licensed as “as well as the NSM kernel” ([design:379](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/generic-store-external-gold.md:379)).  
+   **Required correction:** either narrow PASS to “a generic store has a positive external-gold lift, so kernel content is not necessary for some lift,” or add a verdict-bearing, uncertainty-aware kernel-versus-plain difference-in-lifts—preferably a concurrent matched kernel arm. Keeping the frozen kernel estimate reported-only is honest; treating it as evidence of equivalence is not.
+
+2. **Opaque negative-control logic is internally inconsistent — does not hold.**  
+   The design says opaque rejection is what licenses a plain PASS ([design:73](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/generic-store-external-gold.md:73)), but then makes it reported-only ([design:354](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/generic-store-external-gold.md:354)); the adapter permits it to be absent or permissive without affecting PASS ([analysis:369](/home/ec2-user/css/kernel/kernel-of-truth/analysis/generic_store_external_gold_stdin.py:369)). Also, `Wilson-LB < 0.70` does not demonstrate rejection—it merely fails to demonstrate endorsement.  
+   **Required correction:** require a present, valid opaque adjudication before PASS and predeclare affirmative evidence of rejection, e.g. a one-sided Wilson **upper** bound below a justified ceiling, or a plain-minus-opaque separation test. Otherwise return INSTRUMENT-INVALID/INCONCLUSIVE.
+
+3. **FAIL and NULL licensing is unsound — does not hold.**  
+   The ordered rules make any primary non-rejection a FAIL before TOST is considered, so the advertised NULL branch is unreachable ([design:359](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/generic-store-external-gold.md:359), [analysis:570](/home/ec2-user/css/kernel/kernel-of-truth/analysis/generic_store_external_gold_stdin.py:570)). Moreover, “kernel significant previously, plain not significant now” is not evidence that the two effects differ. Likewise, `A_plain` lower-bound failure does not establish that plain content is bad. Thus FAIL cannot currently license “a real store-content-specific signal reappears” ([design:387](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/generic-store-external-gold.md:387)).  
+   **Required correction:** make evidence of equivalence/below-threshold behavior verdict-bearing where intended; classify mere non-rejection as INCONCLUSIVE. A kernel-content signal requires a direct interaction/difference test, not contrasting separate significance calls.
+
+4. **Headroom guard is fail-safe but not sufficient for the stated comparison — partially holds.**  
+   `R1-alone ≤ 0.85` prevents gross saturation ([analysis:459](/home/ec2-user/css/kernel/kernel-of-truth/analysis/generic_store_external_gold_stdin.py:459)), but at 0.85 the maximum possible lift is 0.15—incapable of matching `0.25067 ± 0.05`. The 1.7B result of 0.948 does not itself prove 135M saturation, but it justifies an early check. The current adapter cannot issue the headroom decision from R1-only data because it returns until every stage-2 arm is present ([analysis:377](/home/ec2-user/css/kernel/kernel-of-truth/analysis/generic_store_external_gold_stdin.py:377)).  
+   **Required correction:** precommit a staged final run: execute R1-alone first, compute headroom, and stop before remaining cells if invalid. Modify the adapter/verdict order accordingly. If magnitude equivalence remains the target, the cap must reflect the target effect; an informal same-eval pilot should not be used for discretionary redesign.
+
+5. **Plain-padded is token-matched, but padding is not scientifically neutral — partially holds.**  
+   Matching actual prompt tokens is appropriate for controlling budget ([design:136](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/generic-store-external-gold.md:136)), but cyclic repetition changes fluency, salience, and adjudication surface. A padded-store PASS is strong evidence that non-kernel real content can transfer; a padded-store FAIL is ambiguous between content and padding artefact—an ambiguity the design itself recognizes ([design:556](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/generic-store-external-gold.md:556)).  
+   **Required correction:** retain padded as the token-matched primary, but make concise-plain a predeclared mandatory sensitivity for any negative/kernel-distinctive interpretation. Do not call concise transfer “a fortiori” without qualification, and scope results to the chosen construction.
+
+6. **Adapter interface conforms, but it is not freeze-safe yet — partially holds.**  
+   The script accepts verdict-gen JSONL on stdin without required argv ([analysis:780](/home/ec2-user/css/kernel/kernel-of-truth/analysis/generic_store_external_gold_stdin.py:780)); its self-test passes and all 64 output paths are unique. The main f2b BCa/Holm/TOST machinery is recognizably preserved. However:
+
+   - It accepts any number of seed records and averages duplicates, while duplicate seed entries are inconsistently overwritten in `by_seed_ext` ([analysis:234](/home/ec2-user/css/kernel/kernel-of-truth/analysis/generic_store_external_gold_stdin.py:234)). It does not require exactly the frozen cells, seeds 0/1/2, 250 equal-length vectors, or shared item order.
+   - The “premium CI” treats the estimated kernel lift as error-free; `tost_equiv_to_kernel_ref` is therefore only a conditional descriptive band, not equivalence to the kernel effect ([analysis:546](/home/ec2-user/css/kernel/kernel-of-truth/analysis/generic_store_external_gold_stdin.py:546)).
+   - The prose says success-LB ≥0.90 is equivalent to failure-LB ≤0.10 ([design:338](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/generic-store-external-gold.md:338)); the correct equivalent is failure **upper** bound ≤0.10. The code’s success-LB calculation is the sound version ([analysis:386](/home/ec2-user/css/kernel/kernel-of-truth/analysis/generic_store_external_gold_stdin.py:386)).
+
+   **Required correction:** hard-fail on exact cell/seed cardinality, duplicates, vector length/order and item identity; rename the frozen-reference diagnostic or propagate prior uncertainty; correct the extraction-bound description.
+
+7. **Protocol and implementation remain unresolved — not freeze-ready.**  
+   The design still allows an LLM proxy to replace the sole human gold source ([design:222](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/generic-store-external-gold.md:222)), which is not the same sourcing as f2b-transfer and can materially affect independence. The builders and adapted runner also do not yet exist ([design:496](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/generic-store-external-gold.md:496)).  
+   **Required correction:** freeze the judge policy—prefer the kernel-naive human as sole gold source for the claimed exact mirror—then implement, validate, and pin the corpora and runner before preregistration.
+
+## Bottom line
+
+**NOT yet.** The within-plain experiment is sound for the narrower question “can a generic real-content store produce a positive lift under independent adjudication?” It is not currently decisive for “as well as the kernel,” “kernel-content premium is zero,” or the claimed kernel-specific interpretation of FAIL.
+
+Before freeze: align the estimand and licenses, make opaque genuinely gate-bearing, repair FAIL/NULL logic, stage the headroom check, harden cell integrity, require concise sensitivity for negative conclusions, and resolve/pin adjudication and build artifacts.
