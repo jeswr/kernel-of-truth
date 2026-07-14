@@ -1,0 +1,55 @@
+{
+  "judge": "A",
+  "model": "gpt-5.6-sol",
+  "slug": "wealth",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 23.7,
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 14879,
+          "cached_input_tokens": 8960,
+          "output_tokens": 622,
+          "reasoning_output_tokens": 323
+        },
+        "note": "subscription auth; codex reports tokens, not USD"
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "LOSSY",
+      "missing": "Profuse or exceptional degree is missing; the AST carries only ordinary abundance.",
+      "quality": 1,
+      "reason": "“There is much/many X” gives the right abundance genus but does not distinguish wealth from mere plenty."
+    },
+    "B": {
+      "verdict": "LOSSY",
+      "missing": "Abundance of X is replaced by abundance of kinds of X.",
+      "quality": 0,
+      "reason": "The AST expresses extensive variety rather than a profuse amount of the referenced thing."
+    },
+    "C": {
+      "verdict": "LOSSY",
+      "missing": "Profuse abundance is replaced by a malformed classification of X as a kind of many very big things.",
+      "quality": 0,
+      "reason": "It neither asserts that much X exists nor coherently renders abundance as a quality."
+    },
+    "D": {
+      "verdict": "LOSSY",
+      "missing": "Profuse abundance is replaced by localized quantity plus an unwarranted denial of variety elsewhere.",
+      "quality": 0,
+      "reason": "The spatial concentration and exclusion clauses are not part of this sense of wealth."
+    },
+    "E": {
+      "verdict": "LOSSY",
+      "missing": "Profuse abundance is not compositionally predicated; an unattached MORE and an unwarranted public judgment are carried instead.",
+      "quality": 0,
+      "reason": "Although it mentions much X, the attempted intensification is unanchored and the added belief about X being a big kind is erroneous."
+    }
+  }
+}

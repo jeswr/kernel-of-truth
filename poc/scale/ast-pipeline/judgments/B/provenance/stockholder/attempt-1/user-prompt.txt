@@ -1,0 +1,625 @@
+concept: stockholder
+synset: urn:lexical-wn31:n-10677408
+pos: n
+lemmas: stockholder, shareholder, shareowner
+wn31-gloss (sense-fixing only): someone who holds shares of stock in a corporation
+
+=== CANDIDATE A ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 3,
+   "refKind": "SomethingRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "THERE-IS",
+   "roles": {
+    "undergoer": {
+     "kind": "sp",
+     "head": {
+      "kind": "primeHead",
+      "prime": "SOMETHING~THING"
+     },
+     "bind": 2
+    }
+   }
+  },
+  {
+   "type": "pred",
+   "pred": "THERE-IS",
+   "roles": {
+    "undergoer": {
+     "kind": "sp",
+     "quant": "SOME",
+     "head": {
+      "kind": "partFrame",
+      "of": {
+       "kind": "ref",
+       "index": 2
+      }
+     },
+     "bind": 3
+    }
+   }
+  },
+  {
+   "type": "pred",
+   "pred": "THINK",
+   "roles": {
+    "experiencer": {
+     "kind": "ref",
+     "index": 1
+    },
+    "quote": {
+     "kind": "quote",
+     "clauses": [
+      {
+       "type": "pred",
+       "pred": "IS-MINE",
+       "roles": {
+        "undergoer": {
+         "kind": "ref",
+         "index": 3
+        },
+        "possessor": {
+         "kind": "prime",
+         "prime": "I"
+        }
+       }
+      }
+     ]
+    }
+   }
+  }
+ ]
+}
+
+=== CANDIDATE B ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 3,
+   "refKind": "SomethingRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "THERE-IS",
+   "roles": {
+    "undergoer": {
+     "kind": "sp",
+     "quant": "SOME",
+     "head": {
+      "kind": "partFrame",
+      "of": {
+       "kind": "sp",
+       "head": {
+        "kind": "primeHead",
+        "prime": "SOMETHING~THING"
+       },
+       "bind": 3
+      }
+     },
+     "bind": 2
+    }
+   }
+  },
+  {
+   "type": "pred",
+   "pred": "IS-MINE",
+   "roles": {
+    "undergoer": {
+     "kind": "ref",
+     "index": 2
+    },
+    "possessor": {
+     "kind": "prime",
+     "prime": "I"
+    }
+   }
+  }
+ ]
+}
+
+=== CANDIDATE C ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 3,
+   "refKind": "SomethingRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "THERE-IS",
+   "roles": {
+    "undergoer": {
+     "kind": "sp",
+     "det": "SOME",
+     "head": {
+      "kind": "primeHead",
+      "prime": "SOMETHING~THING"
+     },
+     "bind": 3
+    }
+   }
+  },
+  {
+   "type": "pred",
+   "pred": "THERE-IS",
+   "roles": {
+    "undergoer": {
+     "kind": "sp",
+     "quant": "SOME",
+     "head": {
+      "kind": "partFrame",
+      "of": {
+       "kind": "ref",
+       "index": 3
+      }
+     },
+     "bind": 2
+    }
+   }
+  },
+  {
+   "type": "pred",
+   "pred": "THINK",
+   "roles": {
+    "experiencer": {
+     "kind": "ref",
+     "index": 1
+    },
+    "topic": {
+     "kind": "ref",
+     "index": 2
+    },
+    "quote": {
+     "kind": "quote",
+     "clauses": [
+      {
+       "type": "pred",
+       "pred": "IS-MINE",
+       "roles": {
+        "undergoer": {
+         "kind": "ref",
+         "index": 2
+        },
+        "possessor": {
+         "kind": "prime",
+         "prime": "I"
+        }
+       }
+      }
+     ]
+    }
+   }
+  }
+ ]
+}
+
+=== CANDIDATE D ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomethingRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "THINK",
+   "roles": {
+    "experiencer": {
+     "kind": "ref",
+     "index": 1
+    },
+    "quote": {
+     "kind": "quote",
+     "clauses": [
+      {
+       "type": "pred",
+       "pred": "IS-MINE",
+       "roles": {
+        "undergoer": {
+         "kind": "sp",
+         "head": {
+          "kind": "primeHead",
+          "prime": "SOMETHING~THING"
+         },
+         "bind": 2
+        },
+        "possessor": {
+         "kind": "prime",
+         "prime": "I"
+        }
+       }
+      }
+     ]
+    }
+   }
+  }
+ ]
+}
+
+=== CANDIDATE E ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 3,
+   "refKind": "SomethingRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "THERE-IS",
+   "roles": {
+    "undergoer": {
+     "kind": "sp",
+     "mods": [
+      {
+       "mod": "BIG"
+      }
+     ],
+     "head": {
+      "kind": "primeHead",
+      "prime": "SOMETHING~THING"
+     },
+     "restrictedBy": {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "sp",
+        "quant": "MUCH~MANY",
+        "head": {
+         "kind": "primeHead",
+         "prime": "PEOPLE"
+        }
+       },
+       "undergoer": {
+        "kind": "sp",
+        "quant": "MUCH~MANY",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        }
+       }
+      }
+     },
+     "bind": 2
+    }
+   }
+  },
+  {
+   "type": "pred",
+   "pred": "THERE-IS",
+   "roles": {
+    "undergoer": {
+     "kind": "sp",
+     "quant": "SOME",
+     "mods": [
+      {
+       "mod": "SMALL"
+      }
+     ],
+     "head": {
+      "kind": "partFrame",
+      "of": {
+       "kind": "ref",
+       "index": 2
+      }
+     },
+     "bind": 3
+    }
+   }
+  },
+  {
+   "type": "op",
+   "op": "CAN",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "SAY",
+     "roles": {
+      "agent": {
+       "kind": "ref",
+       "index": 1
+      },
+      "quote": {
+       "kind": "quote",
+       "clauses": [
+        {
+         "type": "pred",
+         "pred": "IS-MINE",
+         "roles": {
+          "undergoer": {
+           "kind": "ref",
+           "index": 3
+          },
+          "possessor": {
+           "kind": "prime",
+           "prime": "I"
+          }
+         }
+        }
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "type": "op",
+   "op": "IF",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "HAPPEN",
+     "roles": {
+      "undergoer": {
+       "kind": "sp",
+       "det": "SOME",
+       "mods": [
+        {
+         "mod": "GOOD"
+        }
+       ],
+       "head": {
+        "kind": "primeHead",
+        "prime": "SOMETHING~THING"
+       }
+      }
+     }
+    },
+    {
+     "type": "op",
+     "op": "CAN",
+     "args": [
+      {
+       "type": "pred",
+       "pred": "FEEL",
+       "roles": {
+        "experiencer": {
+         "kind": "ref",
+         "index": 1
+        },
+        "attribute": {
+         "kind": "prime",
+         "prime": "GOOD"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
+
+=== CANDIDATE F ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 3,
+   "refKind": "SomethingRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "THERE-IS",
+   "roles": {
+    "undergoer": {
+     "kind": "sp",
+     "quant": "ONE",
+     "head": {
+      "kind": "partFrame",
+      "of": {
+       "kind": "sp",
+       "head": {
+        "kind": "primeHead",
+        "prime": "SOMETHING~THING"
+       },
+       "bind": 3
+      }
+     },
+     "bind": 2
+    }
+   }
+  },
+  {
+   "type": "pred",
+   "pred": "THINK",
+   "roles": {
+    "experiencer": {
+     "kind": "ref",
+     "index": 1
+    },
+    "quote": {
+     "kind": "quote",
+     "clauses": [
+      {
+       "type": "pred",
+       "pred": "IS-MINE",
+       "roles": {
+        "undergoer": {
+         "kind": "ref",
+         "index": 2
+        },
+        "possessor": {
+         "kind": "prime",
+         "prime": "I"
+        }
+       }
+      }
+     ]
+    }
+   }
+  }
+ ]
+}
+
+=== CANDIDATE G ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 3,
+   "refKind": "SomethingRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "THERE-IS",
+   "roles": {
+    "undergoer": {
+     "kind": "sp",
+     "det": "SOME",
+     "head": {
+      "kind": "primeHead",
+      "prime": "SOMETHING~THING"
+     },
+     "restrictedBy": {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "sp",
+        "quant": "MUCH~MANY",
+        "head": {
+         "kind": "primeHead",
+         "prime": "PEOPLE"
+        }
+       }
+      }
+     },
+     "bind": 2
+    }
+   }
+  },
+  {
+   "type": "pred",
+   "pred": "IS-MINE",
+   "roles": {
+    "undergoer": {
+     "kind": "sp",
+     "head": {
+      "kind": "partFrame",
+      "of": {
+       "kind": "ref",
+       "index": 2
+      }
+     },
+     "bind": 3
+    },
+    "possessor": {
+     "kind": "prime",
+     "prime": "I"
+    }
+   }
+  },
+  {
+   "type": "pred",
+   "pred": "THINK",
+   "roles": {
+    "experiencer": {
+     "kind": "ref",
+     "index": 1
+    },
+    "quote": {
+     "kind": "quote",
+     "clauses": [
+      {
+       "type": "pred",
+       "pred": "IS-MINE",
+       "roles": {
+        "undergoer": {
+         "kind": "ref",
+         "index": 3
+        },
+        "possessor": {
+         "kind": "prime",
+         "prime": "I"
+        }
+       }
+      }
+     ]
+    }
+   }
+  }
+ ]
+}

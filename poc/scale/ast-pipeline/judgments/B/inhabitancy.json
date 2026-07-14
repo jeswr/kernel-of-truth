@@ -1,0 +1,83 @@
+{
+  "judge": "B",
+  "model": "claude-opus-4-8",
+  "slug": "inhabitancy",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 12.3,
+        "cost_usd": 0.03873800000000001,
+        "duration_api_ms": 12025,
+        "usage": {
+          "input_tokens": 1,
+          "cache_creation_input_tokens": 2346,
+          "cache_read_input_tokens": 2154,
+          "output_tokens": 470,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 2346,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "not_available",
+          "iterations": [
+            {
+              "input_tokens": 1,
+              "output_tokens": 470,
+              "cache_read_input_tokens": 2154,
+              "cache_creation_input_tokens": 2346,
+              "cache_creation": {
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 2346
+              },
+              "type": "message"
+            }
+          ],
+          "speed": "standard"
+        },
+        "model_usage_keys": [
+          "claude-haiku-4-5-20251001",
+          "claude-opus-4-8"
+        ]
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 2,
+      "reason": "Living inside a place for a long time captures dwelling permanently; INSIDE plus LIVE plus duration is sound."
+    },
+    "B": {
+      "verdict": "FAITHFUL",
+      "missing": "slightly bare, no explicit inside",
+      "quality": 2,
+      "reason": "LIVE in a place for a long time renders the permanent-dwelling sense economically."
+    },
+    "C": {
+      "verdict": "LOSSY",
+      "missing": "stray HAPPEN clause on referent 1 disconnected from the living entity; confused binding",
+      "quality": 1,
+      "reason": "Core LIVE clause is right but the extra HAPPEN referent is idle/garbled and adds no criterial content."
+    },
+    "D": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 2,
+      "reason": "LIVE plus BE-SOMEWHERE both for a long time render permanent dwelling in a place adequately, minor redundancy."
+    },
+    "E": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 2,
+      "reason": "LIVE for a long time plus being in the place at many times captures permanent dwelling, slight bloat."
+    }
+  }
+}

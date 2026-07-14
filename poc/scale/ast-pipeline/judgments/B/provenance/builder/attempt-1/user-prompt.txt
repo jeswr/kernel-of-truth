@@ -1,0 +1,1007 @@
+concept: builder
+synset: urn:lexical-wn31:n-09898025
+pos: n
+lemmas: builder
+wn31-gloss (sense-fixing only): a person who creates a business or who organizes and develops a country; "empire builder"
+
+=== CANDIDATE A ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 3,
+   "refKind": "TimeRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "THINK",
+   "roles": {
+    "experiencer": {
+     "kind": "ref",
+     "index": 1
+    },
+    "topic": {
+     "kind": "sp",
+     "head": {
+      "kind": "primeHead",
+      "prime": "SOMETHING~THING"
+     },
+     "bind": 2
+    }
+   }
+  },
+  {
+   "type": "pred",
+   "pred": "WANT",
+   "roles": {
+    "experiencer": {
+     "kind": "ref",
+     "index": 1
+    },
+    "complement": {
+     "kind": "clause",
+     "clause": {
+      "type": "pred",
+      "pred": "THERE-IS",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 2
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "type": "op",
+   "op": "BECAUSE",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "DO",
+     "roles": {
+      "agent": {
+       "kind": "ref",
+       "index": 1
+      },
+      "undergoer": {
+       "kind": "sp",
+       "quant": "MUCH~MANY",
+       "head": {
+        "kind": "primeHead",
+        "prime": "SOMETHING~THING"
+       }
+      },
+      "comitative": {
+       "kind": "sp",
+       "quant": "MUCH~MANY",
+       "head": {
+        "kind": "primeHead",
+        "prime": "PEOPLE"
+       }
+      },
+      "duration": {
+       "kind": "prime",
+       "prime": "A-LONG-TIME"
+      }
+     }
+    },
+    {
+     "type": "pred",
+     "pred": "THERE-IS",
+     "roles": {
+      "undergoer": {
+       "kind": "ref",
+       "index": 2
+      },
+      "time": {
+       "kind": "sp",
+       "head": {
+        "kind": "primeHead",
+        "prime": "WHEN~TIME"
+       },
+       "bind": 3
+      }
+     }
+    }
+   ]
+  },
+  {
+   "type": "op",
+   "op": "AFTER",
+   "args": [
+    {
+     "kind": "ref",
+     "index": 3
+    },
+    {
+     "type": "pred",
+     "pred": "DO",
+     "roles": {
+      "agent": {
+       "kind": "ref",
+       "index": 1
+      },
+      "undergoer": {
+       "kind": "ref",
+       "index": 2
+      },
+      "duration": {
+       "kind": "prime",
+       "prime": "A-LONG-TIME"
+      }
+     }
+    }
+   ]
+  }
+ ]
+}
+
+=== CANDIDATE B ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomethingRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "op",
+   "op": "BECAUSE",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "DO",
+     "roles": {
+      "agent": {
+       "kind": "ref",
+       "index": 1
+      },
+      "undergoer": {
+       "kind": "sp",
+       "mods": [
+        {
+         "mod": "BIG"
+        }
+       ],
+       "head": {
+        "kind": "primeHead",
+        "prime": "SOMETHING~THING"
+       },
+       "bind": 2
+      },
+      "duration": {
+       "kind": "prime",
+       "prime": "A-LONG-TIME"
+      }
+     }
+    },
+    {
+     "type": "pred",
+     "pred": "THERE-IS",
+     "roles": {
+      "undergoer": {
+       "kind": "ref",
+       "index": 2
+      }
+     }
+    }
+   ]
+  }
+ ]
+}
+
+=== CANDIDATE C ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 3,
+   "refKind": "TimeRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "DO",
+   "roles": {
+    "agent": {
+     "kind": "ref",
+     "index": 1
+    },
+    "undergoer": {
+     "kind": "sp",
+     "det": "SOME",
+     "head": {
+      "kind": "primeHead",
+      "prime": "SOMETHING~THING"
+     },
+     "bind": 2
+    },
+    "time": {
+     "kind": "sp",
+     "det": "SOME",
+     "head": {
+      "kind": "primeHead",
+      "prime": "WHEN~TIME"
+     },
+     "bind": 3
+    }
+   }
+  },
+  {
+   "type": "op",
+   "op": "BEFORE",
+   "args": [
+    {
+     "kind": "ref",
+     "index": 3
+    },
+    {
+     "type": "op",
+     "op": "NOT",
+     "args": [
+      {
+       "type": "pred",
+       "pred": "THERE-IS",
+       "roles": {
+        "undergoer": {
+         "kind": "ref",
+         "index": 2
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "op",
+   "op": "AFTER",
+   "args": [
+    {
+     "kind": "ref",
+     "index": 3
+    },
+    {
+     "type": "pred",
+     "pred": "THERE-IS",
+     "roles": {
+      "undergoer": {
+       "kind": "ref",
+       "index": 2
+      }
+     }
+    }
+   ]
+  },
+  {
+   "type": "op",
+   "op": "AFTER",
+   "args": [
+    {
+     "kind": "ref",
+     "index": 3
+    },
+    {
+     "type": "pred",
+     "pred": "BE-SPEC",
+     "roles": {
+      "undergoer": {
+       "kind": "ref",
+       "index": 2
+      },
+      "attribute": {
+       "kind": "sp",
+       "mods": [
+        {
+         "mod": "BIG",
+         "intensifier": "MORE"
+        }
+       ],
+       "head": {
+        "kind": "primeHead",
+        "prime": "SOMETHING~THING"
+       }
+      }
+     }
+    }
+   ]
+  }
+ ]
+}
+
+=== CANDIDATE D ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomethingRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "op",
+   "op": "BEFORE",
+   "args": [
+    {
+     "kind": "prime",
+     "prime": "NOW"
+    },
+    {
+     "type": "op",
+     "op": "NOT",
+     "args": [
+      {
+       "type": "pred",
+       "pred": "THERE-IS",
+       "roles": {
+        "undergoer": {
+         "kind": "sp",
+         "head": {
+          "kind": "primeHead",
+          "prime": "SOMETHING~THING"
+         },
+         "bind": 2
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "op",
+   "op": "BECAUSE",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "DO",
+     "roles": {
+      "agent": {
+       "kind": "ref",
+       "index": 1
+      },
+      "undergoer": {
+       "kind": "ref",
+       "index": 2
+      },
+      "comitative": {
+       "kind": "sp",
+       "quant": "MUCH~MANY",
+       "head": {
+        "kind": "primeHead",
+        "prime": "PEOPLE"
+       }
+      },
+      "duration": {
+       "kind": "prime",
+       "prime": "A-LONG-TIME"
+      }
+     }
+    },
+    {
+     "type": "pred",
+     "pred": "THERE-IS",
+     "roles": {
+      "undergoer": {
+       "kind": "ref",
+       "index": 2
+      },
+      "time": {
+       "kind": "prime",
+       "prime": "NOW"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "type": "pred",
+   "pred": "BE-SOMEWHERE",
+   "roles": {
+    "undergoer": {
+     "kind": "sp",
+     "quant": "MUCH~MANY",
+     "head": {
+      "kind": "primeHead",
+      "prime": "PEOPLE"
+     }
+    },
+    "locus": {
+     "kind": "ref",
+     "index": 2
+    },
+    "manner": {
+     "kind": "prime",
+     "prime": "INSIDE"
+    }
+   }
+  },
+  {
+   "type": "pred",
+   "pred": "BE-SPEC",
+   "roles": {
+    "undergoer": {
+     "kind": "ref",
+     "index": 2
+    },
+    "attribute": {
+     "kind": "sp",
+     "mods": [
+      {
+       "mod": "BIG",
+       "intensifier": "MORE"
+      }
+     ],
+     "head": {
+      "kind": "primeHead",
+      "prime": "SOMETHING~THING"
+     }
+    },
+    "time": {
+     "kind": "prime",
+     "prime": "NOW"
+    }
+   }
+  }
+ ]
+}
+
+=== CANDIDATE E ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 3,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 4,
+   "refKind": "TimeRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "DO",
+   "roles": {
+    "agent": {
+     "kind": "ref",
+     "index": 1
+    },
+    "undergoer": {
+     "kind": "sp",
+     "det": "SOME",
+     "head": {
+      "kind": "primeHead",
+      "prime": "SOMETHING~THING"
+     },
+     "bind": 2
+    },
+    "comitative": {
+     "kind": "sp",
+     "quant": "MUCH~MANY",
+     "head": {
+      "kind": "primeHead",
+      "prime": "PEOPLE"
+     },
+     "bind": 3
+    },
+    "time": {
+     "kind": "sp",
+     "det": "SOME",
+     "head": {
+      "kind": "primeHead",
+      "prime": "WHEN~TIME"
+     },
+     "bind": 4
+    }
+   }
+  },
+  {
+   "type": "op",
+   "op": "BEFORE",
+   "args": [
+    {
+     "kind": "ref",
+     "index": 4
+    },
+    {
+     "type": "op",
+     "op": "NOT",
+     "args": [
+      {
+       "type": "pred",
+       "pred": "THERE-IS",
+       "roles": {
+        "undergoer": {
+         "kind": "ref",
+         "index": 2
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "op",
+   "op": "AFTER",
+   "args": [
+    {
+     "kind": "ref",
+     "index": 4
+    },
+    {
+     "type": "pred",
+     "pred": "THERE-IS",
+     "roles": {
+      "undergoer": {
+       "kind": "ref",
+       "index": 2
+      }
+     }
+    }
+   ]
+  },
+  {
+   "type": "op",
+   "op": "BECAUSE",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "DO",
+     "roles": {
+      "agent": {
+       "kind": "ref",
+       "index": 1
+      },
+      "undergoer": {
+       "kind": "ref",
+       "index": 2
+      }
+     }
+    },
+    {
+     "type": "op",
+     "op": "AFTER",
+     "args": [
+      {
+       "kind": "ref",
+       "index": 4
+      },
+      {
+       "type": "pred",
+       "pred": "BE-SOMEWHERE",
+       "roles": {
+        "undergoer": {
+         "kind": "ref",
+         "index": 3
+        },
+        "locus": {
+         "kind": "ref",
+         "index": 2
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "op",
+   "op": "BECAUSE",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "DO",
+     "roles": {
+      "agent": {
+       "kind": "ref",
+       "index": 1
+      },
+      "undergoer": {
+       "kind": "ref",
+       "index": 3
+      },
+      "comitative": {
+       "kind": "ref",
+       "index": 2
+      }
+     }
+    },
+    {
+     "type": "op",
+     "op": "AFTER",
+     "args": [
+      {
+       "kind": "ref",
+       "index": 4
+      },
+      {
+       "type": "pred",
+       "pred": "BE-SOMEWHERE",
+       "roles": {
+        "undergoer": {
+         "kind": "ref",
+         "index": 3
+        },
+        "locus": {
+         "kind": "ref",
+         "index": 2
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "op",
+   "op": "BECAUSE",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "DO",
+     "roles": {
+      "agent": {
+       "kind": "ref",
+       "index": 1
+      },
+      "undergoer": {
+       "kind": "ref",
+       "index": 2
+      }
+     }
+    },
+    {
+     "type": "op",
+     "op": "AFTER",
+     "args": [
+      {
+       "kind": "ref",
+       "index": 4
+      },
+      {
+       "type": "pred",
+       "pred": "BE-SPEC",
+       "roles": {
+        "undergoer": {
+         "kind": "ref",
+         "index": 2
+        },
+        "attribute": {
+         "kind": "sp",
+         "mods": [
+          {
+           "mod": "BIG",
+           "intensifier": "MORE"
+          },
+          {
+           "mod": "GOOD",
+           "intensifier": "MORE"
+          }
+         ],
+         "head": {
+          "kind": "primeHead",
+          "prime": "SOMETHING~THING"
+         }
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
+
+=== CANDIDATE F ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomethingRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "op",
+   "op": "BECAUSE",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "DO",
+     "roles": {
+      "agent": {
+       "kind": "ref",
+       "index": 1
+      },
+      "duration": {
+       "kind": "prime",
+       "prime": "A-LONG-TIME"
+      }
+     }
+    },
+    {
+     "type": "pred",
+     "pred": "THERE-IS",
+     "roles": {
+      "undergoer": {
+       "kind": "sp",
+       "mods": [
+        {
+         "mod": "BIG"
+        }
+       ],
+       "head": {
+        "kind": "primeHead",
+        "prime": "SOMETHING~THING"
+       },
+       "bind": 2
+      }
+     }
+    }
+   ]
+  },
+  {
+   "type": "op",
+   "op": "BEFORE",
+   "args": [
+    {
+     "kind": "prime",
+     "prime": "NOW"
+    },
+    {
+     "type": "op",
+     "op": "NOT",
+     "args": [
+      {
+       "type": "pred",
+       "pred": "THERE-IS",
+       "roles": {
+        "undergoer": {
+         "kind": "ref",
+         "index": 2
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "op",
+   "op": "BECAUSE",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "DO",
+     "roles": {
+      "agent": {
+       "kind": "ref",
+       "index": 1
+      },
+      "undergoer": {
+       "kind": "ref",
+       "index": 2
+      }
+     }
+    },
+    {
+     "type": "pred",
+     "pred": "BE-SPEC",
+     "roles": {
+      "undergoer": {
+       "kind": "ref",
+       "index": 2
+      },
+      "attribute": {
+       "kind": "sp",
+       "mods": [
+        {
+         "mod": "BIG",
+         "intensifier": "MORE"
+        }
+       ],
+       "head": {
+        "kind": "kindFrame",
+        "of": {
+         "kind": "ref",
+         "index": 2
+        }
+       }
+      }
+     }
+    }
+   ]
+  }
+ ]
+}
+
+=== CANDIDATE G ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 3,
+   "refKind": "TimeRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "DO",
+   "roles": {
+    "agent": {
+     "kind": "ref",
+     "index": 1
+    },
+    "undergoer": {
+     "kind": "sp",
+     "quant": "MUCH~MANY",
+     "head": {
+      "kind": "primeHead",
+      "prime": "SOMETHING~THING"
+     }
+    },
+    "time": {
+     "kind": "sp",
+     "det": "SOME",
+     "head": {
+      "kind": "primeHead",
+      "prime": "WHEN~TIME"
+     },
+     "bind": 3
+    },
+    "duration": {
+     "kind": "prime",
+     "prime": "A-LONG-TIME"
+    }
+   }
+  },
+  {
+   "type": "op",
+   "op": "BECAUSE",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "DO",
+     "roles": {
+      "agent": {
+       "kind": "ref",
+       "index": 1
+      }
+     }
+    },
+    {
+     "type": "pred",
+     "pred": "THERE-IS",
+     "roles": {
+      "undergoer": {
+       "kind": "sp",
+       "mods": [
+        {
+         "mod": "BIG",
+         "intensifier": "VERY"
+        }
+       ],
+       "head": {
+        "kind": "primeHead",
+        "prime": "SOMETHING~THING"
+       },
+       "bind": 2
+      }
+     }
+    }
+   ]
+  },
+  {
+   "type": "op",
+   "op": "BEFORE",
+   "args": [
+    {
+     "kind": "ref",
+     "index": 3
+    },
+    {
+     "type": "op",
+     "op": "NOT",
+     "args": [
+      {
+       "type": "pred",
+       "pred": "THERE-IS",
+       "roles": {
+        "undergoer": {
+         "kind": "ref",
+         "index": 2
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "pred",
+   "pred": "BE-SOMEWHERE",
+   "roles": {
+    "undergoer": {
+     "kind": "sp",
+     "quant": "MUCH~MANY",
+     "head": {
+      "kind": "primeHead",
+      "prime": "PEOPLE"
+     }
+    },
+    "locus": {
+     "kind": "ref",
+     "index": 2
+    },
+    "manner": {
+     "kind": "prime",
+     "prime": "INSIDE"
+    }
+   }
+  }
+ ]
+}

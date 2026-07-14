@@ -1,0 +1,151 @@
+{
+  "id": "urn:kernel-v1:dislocation",
+  "label": "dislocation (breakdown of an established order)",
+  "synset": "urn:lexical-wn31:n-00554399",
+  "pattern": "InstanceSchema; long-standing HAPPEN + agentive DO + post-time causal incapacity",
+  "gloss": "An event in which someone acts upon an established order or course of activity so severely that it can no longer continue as before.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "TimeRef"
+      },
+      {
+        "index": 4,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "time": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 3
+          },
+          {
+            "type": "pred",
+            "pred": "HAPPEN",
+            "roles": {
+              "undergoer": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                },
+                "bind": 2
+              },
+              "duration": {
+                "kind": "prime",
+                "prime": "A-LONG-TIME"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMEONE"
+            },
+            "bind": 4
+          },
+          "undergoer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "time": {
+            "kind": "ref",
+            "index": 3
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "HAPPEN",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "AFTER",
+            "args": [
+              {
+                "kind": "ref",
+                "index": 3
+              },
+              {
+                "type": "op",
+                "op": "NOT",
+                "args": [
+                  {
+                    "type": "op",
+                    "op": "CAN",
+                    "args": [
+                      {
+                        "type": "pred",
+                        "pred": "HAPPEN",
+                        "roles": {
+                          "undergoer": {
+                            "kind": "ref",
+                            "index": 2
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — it renders a thing happening for a long time, someone acting on it, and its subsequent inability to continue, but cannot encode established order or the precise disruptive character."
+}

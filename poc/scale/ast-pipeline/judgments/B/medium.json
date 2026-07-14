@@ -1,0 +1,83 @@
+{
+  "judge": "B",
+  "model": "claude-opus-4-8",
+  "slug": "medium",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 14.6,
+        "cost_usd": 0.06465,
+        "duration_api_ms": 14692,
+        "usage": {
+          "input_tokens": 1,
+          "cache_creation_input_tokens": 4590,
+          "cache_read_input_tokens": 2154,
+          "output_tokens": 530,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 4590,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "not_available",
+          "iterations": [
+            {
+              "input_tokens": 1,
+              "output_tokens": 530,
+              "cache_read_input_tokens": 2154,
+              "cache_creation_input_tokens": 4590,
+              "cache_creation": {
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 4590
+              },
+              "type": "message"
+            }
+          ],
+          "speed": "standard"
+        },
+        "model_usage_keys": [
+          "claude-haiku-4-5-20251001",
+          "claude-opus-4-8"
+        ]
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "LOSSY",
+      "missing": "asserts dead person literally says words to medium as fact, not belief; no 'people think' framing",
+      "quality": 1,
+      "reason": "Renders relay between dead and living but states it as literal fact, missing the belief/purported nature and the intermediary being the defining living person."
+    },
+    "B": {
+      "verdict": "FAITHFUL",
+      "missing": "belief framing left implicit (CAN-hear); acceptable",
+      "quality": 2,
+      "reason": "Medium can hear the dead when others cannot, and relays their words to the living — captures intermediary role between living and dead."
+    },
+    "C": {
+      "verdict": "FAITHFUL",
+      "missing": "does not mark that message is FROM the dead person in the relay clause",
+      "quality": 2,
+      "reason": "People think this one can hear the dead's words and he says words to the living — intermediary between living and dead, framed as belief."
+    },
+    "D": {
+      "verdict": "LOSSY",
+      "missing": "no death/dead, no living/dead intermediary; just someone thinks of someone and speaks to another",
+      "quality": 0,
+      "reason": "Generic communication skeleton with no reference to the dead; fits countless concepts."
+    },
+    "E": {
+      "verdict": "FAITHFUL",
+      "missing": "belief framing softer; roles a bit loose",
+      "quality": 2,
+      "reason": "A dead person can say something to this one who relays to the living, framed as what some people think — captures the intermediary role."
+    }
+  }
+}

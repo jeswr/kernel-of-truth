@@ -1,0 +1,172 @@
+{
+  "id": "urn:kernel-v1:access",
+  "label": "access (act of approaching or entering)",
+  "synset": "urn:lexical-wn31:n-00281976",
+  "pattern": "InstanceSchema; outside-to-near movement with optional INSIDE endpoint",
+  "gloss": "The act of coming near to or entering a place, in which someone or something moves toward it from outside or passes into it.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "PlaceRef"
+      },
+      {
+        "index": 4,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "time": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "bind": 4
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 4
+          },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "BE-SOMEWHERE",
+                "roles": {
+                  "undergoer": {
+                    "kind": "sp",
+                    "det": "SOME",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMETHING~THING"
+                    },
+                    "bind": 2
+                  },
+                  "locus": {
+                    "kind": "sp",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "WHERE~PLACE"
+                    },
+                    "bind": 3
+                  },
+                  "manner": {
+                    "kind": "prime",
+                    "prime": "INSIDE"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "MOVE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "time": {
+            "kind": "ref",
+            "index": 4
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "AFTER",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 4
+          },
+          {
+            "type": "pred",
+            "pred": "BE-SOMEWHERE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "locus": {
+                "kind": "ref",
+                "index": 3
+              },
+              "manner": {
+                "kind": "prime",
+                "prime": "NEAR"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "AFTER",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 4
+          },
+          {
+            "type": "op",
+            "op": "MAYBE",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "BE-SOMEWHERE",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 2
+                  },
+                  "locus": {
+                    "kind": "ref",
+                    "index": 3
+                  },
+                  "manner": {
+                    "kind": "prime",
+                    "prime": "INSIDE"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — The 65-prime grammar renders movement from outside to near and marks entry only as a possible additional endpoint, so it cannot express the gloss's exact alternative between approaching and entering."
+}

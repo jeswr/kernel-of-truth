@@ -1,0 +1,55 @@
+{
+  "judge": "T",
+  "model": "gpt-5.6-terra",
+  "slug": "depletion",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 37.2,
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 16450,
+          "cached_input_tokens": 9472,
+          "output_tokens": 1465,
+          "reasoning_output_tokens": 1164
+        },
+        "note": "subscription auth; codex reports tokens, not USD"
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "LOSSY",
+      "missing": "It substitutes kinds of the thing for the thing's quantity or parts.",
+      "quality": 1,
+      "reason": "It conveys a before/after reduction but misstates what becomes scarce and does not clearly make the act cause it."
+    },
+    "B": {
+      "verdict": "LOSSY",
+      "missing": "The marked reduction is attached by an incorrectly directed causal claim rather than presented as the act's result.",
+      "quality": 1,
+      "reason": "It identifies parts becoming few after an action, but the BECAUSE structure wrongly says the action is because of that aftermath."
+    },
+    "C": {
+      "verdict": "LOSSY",
+      "missing": "The depletion event is not identified with the action that reduces the target's parts.",
+      "quality": 1,
+      "reason": "It describes an unrelated happening alongside an action and a reduction, without linking the instance to the decreasing act."
+    },
+    "D": {
+      "verdict": "LOSSY",
+      "missing": "It replaces marked decrease in quantity with a thing becoming physically smaller.",
+      "quality": 0,
+      "reason": "A change from big to very small is not depletion and does not specify an act of reducing an amount."
+    },
+    "E": {
+      "verdict": "LOSSY",
+      "missing": "It replaces decrease in quantity with size change and leaves the happening unrelated to it.",
+      "quality": 0,
+      "reason": "The before/after size predicates concern a separate thing and do not render an act of marked depletion."
+    }
+  }
+}

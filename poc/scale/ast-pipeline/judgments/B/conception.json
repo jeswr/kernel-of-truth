@@ -1,0 +1,89 @@
+{
+  "judge": "B",
+  "model": "claude-opus-4-8",
+  "slug": "conception",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 14.4,
+        "cost_usd": 0.085399,
+        "duration_api_ms": 17239,
+        "usage": {
+          "input_tokens": 1,
+          "cache_creation_input_tokens": 6188,
+          "cache_read_input_tokens": 2154,
+          "output_tokens": 666,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 6188,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "not_available",
+          "iterations": [
+            {
+              "input_tokens": 1,
+              "output_tokens": 666,
+              "cache_read_input_tokens": 2154,
+              "cache_creation_input_tokens": 6188,
+              "cache_creation": {
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 6188
+              },
+              "type": "message"
+            }
+          ],
+          "speed": "standard"
+        },
+        "model_usage_keys": [
+          "claude-haiku-4-5-20251001",
+          "claude-opus-4-8"
+        ]
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "LOSSY",
+      "missing": "no two-cell union/fertilization; just something appears in body then lives inside",
+      "quality": 1,
+      "reason": "Renders emergence of a new living thing inside body but omits the criterial fusion of two cells (ovum+spermatozoon)."
+    },
+    "B": {
+      "verdict": "LOSSY",
+      "missing": "TOUCH of two cells present but no ovum/sperm as two distinct things uniting; scattered",
+      "quality": 1,
+      "reason": "Has a small thing touching, inside body, then can live, but the two-gamete union is not clearly rendered."
+    },
+    "C": {
+      "verdict": "LOSSY",
+      "missing": "no becoming-alive, no body, no before/after emergence; just one thing touches another",
+      "quality": 0,
+      "reason": "Bare 'something touches something' fits countless events; no pregnancy or new-life differentia."
+    },
+    "D": {
+      "verdict": "LOSSY",
+      "missing": "generic things-inside-things touching; no clear two gametes fusing to make one living thing",
+      "quality": 1,
+      "reason": "Has TOUCH plus new thing there and living, but all-generic SOMETHING with no body/pregnancy anchor."
+    },
+    "E": {
+      "verdict": "LOSSY",
+      "missing": "two things exist, one does other, new thing comes to exist; no body, no fusion, no life-begins",
+      "quality": 1,
+      "reason": "Skeleton of two things acting and a new thing appearing, but no fertilization/pregnancy criterial content."
+    },
+    "F": {
+      "verdict": "LOSSY",
+      "missing": "very-small someone appears inside body and lives; but no union of two cells/gametes",
+      "quality": 2,
+      "reason": "Captures a new tiny living being coming to exist inside a body—pregnancy begins—but omits the fertilizing union of ovum and sperm."
+    }
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "judge": "B",
+  "model": "claude-opus-4-8",
+  "slug": "view",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 13.0,
+        "cost_usd": 0.054132,
+        "duration_api_ms": 14377,
+        "usage": {
+          "input_tokens": 1,
+          "cache_creation_input_tokens": 3308,
+          "cache_read_input_tokens": 2154,
+          "output_tokens": 667,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 3308,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "not_available",
+          "iterations": [
+            {
+              "input_tokens": 1,
+              "output_tokens": 667,
+              "cache_read_input_tokens": 2154,
+              "cache_creation_input_tokens": 3308,
+              "cache_creation": {
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 3308
+              },
+              "type": "message"
+            }
+          ],
+          "speed": "standard"
+        },
+        "model_usage_keys": [
+          "claude-haiku-4-5-20251001",
+          "claude-opus-4-8"
+        ]
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "LOSSY",
+      "missing": "SEE not tied to the HAPPEN event as the act itself; no agentive act of looking, just an event and someone seeing something",
+      "quality": 1,
+      "reason": "Generic HAPPEN plus SEE; does not render the act of looking as an intentional act."
+    },
+    "B": {
+      "verdict": "LOSSY",
+      "missing": "WANT-to-see plus BECAUSE-see-DO frames looking as instrumental to another act; the act of viewing itself as nominal event is not the focus",
+      "quality": 1,
+      "reason": "Over-elaborated with want/because; doesn't cleanly name the act of seeing as the thing."
+    },
+    "C": {
+      "verdict": "LOSSY",
+      "missing": "adds THINK-about which imports interpretation/opinion not present in this act-of-seeing sense",
+      "quality": 1,
+      "reason": "SEE event plus spurious THINK; wrong extra assertion, closer to opinion-sense of view."
+    },
+    "D": {
+      "verdict": "LOSSY",
+      "missing": "no agentive looking/directing eyes; just HAPPEN + someone sees something, fits any seeing event",
+      "quality": 1,
+      "reason": "Bare event of someone seeing something; generic, misses intentional act of looking."
+    },
+    "E": {
+      "verdict": "FAITHFUL",
+      "missing": "duration/intentionality of observing is soft",
+      "quality": 2,
+      "reason": "Someone DOES something and thereby SEES it — renders the act of looking/observing as an act."
+    },
+    "F": {
+      "verdict": "LOSSY",
+      "missing": "WANT + KNOW recast as investigation/getting-to-know, not the act of seeing itself; bloated",
+      "quality": 1,
+      "reason": "Uses body-part instrument but frames it around wanting and coming-to-know, drifting from the act of view."
+    }
+  }
+}

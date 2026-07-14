@@ -1,0 +1,266 @@
+{
+  "id": "urn:kernel-v1:builder",
+  "label": "builder (business or country)",
+  "synset": "urn:lexical-wn31:n-09898025",
+  "pattern": "InstanceSchema; agency + emergence, collective coordination, and enlargement across time",
+  "gloss": "A person who establishes a business or organizes and develops a country, bringing a collective enterprise into existence, enlarging its scope, and improving its condition.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 4,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          },
+          "comitative": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            },
+            "bind": 3
+          },
+          "time": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "bind": 4
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 4
+          },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "THERE-IS",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 2
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "AFTER",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 4
+          },
+          {
+            "type": "pred",
+            "pred": "THERE-IS",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "AFTER",
+            "args": [
+              {
+                "kind": "ref",
+                "index": 4
+              },
+              {
+                "type": "pred",
+                "pred": "BE-SOMEWHERE",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 3
+                  },
+                  "locus": {
+                    "kind": "ref",
+                    "index": 2
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "undergoer": {
+                "kind": "ref",
+                "index": 3
+              },
+              "comitative": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "AFTER",
+            "args": [
+              {
+                "kind": "ref",
+                "index": 4
+              },
+              {
+                "type": "pred",
+                "pred": "BE-SOMEWHERE",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 3
+                  },
+                  "locus": {
+                    "kind": "ref",
+                    "index": 2
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "AFTER",
+            "args": [
+              {
+                "kind": "ref",
+                "index": 4
+              },
+              {
+                "type": "pred",
+                "pred": "BE-SPEC",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 2
+                  },
+                  "attribute": {
+                    "kind": "sp",
+                    "mods": [
+                      {
+                        "mod": "BIG",
+                        "intensifier": "MORE"
+                      },
+                      {
+                        "mod": "GOOD",
+                        "intensifier": "MORE"
+                      }
+                    ],
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMETHING~THING"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — it renders the person as causing a thing to exist, bringing many people together around it, and making it more BIG and GOOD, but cannot encode the specific institutional kinds business and country or their precise organization."
+}

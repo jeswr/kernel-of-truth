@@ -1,0 +1,55 @@
+{
+  "judge": "T",
+  "model": "gpt-5.6-terra",
+  "slug": "medium",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 23.8,
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 16728,
+          "cached_input_tokens": 9472,
+          "output_tokens": 750,
+          "reasoning_output_tokens": 491
+        },
+        "note": "subscription auth; codex reports tokens, not USD"
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 3,
+      "reason": "It sharply renders a person relaying words from a dead person to a living person."
+    },
+    "B": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 3,
+      "reason": "It identifies the medium as uniquely able to hear and relay a dead person's speech to living people."
+    },
+    "C": {
+      "verdict": "LOSSY",
+      "missing": "It lacks a link showing that the words told to people are messages received from the dead person; it carries only a belief in hearing the dead and generic speech.",
+      "quality": 2,
+      "reason": "It captures purported hearing of the dead and speaking to people, but not their communicative intermediation."
+    },
+    "D": {
+      "verdict": "LOSSY",
+      "missing": "It omits both the living-dead relation and intermediary role, carrying only thinking and saying something to another person.",
+      "quality": 0,
+      "reason": "The generic thinker-speaker description fits innumerable unrelated people."
+    },
+    "E": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 3,
+      "reason": "It renders the believed transmission of the same message from a dead person through someone to a living person."
+    }
+  }
+}

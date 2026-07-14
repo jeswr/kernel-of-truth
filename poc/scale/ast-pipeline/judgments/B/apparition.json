@@ -1,0 +1,83 @@
+{
+  "judge": "B",
+  "model": "claude-opus-4-8",
+  "slug": "apparition",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 10.6,
+        "cost_usd": 0.06931299999999999,
+        "duration_api_ms": 11778,
+        "usage": {
+          "input_tokens": 1,
+          "cache_creation_input_tokens": 5043,
+          "cache_read_input_tokens": 2154,
+          "output_tokens": 518,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 5043,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "not_available",
+          "iterations": [
+            {
+              "input_tokens": 1,
+              "output_tokens": 518,
+              "cache_read_input_tokens": 2154,
+              "cache_creation_input_tokens": 5043,
+              "cache_creation": {
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 5043
+              },
+              "type": "message"
+            }
+          ],
+          "speed": "standard"
+        },
+        "model_usage_keys": [
+          "claude-haiku-4-5-20251001",
+          "claude-opus-4-8"
+        ]
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 3,
+      "reason": "Event where before people couldn't see it and didn't know it would happen, after can see it — renders unexpected becoming-visible sharply."
+    },
+    "B": {
+      "verdict": "LOSSY",
+      "missing": "no CAN modal on seeing (visibility) and no unexpectedness component; just not-seen-then-seen",
+      "quality": 1,
+      "reason": "Skeleton of change in seeing but lacks the visibility (CAN SEE) and unexpectedness that mark apparition."
+    },
+    "C": {
+      "verdict": "FAITHFUL",
+      "missing": "unexpectedness via NOT THINK-about is slightly weaker than not-know",
+      "quality": 2,
+      "reason": "Before couldn't see and weren't thinking of it, after can see — captures becoming-visible plus surprise."
+    },
+    "D": {
+      "verdict": "FAITHFUL",
+      "missing": "unexpectedness not explicitly rendered, only sudden visibility",
+      "quality": 2,
+      "reason": "Before many can't see, after can see — captures becoming-visible but drops the unexpected element."
+    },
+    "E": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 2,
+      "reason": "Before can't see and didn't think 'I will see it', after can see — renders becoming-visible plus unexpectedness, slightly bloated with quote."
+    }
+  }
+}

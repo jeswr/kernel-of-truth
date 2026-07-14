@@ -1,0 +1,101 @@
+{
+  "judge": "B",
+  "model": "claude-opus-4-8",
+  "slug": "cheerfulness",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 15.8,
+        "cost_usd": 0.08244000000000001,
+        "duration_api_ms": 15418,
+        "usage": {
+          "input_tokens": 1,
+          "cache_creation_input_tokens": 5505,
+          "cache_read_input_tokens": 2154,
+          "output_tokens": 848,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 5505,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "not_available",
+          "iterations": [
+            {
+              "input_tokens": 1,
+              "output_tokens": 848,
+              "cache_read_input_tokens": 2154,
+              "cache_creation_input_tokens": 5505,
+              "cache_creation": {
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 5505
+              },
+              "type": "message"
+            }
+          ],
+          "speed": "standard"
+        },
+        "model_usage_keys": [
+          "claude-haiku-4-5-20251001",
+          "claude-opus-4-8"
+        ]
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "LOSSY",
+      "missing": "no dispelling-gloom (NOT feel bad) component; generic feel-good via doing",
+      "quality": 1,
+      "reason": "Someone feels good and can make another feel good; lacks the gloom-dispelling criterial core and reads more like kindness."
+    },
+    "B": {
+      "verdict": "LOSSY",
+      "missing": "the quality itself's own good feel is not asserted; only that seeing X makes others feel good/not bad",
+      "quality": 2,
+      "reason": "Captures dispelling gloom (NOT feel bad) via a source others perceive, but omits that the thing itself embodies a bright/good quality."
+    },
+    "C": {
+      "verdict": "LOSSY",
+      "missing": "no dispelling-gloom component; generic good-feeling caused by doing",
+      "quality": 1,
+      "reason": "Thing feels good and causes another to feel good, but lacks the criterial removal of gloom."
+    },
+    "D": {
+      "verdict": "LOSSY",
+      "missing": "no gloom-dispelling; thinking-about-someone reads as fondness not cheer",
+      "quality": 0,
+      "reason": "Generic think/feel-good frame fitting many affective concepts, no cheer-specific differentia."
+    },
+    "E": {
+      "verdict": "LOSSY",
+      "missing": "no NOT-feel-bad dispelling; proximity-based good feeling generic",
+      "quality": 1,
+      "reason": "Being near the thing makes another feel good, but the gloom-dispelling criterion is absent."
+    },
+    "F": {
+      "verdict": "FAITHFUL",
+      "missing": "the quality's own inherent goodness left implicit",
+      "quality": 2,
+      "reason": "Seeing the thing makes many people feel good and not feel bad — renders both good-feeling and gloom-dispelling."
+    },
+    "G": {
+      "verdict": "FAITHFUL",
+      "missing": "slight bloat with KNOW clause",
+      "quality": 2,
+      "reason": "Thing feels good, others perceive it, and seeing it causes NOT feeling bad — carries both the bright quality and dispelling of gloom."
+    },
+    "H": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 3,
+      "reason": "Thing feels good and not bad, others see it and thereby feel good — cleanly renders the cheerful quality plus gloom-dispelling effect."
+    }
+  }
+}

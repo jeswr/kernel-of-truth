@@ -1,0 +1,119 @@
+{
+  "id": "urn:kernel-v1:bill-poster",
+  "label": "bill poster",
+  "synset": "urn:lexical-wn31:n-09873916",
+  "pattern": "InstanceSchema; agent-does + contact-location + public visibility",
+  "gloss": "A person who attaches written notices or placards to walls or large public boards, placing them where many other people can see them.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 4,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "undergoer": {
+                "kind": "sp",
+                "quant": "SOME",
+                "head": {
+                  "kind": "kindFrame",
+                  "of": {
+                    "kind": "sp",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "WORDS"
+                    }
+                  }
+                },
+                "bind": 2
+              },
+              "instrument": {
+                "kind": "sp",
+                "head": {
+                  "kind": "partFrame",
+                  "of": {
+                    "kind": "sp",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "BODY"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "BE-SOMEWHERE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "locus": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                },
+                "bind": 3
+              },
+              "manner": {
+                "kind": "prime",
+                "prime": "TOUCH"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "SEE",
+        "roles": {
+          "experiencer": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            },
+            "bind": 4
+          },
+          "stimulus": {
+            "kind": "ref",
+            "index": 2
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the AST renders a written display as a kind of WORDS placed in TOUCH with an unspecified SOMETHING seen by many PEOPLE, but cannot encode the criterial notice or placard form, adhesive attachment, or wall or billboard surface."
+}

@@ -1,0 +1,83 @@
+{
+  "judge": "B",
+  "model": "claude-opus-4-8",
+  "slug": "repeater",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 11.2,
+        "cost_usd": 0.046511,
+        "duration_api_ms": 10669,
+        "usage": {
+          "input_tokens": 1,
+          "cache_creation_input_tokens": 2985,
+          "cache_read_input_tokens": 2154,
+          "output_tokens": 501,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 2985,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "not_available",
+          "iterations": [
+            {
+              "input_tokens": 1,
+              "output_tokens": 501,
+              "cache_read_input_tokens": 2154,
+              "cache_creation_input_tokens": 2985,
+              "cache_creation": {
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 2985
+              },
+              "type": "message"
+            }
+          ],
+          "speed": "standard"
+        },
+        "model_usage_keys": [
+          "claude-haiku-4-5-20251001",
+          "claude-opus-4-8"
+        ]
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "LOSSY",
+      "missing": "second undergoer is fresh SOMETHING not the-same thing; drops 'again/same'",
+      "quality": 1,
+      "reason": "Someone does something after doing something, but no same-thing binding so it fails to capture repetition of the same act."
+    },
+    "B": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 2,
+      "reason": "Does the-same thing again after having done it, and does it many times — captures the repeater who does the same thing repeatedly."
+    },
+    "C": {
+      "verdict": "LOSSY",
+      "missing": "second undergoer refers to same thing but no 'many times'; only single after",
+      "quality": 1,
+      "reason": "Does the same thing after an earlier time, but a single repeat with no iteration is weak for 'repeater'."
+    },
+    "D": {
+      "verdict": "LOSSY",
+      "missing": "no same-thing binding for the earlier act; fresh SOMETHING, no iteration",
+      "quality": 1,
+      "reason": "Someone does something before doing something else — no same-thing repetition rendered."
+    },
+    "E": {
+      "verdict": "LOSSY",
+      "missing": "second undergoer is unbound fresh SOMETHING; no same-thing or many-times",
+      "quality": 1,
+      "reason": "Generic 'does something after doing something' without same-thing binding fails to render repetition."
+    }
+  }
+}

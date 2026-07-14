@@ -1,0 +1,95 @@
+{
+  "judge": "B",
+  "model": "claude-opus-4-8",
+  "slug": "fastening",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 12.2,
+        "cost_usd": 0.083462,
+        "duration_api_ms": 12239,
+        "usage": {
+          "input_tokens": 1,
+          "cache_creation_input_tokens": 5959,
+          "cache_read_input_tokens": 2154,
+          "output_tokens": 688,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 5959,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "not_available",
+          "iterations": [
+            {
+              "input_tokens": 1,
+              "output_tokens": 688,
+              "cache_read_input_tokens": 2154,
+              "cache_creation_input_tokens": 5959,
+              "cache_creation": {
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 5959
+              },
+              "type": "message"
+            }
+          ],
+          "speed": "standard"
+        },
+        "model_usage_keys": [
+          "claude-haiku-4-5-20251001",
+          "claude-opus-4-8"
+        ]
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "LOSSY",
+      "missing": "no second thing; only one thing touching something, no join of two; A-LONG-TIME is idle",
+      "quality": 1,
+      "reason": "One thing touches something for a long time; misses joining two things together and the resulting fixed state."
+    },
+    "B": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 2,
+      "reason": "Agent acts on two things so they touch and cannot move — renders act of fastening two things together, minor genericity."
+    },
+    "C": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 2,
+      "reason": "Agent acts on two things and afterward they touch and cannot not-touch (stay joined); captures the fastening act, double-negation clumsy but sound."
+    },
+    "D": {
+      "verdict": "FAITHFUL",
+      "missing": "resulting fixity given via cannot-move-far rather than cannot-separate",
+      "quality": 2,
+      "reason": "Because agent does something the thing touches another and afterward cannot move far — renders the act and its fixed result."
+    },
+    "E": {
+      "verdict": "LOSSY",
+      "missing": "no agent doing; things just HAPPEN to touch, not an act of fastening",
+      "quality": 1,
+      "reason": "Agentless: two things exist and something happens so they touch — misses the act of someone fastening them."
+    },
+    "F": {
+      "verdict": "LOSSY",
+      "missing": "no agent/DO; state-change described without anyone fastening",
+      "quality": 1,
+      "reason": "Describes before-not-touching then touching and fixed, but agentless — the fastening as an act performed is absent."
+    },
+    "G": {
+      "verdict": "FAITHFUL",
+      "missing": "resulting fixity (cannot move apart) not asserted, only that they touch",
+      "quality": 2,
+      "reason": "Someone does something with two things so they touch — renders the joining act, though permanence of hold is only implicit."
+    }
+  }
+}

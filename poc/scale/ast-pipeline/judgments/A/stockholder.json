@@ -1,0 +1,67 @@
+{
+  "judge": "A",
+  "model": "gpt-5.6-sol",
+  "slug": "stockholder",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 20.1,
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 16723,
+          "cached_input_tokens": 8960,
+          "output_tokens": 802,
+          "reasoning_output_tokens": 332
+        },
+        "note": "subscription auth; codex reports tokens, not USD"
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "LOSSY",
+      "missing": "It lacks the corporation and the owned part's status as a share; it carries only believed ownership of an arbitrary part.",
+      "quality": 1,
+      "reason": "Owning or believing one owns part of something applies to innumerable co-owners, not specifically stockholders."
+    },
+    "B": {
+      "verdict": "LOSSY",
+      "missing": "It lacks both the corporate nature of the whole and the shareholding relation, while the person being defined is not linked to the ownership claim.",
+      "quality": 0,
+      "reason": "The AST merely says that an unspecified part of something is mine and leaves the stockholder referent unused."
+    },
+    "C": {
+      "verdict": "LOSSY",
+      "missing": "It represents belief that an arbitrary part is one's own, without identifying the whole as a corporation or the part as corporate stock.",
+      "quality": 1,
+      "reason": "This generic part-ownership skeleton fits many kinds of owners and does not isolate stockholders."
+    },
+    "D": {
+      "verdict": "LOSSY",
+      "missing": "It omits shares, fractional ownership, and any corporation, carrying only a thought that something is one's property.",
+      "quality": 0,
+      "reason": "The explication describes a generic claimant or owner rather than a stockholder."
+    },
+    "E": {
+      "verdict": "LOSSY",
+      "missing": "It approximates ownership of a small part of a large collective enterprise but does not make that part corporate stock; the good-event feeling is idle rather than a shareholder entitlement.",
+      "quality": 2,
+      "reason": "The collective-enterprise and fractional-ownership cues are substantial, yet still admit many co-owners and members who hold no shares."
+    },
+    "F": {
+      "verdict": "LOSSY",
+      "missing": "It lacks the corporation and the owned part's status as stock, carrying only believed ownership of one arbitrary part.",
+      "quality": 1,
+      "reason": "A person who thinks one part of something is theirs need not be a stockholder."
+    },
+    "G": {
+      "verdict": "LOSSY",
+      "missing": "It renders ownership of a part of something involving many people's activity, but not a share of stock in a corporation.",
+      "quality": 2,
+      "reason": "This comes close to enterprise co-ownership but remains broad enough to include many non-shareholding part-owners."
+    }
+  }
+}

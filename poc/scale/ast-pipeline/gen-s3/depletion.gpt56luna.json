@@ -1,0 +1,110 @@
+{
+  "id": "urn:kernel-v1:depletion",
+  "label": "depletion",
+  "synset": "urn:lexical-wn31:n-00357025",
+  "pattern": "InstanceSchema; marked reduction through BEFORE/AFTER state contrast",
+  "gloss": "The act or process by which something becomes markedly less than it was previously, especially in quantity, strength, or availability.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "time": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "bind": 2
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 2
+          },
+          {
+            "type": "pred",
+            "pred": "BE-SPEC",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "attribute": {
+                "kind": "sp",
+                "mods": [
+                  {
+                    "mod": "BIG"
+                  }
+                ],
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "AFTER",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 2
+          },
+          {
+            "type": "pred",
+            "pred": "BE-SPEC",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "attribute": {
+                "kind": "sp",
+                "mods": [
+                  {
+                    "mod": "SMALL",
+                    "intensifier": "VERY"
+                  }
+                ],
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                }
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: faithful — the affected thing is big before the event and very small after it, rendering the temporal change and marked reduction."
+}

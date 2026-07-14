@@ -1,0 +1,55 @@
+{
+  "judge": "A",
+  "model": "gpt-5.6-sol",
+  "slug": "repeater",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 35.2,
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 15598,
+          "cached_input_tokens": 8960,
+          "output_tokens": 1128,
+          "reasoning_output_tokens": 911
+        },
+        "note": "subscription auth; codex reports tokens, not USD"
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 3,
+      "reason": "It identifies someone who does something and subsequently does that same thing again."
+    },
+    "B": {
+      "verdict": "LOSSY",
+      "missing": "It wrongly requires the same act to occur many later times; one recurrence is sufficient.",
+      "quality": 2,
+      "reason": "The repetition differentia is present, but the many-times condition improperly narrows the sense."
+    },
+    "C": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 3,
+      "reason": "It economically represents someone doing something and doing the same thing again afterward."
+    },
+    "D": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 2,
+      "reason": "It establishes the same action both before and at a later time, though an extra untimed action is redundant."
+    },
+    "E": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 3,
+      "reason": "It sharply captures a person doing something and then doing that same thing again."
+    }
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "judge": "T",
+  "model": "gpt-5.6-terra",
+  "slug": "dissociation",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 77.1,
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 18288,
+          "cached_input_tokens": 6400,
+          "output_tokens": 3782,
+          "reasoning_output_tokens": 3384
+        },
+        "note": "subscription auth; codex reports tokens, not USD"
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "LOSSY",
+      "missing": "It reduces association to physical touching and does not make the action cause the removal.",
+      "quality": 1,
+      "reason": "It describes a later loss of contact, compatible with many physical separations rather than dissociation from an association."
+    },
+    "B": {
+      "verdict": "LOSSY",
+      "missing": "The required act of removal is replaced by an uncaused change from nearness to non-nearness.",
+      "quality": 1,
+      "reason": "It has an event and spatial separation but no acting remover or association-specific relation."
+    },
+    "C": {
+      "verdict": "LOSSY",
+      "missing": "Association is wrongly rendered as spatial nearness.",
+      "quality": 2,
+      "reason": "It clearly states an action causing a prior-near thing to become non-near, but that is spatial separation rather than removal from association."
+    },
+    "D": {
+      "verdict": "LOSSY",
+      "missing": "Association is wrongly rendered as spatial nearness.",
+      "quality": 2,
+      "reason": "It economically renders an agent-caused separation, but proximity is not the criterial association relation."
+    },
+    "E": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 3,
+      "reason": "It renders an event in which an agent causes something previously acting with another thing to cease doing so, capturing removal from association."
+    },
+    "F": {
+      "verdict": "LOSSY",
+      "missing": "It substitutes departure from a place containing many people for removal from an association, without causation.",
+      "quality": 1,
+      "reason": "Being no longer where many people are is not necessarily dissociation and is only temporally adjacent to an action."
+    },
+    "G": {
+      "verdict": "LOSSY",
+      "missing": "It reduces association to nearness and does not assert that the action causes the separation.",
+      "quality": 1,
+      "reason": "The action merely precedes loss of proximity, so the explication can describe an unrelated move or spatial separation."
+    }
+  }
+}

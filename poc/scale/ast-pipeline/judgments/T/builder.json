@@ -1,0 +1,67 @@
+{
+  "judge": "T",
+  "model": "gpt-5.6-terra",
+  "slug": "builder",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 41.2,
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 18609,
+          "cached_input_tokens": 9472,
+          "output_tokens": 2001,
+          "reasoning_output_tokens": 1596
+        },
+        "note": "subscription auth; codex reports tokens, not USD"
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "LOSSY",
+      "missing": "Business-or-country creation and development are replaced by generic desired work on a thing.",
+      "quality": 0,
+      "reason": "It neither establishes creation nor identifies the organized business or country that distinguishes this sense."
+    },
+    "B": {
+      "verdict": "LOSSY",
+      "missing": "The business-or-country organizational creation criterion is replaced by work on something big.",
+      "quality": 0,
+      "reason": "Working on a large existing thing for a long time describes many unrelated roles."
+    },
+    "C": {
+      "verdict": "LOSSY",
+      "missing": "Business-or-country organization and development are replaced by generic creation of a thing that becomes bigger.",
+      "quality": 1,
+      "reason": "It captures a bare creation-and-growth pattern but also fits constructors, inventors, and many other creators."
+    },
+    "D": {
+      "verdict": "LOSSY",
+      "missing": "Business-or-country creation or development is replaced by constructing a large populated object.",
+      "quality": 1,
+      "reason": "The populated-inside object strongly suggests a physical structure and omits the economic or country-organizing criterion."
+    },
+    "E": {
+      "verdict": "LOSSY",
+      "missing": "The business-or-country organizational-development criterion is blurred into generic creation of a populated thing that becomes bigger and better.",
+      "quality": 1,
+      "reason": "Its broad creation-and-growth scenario can describe founders, developers, or constructors without selecting this builder sense."
+    },
+    "F": {
+      "verdict": "LOSSY",
+      "missing": "Business-or-country creation and organization are replaced by unspecified action concerning a large thing.",
+      "quality": 0,
+      "reason": "The clauses are generic and causally unclear, with no rendering of the sense's defining domain or role."
+    },
+    "G": {
+      "verdict": "LOSSY",
+      "missing": "Business-or-country organization and development are replaced by generic creation of a very large populated thing.",
+      "quality": 1,
+      "reason": "It gives a broad large-scale creation scenario but remains compatible with physical building and other non-sibling roles."
+    }
+  }
+}

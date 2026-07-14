@@ -1,0 +1,55 @@
+{
+  "judge": "T",
+  "model": "gpt-5.6-terra",
+  "slug": "apparition",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 50.8,
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 17081,
+          "cached_input_tokens": 9472,
+          "output_tokens": 2550,
+          "reasoning_output_tokens": 2279
+        },
+        "note": "subscription auth; codex reports tokens, not USD"
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "LOSSY",
+      "missing": "Unexpectedness is replaced by mere prior ignorance that an event is happening.",
+      "quality": 1,
+      "reason": "It describes a visibility change, but not knowing of an occurrence before it occurs does not make that occurrence unexpected."
+    },
+    "B": {
+      "verdict": "LOSSY",
+      "missing": "A thing's unexpected becoming-visible is replaced by a generic event that people come to see.",
+      "quality": 0,
+      "reason": "It miscasts the apparition itself as the visual stimulus and omits the unexpectedness criterion."
+    },
+    "C": {
+      "verdict": "LOSSY",
+      "missing": "Unexpectedness is replaced by people not thinking about the thing.",
+      "quality": 1,
+      "reason": "The before-and-after visibility skeleton is apt, but not thinking of something does not mean not expecting its appearance."
+    },
+    "D": {
+      "verdict": "LOSSY",
+      "missing": "The unexpected character of the becoming-visible is absent.",
+      "quality": 1,
+      "reason": "It gives only a generic transition from not visible to visible, which also fits expected appearances."
+    },
+    "E": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 2,
+      "reason": "It renders an event in which someone unexpectedly comes to be able to see a thing that they could not see before."
+    }
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "judge": "B",
+  "model": "claude-opus-4-8",
+  "slug": "builder",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 13.9,
+        "cost_usd": 0.09108200000000001,
+        "duration_api_ms": 11920,
+        "usage": {
+          "input_tokens": 1,
+          "cache_creation_input_tokens": 7230,
+          "cache_read_input_tokens": 2154,
+          "output_tokens": 708,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 7230,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "not_available",
+          "iterations": [
+            {
+              "input_tokens": 1,
+              "output_tokens": 708,
+              "cache_read_input_tokens": 2154,
+              "cache_creation_input_tokens": 7230,
+              "cache_creation": {
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 7230
+              },
+              "type": "message"
+            }
+          ],
+          "speed": "standard"
+        },
+        "model_usage_keys": [
+          "claude-opus-4-8"
+        ]
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "LOSSY",
+      "missing": "no clear 'did not exist before, exists after because of them'; mostly THINK/WANT vague activity",
+      "quality": 1,
+      "reason": "Weak skeleton: agent wants something to exist and does much with many people, but the creation-from-nothing structure is muddled."
+    },
+    "B": {
+      "verdict": "LOSSY",
+      "missing": "no BEFORE not-exist; only 'does big thing a long time, it exists' — no bringing-into-being",
+      "quality": 1,
+      "reason": "Generic: someone does a big thing over long time and it exists; lacks the before/after creation contrast."
+    },
+    "C": {
+      "verdict": "FAITHFUL",
+      "missing": "large-scale/organized-with-people not stated",
+      "quality": 2,
+      "reason": "Renders the core: before there was none, agent does something, after it exists and becomes bigger — the empire/business creation shape."
+    },
+    "D": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 2,
+      "reason": "Before it did not exist, exists now because agent worked long with many people, many people inside it, it grows bigger — fits empire/business builder well."
+    },
+    "E": {
+      "verdict": "FAITHFUL",
+      "missing": "slight bloat/awkward comitative chains",
+      "quality": 2,
+      "reason": "Creates something that did not exist, works with many people, it grows bigger and better because of them — captures the organizing/developing sense."
+    },
+    "F": {
+      "verdict": "FAITHFUL",
+      "missing": "the organizing-with-people component weak",
+      "quality": 2,
+      "reason": "Did not exist before now, exists because agent worked long, becomes a bigger kind — solid creation-and-growth rendering."
+    },
+    "G": {
+      "verdict": "FAITHFUL",
+      "missing": "growth/development slightly implicit",
+      "quality": 2,
+      "reason": "Agent does much over long time, very big thing exists that did not before, many people inside it — matches empire builder."
+    }
+  }
+}

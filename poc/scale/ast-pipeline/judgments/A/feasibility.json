@@ -1,0 +1,43 @@
+{
+  "judge": "A",
+  "model": "gpt-5.6-sol",
+  "slug": "feasibility",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 14.3,
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 14362,
+          "cached_input_tokens": 8960,
+          "output_tokens": 407,
+          "reasoning_output_tokens": 257
+        },
+        "note": "subscription auth; codex reports tokens, not USD"
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 3,
+      "reason": "Directly renders the quality as the possibility that someone can do the thing."
+    },
+    "B": {
+      "verdict": "LOSSY",
+      "missing": "Doability regardless of anyone's wanting is replaced by a selected person's desire-conditional ability.",
+      "quality": 1,
+      "reason": "Feasibility means that the thing can be done, not that someone who wants to do it can personally do it."
+    },
+    "C": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 3,
+      "reason": "Directly renders the quality as the possibility that someone can do the thing."
+    }
+  }
+}

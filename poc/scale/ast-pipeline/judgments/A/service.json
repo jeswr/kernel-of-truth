@@ -1,0 +1,67 @@
+{
+  "judge": "A",
+  "model": "gpt-5.6-sol",
+  "slug": "service",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 81.6,
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 17743,
+          "cached_input_tokens": 8960,
+          "output_tokens": 3231,
+          "reasoning_output_tokens": 2804
+        },
+        "note": "subscription auth; codex reports tokens, not USD"
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "LOSSY",
+      "missing": "Official legal notice is reduced to an unspecified request backed by possible harm, and oral speech is wrongly required.",
+      "quality": 2,
+      "reason": "It captures physical delivery and consequential notice, but neither identifies judicial authority nor permits service without spoken words."
+    },
+    "B": {
+      "verdict": "LOSSY",
+      "missing": "The writ or summons and its official notifying function are absent; the AST carries only movement of an arbitrary visible thing near someone.",
+      "quality": 1,
+      "reason": "This is compatible with many ordinary deliveries and does not distinguish service of process."
+    },
+    "C": {
+      "verdict": "LOSSY",
+      "missing": "The official demand and legal consequences of the delivered words are absent; the AST carries only words placed with and discussed with someone.",
+      "quality": 1,
+      "reason": "It suggests document communication but does not identify a writ, summons, or legally operative notice."
+    },
+    "D": {
+      "verdict": "LOSSY",
+      "missing": "Delivery and official legal notification are absent; the AST carries only someone seeing a thing and knowing words.",
+      "quality": 0,
+      "reason": "The clauses describe generic presentation or communication, not service of process."
+    },
+    "E": {
+      "verdict": "LOSSY",
+      "missing": "The written notice, notification, and legal force are absent; the AST carries only causing an arbitrary thing to be at someone.",
+      "quality": 1,
+      "reason": "It provides a bare delivery skeleton that equally fits countless nonlegal transfers."
+    },
+    "F": {
+      "verdict": "LOSSY",
+      "missing": "Movement or delivery, written notice, and legal force are absent; the AST carries only an arbitrary action and physical contact with someone.",
+      "quality": 0,
+      "reason": "Physical contact with an object does not distinguish delivery of legal process."
+    },
+    "G": {
+      "verdict": "LOSSY",
+      "missing": "The written official demand and its legal consequences are absent; the AST carries generic contact with an object plus speech about it.",
+      "quality": 1,
+      "reason": "It evokes a handover with notification but omits what makes the delivered object legal process."
+    }
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "judge": "T",
+  "model": "gpt-5.6-terra",
+  "slug": "service",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 21.2,
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 17738,
+          "cached_input_tokens": 0,
+          "output_tokens": 920,
+          "reasoning_output_tokens": 516
+        },
+        "note": "subscription auth; codex reports tokens, not USD"
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 2,
+      "reason": "It renders delivery of a written notice to the person together with an authoritative future demand and adverse consequence for noncompliance."
+    },
+    "B": {
+      "verdict": "LOSSY",
+      "missing": "It drops the writ or summons and its authoritative legal demand, carrying only movement of an unspecified thing near someone.",
+      "quality": 1,
+      "reason": "This is a generic act that leaves an object near a person, which fits many deliveries and not specifically service of process."
+    },
+    "C": {
+      "verdict": "LOSSY",
+      "missing": "It drops the compulsory writ-or-summons content, carrying only someone saying words to another person.",
+      "quality": 1,
+      "reason": "Delivering and discussing words is too broad to distinguish service of process from ordinary communication."
+    },
+    "D": {
+      "verdict": "LOSSY",
+      "missing": "It drops delivery of a writ or summons, carrying only a person seeing something and knowing words.",
+      "quality": 0,
+      "reason": "The asserted scene does not express service or delivery and is compatible with unrelated encounters."
+    },
+    "E": {
+      "verdict": "LOSSY",
+      "missing": "It drops the writ or summons and its legal-notice function, carrying only placement of an unspecified thing at someone.",
+      "quality": 1,
+      "reason": "This gives a generic delivery skeleton without the criterial legal document or summons content."
+    },
+    "F": {
+      "verdict": "LOSSY",
+      "missing": "It drops the writ or summons and authoritative notice, carrying only an unspecified thing touching another person.",
+      "quality": 1,
+      "reason": "Physical transfer of any object to a person does not identify service of process."
+    },
+    "G": {
+      "verdict": "LOSSY",
+      "missing": "It drops the compulsory writ-or-summons content, carrying delivery and speech about an unspecified thing.",
+      "quality": 1,
+      "reason": "The candidate describes a generic handover accompanied by speech, not legally effective delivery of process."
+    }
+  }
+}

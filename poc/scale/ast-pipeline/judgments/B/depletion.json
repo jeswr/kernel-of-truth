@@ -1,0 +1,83 @@
+{
+  "judge": "B",
+  "model": "claude-opus-4-8",
+  "slug": "depletion",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 10.1,
+        "cost_usd": 0.058801,
+        "duration_api_ms": 9661,
+        "usage": {
+          "input_tokens": 1,
+          "cache_creation_input_tokens": 4198,
+          "cache_read_input_tokens": 2154,
+          "output_tokens": 465,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 4198,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "not_available",
+          "iterations": [
+            {
+              "input_tokens": 1,
+              "output_tokens": 465,
+              "cache_read_input_tokens": 2154,
+              "cache_creation_input_tokens": 4198,
+              "cache_creation": {
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 4198
+              },
+              "type": "message"
+            }
+          ],
+          "speed": "standard"
+        },
+        "model_usage_keys": [
+          "claude-haiku-4-5-20251001",
+          "claude-opus-4-8"
+        ]
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 2,
+      "reason": "Agent does something; before much of the thing, after little — captures marked decrease as an act."
+    },
+    "B": {
+      "verdict": "FAITHFUL",
+      "missing": "much/little via partFrame slightly odd but decrease and agency clear",
+      "quality": 2,
+      "reason": "Someone acts, causing much before and little after; act of decreasing rendered."
+    },
+    "C": {
+      "verdict": "LOSSY",
+      "missing": "act (agent) subordinated under BECAUSE, framed as HAPPEN not primarily an act of decreasing",
+      "quality": 1,
+      "reason": "Decrease present but framed as event-with-cause, weakening the 'act' genus."
+    },
+    "D": {
+      "verdict": "FAITHFUL",
+      "missing": "agency of the act not explicit; only HAPPEN",
+      "quality": 2,
+      "reason": "Big before, very small after captures marked decrease, but as event not clearly an act."
+    },
+    "E": {
+      "verdict": "FAITHFUL",
+      "missing": "agent not explicit; HAPPEN not DO",
+      "quality": 2,
+      "reason": "Very big before, small after renders marked decrease; genus as act weakly signalled."
+    }
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "judge": "T",
+  "model": "gpt-5.6-terra",
+  "slug": "dislocation",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 42.3,
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 17417,
+          "cached_input_tokens": 6400,
+          "output_tokens": 1668,
+          "reasoning_output_tokens": 1309
+        },
+        "note": "subscription auth; codex reports tokens, not USD"
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "LOSSY",
+      "missing": "It omits a disruptive act causing the established order to fail, carrying only a generic later impossibility.",
+      "quality": 1,
+      "reason": "It describes an interruption of a long-running event but not an act of disruption or its causal role."
+    },
+    "B": {
+      "verdict": "LOSSY",
+      "missing": "It omits the disruptive act and causal disruption, carrying only cessation of a long-running event.",
+      "quality": 1,
+      "reason": "This is a generic breakdown or ending and does not distinguish dislocation."
+    },
+    "C": {
+      "verdict": "LOSSY",
+      "missing": "It omits an act that disrupts the established practice, carrying only that people cease doing it.",
+      "quality": 1,
+      "reason": "An established collective practice stops, but no disruptive action is rendered as causing this."
+    },
+    "D": {
+      "verdict": "LOSSY",
+      "missing": "It fails to state that someone's act disrupts the order; it instead has someone do the ongoing thing without a causal link.",
+      "quality": 0,
+      "reason": "The added action is not represented as disruptive or as causing the failure to continue."
+    },
+    "E": {
+      "verdict": "LOSSY",
+      "missing": "It omits a causally disruptive act, carrying an unconnected action and generic later impossibility.",
+      "quality": 0,
+      "reason": "Its action, prior events, and subsequent failure are not compositionally connected as dislocation."
+    },
+    "F": {
+      "verdict": "LOSSY",
+      "missing": "It omits the disruptive act and its causal link to the established order's failure.",
+      "quality": 1,
+      "reason": "It depicts people becoming unable to continue a practice, which also fits many non-disruptive breakdowns."
+    }
+  }
+}

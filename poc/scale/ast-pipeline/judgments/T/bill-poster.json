@@ -1,0 +1,67 @@
+{
+  "judge": "T",
+  "model": "gpt-5.6-terra",
+  "slug": "bill-poster",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 75.3,
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 16996,
+          "cached_input_tokens": 0,
+          "output_tokens": 3914,
+          "reasoning_output_tokens": 3504
+        },
+        "note": "subscription auth; codex reports tokens, not USD"
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "LOSSY",
+      "missing": "Pasting bills or placards onto walls or billboards is reduced to words touching an unspecified thing.",
+      "quality": 1,
+      "reason": "It has a public-visible textual result but does not adequately identify the posted material or the posting action and surface."
+    },
+    "B": {
+      "verdict": "LOSSY",
+      "missing": "It omits bills or placards and walls or billboards, carrying only an unspecified object touching another object.",
+      "quality": 0,
+      "reason": "This is a generic action with an unrelated contact state and could describe innumerable occupations."
+    },
+    "C": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 2,
+      "reason": "It identifies a person who causes a word-bearing item to be attached to a large support so many people can see it, capturing the posting function."
+    },
+    "D": {
+      "verdict": "LOSSY",
+      "missing": "It omits the bill or placard and the wall or billboard, carrying only an unspecified object in contact with something.",
+      "quality": 0,
+      "reason": "The bare action and contact relation are far too generic to pick out a bill poster."
+    },
+    "E": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 2,
+      "reason": "It renders manual attachment of word-bearing materials to a surface for broad public viewing, which captures the relevant occupational activity."
+    },
+    "F": {
+      "verdict": "LOSSY",
+      "missing": "It does not make the person's action one of pasting a bill or placard onto a wall or billboard.",
+      "quality": 1,
+      "reason": "A word-bearing thing touching a place is compatible with many activities and lacks the requisite affixing relation."
+    },
+    "G": {
+      "verdict": "LOSSY",
+      "missing": "It does not connect the person's action to attaching the word-bearing item to the large surface.",
+      "quality": 1,
+      "reason": "Although it describes a visible textual item on a large thing, the worker's unspecified action need not be posting it."
+    }
+  }
+}

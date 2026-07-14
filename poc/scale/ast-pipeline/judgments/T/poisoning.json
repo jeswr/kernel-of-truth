@@ -1,0 +1,67 @@
+{
+  "judge": "T",
+  "model": "gpt-5.6-terra",
+  "slug": "poisoning",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 25.4,
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 17479,
+          "cached_input_tokens": 9472,
+          "output_tokens": 1113,
+          "reasoning_output_tokens": 703
+        },
+        "note": "subscription auth; codex reports tokens, not USD"
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "LOSSY",
+      "missing": "It gives no poison-administration relation, only a generic act using something against a living thing.",
+      "quality": 1,
+      "reason": "The intent to cause death is present, but the act is indistinguishable from many other attempted killings."
+    },
+    "B": {
+      "verdict": "LOSSY",
+      "missing": "It omits both giving poison and any lethal effect or role for the instrument.",
+      "quality": 1,
+      "reason": "This is only a generic intentional act against a living thing with an unspecified instrument."
+    },
+    "C": {
+      "verdict": "LOSSY",
+      "missing": "It neither connects the event to the act nor expresses poison being given to the target.",
+      "quality": 0,
+      "reason": "The clauses describe an unconnected happening and a generic wish for something to die."
+    },
+    "D": {
+      "verdict": "LOSSY",
+      "missing": "It lacks administration of poison, replacing it with an unspecified act using something on a body.",
+      "quality": 1,
+      "reason": "It captures homicidal intent and possible death but not the distinguishing poisoning mechanism."
+    },
+    "E": {
+      "verdict": "LOSSY",
+      "missing": "It wrongly requires the target to die and does not clearly render giving poison, only something being inside the target.",
+      "quality": 1,
+      "reason": "It approaches a lethal administration but overasserts death rather than defining the intentional act of giving poison."
+    },
+    "F": {
+      "verdict": "LOSSY",
+      "missing": "It provides no poison-administration or causal link between the bad thing and the intended death.",
+      "quality": 0,
+      "reason": "A bad unspecified act done with someone who is intended to die does not identify poisoning."
+    },
+    "G": {
+      "verdict": "LOSSY",
+      "missing": "It does not express giving the lethal thing to the target, only an unspecified bad act and a thing already inside.",
+      "quality": 1,
+      "reason": "The intended death and internal harmful thing are present, but the criterial administration act is not rendered."
+    }
+  }
+}

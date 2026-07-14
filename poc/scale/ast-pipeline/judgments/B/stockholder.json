@@ -1,0 +1,95 @@
+{
+  "judge": "B",
+  "model": "claude-opus-4-8",
+  "slug": "stockholder",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 13.7,
+        "cost_usd": 0.070064,
+        "duration_api_ms": 13069,
+        "usage": {
+          "input_tokens": 1,
+          "cache_creation_input_tokens": 4628,
+          "cache_read_input_tokens": 2154,
+          "output_tokens": 729,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 4628,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "not_available",
+          "iterations": [
+            {
+              "input_tokens": 1,
+              "output_tokens": 729,
+              "cache_read_input_tokens": 2154,
+              "cache_creation_input_tokens": 4628,
+              "cache_creation": {
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 4628
+              },
+              "type": "message"
+            }
+          ],
+          "speed": "standard"
+        },
+        "model_usage_keys": [
+          "claude-haiku-4-5-20251001",
+          "claude-opus-4-8"
+        ]
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "LOSSY",
+      "missing": "corporation as an organization run by many people is unspecified; thing2 is bare",
+      "quality": 2,
+      "reason": "Person owns a part (share) of some thing; captures part-of-a-thing ownership but no notion of corporation."
+    },
+    "B": {
+      "verdict": "LOSSY",
+      "missing": "no THINK/claim framing and thing3 (corporation) uncharacterized; owns a part of a thing",
+      "quality": 2,
+      "reason": "Renders owning a part of a thing but the corporation genus is left as bare SOMETHING."
+    },
+    "C": {
+      "verdict": "LOSSY",
+      "missing": "corporation unspecified as a people-run entity; part-ownership present but genus thin",
+      "quality": 2,
+      "reason": "Owns some part of a thing and thinks it is his; corporation not characterized."
+    },
+    "D": {
+      "verdict": "LOSSY",
+      "missing": "no part-of relation, no corporation; just owns a thing",
+      "quality": 0,
+      "reason": "Merely someone who thinks a thing is his — fits any owner, not a shareholder."
+    },
+    "E": {
+      "verdict": "LOSSY",
+      "missing": "share as a formal part of a corporation; adds vague good-feeling bloat",
+      "quality": 1,
+      "reason": "Big thing many people do, owns a small part — gestures at company but the criterial share-ownership is diluted by bloat."
+    },
+    "F": {
+      "verdict": "LOSSY",
+      "missing": "corporation as people-run entity unspecified; one part of a thing owned",
+      "quality": 2,
+      "reason": "Owns one part of a thing and thinks it his; the corporation genus is bare SOMETHING."
+    },
+    "G": {
+      "verdict": "LOSSY",
+      "missing": "double IS-MINE muddles; corporation as thing many people do gestured but part-ownership overstated",
+      "quality": 2,
+      "reason": "Thing many people do, owns a part of it; approaches the sense but the framing is muddled and corporation thinly rendered."
+    }
+  }
+}

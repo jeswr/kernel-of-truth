@@ -1,0 +1,55 @@
+{
+  "judge": "A",
+  "model": "gpt-5.6-sol",
+  "slug": "apparition",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 59.7,
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 17076,
+          "cached_input_tokens": 8960,
+          "output_tokens": 2034,
+          "reasoning_output_tokens": 1763
+        },
+        "note": "subscription auth; codex reports tokens, not USD"
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "LOSSY",
+      "missing": "Unexpectedness is weakened to not knowing the event would happen; an anticipated but uncertain appearance also satisfies this.",
+      "quality": 2,
+      "reason": "It captures an event changing something from not visible to visible, but lack of knowledge does not criterially distinguish an unexpected appearance."
+    },
+    "B": {
+      "verdict": "LOSSY",
+      "missing": "It omits unexpectedness and conflates the appearing event with the entity that is seen.",
+      "quality": 1,
+      "reason": "The generic event merely changes from unseen to seen and could describe many observable events."
+    },
+    "C": {
+      "verdict": "LOSSY",
+      "missing": "It replaces not anticipating the appearance with merely not thinking about the entity.",
+      "quality": 1,
+      "reason": "The visibility transition is present, but not thinking about something does not render its unexpected appearance."
+    },
+    "D": {
+      "verdict": "LOSSY",
+      "missing": "The unexpectedness of becoming visible is entirely absent.",
+      "quality": 1,
+      "reason": "It gives only a generic transition from inability to ability to see something."
+    },
+    "E": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 3,
+      "reason": "It sharply renders an event in which something becomes visible to an observer who had not thought this would occur."
+    }
+  }
+}

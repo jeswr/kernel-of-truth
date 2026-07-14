@@ -1,0 +1,285 @@
+concept: inhabitancy
+synset: urn:lexical-wn31:n-01056469
+pos: n
+lemmas: inhabitancy, inhabitation, habitation
+wn31-gloss (sense-fixing only): the act of dwelling in or living permanently in a place (said of both animals and men); "he studied the creation and inhabitation and demise of the colony"
+
+=== CANDIDATE A ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 2,
+   "refKind": "PlaceRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "BE-SOMEWHERE",
+   "roles": {
+    "undergoer": {
+     "kind": "ref",
+     "index": 1
+    },
+    "locus": {
+     "kind": "sp",
+     "det": "SOME",
+     "head": {
+      "kind": "primeHead",
+      "prime": "WHERE~PLACE"
+     },
+     "bind": 2
+    },
+    "manner": {
+     "kind": "prime",
+     "prime": "INSIDE"
+    }
+   }
+  },
+  {
+   "type": "pred",
+   "pred": "LIVE",
+   "roles": {
+    "undergoer": {
+     "kind": "ref",
+     "index": 1
+    },
+    "place": {
+     "kind": "ref",
+     "index": 2
+    },
+    "duration": {
+     "kind": "prime",
+     "prime": "A-LONG-TIME"
+    }
+   }
+  }
+ ]
+}
+
+=== CANDIDATE B ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 2,
+   "refKind": "PlaceRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "LIVE",
+   "roles": {
+    "undergoer": {
+     "kind": "ref",
+     "index": 1
+    },
+    "place": {
+     "kind": "sp",
+     "head": {
+      "kind": "primeHead",
+      "prime": "WHERE~PLACE"
+     },
+     "bind": 2
+    },
+    "duration": {
+     "kind": "prime",
+     "prime": "A-LONG-TIME"
+    }
+   }
+  }
+ ]
+}
+
+=== CANDIDATE C ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 3,
+   "refKind": "PlaceRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "HAPPEN",
+   "roles": {
+    "undergoer": {
+     "kind": "ref",
+     "index": 1
+    }
+   }
+  },
+  {
+   "type": "pred",
+   "pred": "LIVE",
+   "roles": {
+    "undergoer": {
+     "kind": "sp",
+     "head": {
+      "kind": "primeHead",
+      "prime": "SOMETHING~THING"
+     },
+     "bind": 2
+    },
+    "place": {
+     "kind": "sp",
+     "det": "SOME",
+     "head": {
+      "kind": "primeHead",
+      "prime": "WHERE~PLACE"
+     },
+     "bind": 3
+    },
+    "duration": {
+     "kind": "prime",
+     "prime": "A-LONG-TIME"
+    }
+   }
+  }
+ ]
+}
+
+=== CANDIDATE D ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 2,
+   "refKind": "PlaceRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "LIVE",
+   "roles": {
+    "undergoer": {
+     "kind": "ref",
+     "index": 1
+    },
+    "place": {
+     "kind": "sp",
+     "det": "SOME",
+     "head": {
+      "kind": "primeHead",
+      "prime": "WHERE~PLACE"
+     },
+     "bind": 2
+    },
+    "duration": {
+     "kind": "prime",
+     "prime": "A-LONG-TIME"
+    }
+   }
+  },
+  {
+   "type": "pred",
+   "pred": "BE-SOMEWHERE",
+   "roles": {
+    "undergoer": {
+     "kind": "ref",
+     "index": 1
+    },
+    "locus": {
+     "kind": "ref",
+     "index": 2
+    },
+    "duration": {
+     "kind": "prime",
+     "prime": "A-LONG-TIME"
+    }
+   }
+  }
+ ]
+}
+
+=== CANDIDATE E ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 2,
+   "refKind": "PlaceRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "LIVE",
+   "roles": {
+    "undergoer": {
+     "kind": "ref",
+     "index": 1
+    },
+    "place": {
+     "kind": "sp",
+     "det": "SOME",
+     "head": {
+      "kind": "primeHead",
+      "prime": "WHERE~PLACE"
+     },
+     "bind": 2
+    },
+    "duration": {
+     "kind": "prime",
+     "prime": "A-LONG-TIME"
+    }
+   }
+  },
+  {
+   "type": "pred",
+   "pred": "BE-SOMEWHERE",
+   "roles": {
+    "undergoer": {
+     "kind": "ref",
+     "index": 1
+    },
+    "locus": {
+     "kind": "ref",
+     "index": 2
+    },
+    "time": {
+     "kind": "sp",
+     "quant": "MUCH~MANY",
+     "head": {
+      "kind": "primeHead",
+      "prime": "WHEN~TIME"
+     }
+    }
+   }
+  }
+ ]
+}

@@ -1,0 +1,55 @@
+{
+  "judge": "T",
+  "model": "gpt-5.6-terra",
+  "slug": "inhabitancy",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 20.7,
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 15082,
+          "cached_input_tokens": 9472,
+          "output_tokens": 689,
+          "reasoning_output_tokens": 456
+        },
+        "note": "subscription auth; codex reports tokens, not USD"
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 2,
+      "reason": "It renders long-term living in a place, with an additional but compatible inside-place specification."
+    },
+    "B": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 3,
+      "reason": "It economically states the core meaning: something lives in a place for a long time."
+    },
+    "C": {
+      "verdict": "LOSSY",
+      "missing": "The happening is not linked to the long-term living in a place; it carries an unrelated event instead.",
+      "quality": 0,
+      "reason": "Its event referent is disconnected from the living clause, so it does not define an act of inhabiting."
+    },
+    "D": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 2,
+      "reason": "It includes the criterial long-term living in a place; the second clause is redundant."
+    },
+    "E": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 2,
+      "reason": "It includes the criterial long-term living in a place; the added prolonged presence is redundant."
+    }
+  }
+}

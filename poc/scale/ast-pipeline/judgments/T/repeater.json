@@ -1,0 +1,55 @@
+{
+  "judge": "T",
+  "model": "gpt-5.6-terra",
+  "slug": "repeater",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 27.3,
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 15593,
+          "cached_input_tokens": 9472,
+          "output_tokens": 1133,
+          "reasoning_output_tokens": 906
+        },
+        "note": "subscription auth; codex reports tokens, not USD"
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 3,
+      "reason": "It identifies someone who does the same thing again after an earlier doing of it."
+    },
+    "B": {
+      "verdict": "LOSSY",
+      "missing": "It requires many later repetitions, whereas repeating once is sufficient; it carries an over-narrow repeated-many-times subtype.",
+      "quality": 2,
+      "reason": "The same-action recurrence is present, but the added many-times condition wrongly narrows the sense."
+    },
+    "C": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 3,
+      "reason": "It states that someone does one thing and does that same thing again later."
+    },
+    "D": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 2,
+      "reason": "It entails that the person does the same thing before and again at the stated time, though redundantly."
+    },
+    "E": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 3,
+      "reason": "It identifies someone who does the same thing again after an earlier doing of it."
+    }
+  }
+}

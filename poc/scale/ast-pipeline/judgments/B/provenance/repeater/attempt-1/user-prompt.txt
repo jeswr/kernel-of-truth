@@ -1,0 +1,396 @@
+concept: repeater
+synset: urn:lexical-wn31:n-10541063
+pos: n
+lemmas: repeater
+wn31-gloss (sense-fixing only): a person who repeats; "the audience consisted largely of repeaters who had seen the movie many times"
+
+=== CANDIDATE A ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 3,
+   "refKind": "TimeRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "DO",
+   "roles": {
+    "agent": {
+     "kind": "ref",
+     "index": 1
+    },
+    "undergoer": {
+     "kind": "sp",
+     "head": {
+      "kind": "primeHead",
+      "prime": "SOMETHING~THING"
+     },
+     "bind": 2
+    },
+    "time": {
+     "kind": "sp",
+     "det": "SOME",
+     "head": {
+      "kind": "primeHead",
+      "prime": "WHEN~TIME"
+     },
+     "bind": 3
+    }
+   }
+  },
+  {
+   "type": "op",
+   "op": "AFTER",
+   "args": [
+    {
+     "kind": "ref",
+     "index": 3
+    },
+    {
+     "type": "pred",
+     "pred": "DO",
+     "roles": {
+      "agent": {
+       "kind": "ref",
+       "index": 1
+      },
+      "undergoer": {
+       "kind": "ref",
+       "index": 2
+      }
+     }
+    }
+   ]
+  }
+ ]
+}
+
+=== CANDIDATE B ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 3,
+   "refKind": "TimeRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "DO",
+   "roles": {
+    "agent": {
+     "kind": "ref",
+     "index": 1
+    },
+    "undergoer": {
+     "kind": "sp",
+     "head": {
+      "kind": "primeHead",
+      "prime": "SOMETHING~THING"
+     },
+     "bind": 2
+    },
+    "time": {
+     "kind": "sp",
+     "det": "SOME",
+     "head": {
+      "kind": "primeHead",
+      "prime": "WHEN~TIME"
+     },
+     "bind": 3
+    }
+   }
+  },
+  {
+   "type": "op",
+   "op": "AFTER",
+   "args": [
+    {
+     "kind": "ref",
+     "index": 3
+    },
+    {
+     "type": "pred",
+     "pred": "DO",
+     "roles": {
+      "agent": {
+       "kind": "ref",
+       "index": 1
+      },
+      "undergoer": {
+       "kind": "sp",
+       "det": "THE-SAME",
+       "head": {
+        "kind": "refHead",
+        "index": 2
+       }
+      },
+      "time": {
+       "kind": "sp",
+       "quant": "MUCH~MANY",
+       "head": {
+        "kind": "primeHead",
+        "prime": "WHEN~TIME"
+       }
+      }
+     }
+    }
+   ]
+  }
+ ]
+}
+
+=== CANDIDATE C ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 3,
+   "refKind": "TimeRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "DO",
+   "roles": {
+    "agent": {
+     "kind": "ref",
+     "index": 1
+    },
+    "undergoer": {
+     "kind": "sp",
+     "det": "SOME",
+     "head": {
+      "kind": "primeHead",
+      "prime": "SOMETHING~THING"
+     },
+     "bind": 2
+    },
+    "time": {
+     "kind": "sp",
+     "det": "SOME",
+     "head": {
+      "kind": "primeHead",
+      "prime": "WHEN~TIME"
+     },
+     "bind": 3
+    }
+   }
+  },
+  {
+   "type": "pred",
+   "pred": "DO",
+   "roles": {
+    "agent": {
+     "kind": "ref",
+     "index": 1
+    },
+    "undergoer": {
+     "kind": "ref",
+     "index": 2
+    },
+    "time": {
+     "kind": "temporal",
+     "op": "AFTER",
+     "anchor": {
+      "kind": "ref",
+      "index": 3
+     }
+    }
+   }
+  }
+ ]
+}
+
+=== CANDIDATE D ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 3,
+   "refKind": "TimeRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "DO",
+   "roles": {
+    "agent": {
+     "kind": "ref",
+     "index": 1
+    },
+    "undergoer": {
+     "kind": "sp",
+     "head": {
+      "kind": "primeHead",
+      "prime": "SOMETHING~THING"
+     },
+     "bind": 2
+    }
+   }
+  },
+  {
+   "type": "pred",
+   "pred": "DO",
+   "roles": {
+    "agent": {
+     "kind": "ref",
+     "index": 1
+    },
+    "undergoer": {
+     "kind": "ref",
+     "index": 2
+    },
+    "time": {
+     "kind": "sp",
+     "det": "SOME",
+     "head": {
+      "kind": "primeHead",
+      "prime": "WHEN~TIME"
+     },
+     "bind": 3
+    }
+   }
+  },
+  {
+   "type": "op",
+   "op": "BEFORE",
+   "args": [
+    {
+     "kind": "ref",
+     "index": 3
+    },
+    {
+     "type": "pred",
+     "pred": "DO",
+     "roles": {
+      "agent": {
+       "kind": "ref",
+       "index": 1
+      },
+      "undergoer": {
+       "kind": "ref",
+       "index": 2
+      }
+     }
+    }
+   ]
+  }
+ ]
+}
+
+=== CANDIDATE E ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 3,
+   "refKind": "TimeRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "DO",
+   "roles": {
+    "agent": {
+     "kind": "ref",
+     "index": 1
+    },
+    "undergoer": {
+     "kind": "sp",
+     "det": "SOME",
+     "head": {
+      "kind": "primeHead",
+      "prime": "SOMETHING~THING"
+     },
+     "bind": 2
+    },
+    "time": {
+     "kind": "sp",
+     "det": "SOME",
+     "head": {
+      "kind": "primeHead",
+      "prime": "WHEN~TIME"
+     },
+     "bind": 3
+    }
+   }
+  },
+  {
+   "type": "op",
+   "op": "AFTER",
+   "args": [
+    {
+     "kind": "ref",
+     "index": 3
+    },
+    {
+     "type": "pred",
+     "pred": "DO",
+     "roles": {
+      "agent": {
+       "kind": "ref",
+       "index": 1
+      },
+      "undergoer": {
+       "kind": "ref",
+       "index": 2
+      }
+     }
+    }
+   ]
+  }
+ ]
+}

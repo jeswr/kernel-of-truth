@@ -1,0 +1,95 @@
+{
+  "judge": "B",
+  "model": "claude-opus-4-8",
+  "slug": "access",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 13.7,
+        "cost_usd": 0.09508299999999999,
+        "duration_api_ms": 13145,
+        "usage": {
+          "input_tokens": 1,
+          "cache_creation_input_tokens": 7296,
+          "cache_read_input_tokens": 0,
+          "output_tokens": 690,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 7296,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "not_available",
+          "iterations": [
+            {
+              "input_tokens": 1,
+              "output_tokens": 690,
+              "cache_read_input_tokens": 0,
+              "cache_creation_input_tokens": 7296,
+              "cache_creation": {
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 7296
+              },
+              "type": "message"
+            }
+          ],
+          "speed": "standard"
+        },
+        "model_usage_keys": [
+          "claude-haiku-4-5-20251001",
+          "claude-opus-4-8"
+        ]
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "LOSSY",
+      "missing": "no before/after transition from far to near/inside; just static MOVE + NEAR",
+      "quality": 1,
+      "reason": "Skeleton: motion plus near-location, but no rendering of approaching/entering as a change of state."
+    },
+    "B": {
+      "verdict": "FAITHFUL",
+      "missing": "entering (INSIDE) not rendered, only approaching from far",
+      "quality": 2,
+      "reason": "Renders approaching: was far, moved, then no longer far — captures the act of approaching though entering is soft."
+    },
+    "C": {
+      "verdict": "FAITHFUL",
+      "missing": "approaching aspect slightly thin",
+      "quality": 2,
+      "reason": "Before: not inside; after: inside — cleanly renders entering, plus motion; approaching/entering both covered."
+    },
+    "D": {
+      "verdict": "LOSSY",
+      "missing": "no before/after change; no far-to-near/inside transition, just HAPPEN + MOVE-to-something",
+      "quality": 1,
+      "reason": "Generic event plus motion into something; lacks the approach/enter transition structure."
+    },
+    "E": {
+      "verdict": "FAITHFUL",
+      "missing": "entering only as CAN, not achieved; slight bloat",
+      "quality": 2,
+      "reason": "Was far, moved, then near, and can be inside — renders approaching-and-entering, minor looseness on entry."
+    },
+    "F": {
+      "verdict": "FAITHFUL",
+      "missing": "entering only as MAYBE; slight bloat",
+      "quality": 2,
+      "reason": "Was not inside, moved, then near, maybe inside — captures approach/entry with soft entering."
+    },
+    "G": {
+      "verdict": "LOSSY",
+      "missing": "no from-far transition; static MOVE + NEAR only",
+      "quality": 1,
+      "reason": "Skeleton: motion plus near, no rendering of change of state defining approaching/entering."
+    }
+  }
+}

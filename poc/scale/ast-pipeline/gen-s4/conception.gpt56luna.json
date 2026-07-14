@@ -1,0 +1,195 @@
+{
+  "id": "urn:kernel-v1:conception",
+  "label": "conception",
+  "synset": "urn:lexical-wn31:n-00846508",
+  "pattern": "InstanceSchema; body-part contact + onset of new life inside a body",
+  "gloss": "The reproductive event in which a sperm cell fertilizes an ovum within a female body, thereby initiating pregnancy and the development of a new living organism.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "TimeRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 4,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 5,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 6,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "time": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "bind": 2
+          },
+          "place": {
+            "kind": "sp",
+            "quant": "ONE",
+            "head": {
+              "kind": "primeHead",
+              "prime": "BODY"
+            },
+            "bind": 3
+          },
+          "manner": {
+            "kind": "prime",
+            "prime": "INSIDE"
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 2
+          },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "THERE-IS",
+                "roles": {
+                  "undergoer": {
+                    "kind": "sp",
+                    "mods": [
+                      {
+                        "mod": "SMALL",
+                        "intensifier": "VERY"
+                      }
+                    ],
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMEONE"
+                    },
+                    "bind": 6
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "BE-SOMEWHERE",
+            "roles": {
+              "undergoer": {
+                "kind": "sp",
+                "mods": [
+                  {
+                    "mod": "SMALL"
+                  }
+                ],
+                "head": {
+                  "kind": "partFrame",
+                  "of": {
+                    "kind": "ref",
+                    "index": 3
+                  }
+                },
+                "bind": 4
+              },
+              "locus": {
+                "kind": "sp",
+                "det": "OTHER~ELSE~ANOTHER",
+                "mods": [
+                  {
+                    "mod": "SMALL"
+                  }
+                ],
+                "head": {
+                  "kind": "partFrame",
+                  "of": {
+                    "kind": "primeHead",
+                    "prime": "BODY"
+                  }
+                },
+                "bind": 5
+              },
+              "time": {
+                "kind": "ref",
+                "index": 2
+              },
+              "place": {
+                "kind": "ref",
+                "index": 3
+              },
+              "manner": {
+                "kind": "prime",
+                "prime": "TOUCH"
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "AFTER",
+            "args": [
+              {
+                "kind": "ref",
+                "index": 2
+              },
+              {
+                "type": "pred",
+                "pred": "LIVE",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 6
+                  },
+                  "place": {
+                    "kind": "ref",
+                    "index": 3
+                  },
+                  "manner": {
+                    "kind": "prime",
+                    "prime": "INSIDE"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the metalanguage cannot distinguish a spermatozoon from an ovum, express their cellular fusion, or name the resulting pregnant state; it renders contact between small body-parts followed by a living someone inside one body."
+}

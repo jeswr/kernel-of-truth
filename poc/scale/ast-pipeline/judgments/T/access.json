@@ -1,0 +1,67 @@
+{
+  "judge": "T",
+  "model": "gpt-5.6-terra",
+  "slug": "access",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 67.4,
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 17108,
+          "cached_input_tokens": 9472,
+          "output_tokens": 3476,
+          "reasoning_output_tokens": 3149
+        },
+        "note": "subscription auth; codex reports tokens, not USD"
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "LOSSY",
+      "missing": "It gives mere movement while near a place, not a transition toward or into it.",
+      "quality": 1,
+      "reason": "The endpoint relation is untimed and does not establish approaching or entering."
+    },
+    "B": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 2,
+      "reason": "It renders an act of moving from being far away to no longer being far away, i.e. approaching."
+    },
+    "C": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 3,
+      "reason": "It sharply renders movement from not being inside a place to being inside it."
+    },
+    "D": {
+      "verdict": "LOSSY",
+      "missing": "It supplies generic happening and movement but no approach or entry relation.",
+      "quality": 1,
+      "reason": "Moving toward an unspecified thing does not distinguish access from other movement."
+    },
+    "E": {
+      "verdict": "LOSSY",
+      "missing": "It adds a necessary ability to be inside rather than simply rendering approach or entry.",
+      "quality": 2,
+      "reason": "Although it depicts approach, the added CAN condition wrongly makes possible entry criterial."
+    },
+    "F": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 2,
+      "reason": "It depicts an event of moving from outside toward a place, with entry left as a possible continuation."
+    },
+    "G": {
+      "verdict": "LOSSY",
+      "missing": "It gives movement and nearness without a change toward or into a place.",
+      "quality": 1,
+      "reason": "The static nearness condition makes this compatible with many unrelated movements."
+    }
+  }
+}

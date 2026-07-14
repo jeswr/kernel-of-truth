@@ -1,0 +1,89 @@
+{
+  "judge": "B",
+  "model": "claude-opus-4-8",
+  "slug": "dislocation",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 18.0,
+        "cost_usd": 0.080384,
+        "duration_api_ms": 17497,
+        "usage": {
+          "input_tokens": 1,
+          "cache_creation_input_tokens": 5539,
+          "cache_read_input_tokens": 2154,
+          "output_tokens": 746,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 5539,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "not_available",
+          "iterations": [
+            {
+              "input_tokens": 1,
+              "output_tokens": 746,
+              "cache_read_input_tokens": 2154,
+              "cache_creation_input_tokens": 5539,
+              "cache_creation": {
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 5539
+              },
+              "type": "message"
+            }
+          ],
+          "speed": "standard"
+        },
+        "model_usage_keys": [
+          "claude-haiku-4-5-20251001",
+          "claude-opus-4-8"
+        ]
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "LOSSY",
+      "missing": "no agent disrupting; established order rendered only as generic long-happening thing, no 'order' or 'fails to continue' via agentive disruption",
+      "quality": 1,
+      "reason": "HAPPEN-based skeleton: a long-standing thing can no longer happen; lacks the agentive disrupting of an established order."
+    },
+    "B": {
+      "verdict": "LOSSY",
+      "missing": "no BECAUSE tying event to failure, no agent; just something long-happening then cannot happen",
+      "quality": 1,
+      "reason": "Bare 'long thing can no longer happen'; missing agentive disruption and established-order sense."
+    },
+    "C": {
+      "verdict": "LOSSY",
+      "missing": "no external disrupter; PEOPLE stop doing what they long did, reads as spontaneous cessation not act of disrupting",
+      "quality": 1,
+      "reason": "Renders many-people-stop-doing but the 'act of disrupting' by something/someone is absent; genus of disruption not carried."
+    },
+    "D": {
+      "verdict": "LOSSY",
+      "missing": "someone DOes to the thing, but no BECAUSE linking that act to it no longer being able to happen; causal disruption unlinked",
+      "quality": 2,
+      "reason": "Adds an agent acting on the long-standing thing plus its ceasing, closer to disrupting an order, but causal chain from act to failure is loose."
+    },
+    "E": {
+      "verdict": "LOSSY",
+      "missing": "someone acts and thing ceases but no BECAUSE joining the act to the ceasing; disruption causation not asserted",
+      "quality": 2,
+      "reason": "Agent acts on established thing that then cannot happen; near-faithful but the causal 'so it fails' link is only juxtaposed."
+    },
+    "F": {
+      "verdict": "LOSSY",
+      "missing": "no agent disrupting and no causal link; only PEOPLE long did X then cannot do X",
+      "quality": 1,
+      "reason": "People long did a thing then cannot; lacks the disrupting act and BECAUSE causation of established-order failure."
+    }
+  }
+}

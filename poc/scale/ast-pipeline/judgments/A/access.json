@@ -1,0 +1,67 @@
+{
+  "judge": "A",
+  "model": "gpt-5.6-sol",
+  "slug": "access",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 82.9,
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 17103,
+          "cached_input_tokens": 8960,
+          "output_tokens": 3195,
+          "reasoning_output_tokens": 2811
+        },
+        "note": "subscription auth; codex reports tokens, not USD"
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "LOSSY",
+      "missing": "It omits the entering alternative and carries only movement to and proximity to a place.",
+      "quality": 1,
+      "reason": "This is a generic approach schema and does not distinguish access from mere movement toward a place."
+    },
+    "B": {
+      "verdict": "LOSSY",
+      "missing": "It omits entry into the target and carries only a far-to-not-far approach.",
+      "quality": 2,
+      "reason": "The movement toward a target is rendered, but the equally criterial entering component is absent."
+    },
+    "C": {
+      "verdict": "LOSSY",
+      "missing": "It omits access by approach without entry and instead requires a transition to being inside.",
+      "quality": 2,
+      "reason": "This sharply explicates entering, a narrower sibling concept, rather than the full access sense."
+    },
+    "D": {
+      "verdict": "LOSSY",
+      "missing": "It lacks any near-or-inside endpoint and carries only an event involving generic movement.",
+      "quality": 0,
+      "reason": "Nothing distinguishes access from arbitrary movement toward something."
+    },
+    "E": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 2,
+      "reason": "It renders an event of moving from far to near a place with resulting possibility of being inside, covering the approach-and-entry character of access."
+    },
+    "F": {
+      "verdict": "LOSSY",
+      "missing": "It lacks directed approach and required entry, carrying only movement near a place with merely possible presence inside.",
+      "quality": 2,
+      "reason": "Its states can describe unrelated movement near a place, so the criterial transition of approach or entry is not secured."
+    },
+    "G": {
+      "verdict": "LOSSY",
+      "missing": "It omits entry and any directed or temporal transition, carrying only movement plus proximity.",
+      "quality": 1,
+      "reason": "This generic movement-near schema fits many events other than access."
+    }
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "judge": "B",
+  "model": "claude-opus-4-8",
+  "slug": "wealth",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 11.6,
+        "cost_usd": 0.036465,
+        "duration_api_ms": 11747,
+        "usage": {
+          "input_tokens": 1,
+          "cache_creation_input_tokens": 2050,
+          "cache_read_input_tokens": 2154,
+          "output_tokens": 507,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 2050,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "not_available",
+          "iterations": [
+            {
+              "input_tokens": 1,
+              "output_tokens": 507,
+              "cache_read_input_tokens": 2154,
+              "cache_creation_input_tokens": 2050,
+              "cache_creation": {
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 2050
+              },
+              "type": "message"
+            }
+          ],
+          "speed": "standard"
+        },
+        "model_usage_keys": [
+          "claude-haiku-4-5-20251001",
+          "claude-opus-4-8"
+        ]
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "LOSSY",
+      "missing": "drops 'profuse/VERY much'; bare THERE-IS MUCH fits mere plurality, not abundance",
+      "quality": 1,
+      "reason": "Right direction (much of something) but no intensification to reach 'profuse abundance'."
+    },
+    "B": {
+      "verdict": "LOSSY",
+      "missing": "kindFrame over ref is odd, and no VERY/MORE to signal profusion",
+      "quality": 1,
+      "reason": "Generic 'much of a kind' compatible with plainly abundant vs merely some; abundance not sharpened."
+    },
+    "C": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 2,
+      "reason": "BE-SPEC as a very-big much of something renders the quality of profuse abundance."
+    },
+    "D": {
+      "verdict": "LOSSY",
+      "missing": "here/other-places locative machinery is irrelevant; asserts scarcity elsewhere, not abundance",
+      "quality": 0,
+      "reason": "Adds spatial contrast that misrenders the sense rather than intensifying quantity."
+    },
+    "E": {
+      "verdict": "FAITHFUL",
+      "missing": "THINK-that-it-is-big is soft bloat",
+      "quality": 2,
+      "reason": "THERE-IS much + MORE much conveys profuse abundance; the belief clause is extra but not wrong."
+    }
+  }
+}

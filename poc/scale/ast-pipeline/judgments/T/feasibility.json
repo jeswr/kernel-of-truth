@@ -1,0 +1,43 @@
+{
+  "judge": "T",
+  "model": "gpt-5.6-terra",
+  "slug": "feasibility",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 10.9,
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 14352,
+          "cached_input_tokens": 0,
+          "output_tokens": 299,
+          "reasoning_output_tokens": 164
+        },
+        "note": "subscription auth; codex reports tokens, not USD"
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 3,
+      "reason": "It directly renders the quality at issue as something that someone can do."
+    },
+    "B": {
+      "verdict": "LOSSY",
+      "missing": "It makes ability conditional on someone's wanting to do it, rather than simply being doable.",
+      "quality": 0,
+      "reason": "Feasibility does not entail that wanting an action makes it possible."
+    },
+    "C": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 3,
+      "reason": "It directly states that the thing can be done by someone."
+    }
+  }
+}

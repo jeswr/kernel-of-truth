@@ -1,0 +1,67 @@
+{
+  "judge": "A",
+  "model": "gpt-5.6-sol",
+  "slug": "bill-poster",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 66.7,
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 17549,
+          "cached_input_tokens": 9984,
+          "output_tokens": 2435,
+          "reasoning_output_tokens": 2048
+        },
+        "note": "subscription auth; codex reports tokens, not USD"
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "LOSSY",
+      "missing": "It lacks a distinct bill or placard being affixed, carrying only words placed against something.",
+      "quality": 1,
+      "reason": "This can equally describe someone writing visible words on a surface."
+    },
+    "B": {
+      "verdict": "LOSSY",
+      "missing": "The word-bearing bill or placard, public display purpose, and action causing its attachment are absent.",
+      "quality": 0,
+      "reason": "It merely describes someone doing something with an instrument while an object touches another object."
+    },
+    "C": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 3,
+      "reason": "It sharply renders a person putting a word-bearing thing onto a large display surface so many people can see it."
+    },
+    "D": {
+      "verdict": "LOSSY",
+      "missing": "The bill or placard, its words, public visibility, and caused attachment are all absent.",
+      "quality": 0,
+      "reason": "The clauses are a generic action plus one thing touching another."
+    },
+    "E": {
+      "verdict": "LOSSY",
+      "missing": "It substitutes words themselves for a distinct bill or placard that the person pastes up.",
+      "quality": 1,
+      "reason": "Doing visible words with a body part can describe writing or sign painting rather than bill posting."
+    },
+    "F": {
+      "verdict": "LOSSY",
+      "missing": "It lacks a distinct word-bearing placard, a wall or billboard-like surface, and the public-display function.",
+      "quality": 1,
+      "reason": "Putting a kind of words at a place is too generic to distinguish a bill poster."
+    },
+    "G": {
+      "verdict": "LOSSY",
+      "missing": "It does not state that the person's action causes the word-bearing thing to be attached to the large surface.",
+      "quality": 2,
+      "reason": "It captures the displayed object and visibility but could describe anyone doing something to an already posted bill."
+    }
+  }
+}

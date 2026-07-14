@@ -1,0 +1,95 @@
+{
+  "judge": "B",
+  "model": "claude-opus-4-8",
+  "slug": "bill-poster",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 13.8,
+        "cost_usd": 0.07301600000000001,
+        "duration_api_ms": 13406,
+        "usage": {
+          "input_tokens": 1,
+          "cache_creation_input_tokens": 5035,
+          "cache_read_input_tokens": 2154,
+          "output_tokens": 673,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 5035,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "not_available",
+          "iterations": [
+            {
+              "input_tokens": 1,
+              "output_tokens": 673,
+              "cache_read_input_tokens": 2154,
+              "cache_creation_input_tokens": 5035,
+              "cache_creation": {
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 5035
+              },
+              "type": "message"
+            }
+          ],
+          "speed": "standard"
+        },
+        "model_usage_keys": [
+          "claude-haiku-4-5-20251001",
+          "claude-opus-4-8"
+        ]
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "LOSSY",
+      "missing": "no notion of person causing bill to be attached; DO-WORDS unclear and placement not caused by agent",
+      "quality": 1,
+      "reason": "Has agent, words-thing touching surface, many can see, but agent-placement causal link and paste/attach action weak."
+    },
+    "B": {
+      "verdict": "LOSSY",
+      "missing": "no words/bill content, no billboard/wall, no visibility purpose; wholly generic",
+      "quality": 0,
+      "reason": "Someone does something with something that touches something — fits countless concepts."
+    },
+    "C": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 3,
+      "reason": "Agent handles a thing bearing many words, causes it to touch a big surface, wants many people to see it — renders bill poster sharply."
+    },
+    "D": {
+      "verdict": "LOSSY",
+      "missing": "no words/bill, no wall/billboard specificity, no visibility purpose",
+      "quality": 0,
+      "reason": "Generic: someone does something that touches something; fits any attacher."
+    },
+    "E": {
+      "verdict": "FAITHFUL",
+      "missing": "surface not marked as wall/billboard; visibility not purposive",
+      "quality": 2,
+      "reason": "Agent puts words-kind thing with body-part onto a surface it touches so many see it — captures the bill-posting action."
+    },
+    "F": {
+      "verdict": "LOSSY",
+      "missing": "no large public wall/billboard, no visibility purpose (many people seeing)",
+      "quality": 2,
+      "reason": "Agent places words at a place where they touch it, but drops the public-display purpose criterial to bill poster."
+    },
+    "G": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 3,
+      "reason": "Thing bearing many words placed touching a big surface, many can see it — renders bill poster well."
+    }
+  }
+}

@@ -1,0 +1,183 @@
+{
+  "id": "urn:kernel-v1:conception",
+  "label": "conception",
+  "synset": "urn:lexical-wn31:n-00846508",
+  "pattern": "InstanceSchema; sperm–ovum contact inside a body + causal emergence",
+  "gloss": "The reproductive event in which a sperm cell fertilizes an ovum within a woman's body, thereby initiating pregnancy.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 4,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 5,
+        "refKind": "TimeRef"
+      },
+      {
+        "index": 6,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "time": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "bind": 5
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 3
+          },
+          "locus": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          },
+          "manner": {
+            "kind": "prime",
+            "prime": "INSIDE"
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "det": "OTHER~ELSE~ANOTHER",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 4
+          },
+          "locus": {
+            "kind": "ref",
+            "index": 2
+          },
+          "manner": {
+            "kind": "prime",
+            "prime": "INSIDE"
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "BE-SOMEWHERE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 3
+              },
+              "locus": {
+                "kind": "ref",
+                "index": 4
+              },
+              "manner": {
+                "kind": "prime",
+                "prime": "TOUCH"
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "AFTER",
+            "args": [
+              {
+                "kind": "ref",
+                "index": 5
+              },
+              {
+                "type": "op",
+                "op": "BECAUSE",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "THERE-IS",
+                    "roles": {
+                      "undergoer": {
+                        "kind": "sp",
+                        "det": "OTHER~ELSE~ANOTHER",
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "SOMETHING~THING"
+                        },
+                        "bind": 6
+                      },
+                      "place": {
+                        "kind": "ref",
+                        "index": 2
+                      }
+                    }
+                  },
+                  {
+                    "type": "pred",
+                    "pred": "LIVE",
+                    "roles": {
+                      "undergoer": {
+                        "kind": "ref",
+                        "index": 6
+                      },
+                      "place": {
+                        "kind": "ref",
+                        "index": 2
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — The AST cannot name the biological identities of sperm and ovum, the fertilization relation, or pregnancy, and renders them as two things touching inside a body followed by a living thing there."
+}

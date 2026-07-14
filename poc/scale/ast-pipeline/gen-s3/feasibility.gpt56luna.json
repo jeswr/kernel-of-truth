@@ -1,0 +1,50 @@
+{
+  "id": "urn:kernel-v1:feasibility",
+  "label": "feasibility",
+  "synset": "urn:lexical-wn31:n-05159611",
+  "pattern": "WhenTrue; CAN over DO for practical doability",
+  "gloss": "The quality of an act or task being capable of being carried out by someone in practice.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "CAN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMEONE"
+                },
+                "bind": 2
+              },
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: faithful — the WhenTrue frame supplies the quality/state genus, and CAN over DO directly renders an act or task as capable of being carried out."
+}

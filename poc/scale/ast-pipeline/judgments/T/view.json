@@ -1,0 +1,61 @@
+{
+  "judge": "T",
+  "model": "gpt-5.6-terra",
+  "slug": "view",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 28.3,
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 15797,
+          "cached_input_tokens": 0,
+          "output_tokens": 1326,
+          "reasoning_output_tokens": 1034
+        },
+        "note": "subscription auth; codex reports tokens, not USD"
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 2,
+      "reason": "It renders a happening consisting of someone seeing something, which captures this sense's perceptual-act core."
+    },
+    "B": {
+      "verdict": "LOSSY",
+      "missing": "It substitutes wanting and an unexplained action for the act of seeing itself.",
+      "quality": 0,
+      "reason": "A view need not be desired, and the asserted causal relation does not define an act of looking or observing."
+    },
+    "C": {
+      "verdict": "LOSSY",
+      "missing": "It wrongly adds thinking about the seen thing as a required component.",
+      "quality": 1,
+      "reason": "Seeing is present, but a view does not inherently involve thought about its object."
+    },
+    "D": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 2,
+      "reason": "It states the essential perceptual event: someone sees something."
+    },
+    "E": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 2,
+      "reason": "It represents an act by someone together with that person's seeing of something, adequately expressing looking or observing."
+    },
+    "F": {
+      "verdict": "LOSSY",
+      "missing": "It replaces the perceptual act with desire, bodily action, duration, and knowledge as purported requirements.",
+      "quality": 0,
+      "reason": "Those added motivational and epistemic conditions are not criterial of a view and misstate the sense."
+    }
+  }
+}

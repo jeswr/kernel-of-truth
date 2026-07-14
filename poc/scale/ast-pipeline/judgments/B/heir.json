@@ -1,0 +1,95 @@
+{
+  "judge": "B",
+  "model": "claude-opus-4-8",
+  "slug": "heir",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 14.8,
+        "cost_usd": 0.088321,
+        "duration_api_ms": 20964,
+        "usage": {
+          "input_tokens": 1,
+          "cache_creation_input_tokens": 6188,
+          "cache_read_input_tokens": 2154,
+          "output_tokens": 783,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 6188,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "not_available",
+          "iterations": [
+            {
+              "input_tokens": 1,
+              "output_tokens": 783,
+              "cache_read_input_tokens": 2154,
+              "cache_creation_input_tokens": 6188,
+              "cache_creation": {
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 6188
+              },
+              "type": "message"
+            }
+          ],
+          "speed": "standard"
+        },
+        "model_usage_keys": [
+          "claude-haiku-4-5-20251001",
+          "claude-opus-4-8"
+        ]
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "LOSSY",
+      "missing": "after death heir only CAN think 'mine' — the entitlement to possession is dropped, and heir=1 is never tied to the dead person",
+      "quality": 1,
+      "reason": "vague THINK-mine rather than actual passing of possession; missing the link between deceased and heir."
+    },
+    "B": {
+      "verdict": "FAITHFUL",
+      "missing": "law/will basis of entitlement is soft, but the criterial transfer is present",
+      "quality": 2,
+      "reason": "another dies, the thing was theirs, after death the thing is with heir who can say 'mine' — captures inheritance."
+    },
+    "C": {
+      "verdict": "LOSSY",
+      "missing": "'someone says the thing is at heir' is a wobbly proxy for entitlement; possession-transfer is present but muddled",
+      "quality": 2,
+      "reason": "thing was with the dead one before, moves to heir after death; captures core transfer despite convoluted SAY clauses."
+    },
+    "D": {
+      "verdict": "LOSSY",
+      "missing": "no actual death event or transfer of possession; only heir's belief that 'when he dies the thing will be mine'",
+      "quality": 1,
+      "reason": "reduces to heir's thought about future possession; no realized inheritance."
+    },
+    "E": {
+      "verdict": "LOSSY",
+      "missing": "'after death heir CAN DO the thing' loses possession/ownership entirely — generic ability, not entitlement to inherit estate",
+      "quality": 0,
+      "reason": "too generic; CAN DO with a thing after someone dies fits many concepts."
+    },
+    "F": {
+      "verdict": "LOSSY",
+      "missing": "thing moves to heir after death, but no possession/ownership ('mine') and no prior ownership by deceased",
+      "quality": 1,
+      "reason": "bare movement of a thing to a person after a death; underspecifies inheritance as ownership transfer."
+    },
+    "G": {
+      "verdict": "FAITHFUL",
+      "missing": "law/will entitlement soft; deceased's prior ownership only implied via 'other thinks mine'",
+      "quality": 2,
+      "reason": "another owned things, dies, after that the things are the heir's — renders the transfer of estate."
+    }
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "judge": "B",
+  "model": "claude-opus-4-8",
+  "slug": "poisoning",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 13.6,
+        "cost_usd": 0.08148899999999999,
+        "duration_api_ms": 14735,
+        "usage": {
+          "input_tokens": 1,
+          "cache_creation_input_tokens": 5612,
+          "cache_read_input_tokens": 2154,
+          "output_tokens": 759,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 5612,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "not_available",
+          "iterations": [
+            {
+              "input_tokens": 1,
+              "output_tokens": 759,
+              "cache_read_input_tokens": 2154,
+              "cache_creation_input_tokens": 5612,
+              "cache_creation": {
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 5612
+              },
+              "type": "message"
+            }
+          ],
+          "speed": "standard"
+        },
+        "model_usage_keys": [
+          "claude-haiku-4-5-20251001",
+          "claude-opus-4-8"
+        ]
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 2,
+      "reason": "Agent gives a substance to a living undergoer, that substance can cause death, and agent wants death — poison-with-intent-to-kill rendered, though 'poison' as bad substance not marked."
+    },
+    "B": {
+      "verdict": "LOSSY",
+      "missing": "no CAN-DIE link from the substance; the killing capacity of poison dropped",
+      "quality": 1,
+      "reason": "Shows someone doing something with an instrument to a living thing and wanting death, but omits that the substance can cause death, so instrument is generic."
+    },
+    "C": {
+      "verdict": "LOSSY",
+      "missing": "no instrument/substance and no death-causing capacity; only a bare DO plus WANT-die",
+      "quality": 0,
+      "reason": "Generic 'someone does something to someone, wants them to die' — no poison, fits many killing concepts."
+    },
+    "D": {
+      "verdict": "FAITHFUL",
+      "missing": "victim as person/animal only via BODY; slightly loose",
+      "quality": 2,
+      "reason": "Living body, agent acts with a substance that can cause death, agent wants death — carries the criterial poison-to-kill structure."
+    },
+    "E": {
+      "verdict": "FAITHFUL",
+      "missing": "'poison' not marked as bad, but INSIDE + can-die captures ingested harmful agent",
+      "quality": 2,
+      "reason": "Agent acts on a living other with an instrument because he wants it to die, and the substance inside causes death — good rendering."
+    },
+    "F": {
+      "verdict": "LOSSY",
+      "missing": "no death-causing link; substance merely 'bad', death only wanted not caused by the thing",
+      "quality": 1,
+      "reason": "Marks the thing as bad and agent wants victim dead, but never ties the bad substance to the capacity to kill."
+    },
+    "G": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 3,
+      "reason": "Living victim, agent puts a bad substance inside them, that substance inside can cause death, agent wants death — poison-to-kill rendered sharply."
+    }
+  }
+}

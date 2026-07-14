@@ -1,0 +1,55 @@
+{
+  "judge": "A",
+  "model": "gpt-5.6-sol",
+  "slug": "depletion",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 88.8,
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 17008,
+          "cached_input_tokens": 9984,
+          "output_tokens": 2902,
+          "reasoning_output_tokens": 2588
+        },
+        "note": "subscription auth; codex reports tokens, not USD"
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "LOSSY",
+      "missing": "It reduces the number of kinds rather than the amount of something, without making the act cause that reduction.",
+      "quality": 1,
+      "reason": "The AST has an act and a marked before–after contrast, but its contrast concerns kinds and is only coincidental with the act."
+    },
+    "B": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 3,
+      "reason": "It renders a causative act whose target goes from many parts to few, sharply expressing a marked decrease."
+    },
+    "C": {
+      "verdict": "LOSSY",
+      "missing": "The happening is never identified with the causative doing; the AST leaves the nominal event unrelated to the otherwise marked loss of parts.",
+      "quality": 2,
+      "reason": "Most of the result structure is present, but the event being defined is not compositionally tied to the depletion-causing act."
+    },
+    "D": {
+      "verdict": "LOSSY",
+      "missing": "It omits a causative act and loss of amount, carrying instead a physical change from big to very small.",
+      "quality": 0,
+      "reason": "This describes marked shrinking of a thing, not an act of depleting it."
+    },
+    "E": {
+      "verdict": "LOSSY",
+      "missing": "It omits a causative act and loss of amount, carrying instead an unrelated happening alongside a size change.",
+      "quality": 0,
+      "reason": "The AST describes something becoming smaller and does not connect that change to the event being defined."
+    }
+  }
+}

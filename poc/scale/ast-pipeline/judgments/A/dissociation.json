@@ -1,0 +1,67 @@
+{
+  "judge": "A",
+  "model": "gpt-5.6-sol",
+  "slug": "dissociation",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 23.6,
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 18293,
+          "cached_input_tokens": 8960,
+          "output_tokens": 838,
+          "reasoning_output_tokens": 450
+        },
+        "note": "subscription auth; codex reports tokens, not USD"
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "LOSSY",
+      "missing": "Association is replaced by physical touching, so the act is merely detachment from contact.",
+      "quality": 0,
+      "reason": "It describes someone making two touching things cease to touch, not removing something from an association."
+    },
+    "B": {
+      "verdict": "LOSSY",
+      "missing": "It lacks an intentional removing act and replaces association with physical nearness.",
+      "quality": 0,
+      "reason": "It renders only an event in which two things cease to be near one another."
+    },
+    "C": {
+      "verdict": "LOSSY",
+      "missing": "Association is reduced to spatial nearness, yielding physical separation instead of dissociation.",
+      "quality": 1,
+      "reason": "Although an agent causes the change, the criterial prior association is represented only as being near."
+    },
+    "D": {
+      "verdict": "LOSSY",
+      "missing": "Association is replaced by spatial nearness, so the action described is physical removal.",
+      "quality": 1,
+      "reason": "It sharply represents an agent-caused cessation of nearness but not removal from association."
+    },
+    "E": {
+      "verdict": "FAITHFUL",
+      "missing": "",
+      "quality": 2,
+      "reason": "It represents an event caused by someone whereby something formerly acting with another no longer does so, adequately rendering removal from association."
+    },
+    "F": {
+      "verdict": "LOSSY",
+      "missing": "Association is replaced by mere location among many people, and the resulting exclusion is not explicitly caused by the act.",
+      "quality": 0,
+      "reason": "It describes moving something out of a crowd or social location rather than ending its association."
+    },
+    "G": {
+      "verdict": "LOSSY",
+      "missing": "Association is replaced by spatial nearness, and the action is not explicitly linked as the cause of its cessation.",
+      "quality": 1,
+      "reason": "The before-and-after pattern captures separation but not specifically the act of removing from association."
+    }
+  }
+}
