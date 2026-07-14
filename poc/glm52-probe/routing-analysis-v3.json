@@ -1,0 +1,69 @@
+{
+  "provenance": {
+    "supersedes": "results/routing-analysis-v2.json (magnitudes adjacency-inflated; see CONTAMINATION-NOTE.md)",
+    "superseded_sha256": "e9d6813f99a6efa03645a3c15260a84c3d47221a3d0061ad6bbc68749e1c57cc",
+    "contamination": "committed .stats files are SESSION-CUMULATIVE usage dumps (per-cell monotone across f000..f023, 0/328193 violations; totals 111904->371336; f000 contains the 99752 pre-P3 selections). v1/v2 read them as per-prompt fingerprints; within-concept prompts are adjacent in run order, so v2 magnitudes confound concept structure with adjacency.",
+    "correction": "per-prompt fingerprints recovered EXACTLY by first-differencing d_N = f_N - f_(N-1), N=1..23, keeping cells with positive difference; cumulativity re-verified fail-closed at load",
+    "f000": "UNRECOVERABLE (pre-P3 per-cell baseline not committed) -> dropped; n=23, break.shatter n=2",
+    "source_stats_sha256": {
+      "f000.stats": "49d69ca0e45fd952a6b1ea678711f4f307846ca3570670addb66ed283496da18",
+      "f001.stats": "0636c95da35cf0cb68e95596a4b38f7b8dc482bc5397c2c1e4a03425ab182743",
+      "f002.stats": "9b5c21b52ea83bc14f68e6d21abe8b4c26825717b0dff715938bcfdadb830e7b",
+      "f003.stats": "73e3c024619151c131880e7cb2cba8aede0f555bfd2ef860372819dd97e68d09",
+      "f004.stats": "600710276698bd7f4a8dc80e0c1aff7f9a201efd939d28aad824e0a56d182909",
+      "f005.stats": "2a926d803c25a68a0ab47f4e3cf4329c07ad6c7bad34a5b6110d7f25f41f5522",
+      "f006.stats": "a93f5524fbf28ee05a1b3bebaad31abf70b0f1462a2ab8ef521d43622d4eb858",
+      "f007.stats": "765ecd365a07ac1128989183534299112ba2d8465bb411fc48b64ebae279216c",
+      "f008.stats": "7ed648411384a41e3bfd07a39ab7470fa0b21300b3fd62d49bcd65fe6351605e",
+      "f009.stats": "d8c21d2c9b715d171118b52c23cbe8ea75ca31e37b448060fc1d7bbe6408652b",
+      "f010.stats": "56720d168c48c1d3dd86879edfd3ae559a6ee16225ae3c4a8727ba87912b4d92",
+      "f011.stats": "5d0311d5f9b2758fa6927f7196c9d336f824ec9908841fc8b84897b21cd03f3e",
+      "f012.stats": "68db8f022e1b49c500afaa55d13350cfc7f13720589ad946e576a5ab444635da",
+      "f013.stats": "dc7c9e9fb3fd315b59f1b5a0d1a0a90c4e05ec9b8e3b9c5b2a44abe437247fb5",
+      "f014.stats": "64d1e2b07457c19b724a62eb5d500618cfdcb1904336a4561e9a0a0a0d506fdd",
+      "f015.stats": "34ee111e496fbed52d6415166d3e8594d574d16c163b8f265ce077f527420dd9",
+      "f016.stats": "89ee9a3206d662f89953b1d1a12c2b5a8c684143e53dd210d6e48e1af2b0fe1a",
+      "f017.stats": "04fc2273d1c8d257945a7e4a0fda92bd0dbbf037114266c2e4acec94b49f72bb",
+      "f018.stats": "6a614556ca9d27fd31d4c1bbc62167249a41a23d070583786322838150148f68",
+      "f019.stats": "d472032d31a91319ef582338c32bec9f5392fee98916b3f35edd5620709962f7",
+      "f020.stats": "b485a4f1752b824276070c76a66f4dcb5d3d5faff7e56a284f9591b8de213426",
+      "f021.stats": "f0564574eaebeab00b96b0e38f9f04a9ddba3d16d6f98461aa0c0f1174f27484",
+      "f022.stats": "88c4e06f2d8a467ffd7ab5edfe015f87a87a8947ac5ff8e398a5c95069188972",
+      "f023.stats": "b723920c6390c764e98497deb04181cf24b0bac75e1f185289b1b11e392a8402"
+    },
+    "manifest_sha256": "7fa022ac545a9f49730ee0952566349a1273012a91b408c02b6cfb60d89bf89d",
+    "cross_check": "raw/mean_centered must match r4/r4-replay.json /structure_on_differenced_fingerprints (independent numpy impl)",
+    "finding": "r4/r4-replay.md \u00a71; bead kernel-of-truth-xafk",
+    "deterministic": "seed 20260712, 10k shuffles, pure stdlib; no probe re-run"
+  },
+  "n": 23,
+  "keyspace": 15850,
+  "universal_cells": 2027,
+  "universal_mass_frac": 0.4178,
+  "nperm": 10000,
+  "seed": 20260712,
+  "raw_cosine": {
+    "within": 0.7276,
+    "across": 0.609,
+    "delta": 0.1187,
+    "perm_p_10k": 0.0001
+  },
+  "mean_centered": {
+    "within": 0.2566,
+    "across": -0.0736,
+    "delta": 0.3303,
+    "perm_p_10k": 0.0001
+  },
+  "sense_pairs_centered": {
+    "bank": {
+      "n": 6,
+      "delta_centered": 0.3844,
+      "perm_p": 0.10259
+    },
+    "break": {
+      "n": 8,
+      "delta_centered": 0.2564,
+      "perm_p": 0.0033
+    }
+  }
+}
