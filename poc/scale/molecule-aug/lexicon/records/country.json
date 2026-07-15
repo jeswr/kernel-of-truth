@@ -2,9 +2,9 @@
   "id": "urn:molaug-v0:country",
   "label": "country",
   "status": "research-grade",
-  "pattern": "InstanceSchema; very-big-place genus + many inhabitants + one authority over all (ABOVE metaphor) + thought-of-as-one",
+  "pattern": "InstanceSchema; very-big-place genus + many inhabitants + one authority-kind something doing authority-type acts on all of them + thought-of-as-one",
   "gloss": "A very large inhabited land forming a single political whole: a place where very many people live under one and the same authority, and which its people think of as one thing.",
-  "notes": "AST adequacy: lossy — statehood is rendered as one authority-kind something standing (metaphorically ABOVE) over all inhabitants of a very big place thought of as one; borders, nationhood, sovereignty among other countries, and the structure of government are dropped.",
+  "notes": "AST adequacy: lossy — statehood is rendered as one authority-kind something whose authority-type acts are done, at many times, on all the inhabitants of a very big place thought of as one; borders, nationhood, sovereignty among other countries, and the structure of government are dropped.",
   "references": [
     "urn:molaug-v0:authority"
   ],
@@ -65,15 +65,20 @@
       },
       {
         "type": "pred",
-        "pred": "BE-SOMEWHERE",
+        "pred": "DO",
         "roles": {
-          "undergoer": { "kind": "ref", "index": 3 },
-          "locus": {
+          "agent": { "kind": "ref", "index": 3 },
+          "undergoer": {
             "kind": "sp",
             "quant": "ALL",
             "head": { "kind": "refHead", "index": 2 }
           },
-          "manner": { "kind": "prime", "prime": "ABOVE" }
+          "manner": { "kind": "concept", "id": "urn:molaug-v0:authority" },
+          "time": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": { "kind": "primeHead", "prime": "WHEN~TIME" }
+          }
         }
       },
       {

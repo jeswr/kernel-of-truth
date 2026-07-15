@@ -2,9 +2,9 @@
   "id": "urn:molaug-v0:money",
   "label": "money",
   "status": "research-grade",
-  "pattern": "InstanceSchema; exchange convention via give/take manner-references + IS-MINE quote possession + mutual-knowledge clause",
+  "pattern": "InstanceSchema; one-kind genus + exchange convention via give/take manner-references + give-then-take acceptance conditional + universal-want and mutual-knowledge clauses",
   "gloss": "A medium of exchange: things of one conventional kind that a person parts with in order to obtain from another some thing that they want, and that people therefore universally want to have.",
-  "notes": "AST adequacy: lossy — the institutional character of money (community-wide convention of acceptance, measure of value, store of value) exceeds the primes: rendered as the give/take exchange pattern plus mutual knowledge that all want these things; the recipient of the giving and denomination/quantity are dropped.",
+  "notes": "AST adequacy: lossy \u2014 the institutional character of money (measure of value, store of value, denomination, the issuing institution) exceeds the primes: acceptance is rendered as a conventional regularity \u2014 things of one kind such that when one someone gives some of them, another takes them, which all people want to have and all know the others want \u2014 plus the give-to-obtain exchange pattern; quantity is dropped.",
   "references": [
     "urn:kernel-v0:give",
     "urn:kernel-v0:take"
@@ -13,26 +13,54 @@
     "schema": "kot-ast/1",
     "frame": "InstanceSchema",
     "referents": [
-      { "index": 1, "refKind": "SomethingRef" },
-      { "index": 2, "refKind": "SomeoneRef" },
-      { "index": 3, "refKind": "SomethingRef" }
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 4,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 5,
+        "refKind": "SomeoneRef"
+      }
     ],
     "clauses": [
       {
         "type": "pred",
         "pred": "BE-SPEC",
         "roles": {
-          "undergoer": { "kind": "ref", "index": 1 },
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
           "attribute": {
             "kind": "sp",
             "head": {
               "kind": "kindFrame",
               "of": {
                 "kind": "sp",
-                "mods": [ { "mod": "SMALL" } ],
-                "head": { "kind": "primeHead", "prime": "SOMETHING~THING" }
+                "mods": [
+                  {
+                    "mod": "SMALL"
+                  }
+                ],
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                }
               }
-            }
+            },
+            "quant": "ONE"
           }
         }
       },
@@ -47,13 +75,19 @@
               "experiencer": {
                 "kind": "sp",
                 "det": "SOME",
-                "head": { "kind": "primeHead", "prime": "SOMEONE" },
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMEONE"
+                },
                 "bind": 2
               },
               "complement": {
                 "kind": "sp",
                 "det": "SOME",
-                "head": { "kind": "primeHead", "prime": "SOMETHING~THING" },
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                },
                 "bind": 3
               }
             }
@@ -66,13 +100,22 @@
                 "type": "pred",
                 "pred": "DO",
                 "roles": {
-                  "agent": { "kind": "ref", "index": 2 },
+                  "agent": {
+                    "kind": "ref",
+                    "index": 2
+                  },
                   "undergoer": {
                     "kind": "sp",
                     "quant": "SOME",
-                    "head": { "kind": "refHead", "index": 1 }
+                    "head": {
+                      "kind": "refHead",
+                      "index": 1
+                    }
                   },
-                  "manner": { "kind": "concept", "id": "urn:kernel-v0:give" }
+                  "manner": {
+                    "kind": "concept",
+                    "id": "urn:kernel-v0:give"
+                  }
                 }
               },
               {
@@ -83,14 +126,83 @@
                     "type": "pred",
                     "pred": "DO",
                     "roles": {
-                      "agent": { "kind": "ref", "index": 2 },
-                      "undergoer": { "kind": "ref", "index": 3 },
-                      "manner": { "kind": "concept", "id": "urn:kernel-v0:take" }
+                      "agent": {
+                        "kind": "ref",
+                        "index": 2
+                      },
+                      "undergoer": {
+                        "kind": "ref",
+                        "index": 3
+                      },
+                      "manner": {
+                        "kind": "concept",
+                        "id": "urn:kernel-v0:take"
+                      }
                     }
                   }
                 ]
               }
             ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "IF",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "sp",
+                "det": "SOME",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMEONE"
+                },
+                "bind": 4
+              },
+              "undergoer": {
+                "kind": "sp",
+                "quant": "SOME",
+                "head": {
+                  "kind": "refHead",
+                  "index": 1
+                }
+              },
+              "manner": {
+                "kind": "concept",
+                "id": "urn:kernel-v0:give"
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "sp",
+                "det": "OTHER~ELSE~ANOTHER",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMEONE"
+                },
+                "bind": 5
+              },
+              "undergoer": {
+                "kind": "sp",
+                "det": "THE-SAME",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                }
+              },
+              "manner": {
+                "kind": "concept",
+                "id": "urn:kernel-v0:take"
+              }
+            }
           }
         ]
       },
@@ -101,7 +213,10 @@
           "experiencer": {
             "kind": "sp",
             "quant": "ALL",
-            "head": { "kind": "primeHead", "prime": "PEOPLE" }
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            }
           },
           "complement": {
             "kind": "clause",
@@ -112,12 +227,18 @@
                 "experiencer": {
                   "kind": "sp",
                   "det": "OTHER~ELSE~ANOTHER",
-                  "head": { "kind": "primeHead", "prime": "PEOPLE" }
+                  "head": {
+                    "kind": "primeHead",
+                    "prime": "PEOPLE"
+                  }
                 },
                 "complement": {
                   "kind": "sp",
                   "quant": "SOME",
-                  "head": { "kind": "refHead", "index": 1 }
+                  "head": {
+                    "kind": "refHead",
+                    "index": 1
+                  }
                 }
               }
             }
@@ -130,13 +251,19 @@
         "roles": {
           "experiencer": {
             "kind": "sp",
-            "quant": "MUCH~MANY",
-            "head": { "kind": "primeHead", "prime": "PEOPLE" }
+            "quant": "ALL",
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            }
           },
           "complement": {
             "kind": "sp",
             "quant": "SOME",
-            "head": { "kind": "refHead", "index": 1 }
+            "head": {
+              "kind": "refHead",
+              "index": 1
+            }
           }
         }
       }

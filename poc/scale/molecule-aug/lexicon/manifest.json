@@ -1,11 +1,27 @@
 {
   "corpus": "molaug-v0 referenceable lexicon (S5)",
   "design": "poc/scale/molecule-aug/DESIGN.md §3; lexicon/PLAN.md",
-  "generated": "2026-07-14T01:11:01.069Z",
+  "generated": "2026-07-15T02:23:21.495Z",
   "encoderContentHash": "40e8c8ba4c3d081c5051ea62d946d2ee9ee9f3205853b5c377a4c1e647e2d10c",
   "kernelV0ManifestSha256": "da56bf1f912cdc24229a7cac5ca32fdb902fd0bac01fd90790438aac70a26c41",
   "conceptCount": 85,
   "bridgeCount": 31,
+  "kernelV0Overrides": [
+    {
+      "id": "urn:kernel-v0:take",
+      "file": "poc/scale/molecule-aug/lexicon/records/kernel-v0-take.json",
+      "sha256": "09ba06b0ac5e3afa2b4a21c277a14bb639c6e05ec4896dc1d9a57f7108f424bd",
+      "overrideOf": "data/kernel-v0/concepts/take.json",
+      "canonicalSha256": "f6015fc916e42584e736ef231396e77dbee40fc14d86cddb1d00e0ba14a60b54"
+    },
+    {
+      "id": "urn:kernel-v0:birth",
+      "file": "poc/scale/molecule-aug/lexicon/records/kernel-v0-birth.json",
+      "sha256": "e14598b975ff53145095eed7401bab7d1a92c66acb3401712d3e2a8c92e01b69",
+      "overrideOf": "data/kernel-v0/concepts/birth.json",
+      "canonicalSha256": "cd46c83ad9684e07422bf678629f84234eed54413ce4bf9ee34e896f7d8f6bfb"
+    }
+  ],
   "bridgeSelfFlags": {
     "faithful": 13,
     "lossy": 18
@@ -43,7 +59,7 @@
     "art",
     "game"
   ],
-  "lexiconSetHash": "a9284e6fcc1801df01302480bc6e35c6c2616f2fc1cdc08c1433db4628ff84d5",
+  "lexiconSetHash": "83ce5e4b0350e98d81f4a1d7579c2e2a8cf5bb9454741d50bd52437dd327993f",
   "slugCollisionGate": {
     "checked": [
       "consensus-100"
@@ -210,9 +226,11 @@
       "id": "urn:kernel-v0:take",
       "tier": "kernel-v0",
       "label": "take (X takes Y)",
-      "file": "data/kernel-v0/concepts/take.json",
-      "sha256": "f6015fc916e42584e736ef231396e77dbee40fc14d86cddb1d00e0ba14a60b54",
-      "references": []
+      "file": "poc/scale/molecule-aug/lexicon/records/kernel-v0-take.json",
+      "sha256": "09ba06b0ac5e3afa2b4a21c277a14bb639c6e05ec4896dc1d9a57f7108f424bd",
+      "references": [],
+      "overrideOf": "data/kernel-v0/concepts/take.json",
+      "canonicalSha256": "f6015fc916e42584e736ef231396e77dbee40fc14d86cddb1d00e0ba14a60b54"
     },
     {
       "id": "urn:kernel-v0:find",
@@ -418,11 +436,13 @@
       "id": "urn:kernel-v0:birth",
       "tier": "kernel-v0",
       "label": "birth (the event)",
-      "file": "data/kernel-v0/concepts/birth.json",
-      "sha256": "cd46c83ad9684e07422bf678629f84234eed54413ce4bf9ee34e896f7d8f6bfb",
+      "file": "poc/scale/molecule-aug/lexicon/records/kernel-v0-birth.json",
+      "sha256": "e14598b975ff53145095eed7401bab7d1a92c66acb3401712d3e2a8c92e01b69",
       "references": [
         "urn:kernel-v0:event"
-      ]
+      ],
+      "overrideOf": "data/kernel-v0/concepts/birth.json",
+      "canonicalSha256": "cd46c83ad9684e07422bf678629f84234eed54413ce4bf9ee34e896f7d8f6bfb"
     },
     {
       "id": "urn:kernel-v0:teacher",
@@ -531,7 +551,7 @@
       "tier": "molaug-v0",
       "label": "money",
       "file": "poc/scale/molecule-aug/lexicon/records/money.json",
-      "sha256": "541b6838158ac46c09ea1230c4c7dca032c048c9b079edabc434d0bf129a4835",
+      "sha256": "2083b03375b7591a6d83d6405b2258705749eb1dba01724eb8fc39c445699c6a",
       "references": [
         "urn:kernel-v0:give",
         "urn:kernel-v0:take"
@@ -543,7 +563,7 @@
       "tier": "molaug-v0",
       "label": "surface (of a thing)",
       "file": "poc/scale/molecule-aug/lexicon/records/surface.json",
-      "sha256": "23be58c650f4a1c54a2d012c8f7c981182625df068aae25e38f003648343eb9b",
+      "sha256": "795422820063bb6ddd654ce7d9afba658f866bc31f81f9fed353a9c366b817a5",
       "references": [],
       "astAdequacySelfFlag": "faithful"
     },
@@ -552,7 +572,7 @@
       "tier": "molaug-v0",
       "label": "hot (heat)",
       "file": "poc/scale/molecule-aug/lexicon/records/hot.json",
-      "sha256": "0a355ac0eb1f36041a8b303a8cf27a9e139c3c8b302f0dd3c2ea60d0babe9f6b",
+      "sha256": "2e79cc2f8bd38beb6e71058af18f6fd718aaf80dbfef02eb1e10701af1429f50",
       "references": [],
       "astAdequacySelfFlag": "lossy"
     },
@@ -561,7 +581,7 @@
       "tier": "molaug-v0",
       "label": "material (what a thing is made of)",
       "file": "poc/scale/molecule-aug/lexicon/records/material.json",
-      "sha256": "8c25345b8640a424a2c478b67b43f16c9e6cb63a70259f5f11e2fa9791f54075",
+      "sha256": "aa7ec9534a2adfceebb12b3d6c628e6e9eef72f02ca70b9edc117dcce300516e",
       "references": [
         "urn:kernel-v0:make"
       ],
@@ -572,7 +592,7 @@
       "tier": "molaug-v0",
       "label": "group (organized people)",
       "file": "poc/scale/molecule-aug/lexicon/records/group.json",
-      "sha256": "148237bb0d2b86aaac4ae57840ec1821ef08e814a1b140df9ba2cc6916164289",
+      "sha256": "ee1679110f8da0b6bea676d3b9b2afd119d956736697b6f88dac2b09cb15d62b",
       "references": [],
       "astAdequacySelfFlag": "lossy"
     },
@@ -581,7 +601,7 @@
       "tier": "molaug-v0",
       "label": "fight (X fights Y)",
       "file": "poc/scale/molecule-aug/lexicon/records/fight.json",
-      "sha256": "42ef12ba70e33570644d60895c95e3a043657a7a2736fc485a2929804a6c132c",
+      "sha256": "73a10e6f0834c4ea279db3ff6a60acfbf1b0e04865b2797552c68873210f060e",
       "references": [],
       "astAdequacySelfFlag": "lossy"
     },
@@ -590,7 +610,7 @@
       "tier": "molaug-v0",
       "label": "measure (X measures Y)",
       "file": "poc/scale/molecule-aug/lexicon/records/measure.json",
-      "sha256": "b9bef89830e8af6bac2bb5efce9292504d2159fbc0aa3d24c84b6010f97548bf",
+      "sha256": "215add144c64f67c3ab41b0790fcaf34c1cadeb959a0f0882b9e365988ef67b1",
       "references": [],
       "astAdequacySelfFlag": "lossy"
     },
@@ -599,7 +619,7 @@
       "tier": "molaug-v0",
       "label": "kill (X kills Y)",
       "file": "poc/scale/molecule-aug/lexicon/records/kill.json",
-      "sha256": "5bcee8964d0de0f0f5dc926e868afe3dd98c435d273f01a90e7ae5c6dca0de1a",
+      "sha256": "0186b0134cdf8b4c33f2e77c9042a5a3491712e412380a36ad7de2c3640c5bf4",
       "references": [
         "urn:kernel-v0:death"
       ],
@@ -610,7 +630,7 @@
       "tier": "molaug-v0",
       "label": "animal",
       "file": "poc/scale/molecule-aug/lexicon/records/animal.json",
-      "sha256": "f24d7ef0966eb5084ca0b73d65fdd95e0ee69a83abeb76ceccea59c8055e625d",
+      "sha256": "d0df54acc38a24bf1c8fd2ec30d8dc2062b6a81db69343b966ca34437b1705ff",
       "references": [],
       "astAdequacySelfFlag": "faithful"
     },
@@ -619,7 +639,7 @@
       "tier": "molaug-v0",
       "label": "eat (X eats Y)",
       "file": "poc/scale/molecule-aug/lexicon/records/eat.json",
-      "sha256": "58a23a9aa00864e5c84c2e295b6434e63b2324ff18305f2b604ee6ca1179086c",
+      "sha256": "3a5246cbfc98028722969323ec9f5741903a424c2410d8900158f2acc805bb4d",
       "references": [],
       "astAdequacySelfFlag": "lossy"
     },
@@ -628,7 +648,7 @@
       "tier": "molaug-v0",
       "label": "food",
       "file": "poc/scale/molecule-aug/lexicon/records/food.json",
-      "sha256": "3d473ece0a9290218722f9a5583918c284373229974d67130284c8ffb3f75338",
+      "sha256": "4a00f7cc7dc58c0e7a93d4b95695bc88b5ad95024ec4ea5e80058611e8486a61",
       "references": [
         "urn:molaug-v0:eat"
       ],
@@ -639,7 +659,7 @@
       "tier": "molaug-v0",
       "label": "grow",
       "file": "poc/scale/molecule-aug/lexicon/records/grow.json",
-      "sha256": "7cc2ea7e74e4793df565cc84522301e2737936e9074cb91036c203e73f22a2c6",
+      "sha256": "3a6d94f2f3888c8b1720fd48c24dcc494cb4d876f98e564fa8104231a34c1d12",
       "references": [],
       "astAdequacySelfFlag": "faithful"
     },
@@ -648,7 +668,7 @@
       "tier": "molaug-v0",
       "label": "name (the word for X)",
       "file": "poc/scale/molecule-aug/lexicon/records/name.json",
-      "sha256": "307de9171f873d269252ba009be12c5a52785ff045859b3d6cc4d8f01e56bfae",
+      "sha256": "eadf32ab5bd6cfa2343a1666eb573168dca202feebf537337a9d82c542bc5cc2",
       "references": [],
       "astAdequacySelfFlag": "faithful"
     },
@@ -657,7 +677,7 @@
       "tier": "molaug-v0",
       "label": "write (X writes Y)",
       "file": "poc/scale/molecule-aug/lexicon/records/write.json",
-      "sha256": "3f74a5dc75168a628629aacf2fc07976c0088238b141c3ada164a0cf25669cdb",
+      "sha256": "2c78a8860f3a1555fa1d76f14c684529913910e63fd11f9bebc316559dd3248d",
       "references": [
         "urn:kernel-v0:make",
         "urn:molaug-v0:surface"
@@ -669,7 +689,7 @@
       "tier": "molaug-v0",
       "label": "own (X owns Y)",
       "file": "poc/scale/molecule-aug/lexicon/records/own.json",
-      "sha256": "966a7c22c0402c215e7631fd843487df59d5215c0930b17a1aa7264cc061c3b3",
+      "sha256": "dfb68cd63ee7aa2e1bafc20829e1cf088098bf1205162cb436af5e01413e007f",
       "references": [
         "urn:kernel-v0:take",
         "urn:kernel-v0:wrong"
@@ -681,7 +701,7 @@
       "tier": "molaug-v0",
       "label": "ill (sick)",
       "file": "poc/scale/molecule-aug/lexicon/records/ill.json",
-      "sha256": "da2a0845bb6dbb12bfb57f4ef6d980665455fa6e7c4ab8be5cb1bdf9c7dc1f36",
+      "sha256": "ccb54a9689ac0065ff89bc47f5e83ccfc8868f1024dc8a07b15232402d31a1dc",
       "references": [],
       "astAdequacySelfFlag": "faithful"
     },
@@ -690,7 +710,7 @@
       "tier": "molaug-v0",
       "label": "man (adult male)",
       "file": "poc/scale/molecule-aug/lexicon/records/man.json",
-      "sha256": "212d93be7e55353cf0bc827a7f7bfc8e722f94cba314ed99bbef4e299b0db25a",
+      "sha256": "f1e45bcd50dc03d5279e7a72a387fc915932ffd04f087a3c0df9f7cb292d3791",
       "references": [
         "urn:kernel-v0:birth"
       ],
@@ -701,7 +721,7 @@
       "tier": "molaug-v0",
       "label": "woman (adult female)",
       "file": "poc/scale/molecule-aug/lexicon/records/woman.json",
-      "sha256": "13b48c7b9b05996c592ffe3e75e24a0a6f89b93e76089b5f4943e7a1e49dc391",
+      "sha256": "c6f9469c8cadc8de355ea204e1dbadae1028e11d381bd16005381b4587bcdd21",
       "references": [
         "urn:kernel-v0:birth"
       ],
@@ -712,7 +732,7 @@
       "tier": "molaug-v0",
       "label": "sex (mating)",
       "file": "poc/scale/molecule-aug/lexicon/records/sex.json",
-      "sha256": "5726fe6b119d5053d8ca8acae9e67281313c131d252b00b171427814d6f82971",
+      "sha256": "1c4772a83f3ff268336f041ee89602ef021074705f7a89a5ec8a57322e557d96",
       "references": [
         "urn:kernel-v0:birth",
         "urn:molaug-v0:man",
@@ -725,7 +745,7 @@
       "tier": "molaug-v0",
       "label": "work (job)",
       "file": "poc/scale/molecule-aug/lexicon/records/work.json",
-      "sha256": "a1d86937b9cf601d0ddb675d5a1ac7a05ce35fc623493d9037e2e9ca4fb7d377",
+      "sha256": "4e8faf2ca9882f9173f4042ed8813ffcdfdb4c78f486020260059af64d753af4",
       "references": [
         "urn:kernel-v0:give",
         "urn:molaug-v0:money"
@@ -737,7 +757,7 @@
       "tier": "molaug-v0",
       "label": "status (X's standing in group Y)",
       "file": "poc/scale/molecule-aug/lexicon/records/status.json",
-      "sha256": "74cca1c65b27710a66f9bc1497b57e51ccd9e4d7961abab6a05e47279145d58e",
+      "sha256": "aeb00a5018acbcb7a1260a8f1f787f06bc7097746b6f6388535f5d43a0f2c407",
       "references": [
         "urn:molaug-v0:group"
       ],
@@ -748,7 +768,7 @@
       "tier": "molaug-v0",
       "label": "authority (X has authority over Ys)",
       "file": "poc/scale/molecule-aug/lexicon/records/authority.json",
-      "sha256": "e6b27bdf3fc4e7af3fc49c8c9d62cbe023357ec9418738e6c5d362e5d09a381a",
+      "sha256": "d00cb06162ce3517abff5be8ba899d75b1ec71b57b45b338de7fdac889dc3f50",
       "references": [
         "urn:kernel-v0:right",
         "urn:molaug-v0:group"
@@ -760,7 +780,7 @@
       "tier": "molaug-v0",
       "label": "law",
       "file": "poc/scale/molecule-aug/lexicon/records/law.json",
-      "sha256": "f29b080928bb74302fb1fa34b82acadefa75fd702e118d5dc82c8503ec348b23",
+      "sha256": "1829d3d4bb4a59918b6ecb37674c6ea2d46473d379704c416d8a3df12b9322db",
       "references": [
         "urn:molaug-v0:authority"
       ],
@@ -771,7 +791,7 @@
       "tier": "molaug-v0",
       "label": "country",
       "file": "poc/scale/molecule-aug/lexicon/records/country.json",
-      "sha256": "a1258cb1ff728eae9190b88bc6858e604c0b0e07c9c18bd548f1fa467c3b5ff6",
+      "sha256": "333fa65d5a82015c168cba41fdaec5d652cdb11085890f3439fa0b5af24d792e",
       "references": [
         "urn:molaug-v0:authority"
       ],
@@ -782,7 +802,7 @@
       "tier": "molaug-v0",
       "label": "institution",
       "file": "poc/scale/molecule-aug/lexicon/records/institution.json",
-      "sha256": "5676eaaab09bc06d5616050fc159383d8f22888f01aed626e4e5a6afd37d2730",
+      "sha256": "eaae10dca11f7f5c304f6774abecb341549cbe62695ba9d44506d11db607bcc5",
       "references": [
         "urn:molaug-v0:group",
         "urn:molaug-v0:law"
@@ -794,7 +814,7 @@
       "tier": "molaug-v0",
       "label": "duty",
       "file": "poc/scale/molecule-aug/lexicon/records/duty.json",
-      "sha256": "9fe3b275d53c4c5ba76a00f3ec23a4e8d579b900d686eb6014f46f2f05c1ffec",
+      "sha256": "abb479aff33900b79ca5bb252ff2cc15278d83da56c53fc6d2c14fb3ad635633",
       "references": [
         "urn:kernel-v0:wrong",
         "urn:molaug-v0:work"
@@ -806,7 +826,7 @@
       "tier": "molaug-v0",
       "label": "worth (X is the worth of thing Y)",
       "file": "poc/scale/molecule-aug/lexicon/records/worth.json",
-      "sha256": "efecdc75775438436f33bf730a7e7df8f363df777a02f23067aeefde951be5db",
+      "sha256": "8ccabb56847bfd25dca781e380a838753a42fecb9c8b1b46cfabee88b8193bb4",
       "references": [
         "urn:kernel-v0:give",
         "urn:molaug-v0:money"
@@ -818,7 +838,7 @@
       "tier": "molaug-v0",
       "label": "tool",
       "file": "poc/scale/molecule-aug/lexicon/records/tool.json",
-      "sha256": "c3f85967ef5825f5d9ab6f28b378b75ab709898e1fbfd80f1ded6094e21db630",
+      "sha256": "835a3e7445db5e3b219aebead19633e22150d6a8216b9762fd3db5091bfd9745",
       "references": [
         "urn:kernel-v0:make"
       ],
@@ -829,7 +849,7 @@
       "tier": "molaug-v0",
       "label": "machine",
       "file": "poc/scale/molecule-aug/lexicon/records/machine.json",
-      "sha256": "d49117388d6c15bfa5ea8ab9b04ba9f1f9202f1eb1a7ced0934a2bde28c43a60",
+      "sha256": "4f587594e82406a902cb2eec87dda880f43ac38a4e25734c2cd24b8e254d1153",
       "references": [
         "urn:molaug-v0:tool"
       ],
@@ -840,7 +860,7 @@
       "tier": "molaug-v0",
       "label": "art",
       "file": "poc/scale/molecule-aug/lexicon/records/art.json",
-      "sha256": "ba86531bb0b6a733f19df8edcdc4a93375ff9b2dad8fb6d3e9d02ae36afa4881",
+      "sha256": "884e27ffd80fd295b860ee76c7243de1de273bb780a13b924c4a71df4a288e19",
       "references": [
         "urn:kernel-v0:make"
       ],
@@ -851,7 +871,7 @@
       "tier": "molaug-v0",
       "label": "game",
       "file": "poc/scale/molecule-aug/lexicon/records/game.json",
-      "sha256": "8e18cbe477ab0c7c9df2f002aa53b2812c1c5479da3da3dbaf2124d811f3603d",
+      "sha256": "e393e68d2c129552f6c5cb52437993eb91d252e3a409d578909749d91418f637",
       "references": [],
       "astAdequacySelfFlag": "lossy"
     }

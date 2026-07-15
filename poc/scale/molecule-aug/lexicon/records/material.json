@@ -2,9 +2,9 @@
   "id": "urn:molaug-v0:material",
   "label": "material (what a thing is made of)",
   "status": "research-grade",
-  "pattern": "InstanceSchema; kind-genus + all-parts-of-this-kind mereology + make-time linkage (concept-manner make)",
+  "pattern": "InstanceSchema; kind-genus + all-parts-of-this-kind mereology + same-maker-same-time make linkage (concept-manner make)",
   "gloss": "The stuff of which a thing consists: that kind of matter such that every part of the thing is of it, and on which someone who makes the thing works in the making.",
-  "notes": "AST adequacy: lossy — substancehood (continuous mass, and the persistence of the same stuff through the making) exceeds the primes; rendered as kind-membership of all the thing's parts plus a linkage to the act of making.",
+  "notes": "AST adequacy: lossy \u2014 substancehood (continuous mass, and the persistence of the same stuff through the making) exceeds the primes; rendered as kind-membership of all the thing's parts plus the maker's acting on some of this kind at the same time as the make-type act on the thing; the make reference is an event-kind (manner) reference, so its own participants are carried by the outer clause's agent and undergoer.",
   "references": [
     "urn:kernel-v0:make"
   ],
@@ -12,23 +12,42 @@
     "schema": "kot-ast/1",
     "frame": "InstanceSchema",
     "referents": [
-      { "index": 1, "refKind": "SomethingRef" },
-      { "index": 2, "refKind": "SomethingRef" },
-      { "index": 3, "refKind": "SomeoneRef" }
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 4,
+        "refKind": "TimeRef"
+      }
     ],
     "clauses": [
       {
         "type": "pred",
         "pred": "BE-SPEC",
         "roles": {
-          "undergoer": { "kind": "ref", "index": 1 },
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
           "attribute": {
             "kind": "sp",
             "head": {
               "kind": "kindFrame",
               "of": {
                 "kind": "sp",
-                "head": { "kind": "primeHead", "prime": "SOMETHING~THING" }
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                }
               }
             }
           }
@@ -46,7 +65,10 @@
               "of": {
                 "kind": "sp",
                 "det": "SOME",
-                "head": { "kind": "primeHead", "prime": "SOMETHING~THING" },
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                },
                 "bind": 2
               }
             }
@@ -55,7 +77,10 @@
             "kind": "sp",
             "head": {
               "kind": "kindFrame",
-              "of": { "kind": "ref", "index": 1 }
+              "of": {
+                "kind": "ref",
+                "index": 1
+              }
             }
           }
         }
@@ -71,22 +96,50 @@
               "agent": {
                 "kind": "sp",
                 "det": "SOME",
-                "head": { "kind": "primeHead", "prime": "SOMEONE" },
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMEONE"
+                },
                 "bind": 3
               },
-              "undergoer": { "kind": "ref", "index": 2 },
-              "manner": { "kind": "concept", "id": "urn:kernel-v0:make" }
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "manner": {
+                "kind": "concept",
+                "id": "urn:kernel-v0:make"
+              },
+              "time": {
+                "kind": "sp",
+                "det": "SOME",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "WHEN~TIME"
+                },
+                "bind": 4
+              }
             }
           },
           {
             "type": "pred",
             "pred": "DO",
             "roles": {
-              "agent": { "kind": "ref", "index": 3 },
+              "agent": {
+                "kind": "ref",
+                "index": 3
+              },
               "undergoer": {
                 "kind": "sp",
                 "quant": "SOME",
-                "head": { "kind": "refHead", "index": 1 }
+                "head": {
+                  "kind": "refHead",
+                  "index": 1
+                }
+              },
+              "time": {
+                "kind": "ref",
+                "index": 4
               }
             }
           }

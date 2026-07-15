@@ -2,9 +2,9 @@
   "id": "urn:molaug-v0:law",
   "label": "law",
   "status": "research-grade",
-  "pattern": "InstanceSchema; WORDS-kind genus + authority-restricted speaker + known conditional sanction + habitual conformity (manner = the words)",
+  "pattern": "InstanceSchema; WORDS-kind genus + authority-restricted speakers doing authority-type acts on all residents + known offender-targeted conditional sanction + habitual conformity (manner = the words)",
   "gloss": "A rule declared in words by those in authority over a place, which all who live in that place are bound to follow, and whose breach brings something bad upon the offender at the hands of that authority.",
-  "notes": "AST adequacy: lossy — deontic obligation ('must') has no prime: rendered as universally known conditional sanction (if one does not act as the words say, the authority-holders do something bad and one feels bad) plus habitual conformity; legislative procedure, courts, and the authority-to-place linkage are dropped or approximate.",
+  "notes": "AST adequacy: lossy \u2014 deontic obligation ('must') has no prime: rendered as universally known conditional sanction (if one does not act as the words say, the authority-holders do something to that person in a bad way and that person feels bad) plus habitual conformity; the authority-holders are linked to the place by their authority-type acts on all who live there; legislative procedure and courts are dropped.",
   "references": [
     "urn:molaug-v0:authority"
   ],
@@ -12,24 +12,42 @@
     "schema": "kot-ast/1",
     "frame": "InstanceSchema",
     "referents": [
-      { "index": 1, "refKind": "SomethingRef" },
-      { "index": 2, "refKind": "SomeoneRef" },
-      { "index": 3, "refKind": "SomeoneRef" },
-      { "index": 4, "refKind": "PlaceRef" }
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 4,
+        "refKind": "PlaceRef"
+      }
     ],
     "clauses": [
       {
         "type": "pred",
         "pred": "BE-SPEC",
         "roles": {
-          "undergoer": { "kind": "ref", "index": 1 },
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
           "attribute": {
             "kind": "sp",
             "head": {
               "kind": "kindFrame",
               "of": {
                 "kind": "sp",
-                "head": { "kind": "primeHead", "prime": "WORDS" }
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "WORDS"
+                }
               }
             }
           }
@@ -42,18 +60,30 @@
           "agent": {
             "kind": "sp",
             "quant": "SOME",
-            "head": { "kind": "primeHead", "prime": "PEOPLE" },
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            },
             "bind": 2,
             "restrictedBy": {
               "type": "pred",
               "pred": "BE-SPEC",
               "roles": {
-                "undergoer": { "kind": "ref", "index": 2 },
-                "attribute": { "kind": "concept", "id": "urn:molaug-v0:authority" }
+                "undergoer": {
+                  "kind": "ref",
+                  "index": 2
+                },
+                "attribute": {
+                  "kind": "concept",
+                  "id": "urn:molaug-v0:authority"
+                }
               }
             }
           },
-          "topic": { "kind": "ref", "index": 1 }
+          "topic": {
+            "kind": "ref",
+            "index": 1
+          }
         }
       },
       {
@@ -63,17 +93,26 @@
           "experiencer": {
             "kind": "sp",
             "quant": "ALL",
-            "head": { "kind": "primeHead", "prime": "PEOPLE" },
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            },
             "bind": 3,
             "restrictedBy": {
               "type": "pred",
               "pred": "LIVE",
               "roles": {
-                "undergoer": { "kind": "ref", "index": 3 },
+                "undergoer": {
+                  "kind": "ref",
+                  "index": 3
+                },
                 "place": {
                   "kind": "sp",
                   "det": "SOME",
-                  "head": { "kind": "primeHead", "prime": "WHERE~PLACE" },
+                  "head": {
+                    "kind": "primeHead",
+                    "prime": "WHERE~PLACE"
+                  },
                   "bind": 4
                 }
               }
@@ -93,8 +132,14 @@
                       "type": "pred",
                       "pred": "DO",
                       "roles": {
-                        "agent": { "kind": "ref", "index": 3 },
-                        "manner": { "kind": "ref", "index": 1 }
+                        "agent": {
+                          "kind": "ref",
+                          "index": 3
+                        },
+                        "manner": {
+                          "kind": "ref",
+                          "index": 1
+                        }
                       }
                     }
                   ]
@@ -107,12 +152,25 @@
                       "type": "pred",
                       "pred": "DO",
                       "roles": {
-                        "agent": { "kind": "ref", "index": 2 },
+                        "agent": {
+                          "kind": "ref",
+                          "index": 2
+                        },
                         "undergoer": {
+                          "kind": "ref",
+                          "index": 3
+                        },
+                        "manner": {
                           "kind": "sp",
-                          "det": "SOME",
-                          "mods": [ { "mod": "BAD" } ],
-                          "head": { "kind": "primeHead", "prime": "SOMETHING~THING" }
+                          "mods": [
+                            {
+                              "mod": "BAD"
+                            }
+                          ],
+                          "head": {
+                            "kind": "primeHead",
+                            "prime": "SOMETHING~THING"
+                          }
                         }
                       }
                     },
@@ -120,8 +178,14 @@
                       "type": "pred",
                       "pred": "FEEL",
                       "roles": {
-                        "experiencer": { "kind": "ref", "index": 3 },
-                        "attribute": { "kind": "prime", "prime": "BAD" }
+                        "experiencer": {
+                          "kind": "ref",
+                          "index": 3
+                        },
+                        "attribute": {
+                          "kind": "prime",
+                          "prime": "BAD"
+                        }
                       }
                     }
                   ]
@@ -135,12 +199,51 @@
         "type": "pred",
         "pred": "DO",
         "roles": {
-          "agent": { "kind": "ref", "index": 3 },
-          "manner": { "kind": "ref", "index": 1 },
+          "agent": {
+            "kind": "ref",
+            "index": 2
+          },
+          "undergoer": {
+            "kind": "sp",
+            "quant": "ALL",
+            "head": {
+              "kind": "refHead",
+              "index": 3
+            }
+          },
+          "manner": {
+            "kind": "concept",
+            "id": "urn:molaug-v0:authority"
+          },
           "time": {
             "kind": "sp",
             "quant": "MUCH~MANY",
-            "head": { "kind": "primeHead", "prime": "WHEN~TIME" }
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 3
+          },
+          "manner": {
+            "kind": "ref",
+            "index": 1
+          },
+          "time": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            }
           }
         }
       }

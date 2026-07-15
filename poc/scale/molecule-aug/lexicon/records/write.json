@@ -2,9 +2,9 @@
   "id": "urn:molaug-v0:write",
   "label": "write (X writes Y)",
   "status": "research-grade",
-  "pattern": "RelationalSchema; WORDS-kind object + mark-making on a surface (make-manner) + see-to-know uptake",
+  "pattern": "RelationalSchema; WORDS-kind object + mark-making on a surface (make-manner) + long-duration persistence of the marks + see-to-know uptake",
   "gloss": "To set words down in lasting visible form: to make marks on the surface of something such that whoever sees the marks can know the words.",
-  "notes": "AST adequacy: faithful — mark-making on a surface with see-to-know uptake of the words is the criterial content and is rendered via the make and surface references; the conventional script system linking mark-shapes to words is presupposed, not decomposed.",
+  "notes": "AST adequacy: faithful \u2014 mark-making on a surface with see-to-know uptake of the words is the criterial content and is rendered via the make and surface references; the lasting form is rendered as the marks being at that surface for a long time; the conventional script system linking mark-shapes to words is presupposed, not decomposed.",
   "references": [
     "urn:kernel-v0:make",
     "urn:molaug-v0:surface"
@@ -13,24 +13,46 @@
     "schema": "kot-ast/1",
     "frame": "RelationalSchema",
     "referents": [
-      { "index": 1, "refKind": "SomeoneRef" },
-      { "index": 2, "refKind": "SomethingRef" },
-      { "index": 3, "refKind": "SomethingRef" },
-      { "index": 4, "refKind": "SomeoneRef" }
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 4,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 5,
+        "refKind": "SomethingRef"
+      }
     ],
     "clauses": [
       {
         "type": "pred",
         "pred": "BE-SPEC",
         "roles": {
-          "undergoer": { "kind": "ref", "index": 2 },
+          "undergoer": {
+            "kind": "ref",
+            "index": 2
+          },
           "attribute": {
             "kind": "sp",
             "head": {
               "kind": "kindFrame",
               "of": {
                 "kind": "sp",
-                "head": { "kind": "primeHead", "prime": "WORDS" }
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "WORDS"
+                }
               }
             }
           }
@@ -40,21 +62,56 @@
         "type": "pred",
         "pred": "DO",
         "roles": {
-          "agent": { "kind": "ref", "index": 1 },
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
           "undergoer": {
             "kind": "sp",
             "quant": "MUCH~MANY",
-            "mods": [ { "mod": "SMALL" } ],
-            "head": { "kind": "primeHead", "prime": "SOMETHING~THING" },
+            "mods": [
+              {
+                "mod": "SMALL"
+              }
+            ],
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
             "bind": 3
           },
-          "manner": { "kind": "concept", "id": "urn:kernel-v0:make" },
+          "manner": {
+            "kind": "concept",
+            "id": "urn:kernel-v0:make"
+          },
           "place": {
             "kind": "sp",
             "head": {
               "kind": "kindFrame",
-              "of": { "kind": "concept", "id": "urn:molaug-v0:surface" }
-            }
+              "of": {
+                "kind": "concept",
+                "id": "urn:molaug-v0:surface"
+              }
+            },
+            "bind": 5
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 3
+          },
+          "locus": {
+            "kind": "ref",
+            "index": 5
+          },
+          "duration": {
+            "kind": "prime",
+            "prime": "A-LONG-TIME"
           }
         }
       },
@@ -69,10 +126,16 @@
               "experiencer": {
                 "kind": "sp",
                 "det": "SOME",
-                "head": { "kind": "primeHead", "prime": "SOMEONE" },
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMEONE"
+                },
                 "bind": 4
               },
-              "stimulus": { "kind": "ref", "index": 3 }
+              "stimulus": {
+                "kind": "ref",
+                "index": 3
+              }
             }
           },
           {
@@ -83,8 +146,14 @@
                 "type": "pred",
                 "pred": "KNOW",
                 "roles": {
-                  "experiencer": { "kind": "ref", "index": 4 },
-                  "topic": { "kind": "ref", "index": 2 }
+                  "experiencer": {
+                    "kind": "ref",
+                    "index": 4
+                  },
+                  "topic": {
+                    "kind": "ref",
+                    "index": 2
+                  }
                 }
               }
             ]

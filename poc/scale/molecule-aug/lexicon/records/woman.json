@@ -2,9 +2,9 @@
   "id": "urn:molaug-v0:woman",
   "label": "woman (adult female)",
   "status": "research-grade",
-  "pattern": "InstanceSchema; kind-genus restricted by birth-capability (kind-level) + grown-person clause",
+  "pattern": "InstanceSchema; kind-genus restricted by birth-capability in the body part-of-linked to the kind + grown (big, long-lived) person clauses",
   "gloss": "An adult female human being: a grown person of the bodily kind from whose body a child can be born.",
-  "notes": "AST adequacy: faithful — for the bodily sense: a grown person of the birth-capable bodily kind, following Goddard/Wierzbicka practice; the capability is kind-level (an individual woman need not be able to bear children), the body-to-kind linkage is approximate, and the social dimension of womanhood is not rendered.",
+  "notes": "AST adequacy: faithful \u2014 for the bodily sense: a grown (big, long-lived) person of the bodily kind in whose own body (a part of such a someone) a birth-kind event can happen, following Goddard/Wierzbicka practice; the capability is kind-level (an individual woman need not be able to bear children), the body-to-bearer linkage is the part-of approximation, and the social dimension of womanhood is not rendered.",
   "references": [
     "urn:kernel-v0:birth"
   ],
@@ -12,22 +12,38 @@
     "schema": "kot-ast/1",
     "frame": "InstanceSchema",
     "referents": [
-      { "index": 1, "refKind": "SomeoneRef" },
-      { "index": 2, "refKind": "SomeoneRef" }
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      }
     ],
     "clauses": [
       {
         "type": "pred",
         "pred": "BE-SPEC",
         "roles": {
-          "undergoer": { "kind": "ref", "index": 1 },
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
           "attribute": {
             "kind": "sp",
             "head": {
               "kind": "kindFrame",
               "of": {
                 "kind": "sp",
-                "head": { "kind": "primeHead", "prime": "SOMEONE" },
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMEONE"
+                },
                 "bind": 2,
                 "restrictedBy": {
                   "type": "op",
@@ -41,14 +57,44 @@
                           "kind": "sp",
                           "head": {
                             "kind": "kindFrame",
-                            "of": { "kind": "concept", "id": "urn:kernel-v0:birth" }
+                            "of": {
+                              "kind": "concept",
+                              "id": "urn:kernel-v0:birth"
+                            }
                           }
                         },
                         "place": {
                           "kind": "sp",
-                          "head": { "kind": "primeHead", "prime": "BODY" }
+                          "head": {
+                            "kind": "primeHead",
+                            "prime": "BODY"
+                          },
+                          "bind": 3,
+                          "restrictedBy": {
+                            "type": "pred",
+                            "pred": "BE-SPEC",
+                            "roles": {
+                              "undergoer": {
+                                "kind": "ref",
+                                "index": 3
+                              },
+                              "attribute": {
+                                "kind": "sp",
+                                "head": {
+                                  "kind": "partFrame",
+                                  "of": {
+                                    "kind": "ref",
+                                    "index": 2
+                                  }
+                                }
+                              }
+                            }
+                          }
                         },
-                        "manner": { "kind": "prime", "prime": "INSIDE" }
+                        "manner": {
+                          "kind": "prime",
+                          "prime": "INSIDE"
+                        }
                       }
                     }
                   ]
@@ -60,15 +106,46 @@
       },
       {
         "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "attribute": {
+            "kind": "sp",
+            "mods": [
+              {
+                "mod": "BIG"
+              }
+            ],
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMEONE"
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
         "pred": "LIVE",
         "roles": {
-          "undergoer": { "kind": "ref", "index": 1 },
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
           "time": {
             "kind": "temporal",
             "op": "BEFORE",
-            "anchor": { "kind": "prime", "prime": "NOW" }
+            "anchor": {
+              "kind": "prime",
+              "prime": "NOW"
+            }
           },
-          "duration": { "kind": "prime", "prime": "A-LONG-TIME" }
+          "duration": {
+            "kind": "prime",
+            "prime": "A-LONG-TIME"
+          }
         }
       }
     ]

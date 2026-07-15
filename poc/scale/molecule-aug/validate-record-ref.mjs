@@ -77,7 +77,15 @@ for (const dir of lexDirs) {
     if (typeof d.id !== 'string' || d.explication?.schema !== AST_SCHEMA) {
       out({ ok: false, code: 'ERR_LEXICON_RECORD', error: `${dir}/${f}: not a kot-ast/1 concept record` }, 1);
     }
-    if (lexicon.has(d.id)) {
+    // kernel-v0 REPAIR override (adjudication closure; lexicon/build_manifest.mjs
+    // §2b): a molecule-aug-LOCAL file named kernel-v0-<slug>.json whose id is
+    // urn:kernel-v0:<slug> REPLACES the canonical entry loaded from an earlier
+    // --lexicon dir — the shared corpus data/kernel-v0/ stays byte-stable and
+    // is repaired here, for this arm only. Any other duplicate id still fails
+    // closed (ERR_LEXICON_DUP).
+    const ovm = /^kernel-v0-([a-z0-9-]+)\.json$/.exec(f);
+    const isOverride = ovm !== null && d.id === `urn:kernel-v0:${ovm[1]}`;
+    if (lexicon.has(d.id) && !isOverride) {
       out({ ok: false, code: 'ERR_LEXICON_DUP', error: `duplicate lexicon id ${d.id}` }, 1);
     }
     lexicon.set(d.id, d.explication);

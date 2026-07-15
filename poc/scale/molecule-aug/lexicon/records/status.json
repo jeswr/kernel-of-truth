@@ -2,9 +2,9 @@
   "id": "urn:molaug-v0:status",
   "label": "status (X's standing in group Y)",
   "status": "research-grade",
-  "pattern": "RelationalSchema; group reference + ABOVE-metaphor rank inside a THINK quote + literal-place negation",
-  "gloss": "A person's standing within a group: the position, higher or lower relative to the other members, that the group's members accord the person in their shared thinking of one another — a place held in esteem, not in space.",
-  "notes": "AST adequacy: lossy — social rank is rendered through a spatial above/below metaphor scoped inside the members' thinking, with the literal spatial reading explicitly negated; the evaluative and normative content of standing (esteem, deference, entitlement) is dropped, and the generic quote (above some, below others) overstates the extreme top and bottom ranks.",
+  "pattern": "RelationalSchema; group reference + member-restricted ABOVE-metaphor rank inside the members' THINK quote (MAYBE-scoped placement) + literal-place negation + good-someone regard clause",
+  "gloss": "A person's standing within a group: the position, higher or lower relative to the other members, that the group's members accord the person in their shared thinking of one another \u2014 a place held in esteem, not in space.",
+  "notes": "AST adequacy: lossy \u2014 social rank is rendered through a spatial above/below metaphor scoped inside the members' shared thinking, with the literal spatial reading explicitly negated; the compared parties are the other members of the group (part-of restriction), and the top and bottom ranks are accommodated by MAYBE-scoped placement; the accorded evaluative content is rendered only as the members' good-someone regard for one they place above many others \u2014 deference and entitlement are dropped.",
   "references": [
     "urn:molaug-v0:group"
   ],
@@ -12,21 +12,36 @@
     "schema": "kot-ast/1",
     "frame": "RelationalSchema",
     "referents": [
-      { "index": 1, "refKind": "SomeoneRef" },
-      { "index": 2, "refKind": "SomethingRef" },
-      { "index": 3, "refKind": "SomeoneRef" }
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomeoneRef"
+      }
     ],
     "clauses": [
       {
         "type": "pred",
         "pred": "BE-SPEC",
         "roles": {
-          "undergoer": { "kind": "ref", "index": 2 },
+          "undergoer": {
+            "kind": "ref",
+            "index": 2
+          },
           "attribute": {
             "kind": "sp",
             "head": {
               "kind": "kindFrame",
-              "of": { "kind": "concept", "id": "urn:molaug-v0:group" }
+              "of": {
+                "kind": "concept",
+                "id": "urn:molaug-v0:group"
+              }
             }
           }
         }
@@ -37,18 +52,27 @@
         "roles": {
           "experiencer": {
             "kind": "sp",
-            "head": { "kind": "primeHead", "prime": "PEOPLE" },
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            },
             "bind": 3,
             "restrictedBy": {
               "type": "pred",
               "pred": "BE-SPEC",
               "roles": {
-                "undergoer": { "kind": "ref", "index": 3 },
+                "undergoer": {
+                  "kind": "ref",
+                  "index": 3
+                },
                 "attribute": {
                   "kind": "sp",
                   "head": {
                     "kind": "partFrame",
-                    "of": { "kind": "ref", "index": 2 }
+                    "of": {
+                      "kind": "ref",
+                      "index": 2
+                    }
                   }
                 }
               }
@@ -61,36 +85,93 @@
                 "type": "pred",
                 "pred": "BE-SOMEWHERE",
                 "roles": {
-                  "undergoer": { "kind": "ref", "index": 1 },
-                  "locus": {
-                    "kind": "sp",
-                    "det": "OTHER~ELSE~ANOTHER",
-                    "quant": "SOME",
-                    "head": { "kind": "primeHead", "prime": "SOMEONE" }
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 1
                   },
-                  "manner": { "kind": "prime", "prime": "ABOVE" }
+                  "locus": {
+                    "kind": "ref",
+                    "index": 2
+                  },
+                  "manner": {
+                    "kind": "prime",
+                    "prime": "INSIDE"
+                  }
                 }
               },
               {
-                "type": "pred",
-                "pred": "BE-SOMEWHERE",
-                "roles": {
-                  "undergoer": {
-                    "kind": "sp",
-                    "det": "OTHER~ELSE~ANOTHER",
-                    "quant": "SOME",
-                    "head": { "kind": "primeHead", "prime": "SOMEONE" }
-                  },
-                  "locus": { "kind": "ref", "index": 1 },
-                  "manner": { "kind": "prime", "prime": "ABOVE" }
-                }
+                "type": "op",
+                "op": "MAYBE",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "BE-SOMEWHERE",
+                    "roles": {
+                      "undergoer": {
+                        "kind": "ref",
+                        "index": 1
+                      },
+                      "locus": {
+                        "kind": "sp",
+                        "det": "OTHER~ELSE~ANOTHER",
+                        "quant": "SOME",
+                        "head": {
+                          "kind": "partFrame",
+                          "of": {
+                            "kind": "ref",
+                            "index": 2
+                          }
+                        }
+                      },
+                      "manner": {
+                        "kind": "prime",
+                        "prime": "ABOVE"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "op",
+                "op": "MAYBE",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "BE-SOMEWHERE",
+                    "roles": {
+                      "undergoer": {
+                        "kind": "sp",
+                        "det": "OTHER~ELSE~ANOTHER",
+                        "quant": "SOME",
+                        "head": {
+                          "kind": "partFrame",
+                          "of": {
+                            "kind": "ref",
+                            "index": 2
+                          }
+                        }
+                      },
+                      "locus": {
+                        "kind": "ref",
+                        "index": 1
+                      },
+                      "manner": {
+                        "kind": "prime",
+                        "prime": "ABOVE"
+                      }
+                    }
+                  }
+                ]
               }
             ]
           },
           "time": {
             "kind": "sp",
             "quant": "MUCH~MANY",
-            "head": { "kind": "primeHead", "prime": "WHEN~TIME" }
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            }
           }
         }
       },
@@ -102,14 +183,110 @@
             "type": "pred",
             "pred": "BE-SOMEWHERE",
             "roles": {
-              "undergoer": { "kind": "ref", "index": 1 },
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              },
               "locus": {
                 "kind": "sp",
                 "det": "OTHER~ELSE~ANOTHER",
                 "quant": "SOME",
-                "head": { "kind": "primeHead", "prime": "SOMEONE" }
+                "head": {
+                  "kind": "partFrame",
+                  "of": {
+                    "kind": "ref",
+                    "index": 2
+                  }
+                }
               },
-              "manner": { "kind": "prime", "prime": "ABOVE" }
+              "manner": {
+                "kind": "prime",
+                "prime": "ABOVE"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "IF",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "THINK",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 3
+              },
+              "quote": {
+                "kind": "quote",
+                "clauses": [
+                  {
+                    "type": "pred",
+                    "pred": "BE-SOMEWHERE",
+                    "roles": {
+                      "undergoer": {
+                        "kind": "ref",
+                        "index": 1
+                      },
+                      "locus": {
+                        "kind": "sp",
+                        "det": "OTHER~ELSE~ANOTHER",
+                        "quant": "MUCH~MANY",
+                        "head": {
+                          "kind": "partFrame",
+                          "of": {
+                            "kind": "ref",
+                            "index": 2
+                          }
+                        }
+                      },
+                      "manner": {
+                        "kind": "prime",
+                        "prime": "ABOVE"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "THINK",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 3
+              },
+              "quote": {
+                "kind": "quote",
+                "clauses": [
+                  {
+                    "type": "pred",
+                    "pred": "BE-SPEC",
+                    "roles": {
+                      "undergoer": {
+                        "kind": "ref",
+                        "index": 1
+                      },
+                      "attribute": {
+                        "kind": "sp",
+                        "mods": [
+                          {
+                            "mod": "GOOD"
+                          }
+                        ],
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "SOMEONE"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
             }
           }
         ]

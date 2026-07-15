@@ -27,7 +27,7 @@ No model calls; codex not required.
   {
     "check": "gate: ref-bearing record resolves (kernel + bridge), unit-norm D=8192",
     "ok": true,
-    "detail": "{'ok': True, 'stats': {'clauseCount': 2, 'maxDepth': 2, 'referentCount': 1}, 'D': 8192, 'norm': 1.0000000000000018, 'references': ['urn:kernel-v0:teacher', 'urn:molaug-v0:money'], 'lexiconSize': 85}"
+    "detail": "{'ok': True, 'stats': {'clauseCount': 2, 'maxDepth': 2, 'referentCount': 1}, 'D': 8192, 'norm': 1.0000000000000024, 'references': ['urn:kernel-v0:teacher', 'urn:molaug-v0:money'], 'lexiconSize': 85}"
   },
   {
     "check": "gate: flat record still passes (R3 superset)",

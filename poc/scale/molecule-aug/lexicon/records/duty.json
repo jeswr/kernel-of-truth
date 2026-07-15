@@ -2,9 +2,9 @@
   "id": "urn:molaug-v0:duty",
   "label": "duty",
   "status": "research-grade",
-  "pattern": "InstanceSchema; work-tied obligation as known conditional social judgment (concept-wrong quote)",
+  "pattern": "InstanceSchema; part-of-the-person's-work genus + known conditional social judgment (concept-wrong quote)",
   "gloss": "Something a person is bound to do by virtue of their work or position, the leaving-undone of which is counted a wrong in them.",
-  "notes": "AST adequacy: lossy — deontic 'must' has no prime: obligation is rendered as the person's knowledge that not doing this thing would be judged wrong by others; duties of station beyond employment are narrowed to the work case, and the binding source (agreement, role) is not decomposed.",
+  "notes": "AST adequacy: lossy — deontic 'must' has no prime: obligation is rendered as the person's knowledge that leaving this thing undone would be judged wrong by many; the thing itself is rendered as a part of the work this person does (so the requirement is grounded in the work, and actual performance is not entailed); duties of station beyond employment are narrowed to the work case (the grammar has no disjunction), and the binding source (agreement, role) is not decomposed.",
   "references": [
     "urn:kernel-v0:wrong",
     "urn:molaug-v0:work"
@@ -40,6 +40,20 @@
             "kind": "sp",
             "quant": "MUCH~MANY",
             "head": { "kind": "primeHead", "prime": "WHEN~TIME" }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": { "kind": "ref", "index": 1 },
+          "attribute": {
+            "kind": "sp",
+            "head": {
+              "kind": "partFrame",
+              "of": { "kind": "ref", "index": 3 }
+            }
           }
         }
       },
@@ -114,19 +128,6 @@
             }
           }
         ]
-      },
-      {
-        "type": "pred",
-        "pred": "DO",
-        "roles": {
-          "agent": { "kind": "ref", "index": 2 },
-          "undergoer": { "kind": "ref", "index": 1 },
-          "time": {
-            "kind": "sp",
-            "quant": "MUCH~MANY",
-            "head": { "kind": "primeHead", "prime": "WHEN~TIME" }
-          }
-        }
       }
     ]
   }

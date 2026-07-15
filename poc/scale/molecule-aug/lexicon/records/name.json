@@ -2,32 +2,50 @@
   "id": "urn:molaug-v0:name",
   "label": "name (the word for X)",
   "status": "research-grade",
-  "pattern": "InstanceSchema; WORDS-kind genus + saying-hearing-knowing designation convention",
+  "pattern": "InstanceSchema; WORDS-kind genus + say-hear-know designation conditional + common-knowledge clause",
   "gloss": "The word or words by which a particular person or thing is spoken of, used so that those who hear them know which one is meant.",
-  "notes": "AST adequacy: faithful — designation is rendered as a convention: when someone thinking of the bearer says these words, hearers know whom the speaker is thinking of, and many people know the words; the type-word distinction (a name names across occasions) rides on the KNOW clause over many people.",
+  "notes": "AST adequacy: faithful \u2014 designation is rendered as one conditional convention: when someone who is thinking of the bearer says these words, another someone who hears them knows whom the speaker is thinking of; the many-people-know clause carries the type-word (across-occasions) character.",
   "references": [],
   "explication": {
     "schema": "kot-ast/1",
     "frame": "InstanceSchema",
     "referents": [
-      { "index": 1, "refKind": "SomethingRef" },
-      { "index": 2, "refKind": "SomethingRef" },
-      { "index": 3, "refKind": "SomeoneRef" },
-      { "index": 4, "refKind": "SomeoneRef" }
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 4,
+        "refKind": "SomeoneRef"
+      }
     ],
     "clauses": [
       {
         "type": "pred",
         "pred": "BE-SPEC",
         "roles": {
-          "undergoer": { "kind": "ref", "index": 1 },
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
           "attribute": {
             "kind": "sp",
             "head": {
               "kind": "kindFrame",
               "of": {
                 "kind": "sp",
-                "head": { "kind": "primeHead", "prime": "WORDS" }
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "WORDS"
+                }
               }
             }
           }
@@ -39,68 +57,83 @@
         "args": [
           {
             "type": "pred",
-            "pred": "THINK",
+            "pred": "SAY",
             "roles": {
-              "experiencer": {
+              "agent": {
                 "kind": "sp",
                 "det": "SOME",
-                "head": { "kind": "primeHead", "prime": "SOMEONE" },
-                "bind": 3
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMEONE"
+                },
+                "bind": 3,
+                "restrictedBy": {
+                  "type": "pred",
+                  "pred": "THINK",
+                  "roles": {
+                    "experiencer": {
+                      "kind": "ref",
+                      "index": 3
+                    },
+                    "topic": {
+                      "kind": "sp",
+                      "det": "SOME",
+                      "head": {
+                        "kind": "primeHead",
+                        "prime": "SOMETHING~THING"
+                      },
+                      "bind": 2
+                    }
+                  }
+                }
               },
               "topic": {
-                "kind": "sp",
-                "det": "SOME",
-                "head": { "kind": "primeHead", "prime": "SOMETHING~THING" },
-                "bind": 2
+                "kind": "ref",
+                "index": 1
               }
-            }
-          },
-          {
-            "type": "op",
-            "op": "CAN",
-            "args": [
-              {
-                "type": "pred",
-                "pred": "SAY",
-                "roles": {
-                  "agent": { "kind": "ref", "index": 3 },
-                  "topic": { "kind": "ref", "index": 1 }
-                }
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "type": "op",
-        "op": "WHEN",
-        "args": [
-          {
-            "type": "pred",
-            "pred": "HEAR",
-            "roles": {
-              "experiencer": {
-                "kind": "sp",
-                "det": "OTHER~ELSE~ANOTHER",
-                "head": { "kind": "primeHead", "prime": "SOMEONE" },
-                "bind": 4
-              },
-              "stimulus": { "kind": "ref", "index": 1 }
             }
           },
           {
             "type": "pred",
             "pred": "KNOW",
             "roles": {
-              "experiencer": { "kind": "ref", "index": 4 },
+              "experiencer": {
+                "kind": "sp",
+                "det": "OTHER~ELSE~ANOTHER",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMEONE"
+                },
+                "bind": 4,
+                "restrictedBy": {
+                  "type": "pred",
+                  "pred": "HEAR",
+                  "roles": {
+                    "experiencer": {
+                      "kind": "ref",
+                      "index": 4
+                    },
+                    "stimulus": {
+                      "kind": "ref",
+                      "index": 1
+                    }
+                  }
+                }
+              },
               "complement": {
                 "kind": "clause",
                 "clause": {
                   "type": "pred",
                   "pred": "THINK",
                   "roles": {
-                    "experiencer": { "kind": "ref", "index": 3 },
-                    "topic": { "kind": "ref", "index": 2 }
+                    "experiencer": {
+                      "kind": "ref",
+                      "index": 3
+                    },
+                    "topic": {
+                      "kind": "ref",
+                      "index": 2
+                    }
                   }
                 }
               }
@@ -115,9 +148,15 @@
           "experiencer": {
             "kind": "sp",
             "quant": "MUCH~MANY",
-            "head": { "kind": "primeHead", "prime": "PEOPLE" }
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            }
           },
-          "topic": { "kind": "ref", "index": 1 }
+          "topic": {
+            "kind": "ref",
+            "index": 1
+          }
         }
       }
     ]

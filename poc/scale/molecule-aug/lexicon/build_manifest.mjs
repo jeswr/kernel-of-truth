@@ -8,6 +8,12 @@
  *      (no ALGORITHM_VERSION bump allowed in the cheap tier, DESIGN §9);
  *   2. load the 54 kernel-v0 records + the 31 bridge records (exact PLAN list,
  *      urn:molaug-v0 namespace, record shape, AST-adequacy self-flag);
+ *      2b. kernel-v0 REPAIR overrides (adjudication closure, DESIGN-v2 §4):
+ *      records adjudicated REPAIR that live in the SHARED pinned corpus
+ *      data/kernel-v0/ are swapped for molecule-aug-LOCAL override files
+ *      (lexicon/records/kernel-v0-<slug>.json) — the canonical corpus stays
+ *      byte-stable for every other experiment; the override bytes flow into
+ *      the per-record sha256 and hence lexiconSetHash;
  *   3. reference policy per bridge record: references == AST concept ids
  *      (sorted), <=8, no self-ref, targets = kernel-v0 ids + STRICTLY EARLIER
  *      bridge rows only (PLAN topological order);
@@ -74,15 +80,47 @@ if (liveHash !== kv0Manifest.encoderContentHash) {
 }
 
 // -- 2. load records ----------------------------------------------------------
-const entries = []; // {id, label, gloss, file(abs), rel, raw, doc, tier}
+// 2b. kernel-v0 REPAIR overrides (3-judge adjudication closure verdicts,
+// lexicon/adjudication/summary.json): urn:kernel-v0:birth and urn:kernel-v0:take
+// were adjudicated REPAIR, but data/kernel-v0/ is the SHARED corpus whose bytes
+// are pinned by a5 / a-f0-mint / a5-llm / etc., so the repaired records live as
+// molecule-aug-local files and are substituted HERE, for this lexicon only.
+// Adding a slug to this map is a lexicon change: lexiconSetHash moves, and any
+// existing freeze/adjudication over the old bytes must be re-run.
+const KV0_OVERRIDES = { birth: 'kernel-v0-birth.json', take: 'kernel-v0-take.json' };
+const entries = []; // {id, label, gloss, rel, raw, doc, tier, override?}
+const overriddenSlugs = new Set();
 for (const c of kv0Manifest.concepts) {
   const abs = join(KV0, c.file);
-  const raw = readFileSync(abs, 'utf8');
+  const canonRaw = readFileSync(abs, 'utf8');
+  const slug = c.id.replace(/^urn:kernel-v0:/, '');
+  let raw = canonRaw;
+  let rel = `data/kernel-v0/${c.file}`;
+  let override = null;
+  if (KV0_OVERRIDES[slug]) {
+    const ovRel = `records/${KV0_OVERRIDES[slug]}`;
+    const ovAbs = join(HERE, ovRel);
+    if (!existsSync(ovAbs)) die(`kernel-v0 REPAIR override missing: lexicon/${ovRel} (adjudicated REPAIR for ${c.id})`);
+    raw = readFileSync(ovAbs, 'utf8');
+    rel = `poc/scale/molecule-aug/lexicon/${ovRel}`;
+    override = { of: `data/kernel-v0/${c.file}`, canonicalSha256: sha256(canonRaw) };
+    overriddenSlugs.add(slug);
+  }
   const doc = JSON.parse(raw);
   if (doc.id !== c.id) die(`kernel-v0 manifest/file id mismatch: ${c.id} vs ${doc.id}`);
-  entries.push({ id: doc.id, label: doc.label, gloss: doc.gloss, rel: `data/kernel-v0/${c.file}`, raw, doc, tier: 'kernel-v0' });
+  if (override) {
+    // Fail-closed: an override may repair a record but must stay the SAME
+    // concept and a grammar-valid record — no silent retarget/rename.
+    const canon = JSON.parse(canonRaw);
+    if (doc.label !== canon.label) die(`${slug}: override label '${doc.label}' != canonical '${canon.label}'`);
+    if (doc.explication?.schema !== AST_SCHEMA) die(`${slug}: override explication.schema != ${AST_SCHEMA}`);
+    validateExplication(doc.explication); // throws (fail-closed) on grammar errors
+  }
+  entries.push({ id: doc.id, label: doc.label, gloss: doc.gloss, rel, raw, doc, tier: 'kernel-v0', override });
 }
 if (entries.length !== 54) die(`expected 54 kernel-v0 records, got ${entries.length}`);
+const unusedOv = Object.keys(KV0_OVERRIDES).filter((s) => !overriddenSlugs.has(s));
+if (unusedOv.length) die(`KV0_OVERRIDES slug(s) not present in kernel-v0 manifest: ${unusedOv.join(', ')}`);
 
 const REQUIRED_FIELDS = ['id', 'label', 'status', 'pattern', 'gloss', 'notes', 'references', 'explication'];
 const bridgeIds = PLAN_ORDER.map((s) => `urn:molaug-v0:${s}`);
@@ -163,6 +201,7 @@ const recordsOut = entries.map((e) => ({
   id: e.id, tier: e.tier, label: e.label, file: e.rel, sha256: sha256(e.raw),
   references: [...conceptIds(e.doc.explication, new Set())].sort(),
   ...(e.tier === 'molaug-v0' ? { astAdequacySelfFlag: selfFlags[e.id] } : {}),
+  ...(e.override ? { overrideOf: e.override.of, canonicalSha256: e.override.canonicalSha256 } : {}),
 }));
 const lexiconSetHash = sha256(recordsOut.map((r) => `${r.id}:${r.sha256}`).sort().join('\n'));
 const manifest = {
@@ -173,6 +212,13 @@ const manifest = {
   kernelV0ManifestSha256: sha256(readFileSync(join(KV0, 'manifest.json'))),
   conceptCount: entries.length,
   bridgeCount: PLAN_ORDER.length,
+  // Local REPAIR overrides of shared-corpus records (see §2b above): the
+  // canonical data/kernel-v0/ files are untouched; this lexicon reads the
+  // repaired bytes from lexicon/records/ instead.
+  kernelV0Overrides: entries.filter((e) => e.override).map((e) => ({
+    id: e.id, file: e.rel, sha256: sha256(e.raw),
+    overrideOf: e.override.of, canonicalSha256: e.override.canonicalSha256,
+  })),
   bridgeSelfFlags: {
     faithful: Object.values(selfFlags).filter((x) => x === 'faithful').length,
     lossy: Object.values(selfFlags).filter((x) => x === 'lossy').length,
