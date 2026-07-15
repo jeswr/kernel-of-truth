@@ -9,9 +9,21 @@ i4i instance). Design: docs/next/design/glm52-followup-experiment.md §2
 revision conflicts with §§1-10, the latest revision governs. Companion
 record: registry/experiments/f1k.json. Cost approach: the maintainer's
 reduced-cost GO (issue #28) as validated by
-docs/next/design/glm52-f1k-cost-reduction.md (ASM-2205, $149 ceiling):
+docs/next/design/glm52-f1k-cost-reduction.md (ASM-2205):
 R = 3 derangement passes (the §R6 pre-registered degradation step 1, applied
 up front), spot/pinning savings are ops-side and touch nothing statistical.
+
+GEOMETRY (REVISION-6, the maintainer-approved powered geometry 2026-07-15,
+ASM-2369; docs/next/design/asm-f1k-geometry-2369-2375.json): C = 96 concept
+clusters, n = 1,573 test items (the prior 1,440 cap RAISED to 1,573),
+pre-registered effect mu* = +4.09 pts, replication R-vector (1, 3, 1) for
+K-1/K-2/K-3. This geometry clears the exact cluster-sign-flip JOINT power
+>= 0.80 at ALL THREE rungs (the $0 blind askability screen's n=1440
+geometry missed K-3 at 0.7955 — the registered pre-run return that
+triggered the maintainer ruling). CO-PRIMARY (ASM-2370): K-1, K-2 AND K-3
+are co-primary — the record VERDICT PASS requires all three joint passes
+(pass_gate = k1 & k2 & k3); a K~d2 tie now DENIES the PASS and is reported
+at equal prominence as the content-not-structure datum.
 
 REGISTERED STATISTICS (implemented, not narrated):
   * Unit of inference = the concept CLUSTER (§R3.1/§R-REV4.1a). For a paired
@@ -50,12 +62,14 @@ REGISTERED STATISTICS (implemented, not narrated):
     dev-selected method above). The Gaussian joint-MDE numbers are PLANNING
     approximations only (§R-REV5 / ASM-2130); they never enter this
     script's decisions.
-  * LADDER (§2.6, ASM-2029/2036): K-1 = K vs b0; K-2 = K vs the per-item MEAN
-    correctness over the R = 3 d1-drng derangement passes (dose-exact
-    deflator, §R2); K-3 = K vs d2 (plain-dictionary knull). K-seam = K vs
-    d3-text, DESCRIPTIVE both directions, never a rung. Failing rung n caps
-    the claim at rung n-1. Cluster-BCa 95% CIs are REGISTERED OUTPUTS for
-    all three rungs (/analysis/k1_ci95, k2_ci95, k3_ci95).
+  * LADDER (§2.6, ASM-2029/2036; CO-PRIMARY per ASM-2370): K-1 = K vs b0;
+    K-2 = K vs the per-item MEAN correctness over the R = 3 d1-drng
+    derangement passes (dose-exact deflator, §R2); K-3 = K vs d2
+    (plain-dictionary knull) — the kernel-vs-generic hard bar, CO-PRIMARY
+    at the REVISION-6 geometry. K-seam = K vs d3-text, DESCRIPTIVE both
+    directions, never a rung. Failing rung n caps the claim at rung n-1;
+    pass_gate = k1 & k2 & k3. Cluster-BCa 95% CIs are REGISTERED OUTPUTS
+    for all three rungs (/analysis/k1_ci95, k2_ci95, k3_ci95).
   * d0 placebo (run-voiding, §2.6): d0 vs b0 one-sided p < 0.05 voids the
     instrument (NO +3 floor — noise sensitivity at any magnitude voids;
     conservative sharpening registered in the f1k record, ASM-2273).
@@ -75,8 +89,9 @@ REGISTERED STATISTICS (implemented, not narrated):
 HARDENED VALIDATION (codex FIX-FIRST review 2026-07-13; all fail-closed
 ERR_P2_ANALYSIS, never gates):
   * n EXACT: the b0 test-item universe must contain EXACTLY N_REGISTERED =
-    1,440 items (the design runs AT the cap, §R-REV3.1 item 4); any other n
-    (e.g. 520) is rejected, not analyzed.
+    1,573 items (the maintainer-approved REVISION-6 cap, ASM-2369; the
+    design runs AT the cap); any other n (e.g. 520, or the superseded
+    1,440) is rejected, not analyzed.
   * NO ARM SUPERSETS: every (arm, pass) may score ONLY items in the b0
     universe; any item outside it is rejected (mandatory-arm UNDER-coverage
     stays an INSTRUMENT-INVALID gate: /gates/completeness_valid).
@@ -112,9 +127,10 @@ MOCK SELF-TEST: `python3 analysis/f1k.py --selftest` (optional argv; the
 stdin path takes no flags) builds three synthetic campaigns (planted +10-pt
 K lift on the sign-flip branch; the SAME campaign on the BCa fallback
 branch; exact null) plus a pinned-file round-trip, asserts the full
-verdict-bearing output surface, and probes every hardened rejection
-(n != 1,440, arm superset, non-binary correct, mutated ceiling threshold,
-incoherent inference method). Exits 0 on green.
+verdict-bearing output surface (including the co-primary K~d2-tie shape:
+K-1 and K-2 fire, K-3 ties -> pass_gate FALSE), and probes every hardened
+rejection (n != 1,573, arm superset, non-binary correct, mutated ceiling
+threshold, incoherent inference method). Exits 0 on green.
 
 Fail-closed exits: any pin/shape violation prints ERR_P2_ANALYSIS to stderr
 and exits 1 (=> verdict-gen ERR_P2_ANALYSIS); nothing falls back.
@@ -143,11 +159,14 @@ R_DRNG = 3               # derangement passes (R 5->3: §R6 degradation step 1,
                          # pre-applied per the maintainer's reduced-cost GO,
                          # issue #28; rank check granularity note below)
 DRNG_SEEDS = [101, 102, 103]   # registered main-run derangement seeds
-POWER_GATE_MIN_C = 65    # clusters with m >= 8 (§R-REV2.2 power gate)
+POWER_GATE_MIN_C = 96    # clusters with m >= 8 (REVISION-6 each-cluster
+                         # gate at the maintainer-approved C=96, ASM-2369;
+                         # supersedes the §R-REV2.2 C>=65 gate)
 POWER_GATE_MIN_M = 8
-N_REGISTERED = 1440      # the design runs AT the cap (§R-REV3.1 item 4);
+N_REGISTERED = 1573      # the design runs AT the maintainer-approved cap
+                         # (ASM-2369, 2026-07-15; raises the prior 1440);
                          # any other realized n is REJECTED fail-closed
-N_MAX = 1440             # hard cap (§R3.2 / §R-REV3.1 item 4)
+N_MAX = 1573             # hard cap (REVISION-6 geometry, ASM-2369)
 CEILING_B0 = 0.95        # ceiling-bound threshold (§2.7) — IMMUTABLE; a
                          # sidecar carrying a different value is rejected
 INFERENCE_METHODS = ("signflip", "bca")  # §R-REV4.1a dev-selected choice
@@ -569,9 +588,12 @@ def analyze(rows, side):
             ladder = 2
             if k3_fire:
                 ladder = 3
-    pass_gate = bool(k1_fire and k2_fire)  # deflator discipline (ASM-2029):
-    # a PASS licenses "kernel-aligned content helps", never "any content
-    # helps"; K-3 elevates wording only (kernel-vs-dictionary), not verdict.
+    pass_gate = bool(k1_fire and k2_fire and k3_fire)  # CO-PRIMARY
+    # discipline (ASM-2370, REVISION-6): the deciding four-condition
+    # kernel-vs-generic test — a record PASS requires ALL THREE rungs
+    # (seam works AND alignment matters AND kernel beats the matched
+    # dictionary). A K~d2 tie DENIES the PASS and is reported at equal
+    # prominence as the content-not-structure datum (ladder rung 2).
 
     # --- NULL (TOST) + kill + ceiling ---------------------------------------
     b0_acc = sum(b0.values()) / len(b0)
@@ -775,14 +797,17 @@ def load_from_stdin():
 # ---------------------------------------------------------------------------
 # MOCK self-test
 # ---------------------------------------------------------------------------
-def _mock_campaign(p_by_arm, rng, C=72, m=20, shared_null=False):
+def _mock_campaign(p_by_arm, rng, C=96, m=16, extra=37, shared_null=False):
     """shared_null=True plants an EXACT per-item null: one correctness draw
     shared by every arm/pass, so every paired diff is identically 0 (the
-    TOST/NULL shape); otherwise arms draw independently at their p."""
+    TOST/NULL shape); otherwise arms draw independently at their p.
+    Geometry mirrors REVISION-6 (ASM-2369): C=96 clusters, the first
+    `extra`=37 clusters carry m+1=17 items and the rest m=16, so
+    37*17 + 59*16 = 1,573 = N_REGISTERED exactly."""
     rows = []
     lab = "ABCD"
     for c in range(C):
-        for j in range(m):
+        for j in range(m + (1 if c < extra else 0)):
             iid = "it-%03d-%02d" % (c, j)
             gold = lab[rng.randrange(4)]
             base = rng.random()
@@ -829,9 +854,11 @@ def _mock_sidecar(method="signflip"):
                      "concepts": 96, "layers": 4},
         "power": {"rho_u": 0.10, "joint_mde_points_at_rho_u": 4.09,
                   "mc_exact_power": {"mu_star": 4.09, "n_sim": 10000,
-                                     "joint_power": 0.81, "seed": SEED,
-                                     "pass": True}},
-        "cost": {"usd_total": 0.0, "instance_hours": 0.0, "prefills": 11520},
+                                     "joint_power": {"K-1": 0.8043,
+                                                     "K-2": 0.8058,
+                                                     "K-3": 0.8001},
+                                     "seed": SEED, "pass": True}},
+        "cost": {"usd_total": 0.0, "instance_hours": 0.0, "prefills": 12584},
         "b0_ceiling_threshold": CEILING_B0,
     }
 
@@ -860,11 +887,11 @@ def selftest():
         check(False, "%s: expected fail-closed rejection, got a result"
               % what)
 
-    # Mock A — planted +10-pt K lift over b0/d0/drng; d2 close (+2 pts);
-    # sign-flip branch (dev sign-symmetry check passed)
+    # Mock A — planted +10-pt K lift over b0/d0/drng AND d2 (all three
+    # co-primary rungs fire); sign-flip branch (dev sign-symmetry passed)
     rng = random.Random(4242)
     rows_a = _mock_campaign({"b0": 0.70, "d0": 0.70, "d1-drng": 0.70,
-                             "d2": 0.78, "d3-text": 0.71, "K": 0.80}, rng)
+                             "d2": 0.70, "d3-text": 0.71, "K": 0.80}, rng)
     out_a = analyze(rows_a, _mock_sidecar())
     g = out_a["gates"]
     a = out_a["analysis"]
@@ -873,12 +900,14 @@ def selftest():
     check(a["k1_joint_pass"], "mock A: K-1 did not fire (lift=%s p=%s)"
           % (a["k1_lift_points"], a["k1_p"]))
     check(a["k2_joint_pass"], "mock A: K-2 did not fire")
+    check(a["k3_joint_pass"], "mock A: K-3 did not fire")
     check(a["pass_gate"], "mock A: pass_gate false")
     check(not a["kill_fired"], "mock A: kill fired")
     check(not a["null_equiv"], "mock A: null_equiv true under planted lift")
-    check(a["ladder_rung_reached"] >= 2, "mock A: ladder < 2")
-    check(a["n_items"] == 1440 and a["n_clusters"] == 72,
-          "mock A: grid wrong")
+    check(a["ladder_rung_reached"] == 3, "mock A: ladder != 3")
+    check(a["n_items"] == 1573 and a["n_clusters"] == 96,
+          "mock A: grid wrong (n=%s C=%s)" % (a["n_items"],
+                                              a["n_clusters"]))
     for key in ("k1_ci95", "k2_ci95", "k3_ci95"):
         ci = a[key]
         check(isinstance(ci, list) and len(ci) == 2 and ci[0] is not None
@@ -912,10 +941,26 @@ def selftest():
     check(not ca["kill_fired"] and not ca["null_equiv"],
           "mock C: kill/null fired under planted lift on the BCa branch")
 
+    # Mock D — the co-primary K~d2 TIE shape (ASM-2370): K-1 and K-2 fire
+    # (+10 pts over b0/drng) but d2 matches K exactly in expectation, so
+    # K-3 must NOT fire and pass_gate must be FALSE (ladder caps at 2) —
+    # the content-not-structure datum, no longer a PASS.
+    rng = random.Random(1717)
+    rows_d = _mock_campaign({"b0": 0.70, "d0": 0.70, "d1-drng": 0.70,
+                             "d2": 0.80, "d3-text": 0.71, "K": 0.80}, rng)
+    out_d = analyze(rows_d, _mock_sidecar())
+    da = out_d["analysis"]
+    check(da["k1_joint_pass"] and da["k2_joint_pass"],
+          "mock D: K-1/K-2 did not fire under planted lift")
+    check(not da["k3_joint_pass"], "mock D: K-3 fired on a planted K~d2 tie")
+    check(not da["pass_gate"], "mock D: pass_gate TRUE on a K~d2 tie — the "
+          "co-primary discipline (ASM-2370) is broken")
+    check(da["ladder_rung_reached"] == 2, "mock D: ladder != 2 on the tie")
+
     # Hardened-validation probes — each must be REJECTED fail-closed
     rows_short = [r for r in rows_a if r["item_id"] != "it-000-00"]
     expect_reject(lambda: analyze(rows_short, _mock_sidecar()),
-                  "n != 1440 (dropped item)")
+                  "n != 1573 (dropped item)")
     rows_super = rows_a + [{"item_id": "it-extra-99", "cluster": "c-000",
                             "arm": "K", "pass": 0, "correct": 1,
                             "pred_label": "A", "gold_label": "A",
@@ -971,11 +1016,14 @@ def selftest():
                       "output field %s missing on %s branch" % (ptr, branch))
                 node = node[part]
     print("MOCK-SELFTEST PASS: planted-lift verdict shape (PASS-bound, "
-          "ladder rung %d) on the sign-flip branch AND on the implemented "
-          "BCa fallback branch, planted-null TOST NULL-bound, 6/6 hardened "
-          "rejections fail-closed (n!=1440, superset, non-binary, mutable "
-          "ceiling, incoherent/missing inference), pin round-trip "
-          "byte-stable, %d output fields present on both branches."
+          "ladder rung %d, all three CO-PRIMARY rungs fire) on the "
+          "sign-flip branch AND on the implemented BCa fallback branch, "
+          "K~d2 tie shape pass_gate-FALSE (ladder 2, ASM-2370), "
+          "planted-null TOST NULL-bound, 6/6 hardened rejections "
+          "fail-closed (n!=1573, superset, non-binary, mutable ceiling, "
+          "incoherent/missing inference), pin round-trip byte-stable, "
+          "%d output fields present on both branches at the REVISION-6 "
+          "geometry (C=96, n=1573)."
           % (out_a["analysis"]["ladder_rung_reached"], len(OUTPUT_FIELDS)))
     return 0
 
