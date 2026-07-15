@@ -1479,7 +1479,7 @@ def adjudication_input(doc, lex_docs, glosses, lemma_warnings):
     exp = expand_ast(doc, lex_docs)
     warns = [w for w in lemma_warnings if doc["id"] in w]
     lines = ["record id: %s" % doc["id"], "label: %s" % doc["label"],
-             "gloss: %s" % doc["gloss"], "notes (self-flag): %s" % doc["notes"],
+             "gloss: %s" % doc["gloss"], "notes (self-flag): %s" % (doc.get("notes") or "(none)"),
              "references: %s" % (", ".join(sorted(doc.get("references") or [])) or "(none)"),
              "mechanical lemma-collision warnings: %s" % ("; ".join(warns) or "(none)"), ""]
     refs = sorted(doc.get("references") or [])
