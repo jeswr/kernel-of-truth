@@ -41,6 +41,7 @@ const ROOT = join(HERE, '../../../..');
 const KV0 = join(ROOT, 'data/kernel-v0');
 const C100 = join(ROOT, 'poc/scale/consensus-100/concepts-100.json');
 const HELDOUT = join(HERE, '../s5-run/stage2-heldout.json');
+const FRESH3 = join(HERE, '../s5-run/stage3-fresh.json'); // DESIGN-v2 §4.3
 const MAX_REFS = 8;
 
 // PLAN.md topological authoring order (frozen design artefact; do not reorder).
@@ -96,7 +97,9 @@ for (const [i, slug] of PLAN_ORDER.entries()) {
   for (const f of REQUIRED_FIELDS) if (!(f in doc)) die(`${slug}: missing field '${f}'`);
   const extra = Object.keys(doc).filter((k) => !REQUIRED_FIELDS.includes(k));
   if (extra.length) die(`${slug}: unknown fields ${extra} (kernel-v0 record shape, PLAN.md §1.2)`);
-  if (doc.status !== 'research-grade') die(`${slug}: status ${doc.status} != 'research-grade'`);
+  // DESIGN-v2 §4.2: after proxy adjudication the coordinator relabels bridges.
+  const OK_STATUS = ['research-grade', 'provisional/model-authored (proxy-adjudicated)'];
+  if (!OK_STATUS.includes(doc.status)) die(`${slug}: status ${doc.status} not in ${JSON.stringify(OK_STATUS)}`);
   const m = /^AST adequacy: (faithful|lossy) — /.exec(doc.notes || '');
   if (!m) die(`${slug}: notes must begin 'AST adequacy: faithful — ' or 'AST adequacy: lossy — '`);
   selfFlags[id] = m[1];
@@ -139,6 +142,9 @@ const lexSlugs = new Map(entries.map((e) => [e.id.split(':').pop(), e.id]));
 const evalSets = [{ name: 'consensus-100', rows: JSON.parse(readFileSync(C100, 'utf8')).concepts }];
 if (existsSync(HELDOUT)) {
   evalSets.push({ name: 'stage2-heldout', rows: JSON.parse(readFileSync(HELDOUT, 'utf8')).concepts });
+}
+if (existsSync(FRESH3)) { // v2 fresh PRIMARY sample (DESIGN-v2 §4.3 anti-leakage re-run)
+  evalSets.push({ name: 'stage3-fresh', rows: JSON.parse(readFileSync(FRESH3, 'utf8')).concepts });
 }
 const warnings = [];
 for (const { name, rows } of evalSets) {
