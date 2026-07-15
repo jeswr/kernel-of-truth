@@ -1,0 +1,2537 @@
+{
+  "n_items": 480,
+  "n_base": 240,
+  "n_counterpart": 240,
+  "n_prompt_families": 240,
+  "n_template_families": 48,
+  "macrodomains": [
+    "code",
+    "math",
+    "logic",
+    "factual",
+    "science",
+    "legal_fin",
+    "prose",
+    "multiling",
+    "structured",
+    "copy",
+    "tool_schema",
+    "dialogue"
+  ],
+  "splits": {
+    "discovery": 288,
+    "dev": 96,
+    "held_out": 96
+  },
+  "families": {
+    "code.py_return.f0": {
+      "macro": "code",
+      "sub": "py_return",
+      "fill": 0,
+      "template_family": "code.py_return",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "code.py_return.f1": {
+      "macro": "code",
+      "sub": "py_return",
+      "fill": 1,
+      "template_family": "code.py_return",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "code.py_return.f2": {
+      "macro": "code",
+      "sub": "py_return",
+      "fill": 2,
+      "template_family": "code.py_return",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "code.py_return.f3": {
+      "macro": "code",
+      "sub": "py_return",
+      "fill": 3,
+      "template_family": "code.py_return",
+      "split": "dev",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "code.py_return.f4": {
+      "macro": "code",
+      "sub": "py_return",
+      "fill": 4,
+      "template_family": "code.py_return",
+      "split": "held_out",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "code.py_loop.f0": {
+      "macro": "code",
+      "sub": "py_loop",
+      "fill": 0,
+      "template_family": "code.py_loop",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "code.py_loop.f1": {
+      "macro": "code",
+      "sub": "py_loop",
+      "fill": 1,
+      "template_family": "code.py_loop",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "code.py_loop.f2": {
+      "macro": "code",
+      "sub": "py_loop",
+      "fill": 2,
+      "template_family": "code.py_loop",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "code.py_loop.f3": {
+      "macro": "code",
+      "sub": "py_loop",
+      "fill": 3,
+      "template_family": "code.py_loop",
+      "split": "dev",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "code.py_loop.f4": {
+      "macro": "code",
+      "sub": "py_loop",
+      "fill": 4,
+      "template_family": "code.py_loop",
+      "split": "held_out",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "code.js_console.f0": {
+      "macro": "code",
+      "sub": "js_console",
+      "fill": 0,
+      "template_family": "code.js_console",
+      "split": "discovery",
+      "operation": "transform",
+      "counterpart_axis": "operation"
+    },
+    "code.js_console.f1": {
+      "macro": "code",
+      "sub": "js_console",
+      "fill": 1,
+      "template_family": "code.js_console",
+      "split": "discovery",
+      "operation": "transform",
+      "counterpart_axis": "operation"
+    },
+    "code.js_console.f2": {
+      "macro": "code",
+      "sub": "js_console",
+      "fill": 2,
+      "template_family": "code.js_console",
+      "split": "discovery",
+      "operation": "transform",
+      "counterpart_axis": "operation"
+    },
+    "code.js_console.f3": {
+      "macro": "code",
+      "sub": "js_console",
+      "fill": 3,
+      "template_family": "code.js_console",
+      "split": "dev",
+      "operation": "transform",
+      "counterpart_axis": "operation"
+    },
+    "code.js_console.f4": {
+      "macro": "code",
+      "sub": "js_console",
+      "fill": 4,
+      "template_family": "code.js_console",
+      "split": "held_out",
+      "operation": "transform",
+      "counterpart_axis": "operation"
+    },
+    "code.fix_syntax.f0": {
+      "macro": "code",
+      "sub": "fix_syntax",
+      "fill": 0,
+      "template_family": "code.fix_syntax",
+      "split": "discovery",
+      "operation": "transform",
+      "counterpart_axis": "answer_type"
+    },
+    "code.fix_syntax.f1": {
+      "macro": "code",
+      "sub": "fix_syntax",
+      "fill": 1,
+      "template_family": "code.fix_syntax",
+      "split": "discovery",
+      "operation": "transform",
+      "counterpart_axis": "answer_type"
+    },
+    "code.fix_syntax.f2": {
+      "macro": "code",
+      "sub": "fix_syntax",
+      "fill": 2,
+      "template_family": "code.fix_syntax",
+      "split": "discovery",
+      "operation": "transform",
+      "counterpart_axis": "answer_type"
+    },
+    "code.fix_syntax.f3": {
+      "macro": "code",
+      "sub": "fix_syntax",
+      "fill": 3,
+      "template_family": "code.fix_syntax",
+      "split": "dev",
+      "operation": "transform",
+      "counterpart_axis": "answer_type"
+    },
+    "code.fix_syntax.f4": {
+      "macro": "code",
+      "sub": "fix_syntax",
+      "fill": 4,
+      "template_family": "code.fix_syntax",
+      "split": "held_out",
+      "operation": "transform",
+      "counterpart_axis": "answer_type"
+    },
+    "math.int_mul.f0": {
+      "macro": "math",
+      "sub": "int_mul",
+      "fill": 0,
+      "template_family": "math.int_mul",
+      "split": "discovery",
+      "operation": "arithmetic",
+      "counterpart_axis": "numeric_value"
+    },
+    "math.int_mul.f1": {
+      "macro": "math",
+      "sub": "int_mul",
+      "fill": 1,
+      "template_family": "math.int_mul",
+      "split": "discovery",
+      "operation": "arithmetic",
+      "counterpart_axis": "numeric_value"
+    },
+    "math.int_mul.f2": {
+      "macro": "math",
+      "sub": "int_mul",
+      "fill": 2,
+      "template_family": "math.int_mul",
+      "split": "discovery",
+      "operation": "arithmetic",
+      "counterpart_axis": "numeric_value"
+    },
+    "math.int_mul.f3": {
+      "macro": "math",
+      "sub": "int_mul",
+      "fill": 3,
+      "template_family": "math.int_mul",
+      "split": "dev",
+      "operation": "arithmetic",
+      "counterpart_axis": "numeric_value"
+    },
+    "math.int_mul.f4": {
+      "macro": "math",
+      "sub": "int_mul",
+      "fill": 4,
+      "template_family": "math.int_mul",
+      "split": "held_out",
+      "operation": "arithmetic",
+      "counterpart_axis": "numeric_value"
+    },
+    "math.int_add.f0": {
+      "macro": "math",
+      "sub": "int_add",
+      "fill": 0,
+      "template_family": "math.int_add",
+      "split": "discovery",
+      "operation": "arithmetic",
+      "counterpart_axis": "numeric_value"
+    },
+    "math.int_add.f1": {
+      "macro": "math",
+      "sub": "int_add",
+      "fill": 1,
+      "template_family": "math.int_add",
+      "split": "discovery",
+      "operation": "arithmetic",
+      "counterpart_axis": "numeric_value"
+    },
+    "math.int_add.f2": {
+      "macro": "math",
+      "sub": "int_add",
+      "fill": 2,
+      "template_family": "math.int_add",
+      "split": "discovery",
+      "operation": "arithmetic",
+      "counterpart_axis": "numeric_value"
+    },
+    "math.int_add.f3": {
+      "macro": "math",
+      "sub": "int_add",
+      "fill": 3,
+      "template_family": "math.int_add",
+      "split": "dev",
+      "operation": "arithmetic",
+      "counterpart_axis": "numeric_value"
+    },
+    "math.int_add.f4": {
+      "macro": "math",
+      "sub": "int_add",
+      "fill": 4,
+      "template_family": "math.int_add",
+      "split": "held_out",
+      "operation": "arithmetic",
+      "counterpart_axis": "numeric_value"
+    },
+    "math.derivative.f0": {
+      "macro": "math",
+      "sub": "derivative",
+      "fill": 0,
+      "template_family": "math.derivative",
+      "split": "discovery",
+      "operation": "transform",
+      "counterpart_axis": "operation"
+    },
+    "math.derivative.f1": {
+      "macro": "math",
+      "sub": "derivative",
+      "fill": 1,
+      "template_family": "math.derivative",
+      "split": "discovery",
+      "operation": "transform",
+      "counterpart_axis": "operation"
+    },
+    "math.derivative.f2": {
+      "macro": "math",
+      "sub": "derivative",
+      "fill": 2,
+      "template_family": "math.derivative",
+      "split": "discovery",
+      "operation": "transform",
+      "counterpart_axis": "operation"
+    },
+    "math.derivative.f3": {
+      "macro": "math",
+      "sub": "derivative",
+      "fill": 3,
+      "template_family": "math.derivative",
+      "split": "dev",
+      "operation": "transform",
+      "counterpart_axis": "operation"
+    },
+    "math.derivative.f4": {
+      "macro": "math",
+      "sub": "derivative",
+      "fill": 4,
+      "template_family": "math.derivative",
+      "split": "held_out",
+      "operation": "transform",
+      "counterpart_axis": "operation"
+    },
+    "math.probability.f0": {
+      "macro": "math",
+      "sub": "probability",
+      "fill": 0,
+      "template_family": "math.probability",
+      "split": "discovery",
+      "operation": "arithmetic",
+      "counterpart_axis": "numeric_value"
+    },
+    "math.probability.f1": {
+      "macro": "math",
+      "sub": "probability",
+      "fill": 1,
+      "template_family": "math.probability",
+      "split": "discovery",
+      "operation": "arithmetic",
+      "counterpart_axis": "numeric_value"
+    },
+    "math.probability.f2": {
+      "macro": "math",
+      "sub": "probability",
+      "fill": 2,
+      "template_family": "math.probability",
+      "split": "discovery",
+      "operation": "arithmetic",
+      "counterpart_axis": "numeric_value"
+    },
+    "math.probability.f3": {
+      "macro": "math",
+      "sub": "probability",
+      "fill": 3,
+      "template_family": "math.probability",
+      "split": "dev",
+      "operation": "arithmetic",
+      "counterpart_axis": "numeric_value"
+    },
+    "math.probability.f4": {
+      "macro": "math",
+      "sub": "probability",
+      "fill": 4,
+      "template_family": "math.probability",
+      "split": "held_out",
+      "operation": "arithmetic",
+      "counterpart_axis": "numeric_value"
+    },
+    "logic.modus_ponens.f0": {
+      "macro": "logic",
+      "sub": "modus_ponens",
+      "fill": 0,
+      "template_family": "logic.modus_ponens",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "operation"
+    },
+    "logic.modus_ponens.f1": {
+      "macro": "logic",
+      "sub": "modus_ponens",
+      "fill": 1,
+      "template_family": "logic.modus_ponens",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "operation"
+    },
+    "logic.modus_ponens.f2": {
+      "macro": "logic",
+      "sub": "modus_ponens",
+      "fill": 2,
+      "template_family": "logic.modus_ponens",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "operation"
+    },
+    "logic.modus_ponens.f3": {
+      "macro": "logic",
+      "sub": "modus_ponens",
+      "fill": 3,
+      "template_family": "logic.modus_ponens",
+      "split": "dev",
+      "operation": "complete",
+      "counterpart_axis": "operation"
+    },
+    "logic.modus_ponens.f4": {
+      "macro": "logic",
+      "sub": "modus_ponens",
+      "fill": 4,
+      "template_family": "logic.modus_ponens",
+      "split": "held_out",
+      "operation": "complete",
+      "counterpart_axis": "operation"
+    },
+    "logic.demorgan.f0": {
+      "macro": "logic",
+      "sub": "demorgan",
+      "fill": 0,
+      "template_family": "logic.demorgan",
+      "split": "discovery",
+      "operation": "transform",
+      "counterpart_axis": "sense"
+    },
+    "logic.demorgan.f1": {
+      "macro": "logic",
+      "sub": "demorgan",
+      "fill": 1,
+      "template_family": "logic.demorgan",
+      "split": "discovery",
+      "operation": "transform",
+      "counterpart_axis": "sense"
+    },
+    "logic.demorgan.f2": {
+      "macro": "logic",
+      "sub": "demorgan",
+      "fill": 2,
+      "template_family": "logic.demorgan",
+      "split": "discovery",
+      "operation": "transform",
+      "counterpart_axis": "sense"
+    },
+    "logic.demorgan.f3": {
+      "macro": "logic",
+      "sub": "demorgan",
+      "fill": 3,
+      "template_family": "logic.demorgan",
+      "split": "dev",
+      "operation": "transform",
+      "counterpart_axis": "sense"
+    },
+    "logic.demorgan.f4": {
+      "macro": "logic",
+      "sub": "demorgan",
+      "fill": 4,
+      "template_family": "logic.demorgan",
+      "split": "held_out",
+      "operation": "transform",
+      "counterpart_axis": "sense"
+    },
+    "logic.truth_table.f0": {
+      "macro": "logic",
+      "sub": "truth_table",
+      "fill": 0,
+      "template_family": "logic.truth_table",
+      "split": "discovery",
+      "operation": "lookup",
+      "counterpart_axis": "sense"
+    },
+    "logic.truth_table.f1": {
+      "macro": "logic",
+      "sub": "truth_table",
+      "fill": 1,
+      "template_family": "logic.truth_table",
+      "split": "discovery",
+      "operation": "lookup",
+      "counterpart_axis": "sense"
+    },
+    "logic.truth_table.f2": {
+      "macro": "logic",
+      "sub": "truth_table",
+      "fill": 2,
+      "template_family": "logic.truth_table",
+      "split": "discovery",
+      "operation": "lookup",
+      "counterpart_axis": "sense"
+    },
+    "logic.truth_table.f3": {
+      "macro": "logic",
+      "sub": "truth_table",
+      "fill": 3,
+      "template_family": "logic.truth_table",
+      "split": "dev",
+      "operation": "lookup",
+      "counterpart_axis": "sense"
+    },
+    "logic.truth_table.f4": {
+      "macro": "logic",
+      "sub": "truth_table",
+      "fill": 4,
+      "template_family": "logic.truth_table",
+      "split": "held_out",
+      "operation": "lookup",
+      "counterpart_axis": "sense"
+    },
+    "logic.quantifier.f0": {
+      "macro": "logic",
+      "sub": "quantifier",
+      "fill": 0,
+      "template_family": "logic.quantifier",
+      "split": "discovery",
+      "operation": "transform",
+      "counterpart_axis": "operation"
+    },
+    "logic.quantifier.f1": {
+      "macro": "logic",
+      "sub": "quantifier",
+      "fill": 1,
+      "template_family": "logic.quantifier",
+      "split": "discovery",
+      "operation": "transform",
+      "counterpart_axis": "operation"
+    },
+    "logic.quantifier.f2": {
+      "macro": "logic",
+      "sub": "quantifier",
+      "fill": 2,
+      "template_family": "logic.quantifier",
+      "split": "discovery",
+      "operation": "transform",
+      "counterpart_axis": "operation"
+    },
+    "logic.quantifier.f3": {
+      "macro": "logic",
+      "sub": "quantifier",
+      "fill": 3,
+      "template_family": "logic.quantifier",
+      "split": "dev",
+      "operation": "transform",
+      "counterpart_axis": "operation"
+    },
+    "logic.quantifier.f4": {
+      "macro": "logic",
+      "sub": "quantifier",
+      "fill": 4,
+      "template_family": "logic.quantifier",
+      "split": "held_out",
+      "operation": "transform",
+      "counterpart_axis": "operation"
+    },
+    "factual.capital.f0": {
+      "macro": "factual",
+      "sub": "capital",
+      "fill": 0,
+      "template_family": "factual.capital",
+      "split": "discovery",
+      "operation": "lookup",
+      "counterpart_axis": "sense"
+    },
+    "factual.capital.f1": {
+      "macro": "factual",
+      "sub": "capital",
+      "fill": 1,
+      "template_family": "factual.capital",
+      "split": "discovery",
+      "operation": "lookup",
+      "counterpart_axis": "sense"
+    },
+    "factual.capital.f2": {
+      "macro": "factual",
+      "sub": "capital",
+      "fill": 2,
+      "template_family": "factual.capital",
+      "split": "discovery",
+      "operation": "lookup",
+      "counterpart_axis": "sense"
+    },
+    "factual.capital.f3": {
+      "macro": "factual",
+      "sub": "capital",
+      "fill": 3,
+      "template_family": "factual.capital",
+      "split": "dev",
+      "operation": "lookup",
+      "counterpart_axis": "sense"
+    },
+    "factual.capital.f4": {
+      "macro": "factual",
+      "sub": "capital",
+      "fill": 4,
+      "template_family": "factual.capital",
+      "split": "held_out",
+      "operation": "lookup",
+      "counterpart_axis": "sense"
+    },
+    "factual.author.f0": {
+      "macro": "factual",
+      "sub": "author",
+      "fill": 0,
+      "template_family": "factual.author",
+      "split": "discovery",
+      "operation": "lookup",
+      "counterpart_axis": "sense"
+    },
+    "factual.author.f1": {
+      "macro": "factual",
+      "sub": "author",
+      "fill": 1,
+      "template_family": "factual.author",
+      "split": "discovery",
+      "operation": "lookup",
+      "counterpart_axis": "sense"
+    },
+    "factual.author.f2": {
+      "macro": "factual",
+      "sub": "author",
+      "fill": 2,
+      "template_family": "factual.author",
+      "split": "discovery",
+      "operation": "lookup",
+      "counterpart_axis": "sense"
+    },
+    "factual.author.f3": {
+      "macro": "factual",
+      "sub": "author",
+      "fill": 3,
+      "template_family": "factual.author",
+      "split": "dev",
+      "operation": "lookup",
+      "counterpart_axis": "sense"
+    },
+    "factual.author.f4": {
+      "macro": "factual",
+      "sub": "author",
+      "fill": 4,
+      "template_family": "factual.author",
+      "split": "held_out",
+      "operation": "lookup",
+      "counterpart_axis": "sense"
+    },
+    "factual.element.f0": {
+      "macro": "factual",
+      "sub": "element",
+      "fill": 0,
+      "template_family": "factual.element",
+      "split": "discovery",
+      "operation": "lookup",
+      "counterpart_axis": "sense"
+    },
+    "factual.element.f1": {
+      "macro": "factual",
+      "sub": "element",
+      "fill": 1,
+      "template_family": "factual.element",
+      "split": "discovery",
+      "operation": "lookup",
+      "counterpart_axis": "sense"
+    },
+    "factual.element.f2": {
+      "macro": "factual",
+      "sub": "element",
+      "fill": 2,
+      "template_family": "factual.element",
+      "split": "discovery",
+      "operation": "lookup",
+      "counterpart_axis": "sense"
+    },
+    "factual.element.f3": {
+      "macro": "factual",
+      "sub": "element",
+      "fill": 3,
+      "template_family": "factual.element",
+      "split": "dev",
+      "operation": "lookup",
+      "counterpart_axis": "sense"
+    },
+    "factual.element.f4": {
+      "macro": "factual",
+      "sub": "element",
+      "fill": 4,
+      "template_family": "factual.element",
+      "split": "held_out",
+      "operation": "lookup",
+      "counterpart_axis": "sense"
+    },
+    "factual.relation.f0": {
+      "macro": "factual",
+      "sub": "relation",
+      "fill": 0,
+      "template_family": "factual.relation",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "factual.relation.f1": {
+      "macro": "factual",
+      "sub": "relation",
+      "fill": 1,
+      "template_family": "factual.relation",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "factual.relation.f2": {
+      "macro": "factual",
+      "sub": "relation",
+      "fill": 2,
+      "template_family": "factual.relation",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "factual.relation.f3": {
+      "macro": "factual",
+      "sub": "relation",
+      "fill": 3,
+      "template_family": "factual.relation",
+      "split": "dev",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "factual.relation.f4": {
+      "macro": "factual",
+      "sub": "relation",
+      "fill": 4,
+      "template_family": "factual.relation",
+      "split": "held_out",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "science.definition.f0": {
+      "macro": "science",
+      "sub": "definition",
+      "fill": 0,
+      "template_family": "science.definition",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "science.definition.f1": {
+      "macro": "science",
+      "sub": "definition",
+      "fill": 1,
+      "template_family": "science.definition",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "science.definition.f2": {
+      "macro": "science",
+      "sub": "definition",
+      "fill": 2,
+      "template_family": "science.definition",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "science.definition.f3": {
+      "macro": "science",
+      "sub": "definition",
+      "fill": 3,
+      "template_family": "science.definition",
+      "split": "dev",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "science.definition.f4": {
+      "macro": "science",
+      "sub": "definition",
+      "fill": 4,
+      "template_family": "science.definition",
+      "split": "held_out",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "science.unit.f0": {
+      "macro": "science",
+      "sub": "unit",
+      "fill": 0,
+      "template_family": "science.unit",
+      "split": "discovery",
+      "operation": "lookup",
+      "counterpart_axis": "sense"
+    },
+    "science.unit.f1": {
+      "macro": "science",
+      "sub": "unit",
+      "fill": 1,
+      "template_family": "science.unit",
+      "split": "discovery",
+      "operation": "lookup",
+      "counterpart_axis": "sense"
+    },
+    "science.unit.f2": {
+      "macro": "science",
+      "sub": "unit",
+      "fill": 2,
+      "template_family": "science.unit",
+      "split": "discovery",
+      "operation": "lookup",
+      "counterpart_axis": "sense"
+    },
+    "science.unit.f3": {
+      "macro": "science",
+      "sub": "unit",
+      "fill": 3,
+      "template_family": "science.unit",
+      "split": "dev",
+      "operation": "lookup",
+      "counterpart_axis": "sense"
+    },
+    "science.unit.f4": {
+      "macro": "science",
+      "sub": "unit",
+      "fill": 4,
+      "template_family": "science.unit",
+      "split": "held_out",
+      "operation": "lookup",
+      "counterpart_axis": "sense"
+    },
+    "science.formula.f0": {
+      "macro": "science",
+      "sub": "formula",
+      "fill": 0,
+      "template_family": "science.formula",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "science.formula.f1": {
+      "macro": "science",
+      "sub": "formula",
+      "fill": 1,
+      "template_family": "science.formula",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "science.formula.f2": {
+      "macro": "science",
+      "sub": "formula",
+      "fill": 2,
+      "template_family": "science.formula",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "science.formula.f3": {
+      "macro": "science",
+      "sub": "formula",
+      "fill": 3,
+      "template_family": "science.formula",
+      "split": "dev",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "science.formula.f4": {
+      "macro": "science",
+      "sub": "formula",
+      "fill": 4,
+      "template_family": "science.formula",
+      "split": "held_out",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "science.value.f0": {
+      "macro": "science",
+      "sub": "value",
+      "fill": 0,
+      "template_family": "science.value",
+      "split": "discovery",
+      "operation": "lookup",
+      "counterpart_axis": "numeric_value"
+    },
+    "science.value.f1": {
+      "macro": "science",
+      "sub": "value",
+      "fill": 1,
+      "template_family": "science.value",
+      "split": "discovery",
+      "operation": "lookup",
+      "counterpart_axis": "numeric_value"
+    },
+    "science.value.f2": {
+      "macro": "science",
+      "sub": "value",
+      "fill": 2,
+      "template_family": "science.value",
+      "split": "discovery",
+      "operation": "lookup",
+      "counterpart_axis": "numeric_value"
+    },
+    "science.value.f3": {
+      "macro": "science",
+      "sub": "value",
+      "fill": 3,
+      "template_family": "science.value",
+      "split": "dev",
+      "operation": "lookup",
+      "counterpart_axis": "numeric_value"
+    },
+    "science.value.f4": {
+      "macro": "science",
+      "sub": "value",
+      "fill": 4,
+      "template_family": "science.value",
+      "split": "held_out",
+      "operation": "lookup",
+      "counterpart_axis": "numeric_value"
+    },
+    "legal_fin.contract.f0": {
+      "macro": "legal_fin",
+      "sub": "contract",
+      "fill": 0,
+      "template_family": "legal_fin.contract",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "legal_fin.contract.f1": {
+      "macro": "legal_fin",
+      "sub": "contract",
+      "fill": 1,
+      "template_family": "legal_fin.contract",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "legal_fin.contract.f2": {
+      "macro": "legal_fin",
+      "sub": "contract",
+      "fill": 2,
+      "template_family": "legal_fin.contract",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "legal_fin.contract.f3": {
+      "macro": "legal_fin",
+      "sub": "contract",
+      "fill": 3,
+      "template_family": "legal_fin.contract",
+      "split": "dev",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "legal_fin.contract.f4": {
+      "macro": "legal_fin",
+      "sub": "contract",
+      "fill": 4,
+      "template_family": "legal_fin.contract",
+      "split": "held_out",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "legal_fin.finance_calc.f0": {
+      "macro": "legal_fin",
+      "sub": "finance_calc",
+      "fill": 0,
+      "template_family": "legal_fin.finance_calc",
+      "split": "discovery",
+      "operation": "arithmetic",
+      "counterpart_axis": "numeric_value"
+    },
+    "legal_fin.finance_calc.f1": {
+      "macro": "legal_fin",
+      "sub": "finance_calc",
+      "fill": 1,
+      "template_family": "legal_fin.finance_calc",
+      "split": "discovery",
+      "operation": "arithmetic",
+      "counterpart_axis": "numeric_value"
+    },
+    "legal_fin.finance_calc.f2": {
+      "macro": "legal_fin",
+      "sub": "finance_calc",
+      "fill": 2,
+      "template_family": "legal_fin.finance_calc",
+      "split": "discovery",
+      "operation": "arithmetic",
+      "counterpart_axis": "numeric_value"
+    },
+    "legal_fin.finance_calc.f3": {
+      "macro": "legal_fin",
+      "sub": "finance_calc",
+      "fill": 3,
+      "template_family": "legal_fin.finance_calc",
+      "split": "dev",
+      "operation": "arithmetic",
+      "counterpart_axis": "numeric_value"
+    },
+    "legal_fin.finance_calc.f4": {
+      "macro": "legal_fin",
+      "sub": "finance_calc",
+      "fill": 4,
+      "template_family": "legal_fin.finance_calc",
+      "split": "held_out",
+      "operation": "arithmetic",
+      "counterpart_axis": "numeric_value"
+    },
+    "legal_fin.legal_term.f0": {
+      "macro": "legal_fin",
+      "sub": "legal_term",
+      "fill": 0,
+      "template_family": "legal_fin.legal_term",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "legal_fin.legal_term.f1": {
+      "macro": "legal_fin",
+      "sub": "legal_term",
+      "fill": 1,
+      "template_family": "legal_fin.legal_term",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "legal_fin.legal_term.f2": {
+      "macro": "legal_fin",
+      "sub": "legal_term",
+      "fill": 2,
+      "template_family": "legal_fin.legal_term",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "legal_fin.legal_term.f3": {
+      "macro": "legal_fin",
+      "sub": "legal_term",
+      "fill": 3,
+      "template_family": "legal_fin.legal_term",
+      "split": "dev",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "legal_fin.legal_term.f4": {
+      "macro": "legal_fin",
+      "sub": "legal_term",
+      "fill": 4,
+      "template_family": "legal_fin.legal_term",
+      "split": "held_out",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "legal_fin.accounting.f0": {
+      "macro": "legal_fin",
+      "sub": "accounting",
+      "fill": 0,
+      "template_family": "legal_fin.accounting",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "legal_fin.accounting.f1": {
+      "macro": "legal_fin",
+      "sub": "accounting",
+      "fill": 1,
+      "template_family": "legal_fin.accounting",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "legal_fin.accounting.f2": {
+      "macro": "legal_fin",
+      "sub": "accounting",
+      "fill": 2,
+      "template_family": "legal_fin.accounting",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "legal_fin.accounting.f3": {
+      "macro": "legal_fin",
+      "sub": "accounting",
+      "fill": 3,
+      "template_family": "legal_fin.accounting",
+      "split": "dev",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "legal_fin.accounting.f4": {
+      "macro": "legal_fin",
+      "sub": "accounting",
+      "fill": 4,
+      "template_family": "legal_fin.accounting",
+      "split": "held_out",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "prose.pangram.f0": {
+      "macro": "prose",
+      "sub": "pangram",
+      "fill": 0,
+      "template_family": "prose.pangram",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "prose.pangram.f1": {
+      "macro": "prose",
+      "sub": "pangram",
+      "fill": 1,
+      "template_family": "prose.pangram",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "prose.pangram.f2": {
+      "macro": "prose",
+      "sub": "pangram",
+      "fill": 2,
+      "template_family": "prose.pangram",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "prose.pangram.f3": {
+      "macro": "prose",
+      "sub": "pangram",
+      "fill": 3,
+      "template_family": "prose.pangram",
+      "split": "dev",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "prose.pangram.f4": {
+      "macro": "prose",
+      "sub": "pangram",
+      "fill": 4,
+      "template_family": "prose.pangram",
+      "split": "held_out",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "prose.opening.f0": {
+      "macro": "prose",
+      "sub": "opening",
+      "fill": 0,
+      "template_family": "prose.opening",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "prose.opening.f1": {
+      "macro": "prose",
+      "sub": "opening",
+      "fill": 1,
+      "template_family": "prose.opening",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "prose.opening.f2": {
+      "macro": "prose",
+      "sub": "opening",
+      "fill": 2,
+      "template_family": "prose.opening",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "prose.opening.f3": {
+      "macro": "prose",
+      "sub": "opening",
+      "fill": 3,
+      "template_family": "prose.opening",
+      "split": "dev",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "prose.opening.f4": {
+      "macro": "prose",
+      "sub": "opening",
+      "fill": 4,
+      "template_family": "prose.opening",
+      "split": "held_out",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "prose.idiom.f0": {
+      "macro": "prose",
+      "sub": "idiom",
+      "fill": 0,
+      "template_family": "prose.idiom",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "prose.idiom.f1": {
+      "macro": "prose",
+      "sub": "idiom",
+      "fill": 1,
+      "template_family": "prose.idiom",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "prose.idiom.f2": {
+      "macro": "prose",
+      "sub": "idiom",
+      "fill": 2,
+      "template_family": "prose.idiom",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "prose.idiom.f3": {
+      "macro": "prose",
+      "sub": "idiom",
+      "fill": 3,
+      "template_family": "prose.idiom",
+      "split": "dev",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "prose.idiom.f4": {
+      "macro": "prose",
+      "sub": "idiom",
+      "fill": 4,
+      "template_family": "prose.idiom",
+      "split": "held_out",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "prose.narrative.f0": {
+      "macro": "prose",
+      "sub": "narrative",
+      "fill": 0,
+      "template_family": "prose.narrative",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "prose.narrative.f1": {
+      "macro": "prose",
+      "sub": "narrative",
+      "fill": 1,
+      "template_family": "prose.narrative",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "prose.narrative.f2": {
+      "macro": "prose",
+      "sub": "narrative",
+      "fill": 2,
+      "template_family": "prose.narrative",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "prose.narrative.f3": {
+      "macro": "prose",
+      "sub": "narrative",
+      "fill": 3,
+      "template_family": "prose.narrative",
+      "split": "dev",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "prose.narrative.f4": {
+      "macro": "prose",
+      "sub": "narrative",
+      "fill": 4,
+      "template_family": "prose.narrative",
+      "split": "held_out",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "multiling.zh_capital.f0": {
+      "macro": "multiling",
+      "sub": "zh_capital",
+      "fill": 0,
+      "template_family": "multiling.zh_capital",
+      "split": "discovery",
+      "operation": "lookup",
+      "counterpart_axis": "language"
+    },
+    "multiling.zh_capital.f1": {
+      "macro": "multiling",
+      "sub": "zh_capital",
+      "fill": 1,
+      "template_family": "multiling.zh_capital",
+      "split": "discovery",
+      "operation": "lookup",
+      "counterpart_axis": "language"
+    },
+    "multiling.zh_capital.f2": {
+      "macro": "multiling",
+      "sub": "zh_capital",
+      "fill": 2,
+      "template_family": "multiling.zh_capital",
+      "split": "discovery",
+      "operation": "lookup",
+      "counterpart_axis": "language"
+    },
+    "multiling.zh_capital.f3": {
+      "macro": "multiling",
+      "sub": "zh_capital",
+      "fill": 3,
+      "template_family": "multiling.zh_capital",
+      "split": "dev",
+      "operation": "lookup",
+      "counterpart_axis": "language"
+    },
+    "multiling.zh_capital.f4": {
+      "macro": "multiling",
+      "sub": "zh_capital",
+      "fill": 4,
+      "template_family": "multiling.zh_capital",
+      "split": "held_out",
+      "operation": "lookup",
+      "counterpart_axis": "language"
+    },
+    "multiling.zh_weather.f0": {
+      "macro": "multiling",
+      "sub": "zh_weather",
+      "fill": 0,
+      "template_family": "multiling.zh_weather",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "language"
+    },
+    "multiling.zh_weather.f1": {
+      "macro": "multiling",
+      "sub": "zh_weather",
+      "fill": 1,
+      "template_family": "multiling.zh_weather",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "language"
+    },
+    "multiling.zh_weather.f2": {
+      "macro": "multiling",
+      "sub": "zh_weather",
+      "fill": 2,
+      "template_family": "multiling.zh_weather",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "language"
+    },
+    "multiling.zh_weather.f3": {
+      "macro": "multiling",
+      "sub": "zh_weather",
+      "fill": 3,
+      "template_family": "multiling.zh_weather",
+      "split": "dev",
+      "operation": "complete",
+      "counterpart_axis": "language"
+    },
+    "multiling.zh_weather.f4": {
+      "macro": "multiling",
+      "sub": "zh_weather",
+      "fill": 4,
+      "template_family": "multiling.zh_weather",
+      "split": "held_out",
+      "operation": "complete",
+      "counterpart_axis": "language"
+    },
+    "multiling.translate.f0": {
+      "macro": "multiling",
+      "sub": "translate",
+      "fill": 0,
+      "template_family": "multiling.translate",
+      "split": "discovery",
+      "operation": "translate",
+      "counterpart_axis": "language"
+    },
+    "multiling.translate.f1": {
+      "macro": "multiling",
+      "sub": "translate",
+      "fill": 1,
+      "template_family": "multiling.translate",
+      "split": "discovery",
+      "operation": "translate",
+      "counterpart_axis": "language"
+    },
+    "multiling.translate.f2": {
+      "macro": "multiling",
+      "sub": "translate",
+      "fill": 2,
+      "template_family": "multiling.translate",
+      "split": "discovery",
+      "operation": "translate",
+      "counterpart_axis": "language"
+    },
+    "multiling.translate.f3": {
+      "macro": "multiling",
+      "sub": "translate",
+      "fill": 3,
+      "template_family": "multiling.translate",
+      "split": "dev",
+      "operation": "translate",
+      "counterpart_axis": "language"
+    },
+    "multiling.translate.f4": {
+      "macro": "multiling",
+      "sub": "translate",
+      "fill": 4,
+      "template_family": "multiling.translate",
+      "split": "held_out",
+      "operation": "translate",
+      "counterpart_axis": "language"
+    },
+    "multiling.zh_number.f0": {
+      "macro": "multiling",
+      "sub": "zh_number",
+      "fill": 0,
+      "template_family": "multiling.zh_number",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "language"
+    },
+    "multiling.zh_number.f1": {
+      "macro": "multiling",
+      "sub": "zh_number",
+      "fill": 1,
+      "template_family": "multiling.zh_number",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "language"
+    },
+    "multiling.zh_number.f2": {
+      "macro": "multiling",
+      "sub": "zh_number",
+      "fill": 2,
+      "template_family": "multiling.zh_number",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "language"
+    },
+    "multiling.zh_number.f3": {
+      "macro": "multiling",
+      "sub": "zh_number",
+      "fill": 3,
+      "template_family": "multiling.zh_number",
+      "split": "dev",
+      "operation": "complete",
+      "counterpart_axis": "language"
+    },
+    "multiling.zh_number.f4": {
+      "macro": "multiling",
+      "sub": "zh_number",
+      "fill": 4,
+      "template_family": "multiling.zh_number",
+      "split": "held_out",
+      "operation": "complete",
+      "counterpart_axis": "language"
+    },
+    "structured.json_obj.f0": {
+      "macro": "structured",
+      "sub": "json_obj",
+      "fill": 0,
+      "template_family": "structured.json_obj",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "validity"
+    },
+    "structured.json_obj.f1": {
+      "macro": "structured",
+      "sub": "json_obj",
+      "fill": 1,
+      "template_family": "structured.json_obj",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "validity"
+    },
+    "structured.json_obj.f2": {
+      "macro": "structured",
+      "sub": "json_obj",
+      "fill": 2,
+      "template_family": "structured.json_obj",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "validity"
+    },
+    "structured.json_obj.f3": {
+      "macro": "structured",
+      "sub": "json_obj",
+      "fill": 3,
+      "template_family": "structured.json_obj",
+      "split": "dev",
+      "operation": "complete",
+      "counterpart_axis": "validity"
+    },
+    "structured.json_obj.f4": {
+      "macro": "structured",
+      "sub": "json_obj",
+      "fill": 4,
+      "template_family": "structured.json_obj",
+      "split": "held_out",
+      "operation": "complete",
+      "counterpart_axis": "validity"
+    },
+    "structured.xml_tag.f0": {
+      "macro": "structured",
+      "sub": "xml_tag",
+      "fill": 0,
+      "template_family": "structured.xml_tag",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "structured.xml_tag.f1": {
+      "macro": "structured",
+      "sub": "xml_tag",
+      "fill": 1,
+      "template_family": "structured.xml_tag",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "structured.xml_tag.f2": {
+      "macro": "structured",
+      "sub": "xml_tag",
+      "fill": 2,
+      "template_family": "structured.xml_tag",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "structured.xml_tag.f3": {
+      "macro": "structured",
+      "sub": "xml_tag",
+      "fill": 3,
+      "template_family": "structured.xml_tag",
+      "split": "dev",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "structured.xml_tag.f4": {
+      "macro": "structured",
+      "sub": "xml_tag",
+      "fill": 4,
+      "template_family": "structured.xml_tag",
+      "split": "held_out",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "structured.csv_row.f0": {
+      "macro": "structured",
+      "sub": "csv_row",
+      "fill": 0,
+      "template_family": "structured.csv_row",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "structured.csv_row.f1": {
+      "macro": "structured",
+      "sub": "csv_row",
+      "fill": 1,
+      "template_family": "structured.csv_row",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "structured.csv_row.f2": {
+      "macro": "structured",
+      "sub": "csv_row",
+      "fill": 2,
+      "template_family": "structured.csv_row",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "structured.csv_row.f3": {
+      "macro": "structured",
+      "sub": "csv_row",
+      "fill": 3,
+      "template_family": "structured.csv_row",
+      "split": "dev",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "structured.csv_row.f4": {
+      "macro": "structured",
+      "sub": "csv_row",
+      "fill": 4,
+      "template_family": "structured.csv_row",
+      "split": "held_out",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "structured.markdown.f0": {
+      "macro": "structured",
+      "sub": "markdown",
+      "fill": 0,
+      "template_family": "structured.markdown",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "structured.markdown.f1": {
+      "macro": "structured",
+      "sub": "markdown",
+      "fill": 1,
+      "template_family": "structured.markdown",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "structured.markdown.f2": {
+      "macro": "structured",
+      "sub": "markdown",
+      "fill": 2,
+      "template_family": "structured.markdown",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "structured.markdown.f3": {
+      "macro": "structured",
+      "sub": "markdown",
+      "fill": 3,
+      "template_family": "structured.markdown",
+      "split": "dev",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "structured.markdown.f4": {
+      "macro": "structured",
+      "sub": "markdown",
+      "fill": 4,
+      "template_family": "structured.markdown",
+      "split": "held_out",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "copy.word_repeat.f0": {
+      "macro": "copy",
+      "sub": "word_repeat",
+      "fill": 0,
+      "template_family": "copy.word_repeat",
+      "split": "discovery",
+      "operation": "copy",
+      "counterpart_axis": "vocabulary"
+    },
+    "copy.word_repeat.f1": {
+      "macro": "copy",
+      "sub": "word_repeat",
+      "fill": 1,
+      "template_family": "copy.word_repeat",
+      "split": "discovery",
+      "operation": "copy",
+      "counterpart_axis": "vocabulary"
+    },
+    "copy.word_repeat.f2": {
+      "macro": "copy",
+      "sub": "word_repeat",
+      "fill": 2,
+      "template_family": "copy.word_repeat",
+      "split": "discovery",
+      "operation": "copy",
+      "counterpart_axis": "vocabulary"
+    },
+    "copy.word_repeat.f3": {
+      "macro": "copy",
+      "sub": "word_repeat",
+      "fill": 3,
+      "template_family": "copy.word_repeat",
+      "split": "dev",
+      "operation": "copy",
+      "counterpart_axis": "vocabulary"
+    },
+    "copy.word_repeat.f4": {
+      "macro": "copy",
+      "sub": "word_repeat",
+      "fill": 4,
+      "template_family": "copy.word_repeat",
+      "split": "held_out",
+      "operation": "copy",
+      "counterpart_axis": "vocabulary"
+    },
+    "copy.ngram_induction.f0": {
+      "macro": "copy",
+      "sub": "ngram_induction",
+      "fill": 0,
+      "template_family": "copy.ngram_induction",
+      "split": "discovery",
+      "operation": "copy",
+      "counterpart_axis": "vocabulary"
+    },
+    "copy.ngram_induction.f1": {
+      "macro": "copy",
+      "sub": "ngram_induction",
+      "fill": 1,
+      "template_family": "copy.ngram_induction",
+      "split": "discovery",
+      "operation": "copy",
+      "counterpart_axis": "vocabulary"
+    },
+    "copy.ngram_induction.f2": {
+      "macro": "copy",
+      "sub": "ngram_induction",
+      "fill": 2,
+      "template_family": "copy.ngram_induction",
+      "split": "discovery",
+      "operation": "copy",
+      "counterpart_axis": "vocabulary"
+    },
+    "copy.ngram_induction.f3": {
+      "macro": "copy",
+      "sub": "ngram_induction",
+      "fill": 3,
+      "template_family": "copy.ngram_induction",
+      "split": "dev",
+      "operation": "copy",
+      "counterpart_axis": "vocabulary"
+    },
+    "copy.ngram_induction.f4": {
+      "macro": "copy",
+      "sub": "ngram_induction",
+      "fill": 4,
+      "template_family": "copy.ngram_induction",
+      "split": "held_out",
+      "operation": "copy",
+      "counterpart_axis": "vocabulary"
+    },
+    "copy.long_range.f0": {
+      "macro": "copy",
+      "sub": "long_range",
+      "fill": 0,
+      "template_family": "copy.long_range",
+      "split": "discovery",
+      "operation": "copy",
+      "counterpart_axis": "vocabulary"
+    },
+    "copy.long_range.f1": {
+      "macro": "copy",
+      "sub": "long_range",
+      "fill": 1,
+      "template_family": "copy.long_range",
+      "split": "discovery",
+      "operation": "copy",
+      "counterpart_axis": "vocabulary"
+    },
+    "copy.long_range.f2": {
+      "macro": "copy",
+      "sub": "long_range",
+      "fill": 2,
+      "template_family": "copy.long_range",
+      "split": "discovery",
+      "operation": "copy",
+      "counterpart_axis": "vocabulary"
+    },
+    "copy.long_range.f3": {
+      "macro": "copy",
+      "sub": "long_range",
+      "fill": 3,
+      "template_family": "copy.long_range",
+      "split": "dev",
+      "operation": "copy",
+      "counterpart_axis": "vocabulary"
+    },
+    "copy.long_range.f4": {
+      "macro": "copy",
+      "sub": "long_range",
+      "fill": 4,
+      "template_family": "copy.long_range",
+      "split": "held_out",
+      "operation": "copy",
+      "counterpart_axis": "vocabulary"
+    },
+    "copy.char_repeat.f0": {
+      "macro": "copy",
+      "sub": "char_repeat",
+      "fill": 0,
+      "template_family": "copy.char_repeat",
+      "split": "discovery",
+      "operation": "copy",
+      "counterpart_axis": "vocabulary"
+    },
+    "copy.char_repeat.f1": {
+      "macro": "copy",
+      "sub": "char_repeat",
+      "fill": 1,
+      "template_family": "copy.char_repeat",
+      "split": "discovery",
+      "operation": "copy",
+      "counterpart_axis": "vocabulary"
+    },
+    "copy.char_repeat.f2": {
+      "macro": "copy",
+      "sub": "char_repeat",
+      "fill": 2,
+      "template_family": "copy.char_repeat",
+      "split": "discovery",
+      "operation": "copy",
+      "counterpart_axis": "vocabulary"
+    },
+    "copy.char_repeat.f3": {
+      "macro": "copy",
+      "sub": "char_repeat",
+      "fill": 3,
+      "template_family": "copy.char_repeat",
+      "split": "dev",
+      "operation": "copy",
+      "counterpart_axis": "vocabulary"
+    },
+    "copy.char_repeat.f4": {
+      "macro": "copy",
+      "sub": "char_repeat",
+      "fill": 4,
+      "template_family": "copy.char_repeat",
+      "split": "held_out",
+      "operation": "copy",
+      "counterpart_axis": "vocabulary"
+    },
+    "tool_schema.func_schema.f0": {
+      "macro": "tool_schema",
+      "sub": "func_schema",
+      "fill": 0,
+      "template_family": "tool_schema.func_schema",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "tool_schema.func_schema.f1": {
+      "macro": "tool_schema",
+      "sub": "func_schema",
+      "fill": 1,
+      "template_family": "tool_schema.func_schema",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "tool_schema.func_schema.f2": {
+      "macro": "tool_schema",
+      "sub": "func_schema",
+      "fill": 2,
+      "template_family": "tool_schema.func_schema",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "tool_schema.func_schema.f3": {
+      "macro": "tool_schema",
+      "sub": "func_schema",
+      "fill": 3,
+      "template_family": "tool_schema.func_schema",
+      "split": "dev",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "tool_schema.func_schema.f4": {
+      "macro": "tool_schema",
+      "sub": "func_schema",
+      "fill": 4,
+      "template_family": "tool_schema.func_schema",
+      "split": "held_out",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "tool_schema.enum_choice.f0": {
+      "macro": "tool_schema",
+      "sub": "enum_choice",
+      "fill": 0,
+      "template_family": "tool_schema.enum_choice",
+      "split": "discovery",
+      "operation": "classify",
+      "counterpart_axis": "sense"
+    },
+    "tool_schema.enum_choice.f1": {
+      "macro": "tool_schema",
+      "sub": "enum_choice",
+      "fill": 1,
+      "template_family": "tool_schema.enum_choice",
+      "split": "discovery",
+      "operation": "classify",
+      "counterpart_axis": "sense"
+    },
+    "tool_schema.enum_choice.f2": {
+      "macro": "tool_schema",
+      "sub": "enum_choice",
+      "fill": 2,
+      "template_family": "tool_schema.enum_choice",
+      "split": "discovery",
+      "operation": "classify",
+      "counterpart_axis": "sense"
+    },
+    "tool_schema.enum_choice.f3": {
+      "macro": "tool_schema",
+      "sub": "enum_choice",
+      "fill": 3,
+      "template_family": "tool_schema.enum_choice",
+      "split": "dev",
+      "operation": "classify",
+      "counterpart_axis": "sense"
+    },
+    "tool_schema.enum_choice.f4": {
+      "macro": "tool_schema",
+      "sub": "enum_choice",
+      "fill": 4,
+      "template_family": "tool_schema.enum_choice",
+      "split": "held_out",
+      "operation": "classify",
+      "counterpart_axis": "sense"
+    },
+    "tool_schema.tool_name.f0": {
+      "macro": "tool_schema",
+      "sub": "tool_name",
+      "fill": 0,
+      "template_family": "tool_schema.tool_name",
+      "split": "discovery",
+      "operation": "lookup",
+      "counterpart_axis": "sense"
+    },
+    "tool_schema.tool_name.f1": {
+      "macro": "tool_schema",
+      "sub": "tool_name",
+      "fill": 1,
+      "template_family": "tool_schema.tool_name",
+      "split": "discovery",
+      "operation": "lookup",
+      "counterpart_axis": "sense"
+    },
+    "tool_schema.tool_name.f2": {
+      "macro": "tool_schema",
+      "sub": "tool_name",
+      "fill": 2,
+      "template_family": "tool_schema.tool_name",
+      "split": "discovery",
+      "operation": "lookup",
+      "counterpart_axis": "sense"
+    },
+    "tool_schema.tool_name.f3": {
+      "macro": "tool_schema",
+      "sub": "tool_name",
+      "fill": 3,
+      "template_family": "tool_schema.tool_name",
+      "split": "dev",
+      "operation": "lookup",
+      "counterpart_axis": "sense"
+    },
+    "tool_schema.tool_name.f4": {
+      "macro": "tool_schema",
+      "sub": "tool_name",
+      "fill": 4,
+      "template_family": "tool_schema.tool_name",
+      "split": "held_out",
+      "operation": "lookup",
+      "counterpart_axis": "sense"
+    },
+    "tool_schema.bool_field.f0": {
+      "macro": "tool_schema",
+      "sub": "bool_field",
+      "fill": 0,
+      "template_family": "tool_schema.bool_field",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "tool_schema.bool_field.f1": {
+      "macro": "tool_schema",
+      "sub": "bool_field",
+      "fill": 1,
+      "template_family": "tool_schema.bool_field",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "tool_schema.bool_field.f2": {
+      "macro": "tool_schema",
+      "sub": "bool_field",
+      "fill": 2,
+      "template_family": "tool_schema.bool_field",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "tool_schema.bool_field.f3": {
+      "macro": "tool_schema",
+      "sub": "bool_field",
+      "fill": 3,
+      "template_family": "tool_schema.bool_field",
+      "split": "dev",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "tool_schema.bool_field.f4": {
+      "macro": "tool_schema",
+      "sub": "bool_field",
+      "fill": 4,
+      "template_family": "tool_schema.bool_field",
+      "split": "held_out",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "dialogue.qa.f0": {
+      "macro": "dialogue",
+      "sub": "qa",
+      "fill": 0,
+      "template_family": "dialogue.qa",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "answer_type"
+    },
+    "dialogue.qa.f1": {
+      "macro": "dialogue",
+      "sub": "qa",
+      "fill": 1,
+      "template_family": "dialogue.qa",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "answer_type"
+    },
+    "dialogue.qa.f2": {
+      "macro": "dialogue",
+      "sub": "qa",
+      "fill": 2,
+      "template_family": "dialogue.qa",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "answer_type"
+    },
+    "dialogue.qa.f3": {
+      "macro": "dialogue",
+      "sub": "qa",
+      "fill": 3,
+      "template_family": "dialogue.qa",
+      "split": "dev",
+      "operation": "complete",
+      "counterpart_axis": "answer_type"
+    },
+    "dialogue.qa.f4": {
+      "macro": "dialogue",
+      "sub": "qa",
+      "fill": 4,
+      "template_family": "dialogue.qa",
+      "split": "held_out",
+      "operation": "complete",
+      "counterpart_axis": "answer_type"
+    },
+    "dialogue.sentiment.f0": {
+      "macro": "dialogue",
+      "sub": "sentiment",
+      "fill": 0,
+      "template_family": "dialogue.sentiment",
+      "split": "discovery",
+      "operation": "classify",
+      "counterpart_axis": "label"
+    },
+    "dialogue.sentiment.f1": {
+      "macro": "dialogue",
+      "sub": "sentiment",
+      "fill": 1,
+      "template_family": "dialogue.sentiment",
+      "split": "discovery",
+      "operation": "classify",
+      "counterpart_axis": "label"
+    },
+    "dialogue.sentiment.f2": {
+      "macro": "dialogue",
+      "sub": "sentiment",
+      "fill": 2,
+      "template_family": "dialogue.sentiment",
+      "split": "discovery",
+      "operation": "classify",
+      "counterpart_axis": "label"
+    },
+    "dialogue.sentiment.f3": {
+      "macro": "dialogue",
+      "sub": "sentiment",
+      "fill": 3,
+      "template_family": "dialogue.sentiment",
+      "split": "dev",
+      "operation": "classify",
+      "counterpart_axis": "label"
+    },
+    "dialogue.sentiment.f4": {
+      "macro": "dialogue",
+      "sub": "sentiment",
+      "fill": 4,
+      "template_family": "dialogue.sentiment",
+      "split": "held_out",
+      "operation": "classify",
+      "counterpart_axis": "label"
+    },
+    "dialogue.instruction.f0": {
+      "macro": "dialogue",
+      "sub": "instruction",
+      "fill": 0,
+      "template_family": "dialogue.instruction",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "operation"
+    },
+    "dialogue.instruction.f1": {
+      "macro": "dialogue",
+      "sub": "instruction",
+      "fill": 1,
+      "template_family": "dialogue.instruction",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "operation"
+    },
+    "dialogue.instruction.f2": {
+      "macro": "dialogue",
+      "sub": "instruction",
+      "fill": 2,
+      "template_family": "dialogue.instruction",
+      "split": "discovery",
+      "operation": "complete",
+      "counterpart_axis": "operation"
+    },
+    "dialogue.instruction.f3": {
+      "macro": "dialogue",
+      "sub": "instruction",
+      "fill": 3,
+      "template_family": "dialogue.instruction",
+      "split": "dev",
+      "operation": "complete",
+      "counterpart_axis": "operation"
+    },
+    "dialogue.instruction.f4": {
+      "macro": "dialogue",
+      "sub": "instruction",
+      "fill": 4,
+      "template_family": "dialogue.instruction",
+      "split": "held_out",
+      "operation": "complete",
+      "counterpart_axis": "operation"
+    },
+    "dialogue.yesno.f0": {
+      "macro": "dialogue",
+      "sub": "yesno",
+      "fill": 0,
+      "template_family": "dialogue.yesno",
+      "split": "discovery",
+      "operation": "classify",
+      "counterpart_axis": "label"
+    },
+    "dialogue.yesno.f1": {
+      "macro": "dialogue",
+      "sub": "yesno",
+      "fill": 1,
+      "template_family": "dialogue.yesno",
+      "split": "discovery",
+      "operation": "classify",
+      "counterpart_axis": "label"
+    },
+    "dialogue.yesno.f2": {
+      "macro": "dialogue",
+      "sub": "yesno",
+      "fill": 2,
+      "template_family": "dialogue.yesno",
+      "split": "discovery",
+      "operation": "classify",
+      "counterpart_axis": "label"
+    },
+    "dialogue.yesno.f3": {
+      "macro": "dialogue",
+      "sub": "yesno",
+      "fill": 3,
+      "template_family": "dialogue.yesno",
+      "split": "dev",
+      "operation": "classify",
+      "counterpart_axis": "label"
+    },
+    "dialogue.yesno.f4": {
+      "macro": "dialogue",
+      "sub": "yesno",
+      "fill": 4,
+      "template_family": "dialogue.yesno",
+      "split": "held_out",
+      "operation": "classify",
+      "counterpart_axis": "label"
+    }
+  },
+  "template_families": {
+    "code.py_return": {
+      "macro": "code",
+      "sub": "py_return",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "code.py_loop": {
+      "macro": "code",
+      "sub": "py_loop",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "code.js_console": {
+      "macro": "code",
+      "sub": "js_console",
+      "operation": "transform",
+      "counterpart_axis": "operation"
+    },
+    "code.fix_syntax": {
+      "macro": "code",
+      "sub": "fix_syntax",
+      "operation": "transform",
+      "counterpart_axis": "answer_type"
+    },
+    "math.int_mul": {
+      "macro": "math",
+      "sub": "int_mul",
+      "operation": "arithmetic",
+      "counterpart_axis": "numeric_value"
+    },
+    "math.int_add": {
+      "macro": "math",
+      "sub": "int_add",
+      "operation": "arithmetic",
+      "counterpart_axis": "numeric_value"
+    },
+    "math.derivative": {
+      "macro": "math",
+      "sub": "derivative",
+      "operation": "transform",
+      "counterpart_axis": "operation"
+    },
+    "math.probability": {
+      "macro": "math",
+      "sub": "probability",
+      "operation": "arithmetic",
+      "counterpart_axis": "numeric_value"
+    },
+    "logic.modus_ponens": {
+      "macro": "logic",
+      "sub": "modus_ponens",
+      "operation": "complete",
+      "counterpart_axis": "operation"
+    },
+    "logic.demorgan": {
+      "macro": "logic",
+      "sub": "demorgan",
+      "operation": "transform",
+      "counterpart_axis": "sense"
+    },
+    "logic.truth_table": {
+      "macro": "logic",
+      "sub": "truth_table",
+      "operation": "lookup",
+      "counterpart_axis": "sense"
+    },
+    "logic.quantifier": {
+      "macro": "logic",
+      "sub": "quantifier",
+      "operation": "transform",
+      "counterpart_axis": "operation"
+    },
+    "factual.capital": {
+      "macro": "factual",
+      "sub": "capital",
+      "operation": "lookup",
+      "counterpart_axis": "sense"
+    },
+    "factual.author": {
+      "macro": "factual",
+      "sub": "author",
+      "operation": "lookup",
+      "counterpart_axis": "sense"
+    },
+    "factual.element": {
+      "macro": "factual",
+      "sub": "element",
+      "operation": "lookup",
+      "counterpart_axis": "sense"
+    },
+    "factual.relation": {
+      "macro": "factual",
+      "sub": "relation",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "science.definition": {
+      "macro": "science",
+      "sub": "definition",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "science.unit": {
+      "macro": "science",
+      "sub": "unit",
+      "operation": "lookup",
+      "counterpart_axis": "sense"
+    },
+    "science.formula": {
+      "macro": "science",
+      "sub": "formula",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "science.value": {
+      "macro": "science",
+      "sub": "value",
+      "operation": "lookup",
+      "counterpart_axis": "numeric_value"
+    },
+    "legal_fin.contract": {
+      "macro": "legal_fin",
+      "sub": "contract",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "legal_fin.finance_calc": {
+      "macro": "legal_fin",
+      "sub": "finance_calc",
+      "operation": "arithmetic",
+      "counterpart_axis": "numeric_value"
+    },
+    "legal_fin.legal_term": {
+      "macro": "legal_fin",
+      "sub": "legal_term",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "legal_fin.accounting": {
+      "macro": "legal_fin",
+      "sub": "accounting",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "prose.pangram": {
+      "macro": "prose",
+      "sub": "pangram",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "prose.opening": {
+      "macro": "prose",
+      "sub": "opening",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "prose.idiom": {
+      "macro": "prose",
+      "sub": "idiom",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "prose.narrative": {
+      "macro": "prose",
+      "sub": "narrative",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "multiling.zh_capital": {
+      "macro": "multiling",
+      "sub": "zh_capital",
+      "operation": "lookup",
+      "counterpart_axis": "language"
+    },
+    "multiling.zh_weather": {
+      "macro": "multiling",
+      "sub": "zh_weather",
+      "operation": "complete",
+      "counterpart_axis": "language"
+    },
+    "multiling.translate": {
+      "macro": "multiling",
+      "sub": "translate",
+      "operation": "translate",
+      "counterpart_axis": "language"
+    },
+    "multiling.zh_number": {
+      "macro": "multiling",
+      "sub": "zh_number",
+      "operation": "complete",
+      "counterpart_axis": "language"
+    },
+    "structured.json_obj": {
+      "macro": "structured",
+      "sub": "json_obj",
+      "operation": "complete",
+      "counterpart_axis": "validity"
+    },
+    "structured.xml_tag": {
+      "macro": "structured",
+      "sub": "xml_tag",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "structured.csv_row": {
+      "macro": "structured",
+      "sub": "csv_row",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "structured.markdown": {
+      "macro": "structured",
+      "sub": "markdown",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "copy.word_repeat": {
+      "macro": "copy",
+      "sub": "word_repeat",
+      "operation": "copy",
+      "counterpart_axis": "vocabulary"
+    },
+    "copy.ngram_induction": {
+      "macro": "copy",
+      "sub": "ngram_induction",
+      "operation": "copy",
+      "counterpart_axis": "vocabulary"
+    },
+    "copy.long_range": {
+      "macro": "copy",
+      "sub": "long_range",
+      "operation": "copy",
+      "counterpart_axis": "vocabulary"
+    },
+    "copy.char_repeat": {
+      "macro": "copy",
+      "sub": "char_repeat",
+      "operation": "copy",
+      "counterpart_axis": "vocabulary"
+    },
+    "tool_schema.func_schema": {
+      "macro": "tool_schema",
+      "sub": "func_schema",
+      "operation": "complete",
+      "counterpart_axis": "surface_format"
+    },
+    "tool_schema.enum_choice": {
+      "macro": "tool_schema",
+      "sub": "enum_choice",
+      "operation": "classify",
+      "counterpart_axis": "sense"
+    },
+    "tool_schema.tool_name": {
+      "macro": "tool_schema",
+      "sub": "tool_name",
+      "operation": "lookup",
+      "counterpart_axis": "sense"
+    },
+    "tool_schema.bool_field": {
+      "macro": "tool_schema",
+      "sub": "bool_field",
+      "operation": "complete",
+      "counterpart_axis": "sense"
+    },
+    "dialogue.qa": {
+      "macro": "dialogue",
+      "sub": "qa",
+      "operation": "complete",
+      "counterpart_axis": "answer_type"
+    },
+    "dialogue.sentiment": {
+      "macro": "dialogue",
+      "sub": "sentiment",
+      "operation": "classify",
+      "counterpart_axis": "label"
+    },
+    "dialogue.instruction": {
+      "macro": "dialogue",
+      "sub": "instruction",
+      "operation": "complete",
+      "counterpart_axis": "operation"
+    },
+    "dialogue.yesno": {
+      "macro": "dialogue",
+      "sub": "yesno",
+      "operation": "classify",
+      "counterpart_axis": "label"
+    }
+  },
+  "label_vocab": {
+    "semantic_domain": [
+      "code",
+      "copy",
+      "dialogue",
+      "factual",
+      "legal_fin",
+      "logic",
+      "math",
+      "multiling",
+      "prose",
+      "science",
+      "structured",
+      "tool_schema"
+    ],
+    "operation": [
+      "arithmetic",
+      "classify",
+      "complete",
+      "copy",
+      "lookup",
+      "transform",
+      "translate"
+    ],
+    "language": [
+      "code",
+      "en",
+      "mixed",
+      "symbolic",
+      "zh"
+    ],
+    "surface_format": [
+      "chinese",
+      "code",
+      "csv",
+      "json",
+      "markdown",
+      "plain",
+      "table",
+      "whitespace",
+      "xml"
+    ],
+    "answer_type": [
+      "boolean",
+      "char",
+      "code_token",
+      "entity",
+      "numeric",
+      "span",
+      "structural_token",
+      "symbolic",
+      "word"
+    ]
+  },
+  "repeat_probe_ids": [
+    0,
+    8
+  ],
+  "repeat_id_offset": 10000
+}
