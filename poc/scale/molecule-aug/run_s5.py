@@ -116,6 +116,16 @@ pilot (stage 1) -> main (stage 3), see DESIGN-v2 §10):
                           AC1 + seeded bootstrap CIs; conditional-vs-expanded
                           credit gap; human-rejudge kit (stage 3).
 
+CLOSURE-SAFE inventory (docs/next/analysis/molecule-s5-path-decision-sol-
+20260715.md; round-2 adjudication 27/39 ACCEPT, NO further repair rounds):
+only records whose final verdict is ACCEPT and whose ENTIRE recursive
+reference closure is ACCEPT are referenceable by the molecule arm (20 = 14
+molecules + 6 bases). Any mol-arm reference to any other id -- the 12
+residual REPAIR records, the 7 ACCEPTs excluded transitively, or a
+never-adjudicated record -- fails closed (ERR_REF_NOT_CLOSURE_SAFE at the s5
+gate AND in the expander) and scores NOT-FAITHFUL under ITT; it is never
+silently resolved through. The adjudication summary is freeze-pinned.
+
 Fail-closed everywhere; provenance (prompt hashes + lexiconSetHash) embedded
 in every gen manifest. Costs are whatever define_concept.py reports.
 """
@@ -164,9 +174,13 @@ STAGE_DIR_NAMES = {0: "calibration", 1: "stage1", 2: "stage2", 3: "stage3"}
 BRIDGE_STATUS = "provisional/model-authored (proxy-adjudicated)"  # DESIGN-v2 §4.2
 INSTRUMENTS = ("fidelity", "conditional")
 # Verified freeze pins (DESIGN-v2 §7): any mismatch => the run is exploratory.
+# adjudication_summary_sha256 pins the closure-safe referenceable inventory
+# (sol path decision 2026-07-15): a post-freeze verdict change would silently
+# change the gate, so it verifies like every other pin.
 VERIFIED_PINS = ("lexiconSetHash", "encoderContentHash", "s5_prompt_sha256",
                  "s5_judge_fidelity_sha256", "s5_judge_conditional_sha256",
-                 "bridge_rubric_sha256", "expander_sha256", "fresh_sample_sha256")
+                 "bridge_rubric_sha256", "expander_sha256", "fresh_sample_sha256",
+                 "adjudication_summary_sha256")
 # Single-candidate note appended to the composed CONDITIONAL prompt
 # (DESIGN-v2 §3.2: v1 gloss-credit protocol, single-candidate delivery).
 SINGLE_CAND_NOTE = """
@@ -385,11 +399,65 @@ def rows_for_stage(stage):
 
 
 # ---------------------------------------------------------------------------
+# closure-safe referenceable inventory (path decision: docs/next/analysis/
+# molecule-s5-path-decision-sol-20260715.md; round-2 adjudication 27/39 ACCEPT)
+# ---------------------------------------------------------------------------
+_CLOSURE_SAFE = None
+
+
+def closure_safe_set(manifest):
+    """A record is CLOSURE-SAFE iff its final adjudication verdict is ACCEPT
+    AND every record in its recursive reference closure is ACCEPT
+    (molecule-s5-path-decision-sol-20260715.md line 3: 20 records = 14
+    molecules + 6 bases). ONLY closure-safe records are referenceable by the
+    S5 molecule arm: a reference to ANY other lexicon id -- residual
+    REPAIR/UNRESOLVED, ACCEPT with a lossy closure, or never-adjudicated --
+    FAILS CLOSED with ERR_REF_NOT_CLOSURE_SAFE and the cell scores
+    NOT-FAITHFUL under ITT. It never silently resolves through a
+    non-validated record."""
+    p = ADJ / "summary.json"
+    if not p.exists():
+        die("lexicon/adjudication/summary.json missing -- the closure-safe "
+            "referenceable set is UNDEFINED (run adjudicate-lexicon --summarize "
+            "first; DESIGN-v2 §4 + sol path decision 2026-07-15)")
+    finals = json.load(open(p))["finals"]
+    recs = {r["id"]: r for r in manifest["records"]}
+    missing = sorted(set(finals) - set(recs))
+    if missing:
+        die("adjudicated ids absent from the pinned lexicon manifest: %s "
+            "(manifest/summary drift -- rebuild manifest, re-summarize)" % missing)
+    safe = set()
+    for rid in finals:
+        seen, todo, ok = set(), [rid], True
+        while todo:
+            x = todo.pop()
+            if x in seen:
+                continue
+            seen.add(x)
+            if finals.get(x) != "ACCEPT":  # unadjudicated -> None -> unsafe
+                ok = False
+                break
+            todo.extend(recs[x]["references"])
+        if ok:
+            safe.add(rid)
+    return safe
+
+
+def closure_safe_ids():
+    """Cached closure-safe set against the live pinned manifest."""
+    global _CLOSURE_SAFE
+    if _CLOSURE_SAFE is None:
+        _CLOSURE_SAFE = closure_safe_set(load_manifest())
+    return _CLOSURE_SAFE
+
+
+# ---------------------------------------------------------------------------
 # gen -- S5 arm (+ fresh flat arms for held-out); post-gated by the variant gate
 # ---------------------------------------------------------------------------
 def s5_gate(record_path, row):
     """validate-record-ref.mjs + pinned mechanical checks minus the flat-only
-    'references must be []' rule (DESIGN §5.1-5.2). Returns the s5gate dict."""
+    'references must be []' rule (DESIGN §5.1-5.2), PLUS the closure-safe
+    reference gate (sol path decision 2026-07-15). Returns the s5gate dict."""
     p = subprocess.run(["node", str(HERE / "validate-record-ref.mjs"), str(record_path)],
                        capture_output=True, text=True)
     try:
@@ -399,10 +467,18 @@ def s5_gate(record_path, row):
     obj = json.load(open(record_path))
     errs, warns, adequacy = dc.check_record(obj, row["concept"], row["urn"], row["wn31_gloss"])
     errs = [e for e in errs if e != "references must be []"]  # S5 override (§5.2 R2)
+    # Closure-safe gate: references restricted to the ~20-record closure-safe
+    # inventory (ACCEPT with fully-ACCEPT closure); anything else fails closed.
+    refs = sorted(obj.get("references") or [])
+    viol = [r for r in refs if r not in closure_safe_ids()] if refs else []
+    if viol and gate.get("ok"):
+        gate = dict(gate, ok=False, code="ERR_REF_NOT_CLOSURE_SAFE",
+                    error="non-closure-safe reference(s): %s" % ", ".join(viol))
     return {"gate": gate, "mechanical_check_errors": errs, "warnings": warns,
             "ast_adequacy_self_flag": adequacy,
             "references": obj.get("references"),
-            "s5_ok": bool(gate.get("ok")) and not errs}
+            "closure_violations": viol,
+            "s5_ok": bool(gate.get("ok")) and not errs and not viol}
 
 
 def gen_arm(rows, prompt_path, outdir, models, arm):
@@ -797,7 +873,7 @@ def _blk_depth(node):
     return 0
 
 
-def expand_ast(doc, lex_docs, max_depth=MAX_EXPAND_DEPTH):
+def expand_ast(doc, lex_docs, max_depth=MAX_EXPAND_DEPTH, allowed_ids=None):
     """DESIGN-v2 §3.1: rewrite doc's explication so every ConceptRef /
     ConceptHead node ({"kind":"concept"|"conceptHead","id":...}) is replaced by
     a self-contained {"kind":"subExplication",frame,referents,clauses} block
@@ -807,7 +883,12 @@ def expand_ast(doc, lex_docs, max_depth=MAX_EXPAND_DEPTH):
     actually encoded, not the gloss). All ids/labels/notes/references/self-flags
     are stripped by construction (only frame/referents/clauses are copied).
     Records with no concept nodes pass through structurally identical, so their
-    serialization is byte-identical."""
+    serialization is byte-identical.
+
+    allowed_ids (sol path decision 2026-07-15): when given, EVERY id resolved
+    anywhere in the recursive expansion must be in it, else the expansion
+    fails closed with ERR_REF_NOT_CLOSURE_SAFE -- the molecule arm never
+    silently resolves through a non-closure-safe record."""
     memo = {}
 
     def walk(node, stack, depth):
@@ -820,6 +901,8 @@ def expand_ast(doc, lex_docs, max_depth=MAX_EXPAND_DEPTH):
         return node
 
     def sub_block(cid, stack, depth):
+        if allowed_ids is not None and cid not in allowed_ids:
+            raise ExpandError("ERR_REF_NOT_CLOSURE_SAFE", cid)
         if cid in stack:
             raise ExpandError("ERR_CYCLIC_CONCEPT_REF", cid)
         if depth > max_depth:
@@ -885,10 +968,12 @@ def cell_self_flag(stage, base, row, cell):
 def expand_stage(stage, base, rows, manifest):
     """cmd_expand core: write expanded/<slug>.<cell>.json + expanded-manifest."""
     lex = load_lexicon_docs(manifest)
+    safe = closure_safe_ids()  # sol path decision 2026-07-15: mol arm only
     edir = base / "expanded"
     edir.mkdir(parents=True, exist_ok=True)
     eman = {"stage": stage, "lexiconSetHash": manifest["lexiconSetHash"],
-            "max_depth": MAX_EXPAND_DEPTH, "cells": {}}
+            "max_depth": MAX_EXPAND_DEPTH,
+            "closure_safe_n": len(safe), "cells": {}}
     n_ok = n_fail = 0
     for row in rows:
         slug = dc.slugify(row["concept"])
@@ -901,8 +986,19 @@ def expand_stage(stage, base, rows, manifest):
                 continue
             doc = json.load(open(rec))
             try:
-                exp = expand_ast(doc, lex)
+                # mol cells: expansion restricted to the closure-safe inventory
+                # (belt-and-braces behind the s5 gate; never resolves through a
+                # non-closure-safe record -- sol path decision 2026-07-15)
+                exp = expand_ast(doc, lex,
+                                 allowed_ids=safe if cell.startswith("mol-") else None)
             except ExpandError as e:
+                if e.code == "ERR_REF_NOT_CLOSURE_SAFE" and cell.startswith("mol-"):
+                    # fail closed as an ITT NOT-FAITHFUL cell (scored GATE-FAIL)
+                    eman["cells"][keyname] = {"status": "CLOSURE-FAIL",
+                                              "code": e.code, "detail": e.detail,
+                                              "record": str(rec)}
+                    n_fail += 1
+                    continue
                 die("expand FAILED CLOSED for %s (%s): %s -- a gate-clean record "
                     "must expand; inspect the record/lexicon" % (keyname, rec, e))
             txt = rendering_text(exp)
@@ -1764,7 +1860,8 @@ def current_pins():
                  ("s5_judge_fidelity_sha256", HERE / "s5-judge-fidelity.md"),
                  ("s5_judge_conditional_sha256", HERE / "s5-judge-conditional.md"),
                  ("bridge_rubric_sha256", HERE / "bridge-review-rubric.md"),
-                 ("fresh_sample_sha256", RUN / "stage3-fresh.json")):
+                 ("fresh_sample_sha256", RUN / "stage3-fresh.json"),
+                 ("adjudication_summary_sha256", ADJ / "summary.json")):
         pins[k] = sha256(p.read_bytes()) if p.exists() else None
     return pins
 
@@ -1798,21 +1895,29 @@ def cmd_freeze(_args):
         die("FREEZE-v2.json already exists -- refusing to re-freeze (delete it "
             "ONLY if you accept the run becomes exploratory)")
     manifest = load_manifest()
-    # gates: adjudication complete + clean, sample drawn, calibration done
+    # gates: adjudication summarized + closure-safe inventory non-degenerate
+    # (sol path decision 2026-07-15: residual non-ACCEPTs are ALLOWED and fail
+    # closed at the reference gate -- NO further repair rounds), sample drawn,
+    # calibration done
     summ_p = ADJ / "summary.json"
     if not summ_p.exists():
         die("lexicon adjudication summary missing (run: adjudicate-lexicon ... "
             "--summarize; DESIGN-v2 §4 comes BEFORE the freeze)")
     summ = json.load(open(summ_p))
-    pending = sorted(r for r, v in summ["finals"].items() if v != "ACCEPT")
-    if pending:
-        die("adjudication not clean -- non-ACCEPT records: %s (explicator repairs, "
-            "rebuild manifest, recompose, re-adjudicate, re-summarize first)" % pending)
+    finals = summ["finals"]
+    safe = closure_safe_set(manifest)
+    residual = sorted(r for r, v in finals.items() if v != "ACCEPT")
+    excl_transitive = sorted(r for r in finals
+                             if finals[r] == "ACCEPT" and r not in safe)
+    if not any(r.startswith("urn:molaug-v0:") for r in safe):
+        die("closure-safe inventory contains NO molecules -- nothing for the "
+            "molecule arm to reference; the S5-v2 campaign is moot")
     bad_status = [r["id"] for r in manifest["records"] if r["tier"] == "molaug-v0"
+                  and finals.get(r["id"]) == "ACCEPT"
                   and json.load(open(HERE.parents[2] / r["file"])).get("status") != BRIDGE_STATUS]
     if bad_status:
-        die("bridge records not relabelled '%s': %s (run --summarize, then rebuild "
-            "manifest + recompose)" % (BRIDGE_STATUS, bad_status))
+        die("ACCEPTed bridge records not relabelled '%s': %s (run --summarize, "
+            "then rebuild manifest + recompose)" % (BRIDGE_STATUS, bad_status))
     sample_p = RUN / "stage3-fresh.json"
     if not sample_p.exists():
         die("s5-run/stage3-fresh.json missing (run: run_s5.py sample --stage 3)")
@@ -1839,7 +1944,19 @@ def cmd_freeze(_args):
                            "85 lexicon id slugs (DESIGN-v2 §4.3; mechanically excludes "
                            "'initiation' via lemma 'institution')"),
         "adjudicated_lemma_warnings": manifest.get("slugCollisionGate", {}).get("lemmaWarnings", []),
-        "adjudication_summary_sha256": sha256(summ_p.read_bytes()),
+        "closure_safe_inventory": {
+            # sol path decision 2026-07-15 (round-2 adjudication 27/39 ACCEPT):
+            # frozen referenceable set; derived from the pinned adjudication
+            # summary + manifest, both freeze-verified.
+            "rule": ("referenceable iff final verdict ACCEPT AND entire recursive "
+                     "reference closure ACCEPT; any mol-arm reference to any other "
+                     "id (residual, transitively-lossy ACCEPT, or never-adjudicated) "
+                     "fails closed ERR_REF_NOT_CLOSURE_SAFE and scores NOT-FAITHFUL "
+                     "under ITT (molecule-s5-path-decision-sol-20260715.md)"),
+            "n": len(safe),
+            "ids": sorted(safe),
+            "residual_non_accept": residual,
+            "accept_excluded_transitively": excl_transitive},
         "generators": GEN_MODELS,
         "decoding_and_retry_budget": {"runner": "define_concept.py pinned defaults",
                                       "MAX_CONTENT": dc.MAX_CONTENT,
@@ -1947,8 +2064,10 @@ def cmd_selftest(_args):
                 "references": refs, "status": "draft",
                 "notes": "AST adequacy: lossy — synthetic."}
 
-    g = gate(synth(["urn:kernel-v0:teacher", "urn:molaug-v0:money"],
-                   ["urn:kernel-v0:teacher", "urn:molaug-v0:money"]))
+    # NOTE: refs must be CLOSURE-SAFE (sol path decision 2026-07-15) -- the old
+    # teacher/money vector now correctly fails the closure gate (checked below).
+    g = gate(synth(["urn:kernel-v0:death", "urn:molaug-v0:kill"],
+                   ["urn:kernel-v0:death", "urn:molaug-v0:kill"]))
     check("gate: ref-bearing record resolves (kernel + bridge), unit-norm D=8192",
           g.get("ok") and g.get("D") == 8192 and abs(g.get("norm", 0) - 1) < 1e-6, g)
     g = gate(synth([], []))
@@ -1963,6 +2082,41 @@ def cmd_selftest(_args):
     ids9 = ["urn:molaug-v0:%s" % s for s in many]
     g = gate(synth(sorted(ids9), ids9))
     check("gate: 9 distinct refs -> ERR_REF_CAP", g.get("code") == "ERR_REF_CAP", g)
+
+    # 2b. closure-safe inventory + fail-closed reference gate (sol path
+    # decision 2026-07-15; round-2 adjudication 27/39 ACCEPT, frozen)
+    safe = closure_safe_ids()
+    n_mol = sum(1 for r in safe if r.startswith("urn:molaug-v0:"))
+    n_base = sum(1 for r in safe if r.startswith("urn:kernel-v0:"))
+    check("closure-safe: 20 referenceable = 14 molecules + 6 bases; residual/"
+          "transitive/unadjudicated OUT",
+          len(safe) == 20 and n_mol == 14 and n_base == 6
+          and "urn:molaug-v0:kill" in safe and "urn:kernel-v0:death" in safe
+          and "urn:molaug-v0:duty" not in safe        # residual REPAIR
+          and "urn:molaug-v0:money" not in safe       # ACCEPT but closure hits give (REPAIR)
+          and "urn:kernel-v0:teacher" not in safe,    # never adjudicated
+          "%d safe (%d mol + %d base)" % (len(safe), n_mol, n_base))
+
+    def s5g(refs):
+        p = base / "records" / "closure-cand.json"
+        p.write_text(json.dumps(synth(refs, refs)))
+        return s5_gate(p, {"concept": "selftest-candidate",
+                           "urn": "urn:lexical-wn31:n-00000001",
+                           "wn31_gloss": "a synthetic candidate used only by the offline selftest"})
+
+    g = s5g(["urn:molaug-v0:duty"])
+    check("s5 gate: residual REPAIR ref (duty) FAILS CLOSED -> ERR_REF_NOT_CLOSURE_SAFE",
+          not g["s5_ok"] and g["gate"].get("code") == "ERR_REF_NOT_CLOSURE_SAFE"
+          and g["closure_violations"] == ["urn:molaug-v0:duty"], g["gate"])
+    g = s5g(["urn:molaug-v0:money"])
+    check("s5 gate: transitively-lossy ACCEPT ref (money -> give) FAILS CLOSED",
+          not g["s5_ok"] and g["gate"].get("code") == "ERR_REF_NOT_CLOSURE_SAFE", g["gate"])
+    g = s5g(["urn:kernel-v0:teacher"])
+    check("s5 gate: never-adjudicated ref (teacher) FAILS CLOSED",
+          not g["s5_ok"] and g["gate"].get("code") == "ERR_REF_NOT_CLOSURE_SAFE", g["gate"])
+    g = s5g(["urn:molaug-v0:kill", "urn:kernel-v0:death"])
+    check("s5 gate: closure-safe refs (kill + death) NOT closure-blocked",
+          g["gate"].get("ok") and not g["closure_violations"], g["gate"])
 
     # 3. flat consensus-100 record through the variant gate (real artefact)
     real = sorted(C100.glob("gen/*.fable5.json"))[0]
@@ -2093,6 +2247,18 @@ def cmd_selftest(_args):
     except ExpandError as e:
         code = e.code
     check("expand: depth > %d fails closed" % MAX_EXPAND_DEPTH, code == "ERR_EXPAND_DEPTH", code)
+    code = None
+    try:  # mol-arm restriction: teacher resolves in the lexicon but is NOT closure-safe
+        expand_ast(synth(["urn:kernel-v0:teacher"], ["urn:kernel-v0:teacher"]), lexd,
+                   allowed_ids=closure_safe_ids())
+    except ExpandError as e:
+        code = e.code
+    check("expand: non-closure-safe ref fails closed under allowed_ids (mol arm)",
+          code == "ERR_REF_NOT_CLOSURE_SAFE", code)
+    check("expand: closure-safe ref expands under the same restriction",
+          '"subExplication"' in rendering_text(
+              expand_ast(synth(["urn:molaug-v0:kill"], ["urn:molaug-v0:kill"]),
+                         lexd, allowed_ids=closure_safe_ids())))
 
     # 8. Tango (1998) score CI units
     check("stats: Tango score stat at delta=0 == McNemar z (b=1,c=9,n=24)",
@@ -2138,9 +2304,18 @@ def cmd_selftest(_args):
           "wn31_gloss": "a synthetic candidate used only by the offline selftest",
           "self_flags": {}}
     frec = gen_dir / ("selftest-candidate.%s.json" % dc.MODEL_SHORT[LUNA])
-    frec.write_text(json.dumps(synth(["urn:kernel-v0:teacher"], ["urn:kernel-v0:teacher"]),
-                               indent=1, ensure_ascii=False))
+    frec.write_text(json.dumps(synth(["urn:molaug-v0:kill"], ["urn:molaug-v0:kill"]),
+                               indent=1, ensure_ascii=False))  # closure-safe ref
     (gen_dir / ("selftest-candidate.%s.s5gate.json" % dc.MODEL_SHORT[LUNA])).write_text(
+        json.dumps({"gate": {"ok": True}, "mechanical_check_errors": [],
+                    "ast_adequacy_self_flag": "lossy",
+                    "references": ["urn:molaug-v0:kill"], "s5_ok": True}, indent=1))
+    # mol-fable: simulate a NON-closure-safe ref slipping past the gate (fake
+    # s5_ok) -- expand_stage must fail it closed as an ITT cell, never resolve.
+    frec2 = gen_dir / ("selftest-candidate.%s.json" % dc.MODEL_SHORT[FABLE])
+    frec2.write_text(json.dumps(synth(["urn:kernel-v0:teacher"], ["urn:kernel-v0:teacher"]),
+                                indent=1, ensure_ascii=False))
+    (gen_dir / ("selftest-candidate.%s.s5gate.json" % dc.MODEL_SHORT[FABLE])).write_text(
         json.dumps({"gate": {"ok": True}, "mechanical_check_errors": [],
                     "ast_adequacy_self_flag": "lossy",
                     "references": ["urn:kernel-v0:teacher"], "s5_ok": True}, indent=1))
@@ -2148,6 +2323,10 @@ def cmd_selftest(_args):
     n_ok, n_fail = expand_stage(1, st, vrows, manifest)
     check("expand v2: gate-fail cells recorded for ITT (fake row flat cells + mol-fable)",
           n_fail >= 3, "%d ok / %d gate-fail" % (n_ok, n_fail))
+    eman_cells = json.load(open(st / "expanded-manifest.json"))["cells"]
+    mf = eman_cells.get("selftest-candidate.mol-fable", {})
+    check("expand v2: non-closure-safe mol ref (simulated gate bypass) -> CLOSURE-FAIL, ITT",
+          mf.get("status") == "CLOSURE-FAIL" and mf.get("code") == "ERR_REF_NOT_CLOSURE_SAFE", mf)
     prep_n = prep_stage(1, st, vrows, manifest, DEFAULT_SEED, "fidelity")
     cond_n = prep_stage(1, st, vrows, manifest, DEFAULT_SEED, "conditional")
     fkey = json.load(open(st / "judge-key-v2.json"))["fidelity"]

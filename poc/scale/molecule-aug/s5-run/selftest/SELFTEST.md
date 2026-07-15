@@ -27,7 +27,7 @@ No model calls; codex not required.
   {
     "check": "gate: ref-bearing record resolves (kernel + bridge), unit-norm D=8192",
     "ok": true,
-    "detail": "{'ok': True, 'stats': {'clauseCount': 2, 'maxDepth': 2, 'referentCount': 1}, 'D': 8192, 'norm': 1.0000000000000024, 'references': ['urn:kernel-v0:teacher', 'urn:molaug-v0:money'], 'lexiconSize': 85}"
+    "detail": "{'ok': True, 'stats': {'clauseCount': 2, 'maxDepth': 2, 'referentCount': 1}, 'D': 8192, 'norm': 1.0000000000000007, 'references': ['urn:kernel-v0:death', 'urn:molaug-v0:kill'], 'lexiconSize': 85}"
   },
   {
     "check": "gate: flat record still passes (R3 superset)",
@@ -53,6 +53,31 @@ No model calls; codex not required.
     "check": "gate: 9 distinct refs -> ERR_REF_CAP",
     "ok": true,
     "detail": "{'ok': False, 'code': 'ERR_REF_CAP', 'error': '9 distinct references exceeds cap 8'}"
+  },
+  {
+    "check": "closure-safe: 20 referenceable = 14 molecules + 6 bases; residual/transitive/unadjudicated OUT",
+    "ok": true,
+    "detail": "20 safe (14 mol + 6 base)"
+  },
+  {
+    "check": "s5 gate: residual REPAIR ref (duty) FAILS CLOSED -> ERR_REF_NOT_CLOSURE_SAFE",
+    "ok": true,
+    "detail": "{'ok': False, 'stats': {'clauseCount': 1, 'maxDepth': 2, 'referentCount': 1}, 'D': 8192, 'norm': 0.9999999999999968, 'references': ['urn:molaug-v0:duty'], 'lexiconSize': 85, 'code': 'ERR_REF_NOT_CLOSURE_SAFE', 'error': 'non-closure-safe reference(s): urn:molaug-v0:duty'}"
+  },
+  {
+    "check": "s5 gate: transitively-lossy ACCEPT ref (money -> give) FAILS CLOSED",
+    "ok": true,
+    "detail": "{'ok': False, 'stats': {'clauseCount': 1, 'maxDepth': 2, 'referentCount': 1}, 'D': 8192, 'norm': 1.0000000000000022, 'references': ['urn:molaug-v0:money'], 'lexiconSize': 85, 'code': 'ERR_REF_NOT_CLOSURE_SAFE', 'error': 'non-closure-safe reference(s): urn:molaug-v0:money'}"
+  },
+  {
+    "check": "s5 gate: never-adjudicated ref (teacher) FAILS CLOSED",
+    "ok": true,
+    "detail": "{'ok': False, 'stats': {'clauseCount': 1, 'maxDepth': 2, 'referentCount': 1}, 'D': 8192, 'norm': 1.0000000000000002, 'references': ['urn:kernel-v0:teacher'], 'lexiconSize': 85, 'code': 'ERR_REF_NOT_CLOSURE_SAFE', 'error': 'non-closure-safe reference(s): urn:kernel-v0:teacher'}"
+  },
+  {
+    "check": "s5 gate: closure-safe refs (kill + death) NOT closure-blocked",
+    "ok": true,
+    "detail": "{'ok': True, 'stats': {'clauseCount': 2, 'maxDepth': 2, 'referentCount': 1}, 'D': 8192, 'norm': 0.999999999999999, 'references': ['urn:kernel-v0:death', 'urn:molaug-v0:kill'], 'lexiconSize': 85}"
   },
   {
     "check": "gate: real consensus-100 flat record passes unchanged (access.fable5.json)",
@@ -125,6 +150,16 @@ No model calls; codex not required.
     "detail": "ERR_EXPAND_DEPTH"
   },
   {
+    "check": "expand: non-closure-safe ref fails closed under allowed_ids (mol arm)",
+    "ok": true,
+    "detail": "ERR_REF_NOT_CLOSURE_SAFE"
+  },
+  {
+    "check": "expand: closure-safe ref expands under the same restriction",
+    "ok": true,
+    "detail": ""
+  },
+  {
     "check": "stats: Tango score stat at delta=0 == McNemar z (b=1,c=9,n=24)",
     "ok": true,
     "detail": ""
@@ -163,6 +198,11 @@ No model calls; codex not required.
     "check": "expand v2: gate-fail cells recorded for ITT (fake row flat cells + mol-fable)",
     "ok": true,
     "detail": "9 ok / 3 gate-fail"
+  },
+  {
+    "check": "expand v2: non-closure-safe mol ref (simulated gate bypass) -> CLOSURE-FAIL, ITT",
+    "ok": true,
+    "detail": "{'status': 'CLOSURE-FAIL', 'code': 'ERR_REF_NOT_CLOSURE_SAFE', 'detail': 'urn:kernel-v0:teacher', 'record': '/home/ec2-user/css/kernel/kernel-of-truth/poc/scale/molecule-aug/s5-run/selftest/gen-s5/selftest-candidate.fable5.json'}"
   },
   {
     "check": "prep v2: ONE blind 6-hex input per candidate",
@@ -222,7 +262,7 @@ No model calls; codex not required.
   {
     "check": "freeze: live pins verify (only not-yet-built artefacts may be open)",
     "ok": true,
-    "detail": "['fresh_sample_sha256']"
+    "detail": "[]"
   },
   {
     "check": "freeze: tampered pin detected",

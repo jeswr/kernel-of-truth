@@ -1,7 +1,7 @@
 {
   "id": "urn:molaug-v0:country",
   "label": "country",
-  "status": "research-grade",
+  "status": "provisional/model-authored (proxy-adjudicated)",
   "pattern": "InstanceSchema; very-big-place genus + many inhabitants + one authority-kind something doing authority-type acts on all of them + thought-of-as-one",
   "gloss": "A very large inhabited land forming a single political whole: a place where very many people live under one and the same authority, and which its people think of as one thing.",
   "notes": "AST adequacy: lossy — statehood is rendered as one authority-kind something whose authority-type acts are done, at many times, on all the inhabitants of a very big place thought of as one; borders, nationhood, sovereignty among other countries, and the structure of government are dropped.",
@@ -12,24 +12,44 @@
     "schema": "kot-ast/1",
     "frame": "InstanceSchema",
     "referents": [
-      { "index": 1, "refKind": "PlaceRef" },
-      { "index": 2, "refKind": "SomeoneRef" },
-      { "index": 3, "refKind": "SomethingRef" }
+      {
+        "index": 1,
+        "refKind": "PlaceRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      }
     ],
     "clauses": [
       {
         "type": "pred",
         "pred": "BE-SPEC",
         "roles": {
-          "undergoer": { "kind": "ref", "index": 1 },
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
           "attribute": {
             "kind": "sp",
             "head": {
               "kind": "kindFrame",
               "of": {
                 "kind": "sp",
-                "mods": [ { "mod": "BIG", "intensifier": "VERY" } ],
-                "head": { "kind": "primeHead", "prime": "WHERE~PLACE" }
+                "mods": [
+                  {
+                    "mod": "BIG",
+                    "intensifier": "VERY"
+                  }
+                ],
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "WHERE~PLACE"
+                }
               }
             }
           }
@@ -42,10 +62,16 @@
           "undergoer": {
             "kind": "sp",
             "quant": "MUCH~MANY",
-            "head": { "kind": "primeHead", "prime": "PEOPLE" },
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            },
             "bind": 2
           },
-          "place": { "kind": "ref", "index": 1 }
+          "place": {
+            "kind": "ref",
+            "index": 1
+          }
         }
       },
       {
@@ -57,7 +83,10 @@
             "quant": "ONE",
             "head": {
               "kind": "kindFrame",
-              "of": { "kind": "concept", "id": "urn:molaug-v0:authority" }
+              "of": {
+                "kind": "concept",
+                "id": "urn:molaug-v0:authority"
+              }
             },
             "bind": 3
           }
@@ -67,17 +96,29 @@
         "type": "pred",
         "pred": "DO",
         "roles": {
-          "agent": { "kind": "ref", "index": 3 },
+          "agent": {
+            "kind": "ref",
+            "index": 3
+          },
           "undergoer": {
             "kind": "sp",
             "quant": "ALL",
-            "head": { "kind": "refHead", "index": 2 }
+            "head": {
+              "kind": "refHead",
+              "index": 2
+            }
           },
-          "manner": { "kind": "concept", "id": "urn:molaug-v0:authority" },
+          "manner": {
+            "kind": "concept",
+            "id": "urn:molaug-v0:authority"
+          },
           "time": {
             "kind": "sp",
             "quant": "MUCH~MANY",
-            "head": { "kind": "primeHead", "prime": "WHEN~TIME" }
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            }
           }
         }
       },
@@ -85,7 +126,10 @@
         "type": "pred",
         "pred": "THINK",
         "roles": {
-          "experiencer": { "kind": "ref", "index": 2 },
+          "experiencer": {
+            "kind": "ref",
+            "index": 2
+          },
           "quote": {
             "kind": "quote",
             "clauses": [
@@ -93,11 +137,17 @@
                 "type": "pred",
                 "pred": "BE-SPEC",
                 "roles": {
-                  "undergoer": { "kind": "ref", "index": 1 },
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 1
+                  },
                   "attribute": {
                     "kind": "sp",
                     "quant": "ONE",
-                    "head": { "kind": "primeHead", "prime": "SOMETHING~THING" }
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMETHING~THING"
+                    }
                   }
                 }
               }
