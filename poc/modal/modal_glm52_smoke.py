@@ -206,9 +206,19 @@ def smoke_full() -> dict:
     if (time.time() - started) / 3600.0 * RATE_PER_HR > STOP_LOSS_USD:
         return {"placement": placement, "stage": stage, "verdict": "OFFLINE-ONLY",
                 "aborted": "stop-loss $25 reached during staging"}
+    # RAM CAP (2026-07-15 re-run): the first full smoke passed every gate except
+    # RSS<60 GB — colibri's LRU expert-cache auto-budgets 88% of the *instance's*
+    # MemAvailable (RAM_GB=0 -> auto), and the OCI box has ~256 GB, so it filled to
+    # ~245 GB. Pin an explicit ~55 GiB expert-cache budget + disable the auto-raise
+    # so cap_for_ram clamps resident+cache+slack <= 55 GB (RSS < 60 GB gate, headroom).
+    # These reach the engine via os.environ inheritance (smoke_driver.sh copies it);
+    # everything else (cloud=oci, 900 GiB ephemeral, DRAFT=0, probes, gates) identical.
+    os.environ["RAM_GB"] = "55"        # explicit expert-cache RAM budget (GB)
+    os.environ["CAP_RAISE"] = "0"      # disable the LRU auto-raise that filled instance RAM
     report = _run_driver("full", dest, "/colibri/c", tiny_dir if oracle_ok else None, started)
     report["placement"] = placement
     report["oracle_built"] = oracle_ok
+    report["ram_cap"] = {"RAM_GB": os.environ["RAM_GB"], "CAP_RAISE": os.environ["CAP_RAISE"]}
     report["stage"] = stage
     report["elapsed_hr"] = round((time.time() - started) / 3600.0, 3)
     report["est_cost_usd"] = round(report["elapsed_hr"] * RATE_PER_HR, 2)
