@@ -1,0 +1,58 @@
+{
+ "all_selected_hashes_differ": true,
+ "built": "2026-07-15 designer-31 f1k-askability screen ($0, blind)",
+ "certification": "PASS: hashes differ, NLD>=0.20, prompt-hash-diff-rate==1.00, outside-payload-diff==0",
+ "outside_payload_diff_is_0": true,
+ "outside_payload_diff_total": 0,
+ "part": "2 — contrast certification + input freeze",
+ "prepend_renderer": "payload + '\\n\\n' + [BC §R1.1 template] (the production d3-text rule, [BC] OP-9)",
+ "prompt_hash_difference_rate": 1.0,
+ "prompt_hash_difference_rate_is_1": true,
+ "redacted_input_hash_frozen_before_screen": "4f7cf1c6a5b5e92655581ba901ea35ce3c6781e3f5279a7b4181b2d4bafc0359",
+ "rendered_prompt_pairs_total": 9495,
+ "rules": {
+  "dev_n": 96,
+  "n_test": 1440,
+  "nld_min": 0.2,
+  "power": {
+   "R_per_contrast": {
+    "K-1": 1,
+    "K-2": 3,
+    "K-3": 1
+   },
+   "b_flip": 10000,
+   "delta": 0.1,
+   "mu_star": 0.0409,
+   "n_sim": 10000,
+   "power_min": 0.8,
+   "rho_u": 0.1,
+   "seed": 20260713,
+   "t_fire": 0.03
+  },
+  "power_gate_min_m": 8,
+  "prefix_lo": 65,
+  "prepend_renderer": "payload + '\\n\\n' + [BC §R1.1 template] (the production d3-text rule, [BC] OP-9)",
+  "ranking_keys": [
+   "projected_m_test desc",
+   "exclusive_stem_hits desc",
+   "exclusive_total_hits desc",
+   "collision_fraction asc",
+   "synset_urn_bytes asc"
+  ],
+  "reserve_n": 30,
+  "retention_filter": [
+   "existing kernel gloss",
+   "parseable kot-ast/1",
+   "aligned WordNet dictionary gloss",
+   "clean triggers (>=1, WORD_RE-valid)",
+   "no header/cue/label collision",
+   "projected m_test >= 8"
+  ],
+  "select_n": 96,
+  "verdict_band_C": [
+   80,
+   100
+  ]
+ },
+ "rules_hash": "cc14544d3ca7bb80ef0c43ae721a33ccbfeeff3c98a2f6a1caf61564de66ad55"
+}

@@ -1,0 +1,55 @@
+========================================================================
+F1-K/K-3 askability + coverage screen ($0, blind) — 2026-07-15 designer-31 f1k-askability screen ($0, blind)
+========================================================================
+
+[PART 1] pool + selection
+  joined kernel-v0+v1 records: 154 raw -> 153 synset-deduped (0 dropped)
+  retention pre-filter: 153 records pass gloss+ast+WNgloss+triggers (rej {'no_gloss': 0, 'no_ast': 0, 'no_wn_gloss': 0, 'no_triggers': 0})
+  header/cue/label collisions: 0 concepts flagged (excluded)
+  redacted-input FROZEN: 19311 items, hash 4f7cf1c6a5b5… ; rules hash cc14544d3ca7…
+  survivors (projected m>=8, header-clean): 116
+  selected: 96 ; reserve: 20
+
+[PART 2] contrast / distinctness certification
+  selected concepts passing contrast (C_contrast): 96/96
+  NLD over selected: min 0.387  median 0.738  max 0.893
+  prompt-hash-diff-rate (all rendered pairs): 1.000000 ; outside-payload-diff total: 0
+
+[PART 3] coverage + exact-power sweep
+  C=65 m_min=22 m_mean=22.15  K-1=0.768 K-2=0.773 K-3=0.767  -
+  C=66 m_min=21 m_mean=21.82  K-1=0.778 K-2=0.768 K-3=0.774  -
+  C=67 m_min=21 m_mean=21.49  K-1=0.768 K-2=0.773 K-3=0.776  -
+  C=68 m_min=20 m_mean=21.18  K-1=0.774 K-2=0.780 K-3=0.774  -
+  C=69 m_min=20 m_mean=20.87  K-1=0.776 K-2=0.780 K-3=0.776  -
+  C=70 m_min=20 m_mean=20.57  K-1=0.779 K-2=0.775 K-3=0.786  -
+  C=71 m_min=19 m_mean=20.28  K-1=0.779 K-2=0.779 K-3=0.774  -
+  C=72 m_min=19 m_mean=20.00  K-1=0.776 K-2=0.778 K-3=0.774  -
+  C=73 m_min=18 m_mean=19.73  K-1=0.782 K-2=0.786 K-3=0.786  -
+  C=74 m_min=18 m_mean=19.46  K-1=0.784 K-2=0.789 K-3=0.777  -
+  C=75 m_min=16 m_mean=19.20  K-1=0.782 K-2=0.784 K-3=0.786  -
+  C=76 m_min=16 m_mean=18.95  K-1=0.779 K-2=0.778 K-3=0.783  -
+  C=77 m_min=16 m_mean=18.70  K-1=0.777 K-2=0.784 K-3=0.781  -
+  C=78 m_min=16 m_mean=18.46  K-1=0.781 K-2=0.790 K-3=0.782  -
+  C=79 m_min=15 m_mean=18.23  K-1=0.788 K-2=0.780 K-3=0.788  -
+  C=80 m_min=15 m_mean=18.00  K-1=0.788 K-2=0.780 K-3=0.786  -
+  C=81 m_min=14 m_mean=17.78  K-1=0.782 K-2=0.790 K-3=0.787  -
+  C=82 m_min=14 m_mean=17.56  K-1=0.784 K-2=0.784 K-3=0.785  -
+  C=83 m_min=14 m_mean=17.35  K-1=0.793 K-2=0.795 K-3=0.788  -
+  C=84 m_min=14 m_mean=17.14  K-1=0.789 K-2=0.795 K-3=0.791  -
+  C=85 m_min=13 m_mean=16.94  K-1=0.789 K-2=0.792 K-3=0.788  -
+  C=86 m_min=13 m_mean=16.74  K-1=0.794 K-2=0.790 K-3=0.794  -
+  C=87 m_min=13 m_mean=16.55  K-1=0.793 K-2=0.801 K-3=0.798  -
+  C=88 m_min=12 m_mean=16.36  K-1=0.791 K-2=0.796 K-3=0.791  -
+  C=89 m_min=12 m_mean=16.18  K-1=0.793 K-2=0.798 K-3=0.790  -
+  C=90 m_min=12 m_mean=16.00  K-1=0.793 K-2=0.800 K-3=0.798  -
+  C=91 m_min=12 m_mean=15.82  K-1=0.792 K-2=0.803 K-3=0.798  -
+  C=92 m_min=12 m_mean=15.65  K-1=0.806 K-2=0.796 K-3=0.801  -
+  C=93 m_min=11 m_mean=15.48  K-1=0.796 K-2=0.798 K-3=0.800  -
+  C=94 m_min=11 m_mean=15.32  K-1=0.798 K-2=0.802 K-3=0.795  -
+  C=95 m_min=10 m_mean=15.16  K-1=0.806 K-2=0.795 K-3=0.811  -
+  C=96 m_min=10 m_mean=15.00  K-1=0.801 K-2=0.802 K-3=0.795  -
+
+[PART 4] verdict
+  VERDICT: NOT-ASKABLE-AT-SCALE   (operating C=None, C_contrast=96, smallest passing prefix=None)
+  headline: K-3 joint power at mu*=+4.09 pts, C=96 -> 0.7955
+  reports under poc/f1k-askability/reports/
