@@ -1,0 +1,182 @@
+record id: urn:molaug-v0:hot
+label: hot (heat)
+gloss: Of a thing: at a high temperature, so that a person who touches it feels something bad in the body, contact of any duration harms the flesh, and its presence can be felt from nearby without touch.
+notes (self-flag): AST adequacy: lossy — temperature as a graded physical magnitude is not renderable: hot is approximated by the touch-to-bad-feeling reaction pattern with harm under sustained contact and feel-at-a-distance; mildly or pleasantly hot things are overstated as bad, and the canonical link to fire is dropped (fire is not in the lexicon).
+references: (none)
+mechanical lemma-collision warnings: (none)
+
+=== EXPANDED RENDERING (judge THIS: recursively inlined, prime-only) ===
+{
+ "schema": "kot-ast/1",
+ "frame": "WhenTrue",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomeoneRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "op",
+   "op": "WHEN",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "BE-SOMEWHERE",
+     "roles": {
+      "undergoer": {
+       "kind": "sp",
+       "det": "SOME",
+       "head": {
+        "kind": "primeHead",
+        "prime": "SOMEONE"
+       },
+       "bind": 2
+      },
+      "locus": {
+       "kind": "ref",
+       "index": 1
+      },
+      "manner": {
+       "kind": "prime",
+       "prime": "TOUCH"
+      }
+     }
+    },
+    {
+     "type": "pred",
+     "pred": "FEEL",
+     "roles": {
+      "experiencer": {
+       "kind": "ref",
+       "index": 2
+      },
+      "attribute": {
+       "kind": "prime",
+       "prime": "BAD"
+      },
+      "place": {
+       "kind": "sp",
+       "head": {
+        "kind": "primeHead",
+        "prime": "BODY"
+       }
+      }
+     }
+    }
+   ]
+  },
+  {
+   "type": "op",
+   "op": "IF",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "BE-SOMEWHERE",
+     "roles": {
+      "undergoer": {
+       "kind": "ref",
+       "index": 2
+      },
+      "locus": {
+       "kind": "ref",
+       "index": 1
+      },
+      "manner": {
+       "kind": "prime",
+       "prime": "TOUCH"
+      },
+      "duration": {
+       "kind": "prime",
+       "prime": "FOR-SOME-TIME"
+      }
+     }
+    },
+    {
+     "type": "pred",
+     "pred": "HAPPEN",
+     "roles": {
+      "undergoer": {
+       "kind": "sp",
+       "det": "SOME",
+       "mods": [
+        {
+         "mod": "BAD",
+         "intensifier": "VERY"
+        }
+       ],
+       "head": {
+        "kind": "primeHead",
+        "prime": "SOMETHING~THING"
+       }
+      },
+      "place": {
+       "kind": "sp",
+       "head": {
+        "kind": "partFrame",
+        "of": {
+         "kind": "sp",
+         "head": {
+          "kind": "primeHead",
+          "prime": "BODY"
+         }
+        }
+       }
+      }
+     }
+    }
+   ]
+  },
+  {
+   "type": "op",
+   "op": "WHEN",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "BE-SOMEWHERE",
+     "roles": {
+      "undergoer": {
+       "kind": "ref",
+       "index": 2
+      },
+      "locus": {
+       "kind": "ref",
+       "index": 1
+      },
+      "manner": {
+       "kind": "prime",
+       "prime": "NEAR"
+      }
+     }
+    },
+    {
+     "type": "op",
+     "op": "CAN",
+     "args": [
+      {
+       "type": "pred",
+       "pred": "FEEL",
+       "roles": {
+        "experiencer": {
+         "kind": "ref",
+         "index": 2
+        },
+        "place": {
+         "kind": "sp",
+         "head": {
+          "kind": "primeHead",
+          "prime": "BODY"
+         }
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

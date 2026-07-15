@@ -1,7 +1,7 @@
 {
   "id": "urn:molaug-v0:worth",
   "label": "worth (X is the worth of thing Y)",
-  "status": "research-grade",
+  "status": "provisional/model-authored (proxy-adjudicated)",
   "pattern": "RelationalSchema; money-kind relatum + willingness-to-give conditional + IS-MINE exchange closure",
   "gloss": "The value of a thing as reckoned in exchange: that money which one who wants the thing is willing to give in order to have it.",
   "notes": "AST adequacy: lossy — quantitative degree ('how much') is not renderable, so worth is fixed only as the money a wanting person would give, with the exchange closed by the possession idiom; non-market value (sentimental, moral, use-value) and price-versus-value distinctions are dropped.",
@@ -13,21 +13,36 @@
     "schema": "kot-ast/1",
     "frame": "RelationalSchema",
     "referents": [
-      { "index": 1, "refKind": "SomethingRef" },
-      { "index": 2, "refKind": "SomethingRef" },
-      { "index": 3, "refKind": "SomeoneRef" }
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomeoneRef"
+      }
     ],
     "clauses": [
       {
         "type": "pred",
         "pred": "BE-SPEC",
         "roles": {
-          "undergoer": { "kind": "ref", "index": 1 },
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
           "attribute": {
             "kind": "sp",
             "head": {
               "kind": "kindFrame",
-              "of": { "kind": "concept", "id": "urn:molaug-v0:money" }
+              "of": {
+                "kind": "concept",
+                "id": "urn:molaug-v0:money"
+              }
             }
           }
         }
@@ -43,26 +58,44 @@
               "experiencer": {
                 "kind": "sp",
                 "det": "SOME",
-                "head": { "kind": "primeHead", "prime": "SOMEONE" },
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMEONE"
+                },
                 "bind": 3
               },
-              "complement": { "kind": "ref", "index": 2 }
+              "complement": {
+                "kind": "ref",
+                "index": 2
+              }
             }
           },
           {
             "type": "pred",
             "pred": "WANT",
             "roles": {
-              "experiencer": { "kind": "ref", "index": 3 },
+              "experiencer": {
+                "kind": "ref",
+                "index": 3
+              },
               "complement": {
                 "kind": "clause",
                 "clause": {
                   "type": "pred",
                   "pred": "DO",
                   "roles": {
-                    "agent": { "kind": "ref", "index": 3 },
-                    "undergoer": { "kind": "ref", "index": 1 },
-                    "manner": { "kind": "concept", "id": "urn:kernel-v0:give" }
+                    "agent": {
+                      "kind": "ref",
+                      "index": 3
+                    },
+                    "undergoer": {
+                      "kind": "ref",
+                      "index": 1
+                    },
+                    "manner": {
+                      "kind": "concept",
+                      "id": "urn:kernel-v0:give"
+                    }
                   }
                 }
               }
@@ -78,9 +111,18 @@
             "type": "pred",
             "pred": "DO",
             "roles": {
-              "agent": { "kind": "ref", "index": 3 },
-              "undergoer": { "kind": "ref", "index": 1 },
-              "manner": { "kind": "concept", "id": "urn:kernel-v0:give" }
+              "agent": {
+                "kind": "ref",
+                "index": 3
+              },
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "manner": {
+                "kind": "concept",
+                "id": "urn:kernel-v0:give"
+              }
             }
           },
           {
@@ -91,7 +133,10 @@
                 "type": "pred",
                 "pred": "SAY",
                 "roles": {
-                  "agent": { "kind": "ref", "index": 3 },
+                  "agent": {
+                    "kind": "ref",
+                    "index": 3
+                  },
                   "quote": {
                     "kind": "quote",
                     "clauses": [
@@ -99,8 +144,14 @@
                         "type": "pred",
                         "pred": "IS-MINE",
                         "roles": {
-                          "undergoer": { "kind": "ref", "index": 2 },
-                          "possessor": { "kind": "prime", "prime": "I" }
+                          "undergoer": {
+                            "kind": "ref",
+                            "index": 2
+                          },
+                          "possessor": {
+                            "kind": "prime",
+                            "prime": "I"
+                          }
                         }
                       }
                     ]

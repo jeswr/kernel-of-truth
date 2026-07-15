@@ -1,0 +1,60 @@
+{
+  "judge": "F2",
+  "model": "claude-opus-4-8",
+  "record": "urn:molaug-v0:food",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 8.3,
+        "cost_usd": 0.0526375,
+        "duration_api_ms": 6232,
+        "usage": {
+          "input_tokens": 2,
+          "cache_creation_input_tokens": 4309,
+          "cache_read_input_tokens": 1299,
+          "output_tokens": 188,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 4309,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "not_available",
+          "iterations": [
+            {
+              "input_tokens": 2,
+              "output_tokens": 188,
+              "cache_read_input_tokens": 1299,
+              "cache_creation_input_tokens": 4309,
+              "cache_creation": {
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 4309
+              },
+              "type": "message"
+            }
+          ],
+          "speed": "standard"
+        },
+        "model_usage_keys": [
+          "claude-haiku-4-5-20251001",
+          "claude-opus-4-8"
+        ]
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "review": {
+    "id": "urn:molaug-v0:food",
+    "verdict": "ACCEPT",
+    "gloss_scholarly": true,
+    "explication_carries_gloss": true,
+    "self_flag_correct": true,
+    "sense_collision_free": true,
+    "reason": "Gloss is genus-differentia (kind of thing / people eat / body kept alive); rendering encodes thing-kind, people-eat-it, because-can-live, and if-not-eaten-for-long-cannot-live, carrying the criterial edible-and-life-sustaining core; faithful self-flag is honest."
+  }
+}

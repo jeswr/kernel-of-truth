@@ -1,0 +1,109 @@
+record id: urn:kernel-v0:event
+label: event
+gloss: this something happens at some time; after this time, it is not happening; people can know: it happened (before).
+notes (self-flag): The gist's clause-3 bare time adjunct `p:BEFORE` is rendered as the temporal-anchor filler BEFORE(NOW): kot-ast/1 time adjuncts admit SP/ref/NOW/temporal-anchor only (validate.ts), and anchor-only BEFORE is exactly the TemporalAnchorFiller case (ast.ts, gist §4.5).
+references: (none)
+mechanical lemma-collision warnings: (none)
+
+=== EXPANDED RENDERING (judge THIS: recursively inlined, prime-only) ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 2,
+   "refKind": "TimeRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "HAPPEN",
+   "roles": {
+    "undergoer": {
+     "kind": "ref",
+     "index": 1
+    },
+    "time": {
+     "kind": "sp",
+     "head": {
+      "kind": "primeHead",
+      "prime": "WHEN~TIME"
+     },
+     "det": "SOME",
+     "bind": 2
+    }
+   }
+  },
+  {
+   "type": "op",
+   "op": "AFTER",
+   "args": [
+    {
+     "kind": "ref",
+     "index": 2
+    },
+    {
+     "type": "op",
+     "op": "NOT",
+     "args": [
+      {
+       "type": "pred",
+       "pred": "HAPPEN",
+       "roles": {
+        "undergoer": {
+         "kind": "ref",
+         "index": 1
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "op",
+   "op": "CAN",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "KNOW",
+     "roles": {
+      "experiencer": {
+       "kind": "sp",
+       "head": {
+        "kind": "primeHead",
+        "prime": "PEOPLE"
+       }
+      },
+      "complement": {
+       "kind": "clause",
+       "clause": {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+         "undergoer": {
+          "kind": "ref",
+          "index": 1
+         },
+         "time": {
+          "kind": "temporal",
+          "op": "BEFORE",
+          "anchor": {
+           "kind": "prime",
+           "prime": "NOW"
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   ]
+  }
+ ]
+}

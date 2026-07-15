@@ -1,7 +1,7 @@
 {
   "id": "urn:molaug-v0:sex",
   "label": "sex (mating)",
-  "status": "research-grade",
+  "status": "provisional/model-authored (proxy-adjudicated)",
   "pattern": "InstanceSchema; two-agent bodily act + felt-good clause + man/woman-conditioned birth-possibility",
   "gloss": "Bodily activity in which two people engage together, characteristically pleasurable, and of the kind such that when the partners are a man and a woman a birth can later come of it.",
   "notes": "AST adequacy: lossy — the specifically genital character and the erotic quality of the act are beyond the primes; rendered as joint two-person bodily doing, felt bodily pleasure, and the man-woman-conditioned birth linkage, which underdetermines the act against other joint bodily activity.",
@@ -14,9 +14,18 @@
     "schema": "kot-ast/1",
     "frame": "InstanceSchema",
     "referents": [
-      { "index": 1, "refKind": "SomethingRef" },
-      { "index": 2, "refKind": "SomeoneRef" },
-      { "index": 3, "refKind": "TimeRef" }
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "TimeRef"
+      }
     ],
     "clauses": [
       {
@@ -26,19 +35,31 @@
           "agent": {
             "kind": "sp",
             "quant": "TWO",
-            "head": { "kind": "primeHead", "prime": "PEOPLE" },
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            },
             "bind": 2
           },
-          "undergoer": { "kind": "ref", "index": 1 },
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
           "instrument": {
             "kind": "sp",
             "quant": "TWO",
-            "head": { "kind": "primeHead", "prime": "BODY" }
+            "head": {
+              "kind": "primeHead",
+              "prime": "BODY"
+            }
           },
           "time": {
             "kind": "sp",
             "det": "SOME",
-            "head": { "kind": "primeHead", "prime": "WHEN~TIME" },
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
             "bind": 3
           }
         }
@@ -51,19 +72,34 @@
             "type": "pred",
             "pred": "DO",
             "roles": {
-              "agent": { "kind": "ref", "index": 2 },
-              "undergoer": { "kind": "ref", "index": 1 }
+              "agent": {
+                "kind": "ref",
+                "index": 2
+              },
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              }
             }
           },
           {
             "type": "pred",
             "pred": "FEEL",
             "roles": {
-              "experiencer": { "kind": "ref", "index": 2 },
-              "attribute": { "kind": "prime", "prime": "GOOD" },
+              "experiencer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "attribute": {
+                "kind": "prime",
+                "prime": "GOOD"
+              },
               "place": {
                 "kind": "sp",
-                "head": { "kind": "primeHead", "prime": "BODY" }
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "BODY"
+                }
               }
             }
           }
@@ -80,13 +116,19 @@
               "undergoer": {
                 "kind": "sp",
                 "quant": "ONE",
-                "head": { "kind": "refHead", "index": 2 }
+                "head": {
+                  "kind": "refHead",
+                  "index": 2
+                }
               },
               "attribute": {
                 "kind": "sp",
                 "head": {
                   "kind": "kindFrame",
-                  "of": { "kind": "concept", "id": "urn:molaug-v0:man" }
+                  "of": {
+                    "kind": "concept",
+                    "id": "urn:molaug-v0:man"
+                  }
                 }
               }
             }
@@ -103,13 +145,19 @@
                     "kind": "sp",
                     "det": "OTHER~ELSE~ANOTHER",
                     "quant": "ONE",
-                    "head": { "kind": "refHead", "index": 2 }
+                    "head": {
+                      "kind": "refHead",
+                      "index": 2
+                    }
                   },
                   "attribute": {
                     "kind": "sp",
                     "head": {
                       "kind": "kindFrame",
-                      "of": { "kind": "concept", "id": "urn:molaug-v0:woman" }
+                      "of": {
+                        "kind": "concept",
+                        "id": "urn:molaug-v0:woman"
+                      }
                     }
                   }
                 }
@@ -122,7 +170,10 @@
                     "type": "pred",
                     "pred": "HAPPEN",
                     "roles": {
-                      "undergoer": { "kind": "ref", "index": 1 }
+                      "undergoer": {
+                        "kind": "ref",
+                        "index": 1
+                      }
                     }
                   },
                   {
@@ -137,13 +188,19 @@
                             "kind": "sp",
                             "head": {
                               "kind": "kindFrame",
-                              "of": { "kind": "concept", "id": "urn:kernel-v0:birth" }
+                              "of": {
+                                "kind": "concept",
+                                "id": "urn:kernel-v0:birth"
+                              }
                             }
                           },
                           "time": {
                             "kind": "temporal",
                             "op": "AFTER",
-                            "anchor": { "kind": "ref", "index": 3 }
+                            "anchor": {
+                              "kind": "ref",
+                              "index": 3
+                            }
                           }
                         }
                       }

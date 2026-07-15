@@ -1,0 +1,97 @@
+record id: urn:kernel-v0:make
+label: make (X makes Y)
+gloss: because X did something at some time, there is this something; before this time it was not.
+notes (self-flag): (none)
+references: (none)
+mechanical lemma-collision warnings: (none)
+
+=== EXPANDED RENDERING (judge THIS: recursively inlined, prime-only) ===
+{
+ "schema": "kot-ast/1",
+ "frame": "RelationalSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 3,
+   "refKind": "TimeRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "op",
+   "op": "BECAUSE",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "DO",
+     "roles": {
+      "agent": {
+       "kind": "ref",
+       "index": 1
+      },
+      "undergoer": {
+       "kind": "sp",
+       "head": {
+        "kind": "primeHead",
+        "prime": "SOMETHING~THING"
+       },
+       "quant": "SOME"
+      },
+      "time": {
+       "kind": "sp",
+       "head": {
+        "kind": "primeHead",
+        "prime": "WHEN~TIME"
+       },
+       "det": "SOME",
+       "bind": 3
+      }
+     }
+    },
+    {
+     "type": "pred",
+     "pred": "THERE-IS",
+     "roles": {
+      "undergoer": {
+       "kind": "ref",
+       "index": 2
+      }
+     }
+    }
+   ]
+  },
+  {
+   "type": "op",
+   "op": "BEFORE",
+   "args": [
+    {
+     "kind": "ref",
+     "index": 3
+    },
+    {
+     "type": "op",
+     "op": "NOT",
+     "args": [
+      {
+       "type": "pred",
+       "pred": "THERE-IS",
+       "roles": {
+        "undergoer": {
+         "kind": "ref",
+         "index": 2
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

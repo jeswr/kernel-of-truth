@@ -1,0 +1,201 @@
+record id: urn:kernel-v0:give
+label: give (X gives Y to someone)
+gloss: X does something with Y at some time; before this time X could say 'Y is mine'; after this time another someone can say 'Y is mine' and X cannot.
+notes (self-flag): (none)
+references: (none)
+mechanical lemma-collision warnings: (none)
+
+=== EXPANDED RENDERING (judge THIS: recursively inlined, prime-only) ===
+{
+ "schema": "kot-ast/1",
+ "frame": "RelationalSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 3,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 4,
+   "refKind": "TimeRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "DO",
+   "roles": {
+    "agent": {
+     "kind": "ref",
+     "index": 1
+    },
+    "undergoer": {
+     "kind": "ref",
+     "index": 2
+    },
+    "time": {
+     "kind": "sp",
+     "head": {
+      "kind": "primeHead",
+      "prime": "WHEN~TIME"
+     },
+     "det": "SOME",
+     "bind": 4
+    }
+   }
+  },
+  {
+   "type": "op",
+   "op": "BEFORE",
+   "args": [
+    {
+     "kind": "ref",
+     "index": 4
+    },
+    {
+     "type": "op",
+     "op": "CAN",
+     "args": [
+      {
+       "type": "pred",
+       "pred": "SAY",
+       "roles": {
+        "agent": {
+         "kind": "ref",
+         "index": 1
+        },
+        "quote": {
+         "kind": "quote",
+         "clauses": [
+          {
+           "type": "pred",
+           "pred": "IS-MINE",
+           "roles": {
+            "undergoer": {
+             "kind": "ref",
+             "index": 2
+            },
+            "possessor": {
+             "kind": "prime",
+             "prime": "I"
+            }
+           }
+          }
+         ]
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "op",
+   "op": "AFTER",
+   "args": [
+    {
+     "kind": "ref",
+     "index": 4
+    },
+    {
+     "type": "op",
+     "op": "CAN",
+     "args": [
+      {
+       "type": "pred",
+       "pred": "SAY",
+       "roles": {
+        "agent": {
+         "kind": "sp",
+         "head": {
+          "kind": "primeHead",
+          "prime": "SOMEONE"
+         },
+         "det": "OTHER~ELSE~ANOTHER",
+         "bind": 3
+        },
+        "quote": {
+         "kind": "quote",
+         "clauses": [
+          {
+           "type": "pred",
+           "pred": "IS-MINE",
+           "roles": {
+            "undergoer": {
+             "kind": "ref",
+             "index": 2
+            },
+            "possessor": {
+             "kind": "prime",
+             "prime": "I"
+            }
+           }
+          }
+         ]
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "op",
+   "op": "AFTER",
+   "args": [
+    {
+     "kind": "ref",
+     "index": 4
+    },
+    {
+     "type": "op",
+     "op": "NOT",
+     "args": [
+      {
+       "type": "op",
+       "op": "CAN",
+       "args": [
+        {
+         "type": "pred",
+         "pred": "SAY",
+         "roles": {
+          "agent": {
+           "kind": "ref",
+           "index": 1
+          },
+          "quote": {
+           "kind": "quote",
+           "clauses": [
+            {
+             "type": "pred",
+             "pred": "IS-MINE",
+             "roles": {
+              "undergoer": {
+               "kind": "ref",
+               "index": 2
+              },
+              "possessor": {
+               "kind": "prime",
+               "prime": "I"
+              }
+             }
+            }
+           ]
+          }
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

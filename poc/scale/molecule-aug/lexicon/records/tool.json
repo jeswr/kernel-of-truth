@@ -1,7 +1,7 @@
 {
   "id": "urn:molaug-v0:tool",
   "label": "tool",
-  "status": "research-grade",
+  "status": "provisional/model-authored (proxy-adjudicated)",
   "pattern": "InstanceSchema; made-for-instrumental-use (make-manner) + beyond-body capability + habitual instrument use",
   "gloss": "A thing made in order to be used: an object that people fashion so that, doing things with it, they can do what the body alone cannot.",
   "notes": "AST adequacy: faithful — made-because-wanted-as-instrument, the beyond-bare-body differentia, and habitual instrumental use are rendered via the make reference and the instrument role; hand-held manipulation and the tool/machine boundary are left to the machine record.",
@@ -12,8 +12,14 @@
     "schema": "kot-ast/1",
     "frame": "InstanceSchema",
     "referents": [
-      { "index": 1, "refKind": "SomethingRef" },
-      { "index": 2, "refKind": "SomethingRef" }
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
     ],
     "clauses": [
       {
@@ -26,7 +32,10 @@
             "roles": {
               "experiencer": {
                 "kind": "sp",
-                "head": { "kind": "primeHead", "prime": "PEOPLE" }
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "PEOPLE"
+                }
               },
               "complement": {
                 "kind": "clause",
@@ -40,16 +49,25 @@
                       "roles": {
                         "agent": {
                           "kind": "sp",
-                          "head": { "kind": "primeHead", "prime": "PEOPLE" }
+                          "head": {
+                            "kind": "primeHead",
+                            "prime": "PEOPLE"
+                          }
                         },
                         "undergoer": {
                           "kind": "sp",
                           "det": "OTHER~ELSE~ANOTHER",
                           "quant": "SOME",
-                          "head": { "kind": "primeHead", "prime": "SOMETHING~THING" },
+                          "head": {
+                            "kind": "primeHead",
+                            "prime": "SOMETHING~THING"
+                          },
                           "bind": 2
                         },
-                        "instrument": { "kind": "ref", "index": 1 }
+                        "instrument": {
+                          "kind": "ref",
+                          "index": 1
+                        }
                       }
                     }
                   ]
@@ -63,10 +81,19 @@
             "roles": {
               "agent": {
                 "kind": "sp",
-                "head": { "kind": "primeHead", "prime": "PEOPLE" }
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "PEOPLE"
+                }
               },
-              "undergoer": { "kind": "ref", "index": 1 },
-              "manner": { "kind": "concept", "id": "urn:kernel-v0:make" }
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "manner": {
+                "kind": "concept",
+                "id": "urn:kernel-v0:make"
+              }
             }
           }
         ]
@@ -85,12 +112,21 @@
                 "roles": {
                   "agent": {
                     "kind": "sp",
-                    "head": { "kind": "primeHead", "prime": "PEOPLE" }
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "PEOPLE"
+                    }
                   },
-                  "undergoer": { "kind": "ref", "index": 2 },
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 2
+                  },
                   "instrument": {
                     "kind": "sp",
-                    "head": { "kind": "primeHead", "prime": "BODY" }
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "BODY"
+                    }
                   }
                 }
               }
@@ -104,14 +140,26 @@
         "roles": {
           "agent": {
             "kind": "sp",
-            "head": { "kind": "primeHead", "prime": "PEOPLE" }
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            }
           },
-          "undergoer": { "kind": "ref", "index": 2 },
-          "instrument": { "kind": "ref", "index": 1 },
+          "undergoer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "instrument": {
+            "kind": "ref",
+            "index": 1
+          },
           "time": {
             "kind": "sp",
             "quant": "MUCH~MANY",
-            "head": { "kind": "primeHead", "prime": "WHEN~TIME" }
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            }
           }
         }
       }

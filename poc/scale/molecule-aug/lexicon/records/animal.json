@@ -1,7 +1,7 @@
 {
   "id": "urn:molaug-v0:animal",
   "label": "animal",
-  "status": "research-grade",
+  "status": "provisional/model-authored (proxy-adjudicated)",
   "pattern": "InstanceSchema; sentient-creature property bundle + non-person negations",
   "gloss": "A living creature other than a human being: one that can move itself about and can see and feel, but cannot speak, nor think in the way people think.",
   "notes": "AST adequacy: faithful — the folk intension (living, self-moving, sentient, non-human, non-speaking, not people-minded) is rendered; the taxonomic creature-kind genus is carried by the property bundle rather than a biological category, per NSM practice for this universal molecule.",
@@ -10,14 +10,20 @@
     "schema": "kot-ast/1",
     "frame": "InstanceSchema",
     "referents": [
-      { "index": 1, "refKind": "SomethingRef" }
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      }
     ],
     "clauses": [
       {
         "type": "pred",
         "pred": "LIVE",
         "roles": {
-          "undergoer": { "kind": "ref", "index": 1 }
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          }
         }
       },
       {
@@ -28,7 +34,10 @@
             "type": "pred",
             "pred": "MOVE",
             "roles": {
-              "undergoer": { "kind": "ref", "index": 1 }
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              }
             }
           }
         ]
@@ -41,11 +50,17 @@
             "type": "pred",
             "pred": "SEE",
             "roles": {
-              "experiencer": { "kind": "ref", "index": 1 },
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
               "stimulus": {
                 "kind": "sp",
                 "quant": "MUCH~MANY",
-                "head": { "kind": "primeHead", "prime": "SOMETHING~THING" }
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                }
               }
             }
           }
@@ -59,7 +74,10 @@
             "type": "pred",
             "pred": "FEEL",
             "roles": {
-              "experiencer": { "kind": "ref", "index": 1 }
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              }
             }
           }
         ]
@@ -72,14 +90,20 @@
             "type": "pred",
             "pred": "BE-SPEC",
             "roles": {
-              "undergoer": { "kind": "ref", "index": 1 },
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              },
               "attribute": {
                 "kind": "sp",
                 "head": {
                   "kind": "kindFrame",
                   "of": {
                     "kind": "sp",
-                    "head": { "kind": "primeHead", "prime": "SOMEONE" }
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMEONE"
+                    }
                   }
                 }
               }
@@ -99,10 +123,16 @@
                 "type": "pred",
                 "pred": "SAY",
                 "roles": {
-                  "agent": { "kind": "ref", "index": 1 },
+                  "agent": {
+                    "kind": "ref",
+                    "index": 1
+                  },
                   "topic": {
                     "kind": "sp",
-                    "head": { "kind": "primeHead", "prime": "WORDS" }
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "WORDS"
+                    }
                   }
                 }
               }
@@ -122,10 +152,16 @@
                 "type": "pred",
                 "pred": "THINK",
                 "roles": {
-                  "experiencer": { "kind": "ref", "index": 1 },
+                  "experiencer": {
+                    "kind": "ref",
+                    "index": 1
+                  },
                   "manner": {
                     "kind": "sp",
-                    "head": { "kind": "primeHead", "prime": "PEOPLE" }
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "PEOPLE"
+                    }
                   }
                 }
               }

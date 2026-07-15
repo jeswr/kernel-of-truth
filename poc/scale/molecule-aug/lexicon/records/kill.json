@@ -1,7 +1,7 @@
 {
   "id": "urn:molaug-v0:kill",
   "label": "kill (X kills Y)",
-  "status": "research-grade",
+  "status": "provisional/model-authored (proxy-adjudicated)",
   "pattern": "RelationalSchema; DO-to-DIE causation + death-kind event reference at the bound time",
   "gloss": "To do something to a living being from which its dying results: to cause, by one's act upon it, the death of that being.",
   "notes": "AST adequacy: faithful — causing-to-die is the criterial content and is fully rendered (prior life, act, DIE as effect, a death-kind event at that time); directness of means and intent are pragmatic shadings, not rendered.",
@@ -12,21 +12,39 @@
     "schema": "kot-ast/1",
     "frame": "RelationalSchema",
     "referents": [
-      { "index": 1, "refKind": "SomeoneRef" },
-      { "index": 2, "refKind": "SomethingRef" },
-      { "index": 3, "refKind": "TimeRef" }
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "TimeRef"
+      }
     ],
     "clauses": [
       {
         "type": "pred",
         "pred": "DO",
         "roles": {
-          "agent": { "kind": "ref", "index": 1 },
-          "undergoer": { "kind": "ref", "index": 2 },
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "ref",
+            "index": 2
+          },
           "time": {
             "kind": "sp",
             "det": "SOME",
-            "head": { "kind": "primeHead", "prime": "WHEN~TIME" },
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
             "bind": 3
           }
         }
@@ -35,12 +53,18 @@
         "type": "op",
         "op": "BEFORE",
         "args": [
-          { "kind": "ref", "index": 3 },
+          {
+            "kind": "ref",
+            "index": 3
+          },
           {
             "type": "pred",
             "pred": "LIVE",
             "roles": {
-              "undergoer": { "kind": "ref", "index": 2 }
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              }
             }
           }
         ]
@@ -53,15 +77,24 @@
             "type": "pred",
             "pred": "DO",
             "roles": {
-              "agent": { "kind": "ref", "index": 1 },
-              "undergoer": { "kind": "ref", "index": 2 }
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              }
             }
           },
           {
             "type": "pred",
             "pred": "DIE",
             "roles": {
-              "undergoer": { "kind": "ref", "index": 2 }
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              }
             }
           }
         ]
@@ -74,10 +107,16 @@
             "kind": "sp",
             "head": {
               "kind": "kindFrame",
-              "of": { "kind": "concept", "id": "urn:kernel-v0:death" }
+              "of": {
+                "kind": "concept",
+                "id": "urn:kernel-v0:death"
+              }
             }
           },
-          "time": { "kind": "ref", "index": 3 }
+          "time": {
+            "kind": "ref",
+            "index": 3
+          }
         }
       }
     ]

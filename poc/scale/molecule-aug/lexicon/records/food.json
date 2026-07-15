@@ -1,7 +1,7 @@
 {
   "id": "urn:molaug-v0:food",
   "label": "food",
-  "status": "research-grade",
+  "status": "provisional/model-authored (proxy-adjudicated)",
   "pattern": "InstanceSchema; kind-genus + habitual eat-manner reference + life-sustaining BECAUSE",
   "gloss": "That which is eaten in order to live: things of a kind that people take into the body as nourishment, and by which the body is kept alive.",
   "notes": "AST adequacy: faithful — edible-and-life-sustaining is the criterial content and is rendered via the eat reference and the can-live linkage; nutritional mechanism is encyclopedic, and the extension to animal food rides on the eat reference rather than being stated.",
@@ -12,21 +12,30 @@
     "schema": "kot-ast/1",
     "frame": "InstanceSchema",
     "referents": [
-      { "index": 1, "refKind": "SomethingRef" }
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      }
     ],
     "clauses": [
       {
         "type": "pred",
         "pred": "BE-SPEC",
         "roles": {
-          "undergoer": { "kind": "ref", "index": 1 },
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
           "attribute": {
             "kind": "sp",
             "head": {
               "kind": "kindFrame",
               "of": {
                 "kind": "sp",
-                "head": { "kind": "primeHead", "prime": "SOMETHING~THING" }
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                }
               }
             }
           }
@@ -38,14 +47,26 @@
         "roles": {
           "agent": {
             "kind": "sp",
-            "head": { "kind": "primeHead", "prime": "PEOPLE" }
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            }
           },
-          "undergoer": { "kind": "ref", "index": 1 },
-          "manner": { "kind": "concept", "id": "urn:molaug-v0:eat" },
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "manner": {
+            "kind": "concept",
+            "id": "urn:molaug-v0:eat"
+          },
           "time": {
             "kind": "sp",
             "quant": "MUCH~MANY",
-            "head": { "kind": "primeHead", "prime": "WHEN~TIME" }
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            }
           }
         }
       },
@@ -59,10 +80,19 @@
             "roles": {
               "agent": {
                 "kind": "sp",
-                "head": { "kind": "primeHead", "prime": "PEOPLE" }
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "PEOPLE"
+                }
               },
-              "undergoer": { "kind": "ref", "index": 1 },
-              "manner": { "kind": "concept", "id": "urn:molaug-v0:eat" }
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "manner": {
+                "kind": "concept",
+                "id": "urn:molaug-v0:eat"
+              }
             }
           },
           {
@@ -75,7 +105,10 @@
                 "roles": {
                   "undergoer": {
                     "kind": "sp",
-                    "head": { "kind": "primeHead", "prime": "PEOPLE" }
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "PEOPLE"
+                    }
                   }
                 }
               }
@@ -97,15 +130,27 @@
                 "roles": {
                   "agent": {
                     "kind": "sp",
-                    "head": { "kind": "primeHead", "prime": "PEOPLE" }
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "PEOPLE"
+                    }
                   },
                   "undergoer": {
                     "kind": "sp",
                     "quant": "SOME",
-                    "head": { "kind": "refHead", "index": 1 }
+                    "head": {
+                      "kind": "refHead",
+                      "index": 1
+                    }
                   },
-                  "manner": { "kind": "concept", "id": "urn:molaug-v0:eat" },
-                  "duration": { "kind": "prime", "prime": "A-LONG-TIME" }
+                  "manner": {
+                    "kind": "concept",
+                    "id": "urn:molaug-v0:eat"
+                  },
+                  "duration": {
+                    "kind": "prime",
+                    "prime": "A-LONG-TIME"
+                  }
                 }
               }
             ]
@@ -124,7 +169,10 @@
                     "roles": {
                       "undergoer": {
                         "kind": "sp",
-                        "head": { "kind": "primeHead", "prime": "PEOPLE" }
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "PEOPLE"
+                        }
                       }
                     }
                   }

@@ -1,7 +1,7 @@
 {
   "id": "urn:molaug-v0:group",
   "label": "group (organized people)",
-  "status": "research-grade",
+  "status": "provisional/model-authored (proxy-adjudicated)",
   "pattern": "InstanceSchema; plurality + part-whole membership + self-conception-as-one (THINK quote) + joint action",
   "gloss": "A number of people united as a single body: the people belong to it as its parts, think of themselves as one, and do things together.",
   "notes": "AST adequacy: lossy — the organized character (roles, membership rules, persistence through change of members) is dropped; renders plurality, part-whole unity, shared self-conception as one, and doing the same things at the same times.",
@@ -10,8 +10,14 @@
     "schema": "kot-ast/1",
     "frame": "InstanceSchema",
     "referents": [
-      { "index": 1, "refKind": "SomethingRef" },
-      { "index": 2, "refKind": "SomeoneRef" }
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      }
     ],
     "clauses": [
       {
@@ -21,7 +27,10 @@
           "undergoer": {
             "kind": "sp",
             "quant": "MUCH~MANY",
-            "head": { "kind": "primeHead", "prime": "PEOPLE" },
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            },
             "bind": 2
           }
         }
@@ -30,12 +39,18 @@
         "type": "pred",
         "pred": "BE-SPEC",
         "roles": {
-          "undergoer": { "kind": "ref", "index": 2 },
+          "undergoer": {
+            "kind": "ref",
+            "index": 2
+          },
           "attribute": {
             "kind": "sp",
             "head": {
               "kind": "partFrame",
-              "of": { "kind": "ref", "index": 1 }
+              "of": {
+                "kind": "ref",
+                "index": 1
+              }
             }
           }
         }
@@ -44,7 +59,10 @@
         "type": "pred",
         "pred": "THINK",
         "roles": {
-          "experiencer": { "kind": "ref", "index": 2 },
+          "experiencer": {
+            "kind": "ref",
+            "index": 2
+          },
           "quote": {
             "kind": "quote",
             "clauses": [
@@ -52,11 +70,17 @@
                 "type": "pred",
                 "pred": "BE-SPEC",
                 "roles": {
-                  "undergoer": { "kind": "ref", "index": 1 },
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 1
+                  },
                   "attribute": {
                     "kind": "sp",
                     "quant": "ONE",
-                    "head": { "kind": "primeHead", "prime": "SOMETHING~THING" }
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMETHING~THING"
+                    }
                   }
                 }
               }
@@ -68,17 +92,26 @@
         "type": "pred",
         "pred": "DO",
         "roles": {
-          "agent": { "kind": "ref", "index": 2 },
+          "agent": {
+            "kind": "ref",
+            "index": 2
+          },
           "undergoer": {
             "kind": "sp",
             "det": "THE-SAME",
             "quant": "SOME",
-            "head": { "kind": "primeHead", "prime": "SOMETHING~THING" }
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            }
           },
           "time": {
             "kind": "sp",
             "det": "THE-SAME",
-            "head": { "kind": "primeHead", "prime": "WHEN~TIME" }
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            }
           }
         }
       }
