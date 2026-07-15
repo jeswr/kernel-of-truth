@@ -1,0 +1,143 @@
+concept: disruption
+synset: urn:lexical-wn31:n-00554210
+pos: n
+lemmas: disruption, perturbation
+wn31-gloss (sense-fixing only): the act of causing disorder
+
+=== CANDIDATE A ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 3,
+   "refKind": "TimeRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "HAPPEN",
+   "roles": {
+    "undergoer": {
+     "kind": "sp",
+     "quant": "SOME",
+     "head": {
+      "kind": "primeHead",
+      "prime": "SOMETHING~THING"
+     },
+     "bind": 2
+    },
+    "time": {
+     "kind": "sp",
+     "det": "SOME",
+     "head": {
+      "kind": "primeHead",
+      "prime": "WHEN~TIME"
+     },
+     "bind": 3
+    }
+   }
+  },
+  {
+   "type": "pred",
+   "pred": "WANT",
+   "roles": {
+    "experiencer": {
+     "kind": "sp",
+     "head": {
+      "kind": "primeHead",
+      "prime": "PEOPLE"
+     }
+    },
+    "complement": {
+     "kind": "clause",
+     "clause": {
+      "type": "pred",
+      "pred": "HAPPEN",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 2
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "type": "pred",
+   "pred": "DO",
+   "roles": {
+    "agent": {
+     "kind": "ref",
+     "index": 1
+    },
+    "undergoer": {
+     "kind": "ref",
+     "index": 2
+    }
+   }
+  },
+  {
+   "type": "op",
+   "op": "BECAUSE",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "DO",
+     "roles": {
+      "agent": {
+       "kind": "ref",
+       "index": 1
+      },
+      "undergoer": {
+       "kind": "ref",
+       "index": 2
+      }
+     }
+    },
+    {
+     "type": "op",
+     "op": "AFTER",
+     "args": [
+      {
+       "kind": "ref",
+       "index": 3
+      },
+      {
+       "type": "op",
+       "op": "NOT",
+       "args": [
+        {
+         "type": "op",
+         "op": "CAN",
+         "args": [
+          {
+           "type": "pred",
+           "pred": "HAPPEN",
+           "roles": {
+            "undergoer": {
+             "kind": "ref",
+             "index": 2
+            }
+           }
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

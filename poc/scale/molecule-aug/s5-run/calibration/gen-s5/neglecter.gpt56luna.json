@@ -1,0 +1,105 @@
+{
+  "id": "urn:kernel-v1:neglecter",
+  "label": "neglecter",
+  "synset": "urn:lexical-wn31:n-10371356",
+  "pattern": "InstanceSchema; negative THINK for people + nonperformance of duty",
+  "gloss": "A person who habitually gives too little attention or regard to other people or to obligations, thereby failing to care for them as required.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "THINK",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "topic": {
+                "kind": "sp",
+                "quant": "MUCH~MANY",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMEONE"
+                },
+                "bind": 2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "THINK",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "topic": {
+                "kind": "sp",
+                "quant": "MUCH~MANY",
+                "head": {
+                  "kind": "kindFrame",
+                  "of": {
+                    "kind": "concept",
+                    "id": "urn:molaug-v0:duty"
+                  }
+                },
+                "bind": 3
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "undergoer": {
+                "kind": "ref",
+                "index": 3
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [
+    "urn:molaug-v0:duty"
+  ],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the primes plus the duty reference render inattention and failure to fulfil duties, but cannot express the graded smallness of attention or the distinct notion of respect."
+}

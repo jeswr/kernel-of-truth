@@ -1,0 +1,59 @@
+{
+  "judge": "F2",
+  "model": "claude-opus-4-8",
+  "slug": "ff2636",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "latency_s": 7.3,
+        "cost_usd": 0.04629,
+        "duration_api_ms": 6924,
+        "usage": {
+          "input_tokens": 1,
+          "cache_creation_input_tokens": 4004,
+          "cache_read_input_tokens": 0,
+          "output_tokens": 199,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 4004,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "not_available",
+          "iterations": [
+            {
+              "input_tokens": 1,
+              "output_tokens": 199,
+              "cache_read_input_tokens": 0,
+              "cache_creation_input_tokens": 4004,
+              "cache_creation": {
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 4004
+              },
+              "type": "message"
+            }
+          ],
+          "speed": "standard"
+        },
+        "model_usage_keys": [
+          "claude-haiku-4-5-20251001",
+          "claude-opus-4-8"
+        ]
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "LOSSY",
+      "missing": "no rapid arm/wrist movement rendered; 'MOVE FAR' via body part is generic propelling, not specifically throwing; no BEFORE/AFTER of the thing moving through the air away from the agent",
+      "quality": 1,
+      "reason": "Right genus (agent does something with body part causing thing to move away) but the criterial rapid arm-and-wrist propulsion and the thing traveling through the air is not sharply rendered; fits pushing/shoving too."
+    }
+  }
+}

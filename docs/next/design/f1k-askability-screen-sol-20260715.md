@@ -1,0 +1,15 @@
+- **[MEASURED] Baseline:** frozen F1-K realizes 49 clusters, 46 with \(m\ge8\), below the registered \(C\ge65\) gate; it remains a pre-run return.
+- **1 — Pool [STIPULATED]:** scan the five pinned benchmarks using only `{item_id, source, question, options}` against the 110,049 type-level WordNet synsets; join existing kernel-v0/v1/F1-K records and deduplicate by synset.
+- Freeze the redacted-input hash and rules before screening; the process must have no gold, prediction, logit, accuracy, baseline, K, pilot, or derangement fields.
+- Retain candidates having an existing kernel gloss plus parseable `kot-ast/1`, an aligned WordNet dictionary gloss, clean triggers, no header/cue collision, and \(m_{\text{test}}\ge8\) after joint allocation.
+- Rank by projected \(m_{\text{test}}\), exclusive stem hits, exclusive total hits, collision fraction, then synset-URN bytes; select 96 and retain the next 30 as a fixed reserve.
+- **[MEASURED] Supply:** the existing WordNet screen finds 28,818 individual \(m\ge8\) candidates and a 1,475-concept conservative disjoint lower bound; the current first-100 set realizes 100 raw/header-clean \(m\ge8\) clusters.
+- **2 — Contrast [STIPULATED]:** emit per concept exact UTF-8 `kernel.txt`, JCS `kernel.ast.json`, and verbatim matched `dictionary.txt`, with source IDs, lengths, and SHA-256 hashes.
+- Render both artifacts through the production prepend renderer on every assigned item, holding wrapper and item bytes fixed; the only permitted diff span is the artifact payload.
+- Define \(NLD_c=\mathrm{Lev}(\mathrm{NFC}(K_c),\mathrm{NFC}(D_c))/\max(|K_c|,|D_c|)\); pass iff hashes differ, \(NLD_c\ge0.20\), prompt-hash difference rate \(=1.00\), and outside-payload differences \(=0\).
+- **[MEASURED, preliminary]:** all 100 current kernel/dictionary texts have unequal hashes and minimum \(NLD=0.375\); prompt-path certification is still absent.
+- **3 — Coverage/power [STIPULATED]:** for every frozen prefix \(C=65,\ldots,\min(100,C_{\text{contrast}})\), allocate dev-96, then test breadth-first to \(m=8\) and round-robin to exactly \(n=1{,}440\).
+- Run separate 10,000-replicate exact-power simulations for K-1, K-2 and co-primary K-3 using realized \(m_c\), \(\delta=\rho_U=0.10\), \(\mu^*=0.0409\), seed 20260713, 10,000 add-one-corrected cluster sign flips, and fire rule \(p<0.05\land T\ge0.03\); use \(R=1,3,1\).
+- Require power \(\ge0.80\) for every contrast; report each power, Monte Carlo SE, 80%-power MDE, \(C\), \(m_c\), and the smallest passing prefix.
+- **4 — Verdict [STIPULATED]:** `ASKABLE` iff \(80\le C\le100\), every \(m_c\ge8\), all concepts pass contrast, and all three power gates pass; otherwise no authoring or GPU spend.
+- Return `NEEDS-MORE-INVENTORY` when coverage supply exists but fewer than 80 materialized contrasting pairs survive; return `NOT-ASKABLE-AT-SCALE` when the exhaustive redacted pool cannot supply 80 or no \(C\le100\) geometry powers all contrasts. Cost: $0 API/GPU, 1–2 build days; first build the redacted-input/allowlist mode in `screen_candidates.py` and emit the candidate, distinctness, coverage, power, hash, and verdict reports.

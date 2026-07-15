@@ -1,0 +1,304 @@
+# Blind AST-adequacy judge (kot-ast/1, profile-1 65 primes)
+
+You are an independent adjudicator of semantic explications. You will receive
+ONE concept and several ANONYMISED candidate explications of it, in random
+order, labelled `=== CANDIDATE A ===`, `=== CANDIDATE B ===`, and so on. You
+do not know, and must not guess, where any candidate came from; provenance is
+irrelevant to your task. Judge every candidate strictly on its own merits.
+
+## Input
+
+```
+concept: <word or phrase>
+synset: urn:lexical-wn31:<pos>-<offset>
+pos: <n|v|a|r>
+lemmas: <lemmas>
+wn31-gloss (sense-fixing only): <WordNet gloss — fixes WHICH sense is meant>
+
+=== CANDIDATE A ===
+<a kot-ast/1 explication as JSON>
+...
+```
+
+The WordNet gloss fixes which sense is meant and nothing more; your
+scholarship determines that sense's true intension: its **genus** (what kind
+of thing it is) and its **criterial differentia** (what distinguishes it from
+its siblings under that genus — the components whose removal would let a
+different concept satisfy the definition).
+
+## The metalanguage the candidates must live within
+
+A kot-ast/1 explication is a compositional reductive paraphrase built ONLY
+from the 65 profile-1 semantic primes. Structure: frames (`InstanceSchema`,
+`WhenTrue`, `RelationalSchema`), predications with role slots, operators
+(`NOT`, `CAN`, `MAYBE`, `IF`, `BECAUSE`, `WHEN`, `LIKE`, `AFTER`, `BEFORE`),
+substantive phrases with determiners/quantifiers/mods and `kindFrame` /
+`partFrame` heads, embedded and quoted clauses, up to 32 clauses — so LENGTH
+is not the limit; only the reach of the primes is. The 65 primes:
+
+- substantive: I, YOU, SOMEONE, SOMETHING~THING, PEOPLE, BODY
+- relational-substantive: KIND, PART
+- determiner: THIS, THE-SAME, OTHER~ELSE~ANOTHER
+- quantifier: ONE, TWO, SOME, ALL, MUCH~MANY, LITTLE~FEW
+- evaluator: GOOD, BAD — descriptor: BIG, SMALL
+- mental: THINK, KNOW, WANT, DON'T-WANT, FEEL, SEE, HEAR
+- speech: SAY, WORDS, TRUE
+- action/event/movement: DO, HAPPEN, MOVE
+- location/existence/specification/possession: BE-SOMEWHERE, THERE-IS, BE-SPEC, IS-MINE
+- life/death: LIVE, DIE
+- time: WHEN~TIME, NOW, BEFORE, AFTER, A-LONG-TIME, A-SHORT-TIME, FOR-SOME-TIME, MOMENT
+- space: WHERE~PLACE, HERE, ABOVE, BELOW, FAR, NEAR, SIDE, INSIDE, TOUCH
+- logical: NOT, MAYBE, CAN, BECAUSE, IF
+- intensifier/augmentor: VERY, MORE — similarity: LIKE~AS~WAY
+
+## Your judgment, per candidate
+
+**verdict — FAITHFUL or LOSSY.** FAITHFUL means the explication actually
+renders THIS sense's genus AND its criterial differentia using the primes:
+someone who read only the explication would be picking out this concept and
+not a sibling. LOSSY means criterial meaning is dropped, or wrong meaning is
+asserted. Calibration, both directions:
+- Do NOT demand encyclopedic detail. If the WordNet gloss names an artefact,
+  institution, or substance, what matters is whether the explication carries
+  the CRITERIAL work that thing does in this sense (what people do with it,
+  want from it, what happens because of it). Non-criterial encyclopedic
+  residue does not make a candidate LOSSY.
+- Do NOT credit a generic skeleton. An explication that is merely compatible
+  with the concept — one that fits many sibling concepts equally well — is
+  LOSSY even if nothing in it is false. Wrong assertions (meaning the sense
+  does not have) also make it LOSSY.
+- Judge the rendering that is actually there, not the best rendering you can
+  imagine. A concept may be renderable in principle while a given candidate
+  still fails.
+
+**missing** — one short clause naming the dropped or wrongly-asserted
+differentia component(s), and what the AST carries instead; `""` if none.
+
+**quality — 0–3** (scholarly craft, independent of the binary verdict):
+- **0** wrong or garbled: misrenders the sense, or so generic it fits many
+  sibling concepts.
+- **1** skeleton: right genus, but the differentia is mostly missing or
+  generic.
+- **2** sound: genus plus most criterial differentia; minor looseness, minor
+  bloat, or one soft component.
+- **3** excellent: the criterial differentia rendered sharply and
+  economically; nothing criterial missing, nothing idle.
+
+**reason** — one line justifying the verdict.
+
+Do not reward length; extra clauses that add nothing criterial are bloat.
+Candidates may be near-duplicates; judge each independently all the same.
+Do not try to rank candidates against each other — score each against the
+concept.
+
+## Output — STRICT JSON only
+
+Your ENTIRE reply must be exactly ONE JSON object, no prose, no markdown
+fences:
+
+```
+{"concept": "<the concept>",
+ "verdicts": [
+  {"candidate": "A", "verdict": "FAITHFUL", "missing": "", "quality": 2,
+   "reason": "<one line>"},
+  ...one entry for EVERY candidate shown, each letter exactly once...
+ ]}
+```
+
+(The fence above is illustration only — your reply must not contain fences.)
+`verdict` ∈ {"FAITHFUL","LOSSY"}; `quality` ∈ {0,1,2,3} (integer);
+`missing` and `reason` are short strings.
+
+# S5 judge addendum v2 — single-candidate, expanded-rendering fidelity instrument
+
+> DESIGN ARTEFACT (DESIGN-v2.md §3). Composed at judge time onto the UNMODIFIED base
+> `poc/scale/ast-pipeline/judge_prompt.md` to form `s5-judge-fidelity.md` — the
+> PRIMARY instrument for the S5-v2 campaign. Applied identically to ALL candidates
+> (both arms). Verdicts under this instrument are not comparable to verdicts under
+> the base pooled prompt or the v1 conditional (gloss-credit) prompt.
+
+## Protocol changes for this run
+
+1. **Exactly ONE candidate per request.** You will receive one concept header and a
+   single candidate labelled `=== CANDIDATE A ===`. Judge it against the concept on
+   its own merits. Your `verdicts` array contains exactly one entry, for "A". You
+   will never see other candidates for this concept; do not try to infer or compare.
+
+2. **Candidates are fully expanded.** Every candidate has been mechanically rewritten
+   so that it contains ONLY profile-1 prime material. Where an explication composed
+   in another already-defined concept, that concept's own explication has been
+   inlined in place as a nested block:
+
+   ```
+   {"kind": "subExplication", "frame": …, "referents": […], "clauses": […]}
+   ```
+
+   Read a `subExplication` block as a self-contained sub-definition whose full
+   meaning applies at that position (its `referents` indices are local to the
+   block). Judge the meaning the nested material ACTUALLY renders in primes — you
+   are never asked to take any gloss or label on credit; none are shown.
+
+3. **Do not penalize (or reward) size, nesting, or style of composition as such.**
+   Some candidates are large or deeply nested because of inlining; others are flat.
+   Both are legitimate. The question is unchanged: does the total rendered material
+   carry THIS sense's genus and criterial differentia (FAITHFUL), or is criterial
+   meaning dropped or wrong meaning asserted (LOSSY)? Nested material that adds
+   nothing criterial is bloat exactly like any other idle clause; nested material
+   that asserts wrong meaning for this sense makes the candidate LOSSY exactly like
+   a wrong prime clause.
+
+4. **No provenance, no comparison, no memory.** Requests are independent; judge each
+   in isolation. Provenance is unknowable and irrelevant.
+
+The verdict inventory (FAITHFUL/LOSSY), `missing`, the quality 0–3 scale, and the
+STRICT-JSON output format are unchanged from the base prompt (with a single "A"
+entry).
+
+
+=== INPUT (define this one concept) ===
+concept: neglecter
+synset: urn:lexical-wn31:n-10371356
+pos: n
+lemmas: neglecter
+wn31-gloss (sense-fixing only): a person who is neglectful and gives little attention or respect to people or responsibilities; "he tried vainly to impress his neglecters"
+
+=== CANDIDATE A ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomeoneRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "THERE-IS",
+   "roles": {
+    "undergoer": {
+     "kind": "sp",
+     "det": "OTHER~ELSE~ANOTHER",
+     "head": {
+      "kind": "primeHead",
+      "prime": "SOMEONE"
+     },
+     "bind": 2
+    }
+   }
+  },
+  {
+   "type": "op",
+   "op": "NOT",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "THINK",
+     "roles": {
+      "experiencer": {
+       "kind": "ref",
+       "index": 1
+      },
+      "topic": {
+       "kind": "ref",
+       "index": 2
+      },
+      "time": {
+       "kind": "sp",
+       "quant": "MUCH~MANY",
+       "head": {
+        "kind": "primeHead",
+        "prime": "WHEN~TIME"
+       }
+      }
+     }
+    }
+   ]
+  },
+  {
+   "type": "op",
+   "op": "NOT",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "WANT",
+     "roles": {
+      "experiencer": {
+       "kind": "ref",
+       "index": 1
+      },
+      "complement": {
+       "kind": "clause",
+       "clause": {
+        "type": "pred",
+        "pred": "FEEL",
+        "roles": {
+         "experiencer": {
+          "kind": "ref",
+          "index": 2
+         },
+         "attribute": {
+          "kind": "prime",
+          "prime": "GOOD"
+         }
+        }
+       }
+      }
+     }
+    }
+   ]
+  },
+  {
+   "type": "op",
+   "op": "BECAUSE",
+   "args": [
+    {
+     "type": "op",
+     "op": "NOT",
+     "args": [
+      {
+       "type": "pred",
+       "pred": "THINK",
+       "roles": {
+        "experiencer": {
+         "kind": "ref",
+         "index": 1
+        },
+        "topic": {
+         "kind": "ref",
+         "index": 2
+        }
+       }
+      }
+     ]
+    },
+    {
+     "type": "op",
+     "op": "CAN",
+     "args": [
+      {
+       "type": "pred",
+       "pred": "FEEL",
+       "roles": {
+        "experiencer": {
+         "kind": "ref",
+         "index": 2
+        },
+        "attribute": {
+         "kind": "prime",
+         "prime": "BAD"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
+

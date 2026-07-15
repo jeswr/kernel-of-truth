@@ -1,0 +1,81 @@
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomeoneRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "DO",
+   "roles": {
+    "agent": {
+     "kind": "sp",
+     "det": "SOME",
+     "head": {
+      "kind": "primeHead",
+      "prime": "SOMEONE"
+     },
+     "bind": 2
+    },
+    "undergoer": {
+     "kind": "ref",
+     "index": 1
+    }
+   }
+  },
+  {
+   "type": "op",
+   "op": "BECAUSE",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "DO",
+     "roles": {
+      "agent": {
+       "kind": "ref",
+       "index": 2
+      },
+      "undergoer": {
+       "kind": "ref",
+       "index": 1
+      }
+     }
+    },
+    {
+     "type": "op",
+     "op": "NOT",
+     "args": [
+      {
+       "type": "op",
+       "op": "CAN",
+       "args": [
+        {
+         "type": "pred",
+         "pred": "DO",
+         "roles": {
+          "agent": {
+           "kind": "sp",
+           "quant": "MUCH~MANY",
+           "head": {
+            "kind": "primeHead",
+            "prime": "PEOPLE"
+           }
+          }
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,67 @@
+{
+  "judge": "F2",
+  "model": "claude-opus-4-8",
+  "slug": "8135cb",
+  "attempts": [
+    {
+      "n": 1,
+      "meta": {
+        "error": "tool_use_or_multiturn_detected",
+        "latency_s": 8.515734195709229
+      },
+      "error": "empty reply"
+    },
+    {
+      "n": 2,
+      "meta": {
+        "latency_s": 6.9,
+        "cost_usd": 0.007102000000000001,
+        "duration_api_ms": 6139,
+        "usage": {
+          "input_tokens": 1,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 4004,
+          "output_tokens": 153,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "not_available",
+          "iterations": [
+            {
+              "input_tokens": 1,
+              "output_tokens": 153,
+              "cache_read_input_tokens": 4004,
+              "cache_creation_input_tokens": 0,
+              "cache_creation": {
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 0
+              },
+              "type": "message"
+            }
+          ],
+          "speed": "standard"
+        },
+        "model_usage_keys": [
+          "claude-haiku-4-5-20251001",
+          "claude-opus-4-8"
+        ]
+      },
+      "error": null
+    }
+  ],
+  "ok": true,
+  "verdicts": {
+    "A": {
+      "verdict": "LOSSY",
+      "missing": "no fast movement, no arm/wrist, no through-air; only generic MOVE FAR",
+      "quality": 1,
+      "reason": "Renders someone causing a thing to move away using a body part, but omits the criterial rapid arm/wrist propulsion and through-the-air movement that distinguishes throwing from pushing/dropping."
+    }
+  }
+}

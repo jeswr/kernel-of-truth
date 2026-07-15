@@ -1,0 +1,88 @@
+concept: disruption
+synset: urn:lexical-wn31:n-00554210
+pos: n
+lemmas: disruption, perturbation
+wn31-gloss (sense-fixing only): the act of causing disorder
+
+=== CANDIDATE A ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomeoneRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "DO",
+   "roles": {
+    "agent": {
+     "kind": "sp",
+     "det": "SOME",
+     "head": {
+      "kind": "primeHead",
+      "prime": "SOMEONE"
+     },
+     "bind": 2
+    },
+    "undergoer": {
+     "kind": "ref",
+     "index": 1
+    }
+   }
+  },
+  {
+   "type": "op",
+   "op": "BECAUSE",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "DO",
+     "roles": {
+      "agent": {
+       "kind": "ref",
+       "index": 2
+      },
+      "undergoer": {
+       "kind": "ref",
+       "index": 1
+      }
+     }
+    },
+    {
+     "type": "op",
+     "op": "NOT",
+     "args": [
+      {
+       "type": "op",
+       "op": "CAN",
+       "args": [
+        {
+         "type": "pred",
+         "pred": "DO",
+         "roles": {
+          "agent": {
+           "kind": "sp",
+           "quant": "MUCH~MANY",
+           "head": {
+            "kind": "primeHead",
+            "prime": "PEOPLE"
+           }
+          }
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
