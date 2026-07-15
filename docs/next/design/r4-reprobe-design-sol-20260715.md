@@ -1,0 +1,16 @@
+- **[MEASURED—v3]** n=23; centred within/across/delta = 0.2566/−0.0736/+0.3303, permutation p=0.0001; universal core 2,027 cells/0.4178 mass.
+- **[MEASURED—R4]** At B=1,048: M_kernel +2.6%, M_oracle +19.8%, M_emb −0.5%; kernel-vs-embedding p=0.094; C=8.
+- **[STIPULATED estimand]** Let \(y_{ci}=100(1-\text{miss}_{kernel}/\text{miss}_{global})\), \(z_c=\mathrm{mean}_i(y_{ci})\), and \(\theta=\mathrm{median}_c(z_c)\), weighting concepts equally.
+- **[MEASURED re-analysis]** R4’s pooled-prompt median is +2.65%; the cluster-balanced estimate is +2.24%.
+- **[STIPULATED method; MEASURED result]** Invert the exact two-sided C=8 sign test on \(z_c-\theta\): conservative ≥95% interval [−2.27%, +5.95%]; p(θ=0)=0.289, p(θ=10)=0.0078.
+- Thus R4 is compatible with zero and a 2–3% effect; ≥10% is excluded only for this exchangeable-concept target, not a broader concept population.
+- **[STIPULATED power]** 300,000 hierarchical draws/cell, seed 20260715; R4 τ=2.17pp/σ=2.04pp, both variances ×4.58 as an upper-95% stress; exact α=.05 sign test against midpoint 6.5%.
+- **[STIPULATED grid]** Total traces/concept 4/6/8/12, split equally build/held-out: C=12 power .35/.38/.40/.42; C=16 .58/.62/.64/.67.
+- **[STIPULATED grid]** C=24 power .71/.75/.78/.80; C=28 .82/.85/.87/.89; choose **28×6 = 168 traces** (3 build + 3 held-out).
+- Concepts must be independent semantic families; traces must be independently authored, not paraphrase/template siblings.
+- Run six balanced randomized rounds, one trace per concept per round, using a manifest-frozen seed; forbid concept blocks and same-concept block seams.
+- Every prompt gets a freshly zeroed, atomic dump of its own `(site, layer, expert)` counts/mass plus IDs, token totals and hashes; enforce top-k total invariants—never cumulative dumps or differencing.
+- **[STIPULATED fire rule]** After all backend/trace gates pass, PASS if ≥19/28 concept scores exceed 6.5%; FAIL if ≤9/28 do; otherwise INCONCLUSIVE. Missing/invalid cells are instrument failure.
+- PASS licenses a positive offline routing-quality signal, not an exact 10% slope or accuracy/throughput/economic gain; kernel-over-embedding needs its separate cluster interval above zero.
+- FAIL excludes the 10-point routing regime at scope but not a smaller positive effect. Cost: 0 GPU-h, ≈4.7 worker-h, $4.9–5.7 incremental, <$9 including smoke; $10 stop-loss.
+- **[STIPULATED—ASM-2362 amended]** This gates the $95 campaign: PASS feeds conditional GO-REPOWER, not GO-SPEND; FAIL/INCONCLUSIVE is NO-GO at current geometry absent override.
