@@ -1,5 +1,14 @@
 # generic-store-external-gold (id `gsx0`) — does a GENERIC store's verify-retry lift also survive blind EXTERNAL gold?
 
+> **SUPERSEDED (2026-07-15): this DRAFT is historical.** The freeze contract
+> is `poc/gsx0/design.md` (rev-2), which applies the GPT-5.6 readiness-review
+> corrections (`docs/next/analysis/gsx0-readiness-review.md`) — narrowed
+> estimand, PASS-gate-bearing opaque control, affirmative-evidence FAIL/NULL
+> logic, staged headroom + binding blinded pilot, mandatory concise-plain
+> sensitivity, hardened adapter, frozen human judge policy, corpora built and
+> pinned. The review's `design:NNN` line references point at THIS file and
+> remain valid against it. Do not build from this draft.
+>
 > STATUS: DESIGN DRAFT — prep only, awaiting coordinator review + review-gate
 > (Fable + GPT-5.6) BEFORE any prereg-freeze. No registry record is frozen, no
 > GPU/Modal run has been launched, nothing is committed. Authored by the

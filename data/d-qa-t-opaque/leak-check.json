@@ -1,0 +1,83 @@
+{
+ "artifact": "d-qa-t-opaque-leak-check",
+ "checks": {
+  "G-COVER-store-records-for-every-slot-concept": {
+   "store_records": 108
+  },
+  "LC1s-headword-not-in-injected-definition": {
+   "checked": 108,
+   "leaks": 0
+  },
+  "LC2-answer-text-not-in-question": {
+   "checked": 108
+  },
+  "LC3s-false-claim-not-entailed-by-injected-gloss": {
+   "rejected_candidates": 0,
+   "rule": "false claims must not be a substring of the target's STORE gloss and must have token-Jaccard < 0.5 vs it"
+  },
+  "LC4-options-distinct-answer-present": {
+   "option_sets": 108
+  },
+  "LC5-no-duplicate-ids-or-questions": {
+   "items": 360
+  },
+  "LC7-answer-position-balance": {
+   "A": 44,
+   "B": 49,
+   "C": 71,
+   "D": 52,
+   "no": 101,
+   "yes": 43
+  },
+  "LC8p-prompt-surface-disjoint": {
+   "reference_items": {
+    "d-qa": 650,
+    "d-qa-r": 1000,
+    "d-qa-t": 360
+   },
+   "rule": "no item shares its exact prompt surface (question + option texts, unsalted sha256) with any of the 650 d-qa, 1000 d-qa-r, or 360 d-qa-t items, with an earlier item of this corpus, or with the sibling store corpus"
+  },
+  "RULING-G2-claim-polarity-substitutions": {
+   "count": 13,
+   "rule": "plain-padded holds EXACTLY ONE unique admissible segment per concept (measured), so the second claim-true skeleton of a concept substitutes to claim-false (seeded donor), identically in both store corpora; answer flips yes->no vs the kernel skeleton on exactly these items (disclosed deviation; plain/opaque skeleton identity is preserved)",
+   "substituted_skeleton_ids": [
+    "dqat:covered:water:t3",
+    "dqat:covered:food:t3",
+    "dqat:covered:car:t3",
+    "dqat:covered:color:t3",
+    "dqat:covered:music:t3",
+    "dqat:covered:house:t4",
+    "dqat:covered:tree:t3",
+    "dqat:covered:book:t4",
+    "dqat:covered:animal:t3",
+    "dqat:covered:bookmark:t4",
+    "dqat:covered:reminder (the made something):t3",
+    "dqat:covered:break (X breaks Y):t4",
+    "dqat:covered:archived (bookmark boolean property):t3"
+   ]
+  },
+  "RULING-G2-donor-redraws": {
+   "count": 13,
+   "redrawn_skeleton_ids": [
+    "dqat:covered:water:t3",
+    "dqat:covered:food:t3",
+    "dqat:covered:car:t3",
+    "dqat:covered:color:t3",
+    "dqat:covered:music:t3",
+    "dqat:covered:house:t4",
+    "dqat:covered:tree:t3",
+    "dqat:covered:book:t4",
+    "dqat:covered:animal:t3",
+    "dqat:covered:bookmark:t4",
+    "dqat:covered:reminder (the made something):t3",
+    "dqat:covered:break (X breaks Y):t4",
+    "dqat:covered:archived (bookmark boolean property):t3"
+   ],
+   "rule": "claim-false items whose committed donor has no admissible segment on the PLAIN store redraw the donor (seeded); the redrawn donor binds BOTH stores"
+  }
+ },
+ "generated": "2026-07-15",
+ "generator_seed": "gsx0-opaque/1|generic-store-external-gold|20260713",
+ "note": "fail-closed: any violation aborts the build; this file exists only on PASS. G-TOK (exact SmolLM2-135M token band vs the kernel d-qa-t surfaces) is the separate pinned gate poc/gsx0/gtok_check.py -> poc/gsx0/g3-token-band-gsx0.json.",
+ "result": "PASS"
+}
