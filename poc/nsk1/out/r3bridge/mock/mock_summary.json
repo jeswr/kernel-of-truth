@@ -1,0 +1,198 @@
+{
+ "alpha": 1.0,
+ "branch_rule_thresholds": {
+  "do_not_freeze": "<0.75",
+  "freeze_as_is": ">=0.81",
+  "re_anchor": "[0.75,0.81)"
+ },
+ "branch_rule_verdict": "FREEZE-AS-IS: syn keyacc >= 0.81 holds the B\" planning band; \u00a74/\u00a76.3 plan unchanged",
+ "calls_expected_real_run": {
+  "donor_forwards": 400,
+  "generations": 400,
+  "teacher_forced": 7200,
+  "total": 8000
+ },
+ "caps": {
+  "gpu": "1xA10G",
+  "gpu_h": 0.5,
+  "in_container_gpu_s_hard_stop": 1800,
+  "planning_rate_usd_per_a10g_h_STIPULATED": 1.1,
+  "usd": 2.0,
+  "wall_h": 2.0
+ },
+ "cell": [
+  16,
+  16
+ ],
+ "gate": "NSK1-R3-BRIDGE",
+ "mock_checks": {
+  "paired_statistic_and_branch": "PASS (Newcombe CI brackets point; exact McNemar b=2,c=5 -> 0.453125; degenerate b=c=0 -> p=1; branch rule fires all three \u00a76.5 branches)",
+  "same_readout_both_arms": "PASS (200/200 prompts differ only in story bytes; single _bridge_compute path; shared donor + identical candidate ids)",
+  "sampler_determinism": "PASS (double-draw identical; 200/200 rank+sha agreement with syn_renders.jsonl; indices sha256=ab01a9716372ff19)",
+  "schema_and_gate_tags": "PASS (240/240 rows: phase=explore, gate=NSK1-R3-BRIDGE, confirmatory_eligible=false, full key set, cell/arm/seed constraints)",
+  "syn_render_fidelity": "PASS (r3-corpus items clutrr-r3a0001,clutrr-r3a0002,clutrr-r3a0003,clutrr-r3a0004,clutrr-r3a0005 byte-reproduced by the pinned TemplatorSynthetic path)"
+ },
+ "mock_n": 12,
+ "mode": "MOCK (stubbed forward; numbers are fake and meaningless \u2014 validation of pipeline only)",
+ "model": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+ "model_commit_pin": "31b70e2e869a7173562077fd711b654946d38674",
+ "n_bridge": 12,
+ "phase": "explore",
+ "primary_paired": {
+  "amt_only_b": 1,
+  "both_success": 10,
+  "delta_surface_point": -0.08333333333333333,
+  "keyacc_amt": 0.9166666666666666,
+  "keyacc_syn": 0.8333333333333334,
+  "mcnemar_exact_p_DESCRIPTIVE": 1.0,
+  "mcnemar_note": "calibration readout, NOT a hypothesis test (\u00a76.5)",
+  "n": 12,
+  "neither": 1,
+  "newcombe_ci95": [
+   -0.3543743025999242,
+   0.18134916408579566
+  ],
+  "syn_only_c": 0
+ },
+ "provenance": {
+  "n_bridge": 200,
+  "population": "958 retained covered items (858 covered rows of data/nsk1-clutrr/items.jsonl + 100 headroom rows; the B\" measurement set \u2014 operational reading disclosed in poc/nsk1/rerender_syn_bridge.py)",
+  "sample_indices_sha256": "ab01a9716372ff196b52f72449f9827d297e1b217782e6cd56db3be60aa06e46",
+  "sample_seed": 20260714,
+  "syn_renders_manifest": {
+   "epistemic_status": "MEASURED (provenance only): every byte is a pure function of the pinned generator commit, relations_store.yaml, the retained-item files, seed 20260714, PYTHONHASHSEED=0.",
+   "gate": "NSK1-R3-BRIDGE",
+   "generator_commit": "d045fae289d3746503677ceed7631c999202501e",
+   "n_rows": 200,
+   "phase": "explore",
+   "quarantine": "EXPLORATORY calibration input (\u00a76.5): downstream rows are phase:'explore', gate:'NSK1-R3-BRIDGE' and NEVER eligible for the confirmatory NSK1-R3 analysis. Touches only burned items; fresh r3 corpus/seeds untouched.",
+   "relations_store_yaml_sha256": "c2b9e2723aea7007abb7418e97f294fa696a75c0466d0195c21d78c96c33363d",
+   "render_seed_recipe": "int(sha256('20260714|<item_id>').hexdigest(),16)&0xffffffff seeding global random for template choice + sentence order",
+   "renderer": "clutrr.relations.templator.TemplatorSynthetic (pinned, unmodified)",
+   "sample": {
+    "indices_sha256": "ab01a9716372ff196b52f72449f9827d297e1b217782e6cd56db3be60aa06e46",
+    "method": "sorted(random.Random(seed).sample(range(958), 200))",
+    "n": 200,
+    "population": "958 retained covered items = 858 covered rows of data/nsk1-clutrr/items.jsonl (file order) + 100 rows of data/nsk1-clutrr/headroom.jsonl (file order); the B\" measurement set (operational reading DISCLOSED in the script docstring)",
+    "seed": 20260714
+   },
+   "schema": "nsk1-r3-bridge-syn-render-manifest/1",
+   "spec_ref": "docs/next/design/nsk1-r3-hardened.md \u00a76.5 (SYN arm)",
+   "syn_renders_jsonl_sha256": "9e6e48b47d333aa4f422b25562f74793659f178fedf6983d47bb463d715b2d77",
+   "templater_fidelity_check": {
+    "result": "PASS (committed r3 story bytes exactly reproducible by this renderer's candidate space; class-path instantiation identical)",
+    "shared_items": [
+     "clutrr-r3a0001",
+     "clutrr-r3a0002",
+     "clutrr-r3a0003",
+     "clutrr-r3a0004",
+     "clutrr-r3a0005"
+    ]
+   }
+  },
+  "syn_renders_sha256": "9e6e48b47d333aa4f422b25562f74793659f178fedf6983d47bb463d715b2d77"
+ },
+ "quarantine": "EXPLORATORY calibration: these rows/numbers are NEVER eligible for the confirmatory NSK1-R3 analysis and never gate the frozen verdict; disclosed further contact of already-burned items only.",
+ "question": "paired same-item AMT-vs-synthetic keyed-delivery sensitivity at C1=(16,16), alpha=1.0, B\" operator verbatim",
+ "secondaries_never_gated": {
+  "baseline_margin_mean": {
+   "amt": -0.20186830701607553,
+   "syn": 0.8389503381932877
+  },
+  "controls_per_surface": {
+   "amt": {
+    "coin": {
+     "20260712": 0.5,
+     "20260713": 0.4166666666666667,
+     "20260714": 0.5833333333333334
+    },
+    "coin_pooled": 0.5,
+    "role": {
+     "20260712": 0.4166666666666667,
+     "20260713": 0.4166666666666667,
+     "20260714": 0.5833333333333334
+    },
+    "role_pooled": 0.4722222222222222,
+    "ties": {
+     "drg": {
+      "20260712": 0,
+      "20260713": 0,
+      "20260714": 0
+     },
+     "real": 0
+    }
+   },
+   "syn": {
+    "coin": {
+     "20260712": 0.5833333333333334,
+     "20260713": 0.5,
+     "20260714": 0.5833333333333334
+    },
+    "coin_pooled": 0.5555555555555556,
+    "role": {
+     "20260712": 0.8333333333333334,
+     "20260713": 0.6666666666666666,
+     "20260714": 0.5833333333333334
+    },
+    "role_pooled": 0.6944444444444444,
+    "ties": {
+     "drg": {
+      "20260712": 0,
+      "20260713": 0,
+      "20260714": 0
+     },
+     "real": 0
+    }
+   }
+  },
+  "register_convergence_flag": {
+   "flag": false,
+   "rule": "delta_surface_point >= 0.05 (syn materially above amt; disclosed operational threshold ~ one CI half-width at n=200; reported as a caution, never gating)"
+  },
+  "text_only_acc": {
+   "amt": 0.8333333333333334,
+   "syn": 0.8333333333333334
+  },
+  "text_only_paired": {
+   "amt_only_b": 2,
+   "both_success": 8,
+   "delta_surface_point": 0.0,
+   "keyacc_amt": 0.8333333333333334,
+   "keyacc_syn": 0.8333333333333334,
+   "mcnemar_exact_p_DESCRIPTIVE": 1.0,
+   "mcnemar_note": "calibration readout, NOT a hypothesis test (\u00a76.5)",
+   "n": 12,
+   "neither": 0,
+   "newcombe_ci95": [
+    -0.32705680908773255,
+    0.32705680908773255
+   ],
+   "syn_only_c": 2
+  }
+ },
+ "seeds": {
+  "coin_recipe": "int(sha256('<drg_seed>|item_id|16|16').hexdigest(),16)&1 (g2._bprime2_coin_bit, derangement seed in seed slot)",
+  "derangement_family": [
+   20260712,
+   20260713,
+   20260714
+  ],
+  "sample": 20260714
+ },
+ "spec_ref": "docs/next/design/nsk1-r3-hardened.md \u00a76.5 (b3 surface-bridge; D-1 mitigation; BLOCKER-0)",
+ "substrata": {
+  "source": "bprime2_reference",
+  "strata": {
+   "text_correct": {
+    "keyacc_amt": 0.875,
+    "keyacc_syn": 0.75,
+    "n": 8
+   },
+   "text_fail": {
+    "keyacc_amt": 1.0,
+    "keyacc_syn": 1.0,
+    "n": 4
+   }
+  }
+ }
+}

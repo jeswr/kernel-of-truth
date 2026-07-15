@@ -1,0 +1,31 @@
+{
+ "epistemic_status": "MEASURED (provenance only): every byte is a pure function of the pinned generator commit, relations_store.yaml, the retained-item files, seed 20260714, PYTHONHASHSEED=0.",
+ "gate": "NSK1-R3-BRIDGE",
+ "generator_commit": "d045fae289d3746503677ceed7631c999202501e",
+ "n_rows": 200,
+ "phase": "explore",
+ "quarantine": "EXPLORATORY calibration input (\u00a76.5): downstream rows are phase:'explore', gate:'NSK1-R3-BRIDGE' and NEVER eligible for the confirmatory NSK1-R3 analysis. Touches only burned items; fresh r3 corpus/seeds untouched.",
+ "relations_store_yaml_sha256": "c2b9e2723aea7007abb7418e97f294fa696a75c0466d0195c21d78c96c33363d",
+ "render_seed_recipe": "int(sha256('20260714|<item_id>').hexdigest(),16)&0xffffffff seeding global random for template choice + sentence order",
+ "renderer": "clutrr.relations.templator.TemplatorSynthetic (pinned, unmodified)",
+ "sample": {
+  "indices_sha256": "ab01a9716372ff196b52f72449f9827d297e1b217782e6cd56db3be60aa06e46",
+  "method": "sorted(random.Random(seed).sample(range(958), 200))",
+  "n": 200,
+  "population": "958 retained covered items = 858 covered rows of data/nsk1-clutrr/items.jsonl (file order) + 100 rows of data/nsk1-clutrr/headroom.jsonl (file order); the B\" measurement set (operational reading DISCLOSED in the script docstring)",
+  "seed": 20260714
+ },
+ "schema": "nsk1-r3-bridge-syn-render-manifest/1",
+ "spec_ref": "docs/next/design/nsk1-r3-hardened.md \u00a76.5 (SYN arm)",
+ "syn_renders_jsonl_sha256": "9e6e48b47d333aa4f422b25562f74793659f178fedf6983d47bb463d715b2d77",
+ "templater_fidelity_check": {
+  "result": "PASS (committed r3 story bytes exactly reproducible by this renderer's candidate space; class-path instantiation identical)",
+  "shared_items": [
+   "clutrr-r3a0001",
+   "clutrr-r3a0002",
+   "clutrr-r3a0003",
+   "clutrr-r3a0004",
+   "clutrr-r3a0005"
+  ]
+ }
+}
