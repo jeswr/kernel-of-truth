@@ -1,0 +1,14 @@
+- [MEASURED] Raw SHA-256 `b1d03f12…2c76`; exact match.
+- [MEASURED] Record status FROZEN; all 5,320 rows carry prereg hash `cd3f2ddd…28e3`.
+- [MEASURED] Endpoint complete: 266 items and all three declared seeds per cell; zero ties.
+- [MEASURED] Headroom: 451/532 = 0.847744; within preregistered [0.05, 0.85], with ≥300 scored.
+- [MEASURED] Non-finite margins: 0; n: C1=266, C2=266; maximum coin Wilson LB=0.431167 at z=2.638257. All instrument gates HOLD.
+- [MEASURED] C1 keyacc=251/266=0.943609; Wilson LB(z=2.3940)=0.899470. [REGISTERED] 0.9436, 0.8995—match by rounding.
+- [MEASURED] C1 coin p-values by seed: 2.291e-29, 5.749e-30, 1.975e-32. [REGISTERED] ≤2e-29—rounding-consistent.
+- [MEASURED] C1 role p-values: 9.998e-19, 4.423e-24, 5.413e-23. [REGISTERED] ≤1e-18—confirmed.
+- [MEASURED] C2 keyacc=237/266=0.890977; Wilson LB(z=2.3940)=0.836723. [REGISTERED] 0.8910, 0.8367—match by rounding.
+- [MEASURED] C2 coin p-values: 3.887e-22, 1.786e-20, 1.545e-23. [REGISTERED] ≤4e-22—confirmed.
+- [MEASURED] C2 role p-values: 5.377e-15, 5.329e-13, 5.629e-18. [REGISTERED] ≤5e-15—discrepancy beyond rounding; the middle seed was omitted by that bound.
+- [MEASURED] Nevertheless, every paired p-value is <0.0083333; H1=true, H2=true, and confirmed_replicated=true.
+- Scope: PASS licenses keyed DELIVERY only on the synthetic-surface substrate at C1, extended to both preregistered cells by confirmed_replicated; no integration, correctness, or scale claim.
+- Verdict: audit CONFIRMS PASS, with one non-decisional C2 role-p reporting discrepancy.

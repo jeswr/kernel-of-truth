@@ -1,0 +1,43 @@
+{
+  "schema_version": "kot-audit/1",
+  "experiment": "nsk1-r3",
+  "audit_attempts": 1,
+  "audit_kind": "GATE-A cross-vendor statistical-integrity pass audit (independent reproduction of the registered primary endpoint + verdict-rule application from the raw rows; directives §8)",
+  "auditor": "auditor-1",
+  "auditor_binding": "cross-vendor auditor per directives §8: GPT-5.6 via the codex CLI; vendor tag only, no account credential (RT-14)",
+  "auditor_tooling": {
+    "cli": "codex-cli via poc/gpt56-review/run-review.sh (the audit runner: --ephemeral + per-call throwaway CODEX_HOME, so each run re-reads context from scratch)",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "xhigh",
+    "sandbox": "read-only"
+  },
+  "independence": "the nsk1-r3 confirmatory was RUN by the coordinator (Opus/Anthropic) on Modal A10G; the Gate-A auditor is codex/OpenAI (gpt-5.6-sol) = cross-vendor separation per directives §8; the auditor appears as a runner in no eligible run of results-log/nsk1-r3.jsonl",
+  "checks": {
+    "rows_sha": "ok",
+    "record_frozen": "ok",
+    "endpoint_complete": "ok",
+    "instrument_gates": "ok",
+    "C1_floor": "ok",
+    "C1_coin": "ok",
+    "C1_role": "ok",
+    "C2_floor": "ok",
+    "C2_coin": "ok",
+    "C2_role": "ok",
+    "verdict_rule": "ok",
+    "matches_verdict_object": "ok"
+  },
+  "recomputed_endpoint": {
+    "metric": "/analysis/C1_keyacc",
+    "value": 0.943609022556391
+  },
+  "matches_verdict_object": true,
+  "result": "CONFIRM",
+  "outcome": "CONFIRMED",
+  "smoke_test": "codex final message opened with the exact token KOT-AUDIT-SMOKE-OK before the finding",
+  "discrepancies": "none; PASS-PENDING-AUDIT is the expected pre-audit representation of the independently reproduced PASS",
+  "scope_note": "delivery-only, synthetic-surface, C1 (+ both cells via confirmed_replicated), no integration/correctness/scale",
+  "codex_raw_excerpt": "{\"schema_version\":\"kot-audit/1\",\"experiment\":\"nsk1-r3\",\"audit_kind\":\"GATE-A cross-vendor statistical-integrity pass audit\",\"checks\":{\"rows_sha\":\"ok\",\"record_frozen\":\"ok\",\"endpoint_complete\":\"ok\",\"instrument_gates\":\"ok\",\"C1_floor\":\"ok\",\"C1_coin\":\"ok\",\"C1_role\":\"ok\",\"C2_floor\":\"ok\",\"C2_coin\":\"ok\",\"C2_role\":\"ok\",\"verdict_rule\":\"ok\",\"matches_verdict_object\":\"ok\"},\"recomputed\":{\"C1_keyacc\":{\"value\":0.943609022556391,\"tag\":\"own MEASURED\"},\"C1_floor_lb\":{\"value\":0.8994702355113462,\"tag\":\"own MEASURED\"},\"C2_keyacc\":{\"value\":0.8909774436090225,\"tag\":\"own MEASURED\"},\"C2_floor_lb\":{\"value\":0.8367233303696238,\"tag\":\"own MEASURED\"},\"C1_coin_p\":[{\"value\":2.2907390275709154e-29,\"tag\":\"own MEASURED\"},{\"value\":5.749302338826592e-30,\"tag\":\"own MEASURED\"},{\"value\":1.9745076708782492e-32,\"tag\":\"own MEASURED\"}],\"C1_role_p\":[{\"value\":9.997877017624723e-19,\"tag\":\"own MEASURED\"},{\"value\":4.422566855926516e-24,\"tag\":\"own MEASURED\"},{\"value\":5.412900517049469e-23,\"tag\":\"own MEASURED\"}],\"C2_coin_p\":[{\"value\":3.8868187771535226e-22,\"tag\":\"own MEASURED\"},{\"value\":1.7863324665923222e-20,\"tag\":\"own MEASURED\"},{\"value\":1.5449108277317297e-23,\"tag\":\"own MEASURED\"}],\"C2_role_p\":[{\"value\":5.3770379354813715e-15,\"tag\":\"own MEASURED\"},{\"value\":5.328917695346281e-13,\"tag\":\"own MEASURED\"},{\"value\":5.628535767511062e-18,\"tag\":\"own MEASURED\"}]},\"H1\":true,\"H2\":true,\"confirmed_replicated\":true,\"matches_verdict_object\":true,\"result\":\"CONFIRM\",\"outcome\":\"CONFIRMED\",\"reasoning\":\"Independently hashed the raw JSONL bytes to b1d03f12de280d2dd89e525b5ac7da158a10bc580d2ecd9a6ccfc5494acf2c76 and the canonical frozen record to cd3f2ddd10e23b78eec4ea2122915dd6ea99a4fcad6070a9736a731ebbd028e3. Selected the frozen final NSK1-R3 rows, grouped margin rows by declared cell, item, seed, arm, and sign, and verified complete disjoint partitions and seed families. Independently formed log-probability margins and real, coin-XOR, and role bits with ties and non-finite values treated as failures; recomputed Wilson lower bounds and exact one-sided paired sign-test tails; evaluated headroom, coin-validity, finiteness, count, and completeness gates; then applied H1, H2, and the frozen verdict rule. No registered analysis or verdict values were piped into the computation; they were consulted afterward solely for comparison.\",\"scope_note\":\"delivery-only, synthetic-surface, C1 (+ both cells via confirmed_replicated), no integration/correctness/scale\",\"discrepancies\":\"none; PASS-PENDING-AUDIT is the expected pre-audit representation of the independently reproduced PASS\"}",
+  "vendor": "openai/gpt-5.6-sol",
+  "verdict_object_audited_sha256": "d2b55712db1da83e09308d843ac1b8174c1470f1566e67495e054176dcb91f43",
+  "ts": "2026-07-15T16:03:46Z"
+}
