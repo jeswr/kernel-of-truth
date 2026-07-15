@@ -215,6 +215,12 @@ _SUPPORTED_KEYWORDS = {
     "type", "const", "enum", "pattern", "minLength",
     "minItems", "maxItems", "minimum", "maximum",
     "required", "properties", "additionalProperties", "items",
+    # draft-2020-12 conditional application (added for the D10 rows-artifacts
+    # scope guard in kot-log-1.json — role:"rows" is lawful on event:"run"
+    # records only; cross-vendor review 2026-07-15, robustness defect 2).
+    # The fail-closed property is unchanged: an unsupported keyword ANYWHERE,
+    # including inside an if/then/else subschema, still raises.
+    "if", "then", "else",
 }
 
 _TYPES = {
@@ -284,6 +290,19 @@ def validate_schema(instance, schema, path=""):
                 errs.extend(validate_schema(v, props[k], "%s/%s" % (path, k)))
             elif schema.get("additionalProperties", True) is False:
                 errs.append("%s: additional property %r not allowed" % (path or "/", k))
+    if "if" in schema:
+        # draft-2020-12 semantics: the `if` subschema's VALIDITY (its errors
+        # are never reported) selects `then` or `else`; the selected branch's
+        # errors are real. BOTH branches are still walked so an unsupported
+        # keyword in the UNTAKEN branch raises too (fail closed — a schema
+        # can never promise, on any input, more than this validator checks);
+        # only the selected branch's violations are reported.
+        branch = "then" if not validate_schema(instance, schema["if"], path) else "else"
+        for b in ("then", "else"):
+            if b in schema:
+                b_errs = validate_schema(instance, schema[b], path)
+                if b == branch:
+                    errs.extend(b_errs)
     return errs
 
 

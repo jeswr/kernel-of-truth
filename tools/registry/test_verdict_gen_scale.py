@@ -866,5 +866,392 @@ class TestRealCliA5llmRegeneration(unittest.TestCase):
                          issued["inputs"]["analysis_output_sha256"])
 
 
+MOCK_ANALYSIS_ROW_HEAVY = """\
+import json, sys
+lines = [json.loads(l) for l in sys.stdin if l.strip()]
+items = [r for r in lines if "y" in r]                 # bare per-item rows
+records = [r for r in lines if r.get("event") == "run"]  # kot-log/1 record lines
+acc = (sum(r["y"] for r in items) / len(items)) if items else 0.0
+print(json.dumps({"n_rows": len(items), "n_records": len(records), "acc": acc}))
+"""
+
+
+class RowHeavyFixture(SpineFixture):
+    """Fixtures for the D10 rows-artifacts convention (verdict-gen step 5a,
+    maintainer-ratified 2026-07-15 — the GENERAL fix for the step-5 input-
+    acquisition defect witnessed on knull-v2, rules-1-c, truthstyle-2x2 and
+    nsk1-r3): a row-heavy run record declares its per-item rows via exactly
+    one artifacts entry {path, sha256, role:"rows"}; verdict-gen loads that
+    file, re-verifies its sha256 fail-closed, and feeds the EXPANDED ROWS
+    (never the record line) to the pinned analysis on stdin. Records without
+    the marker keep the record-line behaviour byte-identically."""
+
+    ROWS_REL = "data/rowsets/mock-rows.jsonl"
+
+    def row_record(self, exp_id):
+        script = "analysis/mock_row_heavy.py"
+        self.write(script, MOCK_ANALYSIS_ROW_HEAVY)
+        rec = self.base_record(exp_id=exp_id)
+        rec["pins"]["analysis_script"] = {
+            "path": script, "sha256": sha256_file(self.path(script)),
+            "output_fields": ["/n_rows", "/n_records", "/acc"],
+        }
+        rec["endpoints"] = [{"id": "primary", "role": "primary", "metric": "/acc",
+                             "test": "per-item accuracy vs the 0.7 floor"}]
+        rec["verdict_rules"] = [
+            {"verdict": "INSTRUMENT-INVALID",
+             "when": {"op": "lt", "a": {"metric": "/n_rows"}, "b": {"const": 1}}},
+            {"verdict": "PASS", "when": {"op": "gte", "a": {"metric": "/acc"}, "b": {"const": 0.7}}},
+            {"verdict": "FAIL", "when": {"op": "lt", "a": {"metric": "/acc"}, "b": {"const": 0.7}}},
+            {"verdict": "INCONCLUSIVE", "when": {"const": True}},
+        ]
+        return rec
+
+    def write_rows(self, n=20, k=16, rel=ROWS_REL):
+        os.makedirs(os.path.dirname(self.path(rel)), exist_ok=True)
+        self.write(rel, "".join(json.dumps({"item": i, "y": 1 if i < k else 0}) + "\n"
+                                for i in range(n)))
+        return sha256_file(self.path(rel))
+
+    def append_run_with_artifacts(self, exp_id, seed, artifacts, exit_="ok"):
+        body = {
+            "event": "run", "phase": "final",
+            "prereg_hash": self.frozen_sha(exp_id),
+            "config": {"arm": "kotk2-vs-gloss", "seed": seed},
+            "metrics": {"kernel_pack_bytes": 300, "gloss_zstd_bytes": 990, "rows_total": 20},
+            "artifacts": artifacts,
+            "exit": exit_,
+        }
+        return run_cli(LOG_APPEND, "--experiment", exp_id, "--agent-id", "runner-1",
+                       "--record", "-", "--root", self.root,
+                       "--ts", "2026-07-08T00:00:0%dZ" % seed, stdin=json.dumps(body))
+
+    def run_verdict(self, exp_id):
+        return run_cli(VERDICT_GEN, "--experiment", exp_id, "--agent-id", "coordinator-1",
+                       "--root", self.root, "--computed-at", "2026-07-08T01:00:00Z")
+
+    def read_json(self, rel):
+        with open(self.path(rel), encoding="utf-8") as f:
+            return json.load(f)
+
+
+class TestRowHeavyStep5(RowHeavyFixture):
+    """The D10 rows-artifacts path through the REAL CLIs, plus every
+    fail-closed branch and the record-line-preserving control."""
+
+    def test_expanded_rows_reach_the_pinned_analysis_not_the_record_line(self):
+        self.assertEqual(self.freeze(self.row_record("mock-rowheavy")).returncode, 0)
+        sha = self.write_rows(n=20, k=16)  # HAND-COMPUTED: acc 16/20 = 0.8 >= 0.7 -> PASS
+        p = self.append_run_with_artifacts("mock-rowheavy", 0, [
+            {"path": self.ROWS_REL, "sha256": sha, "role": "rows"},
+            {"path": "docs/prereg.md", "sha256": sha256_file(self.path("docs/prereg.md"))},
+        ])
+        self.assertEqual(p.returncode, 0, p.stderr)   # kot-log/1 admits role:"rows"
+        p = self.run_verdict("mock-rowheavy")
+        self.assertEqual(p.returncode, 0, p.stderr)
+        analysis = self.read_json("reports/auto/mock-rowheavy/analysis-output.json")
+        # the analysis computed over the REAL 20 rows and saw NO record line
+        self.assertEqual(analysis, {"n_rows": 20, "n_records": 0, "acc": 0.8})
+        verdict = self.read_json("registry/verdicts/mock-rowheavy.json")
+        # a real verdict, not INSTRUMENT-INVALID-by-plumbing (n=0 would fire rule 0)
+        self.assertEqual(verdict["verdict"], "PASS-PENDING-AUDIT")
+        self.assertEqual(verdict["fired_rule_index"], 1)
+        self.assertEqual(verdict["inputs"]["rows_expanded"],
+                         [{"seq": 0, "path": self.ROWS_REL, "sha256": sha, "rows": 20}])
+
+    def test_mixed_row_heavy_and_plain_records(self):
+        self.assertEqual(self.freeze(self.row_record("mock-rowmix")).returncode, 0)
+        sha = self.write_rows(n=20, k=16)
+        p = self.append_run_with_artifacts("mock-rowmix", 0,
+                                           [{"path": self.ROWS_REL, "sha256": sha, "role": "rows"}])
+        self.assertEqual(p.returncode, 0, p.stderr)
+        # a plain (non-row-heavy) sibling record contributes its RECORD LINE
+        p = self.append_run_with_artifacts("mock-rowmix", 1,
+                                           [{"path": self.ROWS_REL, "sha256": sha}])
+        self.assertEqual(p.returncode, 0, p.stderr)
+        p = self.run_verdict("mock-rowmix")
+        self.assertEqual(p.returncode, 0, p.stderr)
+        analysis = self.read_json("reports/auto/mock-rowmix/analysis-output.json")
+        self.assertEqual((analysis["n_rows"], analysis["n_records"]), (20, 1))
+        verdict = self.read_json("registry/verdicts/mock-rowmix.json")
+        self.assertEqual([e["seq"] for e in verdict["inputs"]["rows_expanded"]], [0])
+
+    def test_sha_mismatch_fails_closed(self):
+        self.assertEqual(self.freeze(self.row_record("mock-rowdrift")).returncode, 0)
+        sha = self.write_rows()
+        p = self.append_run_with_artifacts("mock-rowdrift", 0,
+                                           [{"path": self.ROWS_REL, "sha256": sha, "role": "rows"}])
+        self.assertEqual(p.returncode, 0, p.stderr)
+        # the rows file drifts AFTER logging (one flipped label)
+        self.write_rows(n=20, k=17)
+        p = self.run_verdict("mock-rowdrift")
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_P2_ROWS_DRIFT", p.stderr)
+        self.assertFalse(os.path.exists(self.path("registry/verdicts/mock-rowdrift.json")),
+                         "no verdict of any kind is producible from drifted rows")
+
+    def test_missing_and_empty_rows_file_fail_closed(self):
+        self.assertEqual(self.freeze(self.row_record("mock-rowgone")).returncode, 0)
+        sha = self.write_rows()
+        p = self.append_run_with_artifacts("mock-rowgone", 0,
+                                           [{"path": self.ROWS_REL, "sha256": sha, "role": "rows"}])
+        self.assertEqual(p.returncode, 0, p.stderr)
+        os.remove(self.path(self.ROWS_REL))
+        p = self.run_verdict("mock-rowgone")
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_P2_ROWS_MISSING", p.stderr)
+
+    def test_malformed_rows_line_fails_closed(self):
+        self.assertEqual(self.freeze(self.row_record("mock-rowbad")).returncode, 0)
+        self.write_rows()
+        with open(self.path(self.ROWS_REL), "a", encoding="utf-8") as f:
+            f.write("{truncated\n")
+        sha = sha256_file(self.path(self.ROWS_REL))
+        p = self.append_run_with_artifacts("mock-rowbad", 0,
+                                           [{"path": self.ROWS_REL, "sha256": sha, "role": "rows"}])
+        self.assertEqual(p.returncode, 0, p.stderr)
+        p = self.run_verdict("mock-rowbad")
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_P2_ROWS_MALFORMED", p.stderr)
+
+    def test_two_rows_entries_are_ambiguous(self):
+        self.assertEqual(self.freeze(self.row_record("mock-rowdup")).returncode, 0)
+        sha = self.write_rows()
+        other = "data/rowsets/other-rows.jsonl"
+        sha2 = self.write_rows(n=4, k=4, rel=other)
+        p = self.append_run_with_artifacts("mock-rowdup", 0, [
+            {"path": self.ROWS_REL, "sha256": sha, "role": "rows"},
+            {"path": other, "sha256": sha2, "role": "rows"},
+        ])
+        self.assertEqual(p.returncode, 0, p.stderr)
+        p = self.run_verdict("mock-rowdup")
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_P2_ROWS_AMBIGUOUS", p.stderr)
+
+    def test_unmarked_artifacts_keep_the_record_line_behaviour(self):
+        # PRESERVATION: an artifacts entry WITHOUT role:"rows" (the pre-D10
+        # shape carried by every issued log line) must change NOTHING — the
+        # record line is the stdin, the rows file is never opened, and the
+        # verdict object carries no rows_expanded key. The row-consuming mock
+        # then sees n_rows=0, which is exactly the pre-fix plumbing artifact
+        # (spurious INSTRUMENT-INVALID) — pinned here as the OLD behaviour so
+        # any silent semantic flip of unmarked records would fail this test.
+        self.assertEqual(self.freeze(self.row_record("mock-rowplain")).returncode, 0)
+        sha = self.write_rows()
+        p = self.append_run_with_artifacts("mock-rowplain", 0,
+                                           [{"path": self.ROWS_REL, "sha256": sha}])
+        self.assertEqual(p.returncode, 0, p.stderr)
+        os.remove(self.path(self.ROWS_REL))  # never opened on the record-line path
+        p = self.run_verdict("mock-rowplain")
+        self.assertEqual(p.returncode, 0, p.stderr)
+        analysis = self.read_json("reports/auto/mock-rowplain/analysis-output.json")
+        self.assertEqual((analysis["n_rows"], analysis["n_records"]), (0, 1))
+        verdict = self.read_json("registry/verdicts/mock-rowplain.json")
+        self.assertEqual(verdict["verdict"], "INSTRUMENT-INVALID")
+        self.assertNotIn("rows_expanded", verdict["inputs"],
+                         "pre-D10 verdict objects must keep their exact shape")
+
+    def test_schema_refuses_undeclared_role_values(self):
+        self.assertEqual(self.freeze(self.row_record("mock-rowrole")).returncode, 0)
+        sha = self.write_rows()
+        p = self.append_run_with_artifacts("mock-rowrole", 0,
+                                           [{"path": self.ROWS_REL, "sha256": sha, "role": "bogus"}])
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_P2_SCHEMA", p.stderr)
+
+
+class TestRowHeavyRobustness(RowHeavyFixture):
+    """The three cross-vendor-review HOLD defects (2026-07-15) on the D10
+    convention, each pinned fail-closed:
+
+      1. DUP GUARD — two ELIGIBLE marked records referencing the same rows
+         artifact (same sha256, or same content under a second path) refuse
+         with ERR_P2_ROWS_DUP: duplicated rows inflate n/precision and could
+         force a PASS while every sha check verifies. Excluded (ineligible)
+         duplicates and unmarked plain-artifact citations stay lawful.
+      2. SCHEMA SCOPE — role:"rows" is lawful on event:"run" records ONLY
+         (kot-log-1.json if/else conditional); every existing log line still
+         validates.
+      3. STRICT ROWS — every expanded row must be a strict finite JSON
+         OBJECT: NaN/Infinity/-Infinity constants, overflow-to-infinity
+         numeric literals, and top-level scalars/arrays all refuse with
+         ERR_P2_ROWS_MALFORMED."""
+
+    # -- defect 1: duplicate rows-artifact evidence ----------------------
+
+    def test_two_eligible_runs_sharing_a_rows_artifact_fail_closed(self):
+        self.assertEqual(self.freeze(self.row_record("mock-dupfleet")).returncode, 0)
+        sha = self.write_rows(n=20, k=16)
+        for seed in (0, 1):  # two ELIGIBLE runs, both expanding the same file
+            p = self.append_run_with_artifacts(
+                "mock-dupfleet", seed, [{"path": self.ROWS_REL, "sha256": sha, "role": "rows"}])
+            self.assertEqual(p.returncode, 0, p.stderr)
+        p = self.run_verdict("mock-dupfleet")
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_P2_ROWS_DUP", p.stderr)
+        self.assertFalse(os.path.exists(self.path("registry/verdicts/mock-dupfleet.json")),
+                         "no verdict is producible from duplicated rows evidence")
+
+    def test_same_rows_content_under_a_second_path_also_fails_closed(self):
+        # The content identity: a byte-identical COPY under a different path
+        # is the same evidence twice — sha256 equality alone must refuse.
+        self.assertEqual(self.freeze(self.row_record("mock-dupcopy")).returncode, 0)
+        sha = self.write_rows(n=20, k=16)
+        copy_rel = "data/rowsets/copy-rows.jsonl"
+        sha2 = self.write_rows(n=20, k=16, rel=copy_rel)
+        self.assertEqual(sha, sha2, "fixture: the copy must be byte-identical")
+        p = self.append_run_with_artifacts(
+            "mock-dupcopy", 0, [{"path": self.ROWS_REL, "sha256": sha, "role": "rows"}])
+        self.assertEqual(p.returncode, 0, p.stderr)
+        p = self.append_run_with_artifacts(
+            "mock-dupcopy", 1, [{"path": copy_rel, "sha256": sha2, "role": "rows"}])
+        self.assertEqual(p.returncode, 0, p.stderr)
+        p = self.run_verdict("mock-dupcopy")
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_P2_ROWS_DUP", p.stderr)
+
+    def test_ineligible_duplicate_is_lawful_single_expansion_survives(self):
+        # The honest nuance: only ELIGIBLE expansions count. A failed
+        # (exit:"error", hence excluded) earlier run keeping the same rows
+        # artifact does NOT trip the guard — exactly one eligible run expands
+        # the file once, and the verdict is real.
+        self.assertEqual(self.freeze(self.row_record("mock-dupexcl")).returncode, 0)
+        sha = self.write_rows(n=20, k=16)
+        p = self.append_run_with_artifacts(
+            "mock-dupexcl", 0, [{"path": self.ROWS_REL, "sha256": sha, "role": "rows"}],
+            exit_="error")
+        self.assertEqual(p.returncode, 0, p.stderr)
+        p = self.append_run_with_artifacts(
+            "mock-dupexcl", 1, [{"path": self.ROWS_REL, "sha256": sha, "role": "rows"}])
+        self.assertEqual(p.returncode, 0, p.stderr)
+        p = self.run_verdict("mock-dupexcl")
+        self.assertEqual(p.returncode, 0, p.stderr)
+        verdict = self.read_json("registry/verdicts/mock-dupexcl.json")
+        self.assertEqual(verdict["verdict"], "PASS-PENDING-AUDIT")
+        self.assertEqual([e["seq"] for e in verdict["inputs"]["rows_expanded"]], [1])
+        analysis = self.read_json("reports/auto/mock-dupexcl/analysis-output.json")
+        self.assertEqual(analysis["n_rows"], 20, "the rows enter the analysis exactly once")
+
+    # -- defect 2: role:"rows" is a run-record marker only ----------------
+
+    def test_role_rows_on_a_non_run_event_is_rejected(self):
+        self.assertEqual(self.freeze(self.row_record("mock-rolenote")).returncode, 0)
+        sha = self.write_rows()
+        body = {"event": "note", "note": "a note may cite artifacts, never mark an expansion",
+                "prereg_hash": self.frozen_sha("mock-rolenote"),
+                "artifacts": [{"path": self.ROWS_REL, "sha256": sha, "role": "rows"}]}
+        p = run_cli(LOG_APPEND, "--experiment", "mock-rolenote", "--agent-id", "runner-1",
+                    "--record", "-", "--root", self.root,
+                    "--ts", "2026-07-08T00:00:00Z", stdin=json.dumps(body))
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_P2_SCHEMA", p.stderr)
+        self.assertIn("enum", p.stderr)
+        # control: the SAME note without the role marker appends lawfully
+        body["artifacts"] = [{"path": self.ROWS_REL, "sha256": sha}]
+        p = run_cli(LOG_APPEND, "--experiment", "mock-rolenote", "--agent-id", "runner-1",
+                    "--record", "-", "--root", self.root,
+                    "--ts", "2026-07-08T00:00:00Z", stdin=json.dumps(body))
+        self.assertEqual(p.returncode, 0, p.stderr)
+
+    def test_role_rows_rejected_on_every_non_run_event_shape(self):
+        # Schema-level sweep (no CLI): the conditional rejects the marker on
+        # every other event; the run shape and unmarked artifacts stay valid.
+        schema = load_json("registry/schema/kot-log-1.json")
+        base = {"schema_version": "kot-log/1", "seq": 9, "prev_sha256": "0" * 64,
+                "ts": "2026-07-15T00:00:00Z", "experiment": "mock-x",
+                "runner": "runner-1", "prereg_hash": "0" * 64,
+                "artifacts": [{"path": "x.jsonl", "sha256": "0" * 64, "role": "rows"}]}
+        run_rec = dict(base, event="run", phase="final", config={}, metrics={}, exit="ok")
+        self.assertEqual(kc.validate_schema(run_rec, schema), [])
+        for event, extra in (("status", {"from": "a", "to": "b"}), ("unblind", {}),
+                             ("audit-ref", {}), ("note", {"note": "n"}),
+                             ("supersede", {"target_seq": 0, "reason": "r"}),
+                             ("reuse", {})):
+            rec = dict(base, event=event, **extra)
+            errs = kc.validate_schema(rec, schema)
+            self.assertTrue(errs, "role:'rows' on event %r must be rejected" % event)
+            self.assertTrue(any("role" in e for e in errs), errs)
+            rec = json.loads(json.dumps(rec))
+            del rec["artifacts"][0]["role"]  # unmarked artifact: lawful anywhere
+            self.assertEqual(kc.validate_schema(rec, schema), [], event)
+
+    def test_every_existing_log_line_still_validates(self):
+        # The review's preservation requirement: the tightened schema admits
+        # every line of every issued chained log, byte-for-byte as committed.
+        schema = load_json("registry/schema/kot-log-1.json")
+        swept = 0
+        for lp in sorted(glob.glob(os.path.join(REPO, "results-log", "*.jsonl"))):
+            with open(lp, encoding="utf-8") as f:
+                for i, line in enumerate(f):
+                    if not line.strip():
+                        continue
+                    errs = kc.validate_schema(json.loads(line), schema)
+                    self.assertEqual(errs, [], "%s line %d: %s" % (lp, i, errs[:3]))
+                    swept += 1
+        self.assertGreaterEqual(swept, 350, "the log sweep lost lines")
+
+    def test_validator_conditionals_stay_fail_closed(self):
+        # The if/then/else support added for the scope guard must not relax
+        # the validator's fail-closed keyword gate: an unsupported keyword
+        # inside a conditional branch still raises, never silently passes.
+        for schema in ({"if": {"oneOf": []}}, {"if": {}, "then": {"anyOf": []}},
+                       {"if": {"const": 1}, "else": {"not": {}}}):
+            with self.assertRaises(kc.KotError) as cm:
+                kc.validate_schema(1, schema)
+            self.assertEqual(cm.exception.code, "ERR_P2_SCHEMA_KEYWORD")
+
+    # -- defect 3: strict finite JSON-object rows --------------------------
+
+    def bad_rows_error(self, content):
+        rel = "data/rowsets/strict-rows.jsonl"
+        os.makedirs(os.path.dirname(self.path(rel)), exist_ok=True)
+        self.write(rel, content)
+        entry = {"path": rel, "sha256": sha256_file(self.path(rel)), "role": "rows"}
+        with self.assertRaises(kc.KotError) as cm:
+            vg.load_rows_payload(self.root, {"seq": 0}, entry)
+        return cm.exception
+
+    def test_nonstandard_and_nonobject_rows_fail_closed_unit(self):
+        good = '{"item": 0, "y": 1}\n'
+        for label, bad in (
+                ("top-level NaN constant", "NaN\n"),
+                ("nested NaN", '{"item": 1, "y": NaN}\n'),
+                ("nested Infinity", '{"item": 1, "y": Infinity}\n'),
+                ("nested -Infinity", '{"item": 1, "y": -Infinity}\n'),
+                ("overflow-to-infinity literal", '{"item": 1, "y": 1e999}\n'),
+                ("top-level scalar", "42\n"),
+                ("top-level string", '"a row"\n'),
+                ("top-level array", '[{"item": 1, "y": 1}]\n'),
+                ("top-level null", "null\n"),
+                ("top-level boolean", "true\n")):
+            e = self.bad_rows_error(good + bad)
+            self.assertEqual(e.code, "ERR_P2_ROWS_MALFORMED", label)
+            self.assertIn("line 1", str(e), label)
+        # control: strict finite objects (incl. an exponent INSIDE range and
+        # nested containers) load, and the count is exact.
+        rel = "data/rowsets/strict-ok.jsonl"
+        self.write(rel, '{"y": 1}\n{"y": 1e10, "z": {"k": [1, 2.5]}}\n')
+        entry = {"path": rel, "sha256": sha256_file(self.path(rel)), "role": "rows"}
+        data, n = vg.load_rows_payload(self.root, {"seq": 0}, entry)
+        self.assertEqual(n, 2)
+
+    def test_nan_row_fails_closed_end_to_end(self):
+        # One representative through the REAL CLIs: a pinned rows file
+        # carrying a NaN row refuses at verdict time with no verdict emitted
+        # (the sha pin VERIFIES — strictness, not drift, is what refuses).
+        self.assertEqual(self.freeze(self.row_record("mock-strict")).returncode, 0)
+        rel = self.ROWS_REL
+        os.makedirs(os.path.dirname(self.path(rel)), exist_ok=True)
+        self.write(rel, '{"item": 0, "y": 1}\n{"item": 1, "y": NaN}\n')
+        sha = sha256_file(self.path(rel))
+        p = self.append_run_with_artifacts("mock-strict", 0,
+                                           [{"path": rel, "sha256": sha, "role": "rows"}])
+        self.assertEqual(p.returncode, 0, p.stderr)
+        p = self.run_verdict("mock-strict")
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_P2_ROWS_MALFORMED", p.stderr)
+        self.assertFalse(os.path.exists(self.path("registry/verdicts/mock-strict.json")))
+
+
 if __name__ == "__main__":
     unittest.main()

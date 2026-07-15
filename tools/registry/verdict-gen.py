@@ -40,6 +40,30 @@ Implements P2 §3.1 (minimal spine — the F1-critical path):
      ERR_P2_FROZEN_DRIFT on mismatch) with the eligible records as JSONL on
      stdin; its stdout JSON is written to reports/auto/<id>/analysis-output.json.
      ALL derived statistics live there and nowhere else (G-4).
+  5a. D10 rows-artifacts expansion (maintainer-ratified GENERAL fix,
+     2026-07-15 — the 4th occurrence of the step-5 input-acquisition defect:
+     knull-v2, rules-1-c, truthstyle-2x2, nsk1-r3): a ROW-HEAVY eligible
+     record — one whose frozen analysis consumes bare per-item rows that
+     kot-log/1 (additionalProperties:false) cannot carry at the record top
+     level — declares its rows via EXACTLY ONE artifacts entry
+     {path, sha256, role:"rows"}. For such a record, step 5 loads the pinned
+     rows JSONL, RE-VERIFIES its sha256 against the chained log's pin
+     (ERR_P2_ROWS_DRIFT — fail closed, no verdict producible from drifted
+     rows), and places the EXPANDED ROWS on stdin IN PLACE OF the record
+     line. Records without a role:"rows" entry keep the pre-D10 behaviour
+     BYTE-IDENTICALLY (the canonical record line itself); the marked entry's
+     presence is the sole, unambiguous discriminator — nothing is inferred
+     from filenames or metrics. Expansions are disclosed in the verdict
+     object as inputs.rows_expanded (added only when the path is taken, so
+     pre-D10 verdict objects keep their exact shape). Robustness hardening
+     (cross-vendor review 2026-07-15): (1) a rows artifact may back AT MOST
+     ONE eligible run's expansion — two eligible marked records sharing a
+     {path or sha256} fail closed (ERR_P2_ROWS_DUP; duplicated rows inflate
+     n and could force a PASS with every sha check green); (2) role:"rows"
+     is schema-lawful on event:"run" records only (kot-log-1.json if/else
+     scope guard); (3) every expanded row must be a STRICT finite JSON
+     OBJECT — NaN/Infinity/overflow literals and top-level scalars/arrays
+     fail closed (ERR_P2_ROWS_MALFORMED).
   6. Write the `unblind` log line (first time only) via log-append — the single
      write path.
   7. Evaluate the frozen verdict_rules top-down with the minimal expression
@@ -57,6 +81,7 @@ import datetime
 import glob
 import hashlib
 import json
+import math
 import os
 import re
 import subprocess
@@ -394,6 +419,109 @@ def select_eligible(records, frozen_sha, design):
     return eligible, excluded
 
 
+# ---------------------------------------------------------------- D10 rows-artifacts
+# The rows-artifacts convention (P2 §3.1 step 5a; kot-log-1.json description;
+# maintainer-ratified 2026-07-15, bead kernel-of-truth-fh4j). Every check here
+# fails closed with a named ERR_* code — an unreadable/ambiguous/drifted rows
+# declaration can never silently degrade to the record-line stdin path (that
+# silent degradation IS the defect this convention removes: the pinned
+# row-consuming analysis would compute over n=0 and emit a spurious
+# INSTRUMENT-INVALID).
+ROWS_ROLE = "rows"
+
+
+def rows_artifact_entry(rec):
+    """The record's single role:"rows" artifacts entry, or None (not row-heavy).
+
+    More than one marked entry is unintelligible — which file carries THE
+    per-item rows the frozen analysis is defined on? — and refuses
+    (ERR_P2_ROWS_AMBIGUOUS) rather than guessing or concatenating.
+    """
+    entries = [a for a in (rec.get("artifacts") or [])
+               if isinstance(a, dict) and a.get("role") == ROWS_ROLE]
+    if not entries:
+        return None
+    if len(entries) > 1:
+        raise kc.KotError("ERR_P2_ROWS_AMBIGUOUS",
+                          "run record seq %s carries %d role:\"rows\" artifacts entries; the D10 "
+                          "convention admits exactly one per record" % (rec.get("seq"), len(entries)))
+    return entries[0]
+
+
+def _refuse_nonstandard_constant(name):
+    """json.loads parse_constant hook: NaN/Infinity/-Infinity are NOT JSON
+    (RFC 8259 section 6) — Python's default acceptance is a liberal extension
+    the pinned analyses must never receive (a NaN row silently poisons every
+    aggregate it touches). Cross-vendor review 2026-07-15, robustness defect 3."""
+    raise ValueError("non-standard JSON constant %s" % name)
+
+
+def _finite_float(s):
+    """json.loads parse_float hook: a numeric literal that overflows to an
+    infinity (e.g. 1e999) is non-finite by the back door — refuse it exactly
+    like the spelled-out constants (same review defect 3, fail closed)."""
+    v = float(s)
+    if not math.isfinite(v):
+        raise ValueError("numeric literal %s is non-finite" % s)
+    return v
+
+
+def load_rows_payload(root, rec, entry):
+    """Load + fail-closed-verify a row-heavy record's pinned rows JSONL.
+
+    Returns (payload_bytes, n_rows): the file's exact bytes (newline-
+    terminated) ready for the analysis stdin, and the parsed row count for
+    the verdict object's inputs.rows_expanded disclosure. The sha256 is
+    re-verified against the chained log's artifacts pin at THIS consumption
+    time (the same at-consumption discipline as the analysis-script pin and
+    the D9 reuse checks); every line must parse as a STRICT JSON OBJECT —
+    RFC 8259 JSON only (NaN/Infinity/-Infinity and overflow-to-infinity
+    literals refused via the two hooks above) and a top-level object, never
+    a scalar or array (a bare-scalar/array line is not a row of the frozen
+    analysis's input contract and would be consumed as one) — so a
+    truncated, corrupted, or nonstandard rows file can never feed a partial
+    or poisoned row set to the analysis (ERR_P2_ROWS_MALFORMED).
+    """
+    seq = rec.get("seq")
+    path = os.path.join(root, entry["path"])
+    if not os.path.isfile(path):
+        raise kc.KotError("ERR_P2_ROWS_MISSING",
+                          "run record seq %s: pinned rows file %s does not exist" % (seq, entry["path"]))
+    with open(path, "rb") as f:
+        data = f.read()
+    got = kc.sha256_hex(data)
+    if got != entry["sha256"]:
+        raise kc.KotError("ERR_P2_ROWS_DRIFT",
+                          "run record seq %s: rows file %s sha256 %s != pinned %s — no verdict is "
+                          "producible from drifted rows" % (seq, entry["path"], got, entry["sha256"]))
+    n_rows = 0
+    for i, line in enumerate(data.split(b"\n")):
+        if not line.strip():
+            continue
+        try:
+            # json.JSONDecodeError is a ValueError subclass, so the two
+            # strictness hooks' refusals land in the same fail-closed branch.
+            row = json.loads(line.decode("utf-8"),
+                             parse_constant=_refuse_nonstandard_constant,
+                             parse_float=_finite_float)
+        except (ValueError, UnicodeDecodeError) as e:
+            raise kc.KotError("ERR_P2_ROWS_MALFORMED",
+                              "run record seq %s: rows file %s line %d is not strict JSON (%s)"
+                              % (seq, entry["path"], i, e))
+        if not isinstance(row, dict):
+            raise kc.KotError("ERR_P2_ROWS_MALFORMED",
+                              "run record seq %s: rows file %s line %d is a top-level %s, not the "
+                              "JSON OBJECT the row contract requires"
+                              % (seq, entry["path"], i, type(row).__name__))
+        n_rows += 1
+    if n_rows == 0:
+        raise kc.KotError("ERR_P2_ROWS_MISSING",
+                          "run record seq %s: rows file %s contains no rows" % (seq, entry["path"]))
+    if not data.endswith(b"\n"):
+        data += b"\n"
+    return data, n_rows
+
+
 def confirmed_audit(root, exp_id, runner_ids):
     """Return the path of a CONFIRMED audit by a non-runner identity, or None."""
     for path in sorted(glob.glob(os.path.join(root, "registry", "audits", exp_id, "*.json"))):
@@ -521,6 +649,7 @@ def run(root, exp_id, agent_id, computed_at):
     script_sha = effective["pins"]["analysis_script"]["sha256"]
     endpoint_results = []
     coverage = None
+    rows_expanded = []
 
     if not eligible:
         # Step 4 — completeness gate (minimal form).
@@ -533,14 +662,68 @@ def run(root, exp_id, agent_id, computed_at):
             raise kc.KotError("ERR_P2_FROZEN_DRIFT",
                               "pinned analysis script %s sha256 %s != frozen pin %s"
                               % (effective["pins"]["analysis_script"]["path"], got, script_sha))
-        # Reused rows (verified above) follow the fresh eligible rows on stdin,
-        # each carrying reuse_provenance so the pinned analysis can distinguish
-        # fresh from reused (and apply the frozen selection-adjusted inference
-        # where RC-8 requires it).
-        stdin_payload = "".join(kc.canonical_dumps(r) + "\n" for r in eligible + reused_rows)
+        # Step 5a (D10): assemble stdin in eligible-log order — a row-heavy
+        # record (exactly one role:"rows" artifacts entry) contributes its
+        # sha-re-verified per-item rows IN PLACE OF its record line; every
+        # other record contributes its canonical record line, byte-identical
+        # to the pre-D10 payload. Reused rows (verified above) follow the
+        # fresh eligible rows, each carrying reuse_provenance so the pinned
+        # analysis can distinguish fresh from reused (and apply the frozen
+        # selection-adjusted inference where RC-8 requires it). Reused rows
+        # are ALWAYS record lines: a role:"rows" marker on a PRODUCER row has
+        # no ratified consumption semantics (the D9 witness restates record
+        # row hashes, not rows-file bytes), so it refuses rather than feeding
+        # the record line silently — the exact degradation D10 removes.
+        #
+        # DUP GUARD (cross-vendor review 2026-07-15, robustness defect 1): a
+        # rows artifact may back AT MOST ONE eligible run's expansion. Two
+        # ELIGIBLE marked records referencing the same rows file — same
+        # pinned sha256 (the content identity: a byte-identical copy under a
+        # second path is the same evidence) or same path — would place the
+        # SAME per-item rows on stdin twice: inflated n / precision that
+        # could FORCE a PASS while every sha check verifies. Fail closed
+        # (ERR_P2_ROWS_DUP). Only ELIGIBLE marked records count: a
+        # superseded or excluded duplicate is lawful (its rows never reach
+        # stdin), an UNMARKED record citing the same file as a plain
+        # artifact is lawful (it contributes its record line, no expansion),
+        # and script-baked pinned rows paths (rules-1-c) are invisible here
+        # — they are not D10 rows-artifacts at all.
+        marked = [(r, rows_artifact_entry(r)) for r in eligible]
+        seen_rows = {}
+        for r, entry in marked:
+            if entry is None:
+                continue
+            for dim in ("sha256", "path"):
+                key = (dim, entry[dim])
+                if key in seen_rows:
+                    raise kc.KotError(
+                        "ERR_P2_ROWS_DUP",
+                        "run records seq %s and seq %s both declare the same rows artifact "
+                        "(%s %s) for expansion — a rows artifact may back at most one "
+                        "eligible run's expansion; duplicated rows would inflate n and "
+                        "could force a verdict" % (seen_rows[key], r.get("seq"), dim, entry[dim]))
+                seen_rows[key] = r.get("seq")
+        payload = []
+        for r, entry in marked:
+            if entry is None:
+                payload.append((kc.canonical_dumps(r) + "\n").encode("utf-8"))
+            else:
+                rows_bytes, n_rows = load_rows_payload(root, r, entry)
+                payload.append(rows_bytes)
+                rows_expanded.append({"seq": r["seq"], "path": entry["path"],
+                                      "sha256": entry["sha256"], "rows": n_rows})
+        for r in reused_rows:
+            if rows_artifact_entry(r) is not None:
+                raise kc.KotError("ERR_P2_ROWS_REUSE",
+                                  "reused producer row seq %s (producer %s) carries a role:\"rows\" "
+                                  "artifacts entry — row-heavy reuse has no ratified D9/D10 "
+                                  "consumption semantics; extend the convention deliberately"
+                                  % (r.get("seq"), r["reuse_provenance"]["producer"]))
+            payload.append((kc.canonical_dumps(r) + "\n").encode("utf-8"))
+        stdin_payload = b"".join(payload)
         proc = subprocess.run(
             ["nice", "-n", "10", sys.executable, script_path],
-            input=stdin_payload.encode("utf-8"), capture_output=True, cwd=root,
+            input=stdin_payload, capture_output=True, cwd=root,
         )
         if proc.returncode != 0:
             raise kc.KotError("ERR_P2_ANALYSIS",
@@ -682,6 +865,12 @@ def run(root, exp_id, agent_id, computed_at):
         verdict_obj["inputs"]["reused"] = reused_summary
         verdict_obj["rungs_fresh"] = rungs_fresh
         verdict_obj["rungs_reused_only"] = sorted(set(rungs_reused) - set(rungs_fresh))
+    if rows_expanded:
+        # D10 transparency (step 5a): which eligible records' rows-artifacts
+        # were expanded onto the analysis stdin, with the re-verified pins and
+        # parsed row counts. Added only when the row-heavy path was taken, so
+        # every pre-D10 verdict object keeps its exact byte shape.
+        verdict_obj["inputs"]["rows_expanded"] = rows_expanded
 
     # RT-14 applies to verdict objects too (they are re-hashed by audits).
     kc.check_identity_fields(verdict_obj)

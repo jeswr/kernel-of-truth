@@ -1,10 +1,17 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "kot-log-1.json",
-  "title": "kot-log/1 run-record — one line in results-log/<id>.jsonl (P2 02-data-and-reporting.md section 2.2). Event-conditional requirements (run => phase/config/metrics/exit; supersede => target exit != ok; reuse => a reuse block matching a frozen kot-reg/2 reused_from declaration, ratification-gated) and the raw-metrics-only rule (section 2.4) are enforced by tools/registry/log-append.py. The reuse event (delta D9, resource-optimization-plan.md section 3 revision-1) is the RC-6 in-chain witness of consumed producer rows: {producer, producer_frozen_sha256, seqs, row_hashes}. RETRY SUPERSESSION (design-nl-boundary 14.9 item A, ASM-0624): a run row may carry `supersedes`, a list of row hashes (sha256 of the replaced line's exact bytes incl. newline — the same row identity as prev_sha256 and reuse.row_hashes); log-append enforces run-event-only, mandatory reason, targets existing exit:'ok' run rows of the SAME config.arm and phase, not already superseded (self/forward/cyclic references are structurally impossible: a target must already be a chain line). This is the ONLY lawful way to replace a successful row — event:'supersede' still refuses exit:'ok' targets, so a success can never be voided WITHOUT its replacement row in the same append.",
+  "title": "kot-log/1 run-record — one line in results-log/<id>.jsonl (P2 02-data-and-reporting.md section 2.2). Event-conditional requirements (run => phase/config/metrics/exit; supersede => target exit != ok; reuse => a reuse block matching a frozen kot-reg/2 reused_from declaration, ratification-gated) and the raw-metrics-only rule (section 2.4) are enforced by tools/registry/log-append.py. The reuse event (delta D9, resource-optimization-plan.md section 3 revision-1) is the RC-6 in-chain witness of consumed producer rows: {producer, producer_frozen_sha256, seqs, row_hashes}. RETRY SUPERSESSION (design-nl-boundary 14.9 item A, ASM-0624): a run row may carry `supersedes`, a list of row hashes (sha256 of the replaced line's exact bytes incl. newline — the same row identity as prev_sha256 and reuse.row_hashes); log-append enforces run-event-only, mandatory reason, targets existing exit:'ok' run rows of the SAME config.arm and phase, not already superseded (self/forward/cyclic references are structurally impossible: a target must already be a chain line). This is the ONLY lawful way to replace a successful row — event:'supersede' still refuses exit:'ok' targets, so a success can never be voided WITHOUT its replacement row in the same append. ROWS-ARTIFACTS CONVENTION (delta D10, maintainer-ratified 2026-07-15 — the GENERAL fix for the step-5 input-acquisition defect class witnessed on knull-v2, rules-1-c, truthstyle-2x2 and nsk1-r3): a ROW-HEAVY run record (per-item rows too large for metrics and excluded from the record top level by additionalProperties:false) declares its rows via EXACTLY ONE artifacts entry {path, sha256, role:'rows'} pointing at the per-item rows JSONL; tools/registry/verdict-gen.py step 5 loads that file, re-verifies its sha256 fail-closed (ERR_P2_ROWS_DRIFT), and feeds the EXPANDED ROWS — never the record line — to the pinned analysis on stdin. A run record WITHOUT a role:'rows' entry keeps the pre-D10 record-line stdin behaviour byte-identically; presence of the marked entry is the sole discriminator (nothing is inferred from filenames or metrics). SCOPE (cross-vendor review 2026-07-15): role:'rows' is a RUN-record marker ONLY — the if/else conditional below rejects it on every other event (the empty enum admits no value), so a non-run line can never carry an expansion marker; a rows artifact backs at most one eligible run's expansion (verdict-gen ERR_P2_ROWS_DUP) and every expanded row must be a strict finite JSON object (ERR_P2_ROWS_MALFORMED).",
   "type": "object",
   "required": ["schema_version", "seq", "prev_sha256", "ts", "experiment", "event", "runner", "prereg_hash"],
   "additionalProperties": false,
+  "if": { "required": ["event"], "properties": { "event": { "const": "run" } } },
+  "else": {
+    "description": "D10 scope guard: on any non-run event an artifacts entry may not carry role:'rows' (empty enum = no lawful value). additionalProperties:false stays effective at the top level; this branch only constrains further.",
+    "properties": {
+      "artifacts": { "items": { "properties": { "role": { "enum": [] } } } }
+    }
+  },
   "properties": {
     "schema_version": { "const": "kot-log/1" },
     "seq": { "type": "integer", "minimum": 0 },
@@ -36,7 +43,8 @@
         "additionalProperties": false,
         "properties": {
           "path": { "type": "string", "minLength": 1 },
-          "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+          "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "role": { "enum": ["rows"] }
         }
       }
     },
