@@ -20,6 +20,24 @@ accuracy of the source-keyed counterfactual-pair margin read-out, real > coin,
 floor 0.70, co-gated by real > role (item-specificity).  m = lp_top - lp_bridge;
 success bit = [m(+) > m(-)]; ties / non-finite = failure.
 
+FAIL-CLOSED COMPLETENESS GUARD (pre-freeze integrity review 2026-07-15,
+defect 4): the confirmatory endpoint is DEFINED on the complete pre-registered
+input — n = 266 items per cell (the MEASURED build fact,
+data/nsk1-clutrr-r3/manifest.json, carried in the record's count_gate) with
+ALL THREE declared derangement seeds per cell ({20260720,21,22} on A for C1,
+{20260723,24,25} on B for C2) and both signs of every real/deranged margin
+plus the coin bit present for every item. Any shortfall (missing seed, wrong
+seed family, truncated partition, missing sign/coin rows) sets
+/gates/endpoint_complete_c{1,2} = false, which (a) forces
+/gates/instrument_valid = false (verdict INSTRUMENT-INVALID fires first) and
+(b) independently forces c{1,2}_pass = false, so primary_confirmed /
+confirmed_replicated can NEVER be true on incomplete input even if the
+verdict rules were re-ordered. Without this guard a partial run (e.g. one
+seed, or 200 of 266 items — still >= the 175 n-floor) could have PASSed the
+pre-registered 3-seed / full-partition endpoint. `--selftest` proves the
+guard (see _selftest below); verdict-gen invokes this file with NO argv, so
+the stdin/stdout contract is unchanged.
+
 The three Gate-A hardenings this file implements:
   (a) COMPLETE FWER PLAN.  Bonferroni over the WHOLE pre-registered family of
       6 elementary tests = {2 confirmatory cells} x {floor, real>coin, real>role}
@@ -52,6 +70,13 @@ N_COIN_SERIES = 6      # 2 cells x 3 derangement seeds (coin-validity tripwire f
 HEADROOM_LO, HEADROOM_HI = 0.05, 0.85
 HEADROOM_MIN_N = 300   # scored text-only items required for a valid headroom read
 MIN_N_CELL = 175       # below this the floor test is underpowered; fail closed (INSTRUMENT-INVALID)
+# Pre-registered completeness endpoint (fail-closed; integrity review defect 4):
+# the full disjoint partitions (n = 266 each, data/nsk1-clutrr-r3/manifest.json)
+# and the declared per-cell derangement-seed families (design §6.2 / record
+# design.n_planned.partitions). An incomplete run must NOT be able to PASS.
+N_CELL_FULL = 266      # complete partition size per cell (MEASURED build fact)
+SEEDS_BY_CELL = {C1: (20260720, 20260721, 20260722),   # partition A family
+                 C2: (20260723, 20260724, 20260725)}   # partition B family
 
 
 def _phi_inv(p):
@@ -116,9 +141,7 @@ def _finite(x):
     return isinstance(x, (int, float)) and math.isfinite(x)
 
 
-def main():
-    rows = [json.loads(l) for l in sys.stdin if l.strip()]
-
+def compute(rows):
     # text-only correctness map (for reported failure/correct substrata) -------
     text_correct = {}
     n_text_scored = 0
@@ -167,7 +190,27 @@ def main():
 
     def cell_report(cell):
         items = cells[cell]
-        seeds = sorted({s for d in items.values() for s in d["drg"].keys()})
+        declared = SEEDS_BY_CELL[cell]           # the ONLY seeds the endpoint admits
+        observed = sorted({s for d in items.values() for s in d["drg"].keys()})
+        # ---- fail-closed completeness of the pre-registered endpoint ----
+        # (defect-4 guard): full partition, exact declared seed family, both
+        # real signs, both drg signs + coin bit at EVERY declared seed, for
+        # EVERY item. Any shortfall => complete=False => cell can never PASS
+        # and the instrument gate fails (INSTRUMENT-INVALID).
+        complete = (len(items) == N_CELL_FULL) and (observed == sorted(declared))
+        if complete:
+            for d in items.values():
+                if not (1 in d["real"] and -1 in d["real"]):
+                    complete = False
+                    break
+                for s in declared:
+                    dd = d["drg"].get(s)
+                    if dd is None or 1 not in dd or -1 not in dd or s not in d["coin_bit"]:
+                        complete = False
+                        break
+                if not complete:
+                    break
+        seeds = sorted(declared)                  # tests iterate the DECLARED family
         ties = 0
         real_bits = {}
         for item, d in items.items():
@@ -221,12 +264,16 @@ def main():
             ks = [real_bits[it] for it in items if pred(text_correct.get(it))]
             return (sum(ks) / len(ks)) if ks else None
         return {
-            "n": n, "ties": ties, "seeds": seeds,
+            "n": n, "ties": ties, "seeds": seeds, "seeds_observed": observed,
+            "complete": bool(complete),
             "keyacc_real": keyacc_real,
             "wilson_lb_floor": lb_floor, "wilson_ub": ub,
             "floor_pass": floor_pass,
             "coin_pass": coin_pass_all, "role_pass": role_pass_all,
-            "cell_pass": bool(floor_pass and coin_pass_all and role_pass_all),
+            # defect-4 guard: a cell PASS additionally requires the complete
+            # pre-registered input (full 266-item partition + all 3 declared
+            # seeds) — an incomplete run can never yield cell_pass=True.
+            "cell_pass": bool(floor_pass and coin_pass_all and role_pass_all and complete),
             "role_generic": bool(floor_pass and coin_pass_all and not role_pass_all),
             "min_coin_p": min_coin_p, "min_role_p": min_role_p,
             "keyacc_coin_max": max_keyacc_coin, "keyacc_role_max": max_keyacc_role,
@@ -240,10 +287,16 @@ def main():
 
     coin_validity_ok = bool(r1["coin_valid"] and r2["coin_valid"])
     n_ok = (r1["n"] >= MIN_N_CELL) and (r2["n"] >= MIN_N_CELL)
-    instrument_valid = bool(headroom_ok and coin_validity_ok and nonfinite == 0 and n_ok)
+    endpoint_complete = bool(r1["complete"] and r2["complete"])
+    instrument_valid = bool(headroom_ok and coin_validity_ok and nonfinite == 0
+                            and n_ok and endpoint_complete)
 
-    primary_confirmed = bool(r1["cell_pass"])
-    confirmed_replicated = bool(r1["cell_pass"] and r2["cell_pass"])
+    # defect-4 guard, belt-and-braces: the pre-registered run is BOTH cells'
+    # complete partitions; primary_confirmed (and hence a PASS verdict) can
+    # never be true unless the WHOLE declared input is present — independent
+    # of the verdict rules' evaluation order.
+    primary_confirmed = bool(r1["cell_pass"] and endpoint_complete)
+    confirmed_replicated = bool(r1["cell_pass"] and r2["cell_pass"] and endpoint_complete)
     refuted = bool((r1["wilson_ub"] < FLOOR) and (r2["wilson_ub"] < FLOOR))
     primary_role_generic = bool(r1["role_generic"])
 
@@ -252,6 +305,11 @@ def main():
             "instrument_valid": instrument_valid,
             "headroom_ok": bool(headroom_ok),
             "coin_validity_ok": coin_validity_ok,
+            "endpoint_complete": endpoint_complete,
+            "endpoint_complete_c1": r1["complete"],
+            "endpoint_complete_c2": r2["complete"],
+            "seeds_observed_c1": r1["seeds_observed"],
+            "seeds_observed_c2": r2["seeds_observed"],
             "acc_text_only": acc_text,
             "n_text_scored": n_text_scored,
             "nonfinite_count": nonfinite,
@@ -288,10 +346,118 @@ def main():
             "c2_keyacc_real_correct_sub": r2["keyacc_real_correct_sub"],
         },
     }
+    return out
+
+
+def main():
+    """verdict-gen entrypoint: JSONL rows on STDIN -> one JSON object on STDOUT."""
+    rows = [json.loads(l) for l in sys.stdin if l.strip()]
+    out = compute(rows)
     sys.stdout.write(json.dumps(out, sort_keys=True, separators=(",", ":")))
     sys.stdout.write("\n")
     return 0
 
 
+# ------------------------------------------------------------------ selftest
+def _st_rows(keyacc_c1=0.86, keyacc_c2=0.83, n_c1=N_CELL_FULL, n_c2=N_CELL_FULL,
+             seeds_c1=None, seeds_c2=None, text_acc=0.79):
+    """Deterministic synthetic row world for --selftest (never evidence).
+
+    real success bits: the first round(keyacc*n) items; role bits ~0.5
+    ((i+seed)%2); coin bits ~0.5 (independent hash-free pattern). At
+    keyacc >= ~0.8 the floor / real>coin / real>role conjuncts all clear the
+    /6 plan; at 0.50 both cells' Wilson UB < 0.70 (refuted)."""
+    seeds_c1 = list(SEEDS_BY_CELL[C1]) if seeds_c1 is None else seeds_c1
+    seeds_c2 = list(SEEDS_BY_CELL[C2]) if seeds_c2 is None else seeds_c2
+    rows = []
+    for cell, n, ka, seeds, tag in ((C1, n_c1, keyacc_c1, seeds_c1, "a"),
+                                    (C2, n_c2, keyacc_c2, seeds_c2, "b")):
+        k = int(round(ka * n))
+        for i in range(n):
+            iid = "st-%s%04d" % (tag, i)
+            rows.append({"probe": "text-only", "item_id": iid,
+                         "correct": (i % 100) < int(round(text_acc * 100))})
+            succ = i < k
+            rows.append({"probe": "margin", "cell": list(cell), "item_id": iid,
+                         "arm": "real", "sign": 1,
+                         "lp_top": -1.0 if succ else -2.0, "lp_bridge": -2.0})
+            rows.append({"probe": "margin", "cell": list(cell), "item_id": iid,
+                         "arm": "real", "sign": -1,
+                         "lp_top": -2.0 if succ else -1.0, "lp_bridge": -2.0})
+            for s in seeds:
+                role = (i + s) % 2                      # ~0.5 role band
+                coin_bit = ((i // 2) + s) % 2           # ~0.5 coin band
+                rows.append({"probe": "margin", "cell": list(cell), "item_id": iid,
+                             "arm": "drg", "sign": 1, "seed": s, "coin": coin_bit,
+                             "lp_top": -1.0 if role else -2.0, "lp_bridge": -2.0})
+                rows.append({"probe": "margin", "cell": list(cell), "item_id": iid,
+                             "arm": "drg", "sign": -1, "seed": s, "coin": coin_bit,
+                             "lp_top": -2.0 if role else -1.0, "lp_bridge": -2.0})
+    return rows
+
+
+def _selftest():
+    """Prove both endpoint branches AND the defect-4 fail-closed guard: every
+    incomplete-input world must be REJECTED (endpoint_complete=false,
+    instrument_valid=false, primary_confirmed=false) even when its partial
+    data would otherwise clear floor/coin/role."""
+    checks = []
+
+    def ck(name, cond):
+        checks.append((name, bool(cond)))
+        print("  %-52s %s" % (name + ":", "PASS" if cond else "FAIL"))
+
+    print("=== nsk1_r3 --selftest (synthetic rows; never evidence) ===")
+    # (1) complete PASS world
+    o = compute(_st_rows())
+    ck("complete world -> endpoint_complete", o["gates"]["endpoint_complete"])
+    ck("complete world -> instrument_valid", o["gates"]["instrument_valid"])
+    ck("complete world -> primary_confirmed", o["analysis"]["primary_confirmed"])
+    ck("complete world -> confirmed_replicated", o["analysis"]["confirmed_replicated"])
+    # (2) null world -> refuted (completeness intact)
+    o = compute(_st_rows(keyacc_c1=0.50, keyacc_c2=0.50))
+    ck("null world -> refuted", o["analysis"]["refuted"])
+    ck("null world -> NOT primary_confirmed", not o["analysis"]["primary_confirmed"])
+    ck("null world -> instrument_valid (complete input)", o["gates"]["instrument_valid"])
+
+    def rejected(o):
+        return (not o["gates"]["endpoint_complete"]
+                and not o["gates"]["instrument_valid"]
+                and not o["analysis"]["primary_confirmed"]
+                and not o["analysis"]["confirmed_replicated"])
+    # (3) missing seed: drop the third declared C1 seed entirely
+    o = compute(_st_rows(seeds_c1=[20260720, 20260721]))
+    ck("missing C1 seed (2 of 3) -> REJECTED fail-closed", rejected(o))
+    # (4) truncated partition: 200 items (>= the 175 n-floor — the exact
+    #     pre-guard hole: floor/coin/role would clear on this partial world)
+    o = compute(_st_rows(n_c1=200))
+    ck("truncated C1 partition (200<266) -> REJECTED", rejected(o))
+    ck("truncated world clears floor+coin+role yet c1_pass=false (guard binds)",
+       o["analysis"]["c1_floor_pass"] and o["analysis"]["c1_coin_pass"]
+       and o["analysis"]["c1_role_pass"] and not o["analysis"]["c1_pass"])
+    # (5) wrong seed family: burned B\" seed substituted for a declared one
+    o = compute(_st_rows(seeds_c1=[20260720, 20260721, 20260712]))
+    ck("wrong C1 seed family (burned 20260712) -> REJECTED", rejected(o))
+    # (6) missing sign rows: strip every real sign=-1 row at C2
+    rows = [r for r in _st_rows()
+            if not (r.get("arm") == "real" and r.get("sign") == -1
+                    and tuple(r.get("cell") or []) == C2)]
+    o = compute(rows)
+    ck("missing real(-) rows at C2 -> REJECTED", rejected(o))
+    # (7) missing coin bits: drop one seed's drg rows for a single C1 item
+    rows = [r for r in _st_rows()
+            if not (r.get("item_id") == "st-a0000" and r.get("arm") == "drg"
+                    and r.get("seed") == 20260722)]
+    o = compute(rows)
+    ck("one item missing one seed's drg rows -> REJECTED", rejected(o))
+
+    ok = all(c for _, c in checks)
+    print("SELFTEST_%s (%d/%d)" % ("PASS" if ok else "FAIL",
+                                   sum(c for _, c in checks), len(checks)))
+    return 0 if ok else 1
+
+
 if __name__ == "__main__":
+    if "--selftest" in sys.argv[1:]:
+        sys.exit(_selftest())
     sys.exit(main())

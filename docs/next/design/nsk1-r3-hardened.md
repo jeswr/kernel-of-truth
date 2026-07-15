@@ -25,6 +25,23 @@
   mechanical decision rules, endpoint, controls, cells, seeds, and FWER plan
   are UNCHANGED. Still DRAFT; this amendment freezes, runs, and commits
   nothing.
+- **AMENDED 2026-07-15 (pre-freeze integrity review, FREEZE-HOLD fixes)** —
+  four review defects repaired before freeze: (1) every power claim is
+  SCOPED to the **floor test only** (the floor+coin+role conjunction's joint
+  power is **not-separately-demonstrated** — no alternative model for the
+  paired coin/role margins is specified; §4, §6.3); (2) PASS licensing is
+  scoped to **H1/C1 only** (the two-cell claim is reserved for
+  `confirmed_replicated`) and the REFUTED/surface-swap wording is softened
+  to what the +0.04 bridge delta licenses (§1, §5.2, §9, ASM-2364);
+  (3) freeze mechanics (record catch-all rule, corpus-recipe string,
+  prereg-doc hash) repaired in the record; (4) the pinned analysis now
+  **FAILS CLOSED** on the complete 3-seed / 266-item endpoint (an
+  incomplete run can never PASS; proven by `analysis/nsk1_r3.py
+  --selftest`), the real-mode entrypoint `poc/modal/modal_nsk1_r3.py` is
+  written and sha-pinned, and the carried engine hash is reconciled (§7,
+  §8.3). Endpoint, controls, cells, seeds, floors, FWER plan and all bridge
+  numbers are UNCHANGED. Still DRAFT; this amendment freezes, runs, and
+  commits nothing.
 - **Honesty-guard:** every load-bearing line is tagged
   MEASURED / MEASURED-exploratory / STIPULATED / LIT-BACKED / EXTRAPOLATION.
   Design choices are STIPULATED, never presented as measured. New assumptions
@@ -60,7 +77,11 @@ qualifications:
 
 **What a PASS licenses (and only this):** *the B″ internal-write keyed-DELIVERY
 finding is confirmed on a **fresh, structurally-identical, SYNTHETIC-SURFACE**
-CLUTRR substrate at R3 at the two pre-registered cells* —
+CLUTRR substrate at R3 at the **PRIMARY pre-registered cell (16,16)*** — a
+PASS requires **H1/C1 only**, so it licenses the primary cell alone;
+the **two-cell claim** ("confirmed at both pre-registered cells on disjoint
+fresh partitions") is licensed **only** by `confirmed_replicated` (H1 ∧ H2,
+reported with the same prominence) — and it is
 confirmatory-on-a-related-substrate, **never** "byte-faithful replication" or
 "replicates on fresh items" tout court: per D-1 the AMT-paraphrase surface B″
 measured on is permanently unavailable, and the fresh corpus uses the pinned
@@ -211,7 +232,9 @@ LB(keyacc_real, z = 2.3940) ≥ **0.70** AND paired `real > coin` AND
 with H2 at C2 = (12,16)/partition B as the co-primary independent-replication
 reading. **Pre-registered directional prediction:** keyacc_real ≥ 0.81 at
 both cells (the weaker-B″-cell planning value), floor LB clears 0.70
-(power 0.954 at the achieved n = 266, §6.3). Decision rules verbatim in §5.2;
+(**floor-test** power 0.954 at the achieved n = 266, §6.3 — floor conjunct
+only, the conjunction power is not-separately-demonstrated, §4). Decision
+rules verbatim in §5.2;
 PASS/REFUTED substrate-scoped per D-1. [STIPULATED prediction anchored to
 MEASURED-exploratory B″/Stage-1 values.]
 
@@ -261,22 +284,32 @@ freeze the §4/§6.3 plan as-is; 0.75 ≤ syn < 0.81 → re-anchor planning keya
   over the `2 cells × 3 seeds = 6` coin series, `z = Φ⁻¹(1 − 0.05/12) ≈ 2.638`
   (§5.1).
 
-**Design-time power** (arithmetic, not evidence; one-sided Wilson LB ≥ 0.70 at
-the /6 z = 2.3940; verified by the binomial power computation logged during
-design):
+**Design-time power — FLOOR-TEST ONLY** (arithmetic, not evidence; one-sided
+Wilson LB ≥ 0.70 at the /6 z = 2.3940; verified by the binomial power
+computation logged during design):
 
-| n per cell | power @ true 0.78 | @ 0.81 | @ 0.85 |
+| n per cell | floor-test power @ true 0.78 | @ 0.81 | @ 0.85 |
 |---|---|---|---|
 | 175 | 0.43 | 0.80 | 0.99 |
 | 200 | 0.54 | 0.88 | ~1.00 |
 | **300** | **0.74** | **0.97** | **0.99+** |
 
-The paired coin/role conjuncts are **non-binding** at these separations (B″
-`real>coin` p = 4.1×10⁻¹³ and `real>role` p = 9.1×10⁻¹¹ at n = 200, ≪ 0.0083333).
-The **floor test is the binding test**, and it is sized at a **conservative
-planning keyacc of 0.81** (the *weaker* B″ cell's failures-only value); the
-pooled fresh set is expected higher (~0.85–0.87), so n = 300/cell carries
-comfortable margin.
+**Power scope (pre-freeze integrity review 2026-07-15, defect 1 — honest
+statement).** Every power number in this design and the record is the power
+of the **Wilson-floor conjunct alone**, exact-binomial at a STIPULATED
+planning keyacc. The full cell PASS is the **floor ∧ real>coin ∧ real>role
+conjunction**, and the **joint power of that conjunction is
+not-separately-demonstrated**: no alternative model for the paired coin/role
+margins is specified, so no joint control-gate power is (or can honestly be)
+computed here — the floor-test power is an **upper bound** on the joint
+per-cell power. The paired coin/role conjuncts are **expected** to be
+non-binding at the anticipated separations, anchored to B″'s
+MEASURED-exploratory paired tests (`real>coin` p = 4.1×10⁻¹³ and `real>role`
+p = 9.1×10⁻¹¹ at n = 200, ≪ 0.0083333) — a STIPULATED planning expectation,
+never a computed power. The **floor test is the expected-binding test**, and
+it is sized at a **conservative planning keyacc of 0.81** (the *weaker* B″
+cell's failures-only value); the pooled fresh set is expected higher
+(~0.85–0.87), so n = 300/cell carries comfortable margin.
 
 **D-1 amendment — planning values must be re-anchored before freeze.** The
 0.81 planning keyacc, the 0.70-floor comfort margin, and this power table were
@@ -286,6 +319,14 @@ at C1 pre-freeze; the power table and the §6.3 count gate are re-anchored to
 the bridge's synthetic point estimate and written into the record **before**
 `prereg-freeze` per the §6.5 branch rule. Until the bridge runs, all planning
 values in this section are STIPULATED-not-MEASURED for the synthetic surface.
+
+**RESOLVED 2026-07-15 (bridge MEASURED; BLOCKER-0 discharge).** The §6.5
+bridge ran (commit 8b23a083, phase:explore): **keyacc_syn = 0.895** ≥ 0.81 →
+the branch rule fired **FREEZE-AS-IS**. No re-anchor is needed: the 0.81
+planning keyacc is now MEASURED-conservative for the synthetic surface (bridge
+point 0.895, paired Δ̂_surface = +0.040 vs AMT 0.855), and the §6.3
+achieved-n **floor-test** power (0.954 at n = 266, planning 0.81) stands
+unchanged.
 
 ---
 
@@ -303,6 +344,10 @@ values in this section are STIPULATED-not-MEASURED for the synthetic surface.
   this pre-freeze; if the bridge's synthetic-surface text-only accuracy sits
   near/above 0.85, the maintainer must adjudicate the gate window BEFORE
   freeze (a post-hoc widening would be a protocol violation).
+  **Bridge preview (MEASURED 2026-07-15, exploratory):** paired text-only
+  accuracy amt 0.795 / **syn 0.785** — the synthetic surface did NOT push
+  toward the 0.85 ceiling (it sits marginally lower); no gate-window
+  adjudication is needed and the [0.05, 0.85] window freezes as declared.
 - **coin-validity tripwire:** for no cell × seed does the coin keyacc one-sided
   Wilson LB at `z ≈ 2.638` exceed 0.5. E[coin] ≤ 0.5 by arithmetic; an
   above-chance coin means broken plumbing (seed leakage), so this is
@@ -330,13 +375,18 @@ Evaluated in order, first match wins (mirrors `registry/experiments/nsk1-r3.json
 same prominence; it does not change the verdict label but is the strong
 independent-replication reading.
 
-**Substrate scoping of the verdict labels (D-1; the rules above are unchanged
-and mechanical).** A **PASS** licenses "confirmatory on a fresh,
-structurally-identical, **synthetic-surface** substrate" (§1, §9) — never
-B″-on-AMT replication. A **FAIL (REFUTED)** licenses "did not replicate **on
-this substrate**" and mandates a maintainer surface-fork; it does not by
-itself retire B″-on-AMT vs surface-sensitivity — the §6.5 bridge delta is the
-pre-registered disambiguator (§3.3).
+**Substrate and cell scoping of the verdict labels (D-1 + integrity-review
+defect 2; the rules above are unchanged and mechanical).** A **PASS**
+licenses "confirmatory on a fresh, structurally-identical,
+**synthetic-surface** substrate **at the primary cell (16,16) only**" (§1,
+§9) — a PASS requires H1/C1 alone, so it never licenses B″-on-AMT
+replication **and never a two-cell claim**; the two-cell reading is
+licensed only by `confirmed_replicated` (H1 ∧ H2). A **FAIL (REFUTED)**
+licenses "did not replicate **on this substrate**" and mandates a maintainer
+surface-fork; it does not by itself retire B″-on-AMT vs surface-sensitivity
+— the §6.5 bridge delta is the pre-registered disambiguator (§3.3), and it
+makes a surface-swap attribution of a fired REFUTED **unlikely, not
+impossible** (Δ̂ = +0.040 in the no-degradation direction, CI95 crossing 0).
 
 ---
 
@@ -426,10 +476,11 @@ repo issue 39 = option a).]
 [STIPULATED: ASM-2359 — n target + count-gate branches.] Target **n = 300 per
 cell** (600 fresh covered items total, split disjoint). Pre-freeze count gate:
 
-- `n_final ≥ 300/cell` → **full-power branch** (power ≥ 0.97 at planning keyacc
-  0.81 under the /6 floor; ≥ 0.99 at 0.85).
-- `175 ≤ n_final < 300` → power **redone at achieved n** and written into the
-  record **before** freeze; freeze only if power ≥ 0.80 at planning 0.81.
+- `n_final ≥ 300/cell` → **full-power branch** (floor-test power ≥ 0.97 at
+  planning keyacc 0.81 under the /6 floor; ≥ 0.99 at 0.85).
+- `175 ≤ n_final < 300` → floor-test power **redone at achieved n** and written
+  into the record **before** freeze; freeze only if floor-test power ≥ 0.80 at
+  planning 0.81.
 - `n_final < 175/cell` → **do not freeze**; escalate to the maintainer (generate
   more fresh items or reconsider). The count is a to-measure build fact,
   deliberately not estimated at design time.
@@ -438,24 +489,29 @@ cell** (600 fresh covered items total, split disjoint). Pre-freeze count gate:
 discharge — PREP, not freeze).** [MEASURED (provenance):
 `data/nsk1-clutrr-r3/manifest.json` — fresh deduped covered pool = 532,
 **n_A = n_B = 266**, contamination 0/532, `remainder_unused = 0`.] The build
-lands in the **reduced branch** (175 ≤ 266 < 300). Power redone at achieved
-n per this section's rule — exact binomial, identical method to the §4 table
-(one-sided Wilson LB ≥ 0.70 at z = 2.3940), verified to reproduce the §4 rows
-at n = 175/200/300 before use:
+lands in the **reduced branch** (175 ≤ 266 < 300). Floor-test power redone at
+achieved n per this section's rule — exact binomial, identical method to the
+§4 table (one-sided Wilson LB ≥ 0.70 at z = 2.3940), verified to reproduce
+the §4 rows at n = 175/200/300 before use; **scope: floor conjunct ONLY, per
+the §4 power-scope statement — the floor+coin+role conjunction's joint power
+is not-separately-demonstrated**:
 
 | true keyacc | 0.75 | 0.78 | **0.81 (planning)** | 0.83 | 0.85 |
 |---|---|---|---|---|---|
-| **power @ n = 266** | 0.24 | 0.67 | **0.954** | 0.995 | 0.9998 |
+| **floor-test power @ n = 266** | 0.24 | 0.67 | **0.954** | 0.995 | 0.9998 |
 
 Critical count k\* = 205/266: the observed keyacc must be ≥ 0.7707 for the
-floor conjunct to clear. Joint H1 ∧ H2 power (both cells independently at
-n = 266, true 0.81) ≈ 0.91. **Gate decision: 0.954 ≥ 0.80 at planning
-keyacc 0.81 → n = 266 is SUFFICIENT TO FREEZE; the endpoint and MCID are NOT
-rescoped** (keyed-accuracy floor 0.70 = SESOI +0.20 absolute over the 0.50
-coin anchor, unchanged). Tags: the n = 266 is MEASURED (build provenance);
-the 0.81 planning keyacc, the 0.70 MCID/floor, and the 0.80 reduced-branch
-power target are STIPULATED (ASM-2359, ASM-2353). Honest sensitivity: power
-falls to 0.67 if the true synthetic-surface keyacc is 0.78 — so the §6.5
+floor conjunct to clear. Joint H1 ∧ H2 **floor-only** power (both cells'
+floor conjuncts independently at n = 266, true 0.81) ≈ 0.91 — the same
+floor-only scoping, **not** a full-conjunction replication power. **Gate
+decision: 0.954 ≥ 0.80 at planning keyacc 0.81 → n = 266 is SUFFICIENT TO
+FREEZE; the endpoint and MCID are NOT rescoped** (keyed-accuracy floor 0.70 =
+SESOI +0.20 absolute over the 0.50 coin anchor, unchanged). Tags: the n = 266
+is MEASURED (build provenance); the 0.81 planning keyacc, the 0.70 MCID/floor,
+the 0.80 reduced-branch power target, and the non-binding-controls
+expectation are STIPULATED (ASM-2359, ASM-2353; the B″ separations anchoring
+that expectation are MEASURED-exploratory). Honest sensitivity: floor-test
+power falls to 0.67 if the true synthetic-surface keyacc is 0.78 — so the §6.5
 bridge re-anchor remains REQUIRED before freeze. Interaction with the §6.5
 branch rule at the achieved n: (i) bridge syn ≥ 0.81 → freeze at n = 266
 as-is; (ii) 0.75 ≤ syn < 0.81 → the ≥ 0.90-power-at-bridge-value requirement
@@ -463,6 +519,10 @@ generally CANNOT be met at n = 266 (e.g. 0.67 at 0.78) — the branch's "raise
 the n target" then means a supplementary same-recipe build at a NEW disclosed
 seed (a pre-freeze amendment, never silent) or maintainer-adjudicated
 non-freeze; (iii) syn < 0.75 → do not freeze (unchanged).
+**Branch (i) FIRED (bridge MEASURED 2026-07-15, §6.5 result block):** syn
+keyacc 0.895 ≥ 0.81 → freeze at n = 266 as-is; floor-test power 0.954 at
+planning 0.81 stands, and the planning value is conservative vs the measured
+synthetic point.
 
 ### 6.4 Procedure (runner-role, against the FROZEN record)
 
@@ -552,13 +612,61 @@ replaces the ASM-2357-old surface-invariance **stipulation** with a
   §4 re-anchor must be in the record **before** the §6.3 count gate finalizes
   power and before `prereg-freeze`. Runner-role work; run ≠ audit as usual.
 
+**MEASURED RESULT (2026-07-15; Modal 1×A10G, in caps, commit 8b23a083;
+phase:explore, gate:NSK1-R3-BRIDGE — exploratory calibration, never enters
+the confirmatory analysis).** Primary paired statistic on the 200 sampled
+retained items (seed 20260714): **keyacc_amt = 0.855** (B″'s 0.85
+keyed-delivery finding REPLICATES on the retained items under the burned
+seed family), **keyacc_syn = 0.895**, **Δ̂_surface = +0.040** (Newcombe
+paired CI95 **[−0.0053, +0.0874]**, exact McNemar p = 0.115 DESCRIPTIVE,
+discordant pairs b = 6 / c = 14). Secondaries (never gated): paired
+text-only accuracy amt 0.795 / syn 0.785 (headroom window intact, §5.1);
+control bands amt coin 0.53 / role 0.558 pooled, syn coin 0.542 / role
+0.587 pooled (no control drift). Artifact shas: summary
+`43978821bc216c19639b4116aee87ad00abded7024cff537674c8ff49a240d5f`, rows
+`4e203512d48390e6390411efc51383e86002407baad635a62ba01b8c878b1814`.
+**Branch rule verdict: syn 0.895 ≥ 0.81 → FREEZE-AS-IS** (the §4/§6.3
+n = 266 plan is unchanged; no re-anchor).
+
+**Register-convergence caution (honest interpretation; never gating).** The
+synthetic surface came out **+0.040 HIGHER** than AMT — the D-1 §4
+donor–story register-convergence direction (the terser synthetic story
+register sits closer to the donor-frame register, plausibly easing keyed
+read-out). By the pre-disclosed operational threshold (Δ̂ ≥ 0.05 ≈ one CI
+half-width at n = 200) this is **NOT material** — the flag did not fire —
+and the CI crosses 0, so a zero true surface effect is compatible with the
+data. It does NOT block or modify the freeze (the branch rule fired
+FREEZE-AS-IS on syn ≥ 0.81, and the confirmatory floor test is
+within-surface, so any register-convergence inflation cannot manufacture a
+PASS by itself against the 0.70 floor + coin/role co-gates). It DOES belong
+in the interpretation: a confirmatory PASS's effect size on the synthetic
+surface may modestly flatter what an AMT-register surface would show, so
+the PASS licence stays exactly synthetic-surface-substrate-scoped (§9) and
+any comparison of the R3 keyacc against B″'s AMT numbers must carry this
++0.04-direction caveat. Registered in ASM-2364 (amended 2026-07-15).
+
 ---
 
 ## 7. The pinned, verdict-gen-compatible stdin analysis
 
-**Path:** `analysis/nsk1_r3.py` (draft sha256
-`eb3042b361759379c8cf16c959b5f10b7bcb8103c73f4bb1ae5c8cd5a7ae1402`; **recompute
-and re-pin at freeze** after any review edit).
+**Path:** `analysis/nsk1_r3.py` (sha256
+`162331d27ca672ee9656bfdd8eebb563cec7cb4d315af4fdcb1def2a35d29a12`, re-pinned
+2026-07-15 after the integrity-review defect-4 hardening; **recompute and
+re-pin at freeze** after any further review edit).
+
+**Fail-closed completeness guard (integrity-review defect 4).** The analysis
+now fails closed on the complete pre-registered endpoint: `cell_pass` (and
+hence `primary_confirmed` / `confirmed_replicated`) additionally requires
+`/gates/endpoint_complete_c{1,2}` — the full **266-item** partition, the
+exact **declared 3-seed derangement family** per cell ({20260720,21,22} on
+A, {20260723,24,25} on B), both real signs, and both drg signs + the coin
+bit at every declared seed for **every** item. Any shortfall also forces
+`/gates/instrument_valid = false` (verdict INSTRUMENT-INVALID), so an
+incomplete run — e.g. one seed missing, a burned-seed substitution, or a
+truncated 200-of-266 partition that still clears the 175 n-floor — can
+NEVER PASS. Proven by `python3 analysis/nsk1_r3.py --selftest` (13 checks:
+both endpoint branches + five incomplete-input rejection cases); verdict-gen
+invokes the script with no argv, so the stdin/stdout contract is unchanged.
 
 **I/O contract** (verified against `tools/registry/verdict-gen.py` step 5): the
 pinned script **reads eligible run rows as JSONL on STDIN** and **writes one
@@ -647,14 +755,19 @@ harness sha, prereg-doc sha) that only a build + freeze can fill.
 > **Blocker status at 2026-07-15 prep (nothing frozen/run/committed):**
 > BLOCKER-1 **BUILT** — `data/nsk1-clutrr-r3` exists (manifest: n = 266/266,
 > contamination 0/532, S9 asserts all PASS). BLOCKER-2 **RESOLVED-PREP** —
-> power redone at achieved n = 266 (§6.3 resolution: 0.954 at planning 0.81 ≥
-> the 0.80 gate → sufficient to freeze), subject only to the §6.5 bridge
-> re-anchor. BLOCKER-3 **RESOLVED-PREP except the runner entrypoint** — pins
-> resolved below (corpus digest, builder sha, analysis sha, prereg-doc sha);
-> the real-mode Modal entrypoint sha is runner-role and re-pins at freeze.
+> floor-test power redone at achieved n = 266 (§6.3 resolution: 0.954 at
+> planning 0.81 ≥ the 0.80 gate → sufficient to freeze; floor-conjunct scope
+> per §4). BLOCKER-3 **RESOLVED (2026-07-15 integrity-review fix)** — all
+> pins resolved below (corpus digest, builder sha, analysis sha, real-mode
+> entrypoint sha, engine sha reconciled, prereg-doc sha).
 > BLOCKER-4 **RESOLVED-PREP** — HNSKR3D/HNSKR3S registered in §3.4.
-> BLOCKER-0 (bridge run) and BLOCKER-5 (sign-off, ASM registration at commit,
-> freeze) remain with the coordinator/maintainer/runner.
+> BLOCKER-0 **RESOLVED (MEASURED, 2026-07-15)** — the §6.5 bridge RAN in caps
+> (commit 8b23a083): syn keyacc 0.895 ≥ 0.81 → **FREEZE-AS-IS**, no re-anchor;
+> Δ̂_surface/CI/shas registered in ASM-2364 (amended) + §6.5 result block;
+> headroom preview 0.785 clears the §5.1 adjudication concern. Only
+> BLOCKER-5 (Tier-2 sign-off, ASM transcription at commit, green mock + RT-14
+> lint, `prereg-freeze`) remains with the coordinator/maintainer/runner.
+> **Freeze-readiness verdict: GO.**
 >
 > **Resolved pin values (BLOCKER-3; recompute/verify mechanically at freeze):**
 > - `pins.corpus_hashes.nsk1-clutrr-r3` =
@@ -667,13 +780,24 @@ harness sha, prereg-doc sha) that only a build + freeze can fill.
 >   (matches the manifest's `builder_sha256`) + corpus output digest above +
 >   B″-helper base `poc/modal/modal_nsk1_g2.py` sha256
 >   `97f9758c2fff39e07f97ddfe74cf93cc7561807ea73b45ebd6e79b87a2833ec4`
->   (`_build_specs_bprime2` / injection hook / margin read-out live here); the
->   nsk1-r3 real-mode entrypoint is written by the runner and its sha appended
->   **at freeze** (the one remaining freeze-time fill, per the nsk1 precedent).
+>   (`_build_specs_bprime2` / injection hook / margin read-out live here) +
+>   REAL-MODE ENTRYPOINT `poc/modal/modal_nsk1_r3.py` sha256
+>   `2e959790aa1579269c905f60b2fc8d940269f7af87df180d441945baa36f5bd1`
+>   (pinned 2026-07-15, integrity-review defect 4 — written against this
+>   record; fail-closes on its OWN sha vs the record pin, on record status
+>   FROZEN + frozen_sha256 recompute + frozen-index match, on the corpus and
+>   analysis pins, and on the `NSK1_R3_RUN_AUTHORIZED` Tier-2 sign-off env
+>   gate BEFORE any GPU call; mock/dry-plan are $0 CPU paths; the green mock
+>   drives the full 532-item pipeline into the pinned analysis) + engine
+>   `tools/axiom/kot_axiom.py` sha256
+>   `d26408815238cd9f73b50bb2c4b1f659c8a783ff6a5f16e27357eb2071bb3d08`
+>   (RECONCILED 2026-07-15 to the current committed bytes — the previously
+>   carried `b6226940…` digest was stale after the engine-cleanup commit;
+>   the engine is not exercised by this record, carried for lineage).
 > - `pins.analysis_script.sha256` =
->   `eb3042b361759379c8cf16c959b5f10b7bcb8103c73f4bb1ae5c8cd5a7ae1402`
->   (recomputed 2026-07-15; byte-identical to the draft pin — no review edit
->   has landed; recompute again if review edits the script).
+>   `162331d27ca672ee9656bfdd8eebb563cec7cb4d315af4fdcb1def2a35d29a12`
+>   (recomputed 2026-07-15 after the defect-4 fail-closed hardening + the
+>   `--selftest` guard proof; recompute again if review edits the script).
 > - `prereg_doc.sha256` = sha256 of this document as amended 2026-07-15,
 >   written into the record at prep; **must be recomputed at freeze** if this
 >   document changes again (any bridge re-anchor edit WILL change it).
@@ -733,16 +857,25 @@ harness sha, prereg-doc sha) that only a build + freeze can fill.
 
 **A PASS licenses exactly:** *the B″ internal-write keyed-DELIVERY finding is
 confirmed on a fresh, structurally-identical, **SYNTHETIC-SURFACE** CLUTRR
-substrate at R3 at the two pre-registered cells* — a norm-matched additive
-contrastive residual write of a counterfactual name-pair difference vector,
-injected at the final prompt token, delivers item-specific content the host
-reads out at keyed accuracy beating an arithmetic-chance coin control and a
-role-consistent control above the 0.70 floor, under a complete grid-wide FWER
-correction, with the two cells confirmed on disjoint fresh data. This is
-**confirmatory-on-a-related-substrate** (a modest surface-family
+substrate at R3 at the **PRIMARY pre-registered cell (16,16)** on fresh
+partition A* — a norm-matched additive contrastive residual write of a
+counterfactual name-pair difference vector, injected at the final prompt
+token, delivers item-specific content the host reads out at keyed accuracy
+beating an arithmetic-chance coin control and a role-consistent control above
+the 0.70 floor, under a complete grid-wide FWER correction. **A PASS requires
+H1/C1 only and licenses the primary cell alone; the two-cell claim
+("confirmed at both pre-registered cells on disjoint fresh partitions") is
+licensed only by `confirmed_replicated` (H1 ∧ H2), reported with the same
+prominence — a PASS with H2 not passing licenses the primary cell alone.**
+This is **confirmatory-on-a-related-substrate** (a modest surface-family
 generalization of B″), **not** a byte-faithful replication of B″'s AMT-surface
 measurement (D-1, §6.2); the paired surface-sensitivity is reported from the
-§6.5 bridge, MEASURED-exploratory.
+§6.5 bridge, MEASURED-exploratory: Δ̂_surface = +0.040 (syn 0.895 / amt 0.855,
+CI95 [−0.0053, +0.0874]) — no synthetic-surface degradation, with the §6.5
+register-convergence caution attached: the synthetic surface may modestly
+flatter the effect size relative to an AMT-like register (+0.04 direction, not
+material at the pre-disclosed ≥ 0.05 threshold, CI crosses 0), so a PASS's
+keyacc is not comparable to B″'s AMT numbers without that caveat.
 
 **It does NOT license:** any **integration / real-generation / correctness**
 claim (the read-out is a teacher-forced margin; Stage-1 read integration
@@ -788,15 +921,22 @@ widening is EXTRAPOLATION (load_bearing: false).
   change from B″ failures-only Swept), substrata reported.
 - **ASM-2359** — n = 300/cell target + count-gate branches + non-freeze floor
   (planning keyacc re-anchored by the §6.5 bridge before freeze).
-- **ASM-2364 (NEW, 2026-07-15)** — D-1 acceptance per maintainer decision
-  (repo issue 39, option a): the confirmatory substrate is synthetic-surface;
-  the §6.5 surface-bridge (paired same-item AMT-vs-synthetic at C1, n = 200
-  burned items, seed 20260714, B″ derangement family) is the REQUIRED
-  pre-freeze calibration basis — its Δ̂_surface, synthetic keyacc, paired
-  text-only accuracies, and summary sha are registered here at commit; its
-  branch rule (≥ 0.81 freeze as-is / 0.75–0.81 re-anchor n / < 0.75 escalate)
-  governs the freeze decision. Exploratory-labelled; never gates the frozen
-  verdict.
+- **ASM-2364 (NEW 2026-07-15; AMENDED 2026-07-15, bridge registration)** —
+  D-1 acceptance per maintainer decision (repo issue 39, option a): the
+  confirmatory substrate is synthetic-surface; the §6.5 surface-bridge
+  (paired same-item AMT-vs-synthetic at C1, n = 200 burned items, seed
+  20260714, B″ derangement family) is the REQUIRED pre-freeze calibration
+  basis. **Amendment (supersedes-by-citation the pre-bridge "registered at
+  commit" wording): the bridge has RUN (commit 8b23a083, phase:explore) and
+  the ASM-2357-old surface-invariance STIPULATION is replaced by the
+  MEASURED (exploratory) number** — keyacc_amt = 0.855, keyacc_syn = 0.895,
+  Δ̂_surface = +0.040, Newcombe CI95 [−0.0053, +0.0874], McNemar p = 0.115
+  descriptive, b = 6 / c = 14; summary sha256 `43978821bc21…0d5f`, rows
+  sha256 `4e203512d483…1814` (full shas in the registry row); text-only
+  amt 0.795 / syn 0.785. Branch rule FIRED **FREEZE-AS-IS** (0.895 ≥ 0.81);
+  register-convergence caution recorded (+0.04 direction, not material at
+  the ≥ 0.05 pre-disclosed threshold, CI crosses 0 — interpretation-only,
+  never gating). Exploratory-labelled; never gates the frozen verdict.
 
 ---
 
