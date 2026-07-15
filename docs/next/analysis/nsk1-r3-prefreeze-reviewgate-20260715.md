@@ -1,0 +1,9 @@
+1. **PASS — Branch rule:** 0.895 ≥ 0.81 correctly fires FREEZE-AS-IS; the separate reduced-count gate validly reconciles n=266 versus the original n=300 target.
+2. **DEFECT — Power:** k*=205 and power 0.954025 are correct for the Bonferroni-adjusted Wilson floor, but not demonstrated for the full floor+coin+role conjunction; joint control-gate power lacks a specified alternative model.
+3. **PASS — Planning value:** retaining 0.81 rather than substituting 0.895 is conservative and follows the predeclared rule, not cherry-picking.
+4. **PASS, qualified — Register convergence:** +0.040 is below the predeclared 0.05 point-estimate flag and its CI crosses zero; the PASS caveat is carried, though this does not establish equivalence or exclude a material positive effect.
+5. **DEFECT — Scope:** PASS requires H1/C1 only, yet the licensing text says any PASS confirms “the two cells”; that claim requires `confirmed_replicated`. ASM-2364 also overstates that REFUTED “could not” arise from the surface swap.
+6. **DEFECT — Freeze mechanics:** the dry-run fails on the nonliteral INCONCLUSIVE catch-all; after correcting that in memory, it also fails on the abbreviated corpus-recipe string and the acknowledged stale prereg hash.
+7. **DEFECT — Pins/analysis:** the real-mode entrypoint remains absent and unpinned, the carried engine hash mismatches the current file, and the analysis can PASS without all three declared seeds or the complete 266-item partitions.
+8. Bridge rows independently reproduce 0.855/0.895, b=6/c=14, Δ=0.040; bridge, corpus-digest, analysis, plan, builder, and helper hashes otherwise verify.
+9. **Overall: FREEZE-HOLD.** Most importantly, the pinned analysis does not fail closed on the preregistered three-seed/full-partition endpoint; correct that and the licensing mismatch, then obtain a clean freeze dry-run.

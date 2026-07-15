@@ -1,7 +1,7 @@
 record id: urn:molaug-v0:game
 label: game
 gloss: An activity that people engage in for the pleasure of the doing itself, carried on in the way that words agreed beforehand lay down, and in which players commonly seek to do better than one another.
-notes (self-flag): AST adequacy: lossy — play's non-seriousness and the win-condition are beyond the primes: rendered as pleasurable doing, conformity to previously said words, and some players' want to do it in a more-good way, which loses the comparative object ('better than the others') and the notion of winning.
+notes (self-flag): AST adequacy: lossy — play's non-seriousness and the win-condition are beyond the primes: rendered as pleasurable doing, conformity to words said by people to other people beforehand and wanted followed by all (agreement as shared saying plus shared want), and some players' want to do the thing in a more-good way when other people do it — the others' doing anchors the comparison, but degree and the notion of winning are dropped.
 references: (none)
 mechanical lemma-collision warnings: (none)
 
@@ -20,6 +20,10 @@ mechanical lemma-collision warnings: (none)
   },
   {
    "index": 3,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 4,
    "refKind": "SomeoneRef"
   }
  ],
@@ -139,6 +143,52 @@ mechanical lemma-collision warnings: (none)
          "kind": "prime",
          "prime": "NOW"
         }
+       },
+       "addressee": {
+        "kind": "sp",
+        "det": "OTHER~ELSE~ANOTHER",
+        "head": {
+         "kind": "primeHead",
+         "prime": "PEOPLE"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "type": "pred",
+   "pred": "WANT",
+   "roles": {
+    "experiencer": {
+     "kind": "sp",
+     "quant": "ALL",
+     "head": {
+      "kind": "primeHead",
+      "prime": "PEOPLE"
+     }
+    },
+    "complement": {
+     "kind": "clause",
+     "clause": {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "PEOPLE"
+        }
+       },
+       "undergoer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "manner": {
+        "kind": "ref",
+        "index": 2
        }
       }
      }
@@ -161,31 +211,56 @@ mechanical lemma-collision warnings: (none)
     "complement": {
      "kind": "clause",
      "clause": {
-      "type": "pred",
-      "pred": "DO",
-      "roles": {
-       "agent": {
-        "kind": "ref",
-        "index": 3
-       },
-       "undergoer": {
-        "kind": "ref",
-        "index": 1
-       },
-       "manner": {
-        "kind": "sp",
-        "mods": [
-         {
-          "mod": "GOOD",
-          "intensifier": "MORE"
+      "type": "op",
+      "op": "WHEN",
+      "args": [
+       {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+         "agent": {
+          "kind": "sp",
+          "det": "OTHER~ELSE~ANOTHER",
+          "head": {
+           "kind": "primeHead",
+           "prime": "PEOPLE"
+          },
+          "bind": 4
+         },
+         "undergoer": {
+          "kind": "ref",
+          "index": 1
          }
-        ],
-        "head": {
-         "kind": "primeHead",
-         "prime": "SOMETHING~THING"
+        }
+       },
+       {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+         "agent": {
+          "kind": "ref",
+          "index": 3
+         },
+         "undergoer": {
+          "kind": "ref",
+          "index": 1
+         },
+         "manner": {
+          "kind": "sp",
+          "mods": [
+           {
+            "mod": "GOOD",
+            "intensifier": "MORE"
+           }
+          ],
+          "head": {
+           "kind": "primeHead",
+           "prime": "SOMETHING~THING"
+          }
+         }
         }
        }
-      }
+      ]
      }
     }
    }

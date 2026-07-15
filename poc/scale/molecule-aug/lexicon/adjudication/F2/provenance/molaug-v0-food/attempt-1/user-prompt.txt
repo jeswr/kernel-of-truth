@@ -6,7 +6,7 @@ references: urn:molaug-v0:eat
 mechanical lemma-collision warnings: (none)
 
 REFERENCED GLOSSES:
-urn:molaug-v0:eat — eat (X eats Y): To take something into the body through the mouth and swallow it, so that it passes within the body and is in time made part of it.
+urn:molaug-v0:eat — eat (X eats Y): To take something into the body through the mouth, breaking it up small and swallowing it, so that it passes within the body and is in time made part of it.
 
 === EXPANDED RENDERING (judge THIS: recursively inlined, prime-only) ===
 {
@@ -110,6 +110,48 @@ urn:molaug-v0:eat — eat (X eats Y): To take something into the body through th
          "bind": 3
         }
        }
+      },
+      {
+       "type": "op",
+       "op": "BECAUSE",
+       "args": [
+        {
+         "type": "pred",
+         "pred": "DO",
+         "roles": {
+          "agent": {
+           "kind": "ref",
+           "index": 1
+          },
+          "undergoer": {
+           "kind": "ref",
+           "index": 2
+          }
+         }
+        },
+        {
+         "type": "pred",
+         "pred": "THERE-IS",
+         "roles": {
+          "undergoer": {
+           "kind": "sp",
+           "quant": "MUCH~MANY",
+           "mods": [
+            {
+             "mod": "SMALL"
+            }
+           ],
+           "head": {
+            "kind": "partFrame",
+            "of": {
+             "kind": "ref",
+             "index": 2
+            }
+           }
+          }
+         }
+        }
+       ]
       },
       {
        "type": "op",
@@ -290,6 +332,48 @@ urn:molaug-v0:eat — eat (X eats Y): To take something into the body through th
           },
           {
            "type": "pred",
+           "pred": "THERE-IS",
+           "roles": {
+            "undergoer": {
+             "kind": "sp",
+             "quant": "MUCH~MANY",
+             "mods": [
+              {
+               "mod": "SMALL"
+              }
+             ],
+             "head": {
+              "kind": "partFrame",
+              "of": {
+               "kind": "ref",
+               "index": 2
+              }
+             }
+            }
+           }
+          }
+         ]
+        },
+        {
+         "type": "op",
+         "op": "BECAUSE",
+         "args": [
+          {
+           "type": "pred",
+           "pred": "DO",
+           "roles": {
+            "agent": {
+             "kind": "ref",
+             "index": 1
+            },
+            "undergoer": {
+             "kind": "ref",
+             "index": 2
+            }
+           }
+          },
+          {
+           "type": "pred",
            "pred": "BE-SOMEWHERE",
            "roles": {
             "undergoer": {
@@ -449,6 +533,48 @@ urn:molaug-v0:eat — eat (X eats Y): To take something into the body through th
              "bind": 3
             }
            }
+          },
+          {
+           "type": "op",
+           "op": "BECAUSE",
+           "args": [
+            {
+             "type": "pred",
+             "pred": "DO",
+             "roles": {
+              "agent": {
+               "kind": "ref",
+               "index": 1
+              },
+              "undergoer": {
+               "kind": "ref",
+               "index": 2
+              }
+             }
+            },
+            {
+             "type": "pred",
+             "pred": "THERE-IS",
+             "roles": {
+              "undergoer": {
+               "kind": "sp",
+               "quant": "MUCH~MANY",
+               "mods": [
+                {
+                 "mod": "SMALL"
+                }
+               ],
+               "head": {
+                "kind": "partFrame",
+                "of": {
+                 "kind": "ref",
+                 "index": 2
+                }
+               }
+              }
+             }
+            }
+           ]
           },
           {
            "type": "op",

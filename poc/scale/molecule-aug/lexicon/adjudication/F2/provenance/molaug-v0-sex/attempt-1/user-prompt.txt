@@ -137,6 +137,10 @@ urn:molaug-v0:woman — woman (adult female): An adult female human being: a gro
           {
            "index": 2,
            "refKind": "SomeoneRef"
+          },
+          {
+           "index": 3,
+           "refKind": "SomethingRef"
           }
          ],
          "clauses": [
@@ -388,6 +392,27 @@ urn:molaug-v0:woman — woman (adult female): An adult female human being: a gro
                       "head": {
                        "kind": "primeHead",
                        "prime": "BODY"
+                      },
+                      "bind": 3,
+                      "restrictedBy": {
+                       "type": "pred",
+                       "pred": "BE-SPEC",
+                       "roles": {
+                        "undergoer": {
+                         "kind": "ref",
+                         "index": 3
+                        },
+                        "attribute": {
+                         "kind": "sp",
+                         "head": {
+                          "kind": "partFrame",
+                          "of": {
+                           "kind": "ref",
+                           "index": 2
+                          }
+                         }
+                        }
+                       }
                       }
                      },
                      "manner": {
@@ -401,6 +426,28 @@ urn:molaug-v0:woman — woman (adult female): An adult female human being: a gro
                 ]
                }
               }
+             }
+            }
+           }
+          },
+          {
+           "type": "pred",
+           "pred": "BE-SPEC",
+           "roles": {
+            "undergoer": {
+             "kind": "ref",
+             "index": 1
+            },
+            "attribute": {
+             "kind": "sp",
+             "mods": [
+              {
+               "mod": "BIG"
+              }
+             ],
+             "head": {
+              "kind": "primeHead",
+              "prime": "SOMEONE"
              }
             }
            }
@@ -465,6 +512,10 @@ urn:molaug-v0:woman — woman (adult female): An adult female human being: a gro
             {
              "index": 2,
              "refKind": "SomeoneRef"
+            },
+            {
+             "index": 3,
+             "refKind": "SomethingRef"
             }
            ],
            "clauses": [
@@ -712,6 +763,27 @@ urn:molaug-v0:woman — woman (adult female): An adult female human being: a gro
                       "head": {
                        "kind": "primeHead",
                        "prime": "BODY"
+                      },
+                      "bind": 3,
+                      "restrictedBy": {
+                       "type": "pred",
+                       "pred": "BE-SPEC",
+                       "roles": {
+                        "undergoer": {
+                         "kind": "ref",
+                         "index": 3
+                        },
+                        "attribute": {
+                         "kind": "sp",
+                         "head": {
+                          "kind": "partFrame",
+                          "of": {
+                           "kind": "ref",
+                           "index": 2
+                          }
+                         }
+                        }
+                       }
                       }
                      },
                      "manner": {
@@ -723,6 +795,28 @@ urn:molaug-v0:woman — woman (adult female): An adult female human being: a gro
                   ]
                  }
                 }
+               }
+              }
+             }
+            },
+            {
+             "type": "pred",
+             "pred": "BE-SPEC",
+             "roles": {
+              "undergoer": {
+               "kind": "ref",
+               "index": 1
+              },
+              "attribute": {
+               "kind": "sp",
+               "mods": [
+                {
+                 "mod": "BIG"
+                }
+               ],
+               "head": {
+                "kind": "primeHead",
+                "prime": "SOMEONE"
                }
               }
              }

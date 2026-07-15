@@ -1,0 +1,139 @@
+record id: urn:molaug-v0:grow
+label: grow
+gloss: Of a living thing: to become bigger over a stretch of time through the course of its own life, not through anything done to it from outside.
+notes (self-flag): AST adequacy: faithful — living, becoming bigger across the bound interval, and the negation of external agency are rendered; the internal biological process is carried only by that negation, and maturation (growing into a full form) is not distinguished from mere enlargement.
+references: (none)
+mechanical lemma-collision warnings: (none)
+
+=== EXPANDED RENDERING (judge THIS: recursively inlined, prime-only) ===
+{
+ "schema": "kot-ast/1",
+ "frame": "WhenTrue",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 3,
+   "refKind": "TimeRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "LIVE",
+   "roles": {
+    "undergoer": {
+     "kind": "ref",
+     "index": 1
+    }
+   }
+  },
+  {
+   "type": "pred",
+   "pred": "HAPPEN",
+   "roles": {
+    "undergoer": {
+     "kind": "sp",
+     "det": "SOME",
+     "head": {
+      "kind": "primeHead",
+      "prime": "SOMETHING~THING"
+     },
+     "bind": 2
+    },
+    "time": {
+     "kind": "sp",
+     "det": "SOME",
+     "head": {
+      "kind": "primeHead",
+      "prime": "WHEN~TIME"
+     },
+     "bind": 3
+    },
+    "duration": {
+     "kind": "prime",
+     "prime": "FOR-SOME-TIME"
+    }
+   }
+  },
+  {
+   "type": "op",
+   "op": "AFTER",
+   "args": [
+    {
+     "kind": "ref",
+     "index": 3
+    },
+    {
+     "type": "pred",
+     "pred": "BE-SPEC",
+     "roles": {
+      "undergoer": {
+       "kind": "ref",
+       "index": 1
+      },
+      "attribute": {
+       "kind": "sp",
+       "mods": [
+        {
+         "mod": "BIG",
+         "intensifier": "MORE"
+        }
+       ],
+       "head": {
+        "kind": "primeHead",
+        "prime": "SOMETHING~THING"
+       }
+      }
+     }
+    }
+   ]
+  },
+  {
+   "type": "op",
+   "op": "NOT",
+   "args": [
+    {
+     "type": "op",
+     "op": "BECAUSE",
+     "args": [
+      {
+       "type": "pred",
+       "pred": "DO",
+       "roles": {
+        "agent": {
+         "kind": "sp",
+         "det": "SOME",
+         "head": {
+          "kind": "primeHead",
+          "prime": "SOMEONE"
+         }
+        },
+        "undergoer": {
+         "kind": "ref",
+         "index": 1
+        }
+       }
+      },
+      {
+       "type": "pred",
+       "pred": "HAPPEN",
+       "roles": {
+        "undergoer": {
+         "kind": "ref",
+         "index": 2
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

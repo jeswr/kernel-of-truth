@@ -70,7 +70,7 @@ fences:
 record id: urn:molaug-v0:measure
 label: measure (X measures Y)
 gloss: To ascertain the size or amount of something by doing something to it, coming thereby to know how it stands in comparison with things commonly known and taken as a standard, so that this can afterwards be stated in words.
-notes (self-flag): AST adequacy: lossy — number, unit and exact ratio are beyond the primes; measuring is rendered as acting on a thing so as to know it as comparable (LIKE) with standard things that many people know, with the result sayable afterwards; the direction and degree of the comparison are dropped.
+notes (self-flag): AST adequacy: lossy — number, unit and exact ratio are beyond the primes; measuring is rendered as acting on a thing so as to know that it is big as certain standard things are big (a size-likeness), where the standard things are things many people know and think of when they want to know about other things; amount ('how much') is folded into the size analogue, and the direction and degree of the comparison are dropped.
 references: (none)
 mechanical lemma-collision warnings: (none)
 
@@ -94,6 +94,10 @@ mechanical lemma-collision warnings: (none)
   {
    "index": 4,
    "refKind": "SomethingRef"
+  },
+  {
+   "index": 5,
+   "refKind": "SomeoneRef"
   }
  ],
  "clauses": [
@@ -153,39 +157,131 @@ mechanical lemma-collision warnings: (none)
         "op": "LIKE",
         "args": [
          {
-          "kind": "ref",
-          "index": 2
+          "type": "pred",
+          "pred": "BE-SPEC",
+          "roles": {
+           "undergoer": {
+            "kind": "ref",
+            "index": 2
+           },
+           "attribute": {
+            "kind": "sp",
+            "mods": [
+             {
+              "mod": "BIG"
+             }
+            ],
+            "head": {
+             "kind": "primeHead",
+             "prime": "SOMETHING~THING"
+            }
+           }
+          }
          },
          {
-          "kind": "sp",
-          "det": "OTHER~ELSE~ANOTHER",
-          "quant": "SOME",
-          "head": {
-           "kind": "primeHead",
-           "prime": "SOMETHING~THING"
-          },
-          "bind": 4,
-          "restrictedBy": {
-           "type": "pred",
-           "pred": "KNOW",
-           "roles": {
-            "experiencer": {
-             "kind": "sp",
-             "quant": "MUCH~MANY",
-             "head": {
-              "kind": "primeHead",
-              "prime": "PEOPLE"
-             }
+          "type": "pred",
+          "pred": "BE-SPEC",
+          "roles": {
+           "undergoer": {
+            "kind": "sp",
+            "det": "OTHER~ELSE~ANOTHER",
+            "quant": "SOME",
+            "head": {
+             "kind": "primeHead",
+             "prime": "SOMETHING~THING"
             },
-            "topic": {
-             "kind": "ref",
-             "index": 4
+            "bind": 4,
+            "restrictedBy": {
+             "type": "pred",
+             "pred": "KNOW",
+             "roles": {
+              "experiencer": {
+               "kind": "sp",
+               "quant": "MUCH~MANY",
+               "head": {
+                "kind": "primeHead",
+                "prime": "PEOPLE"
+               }
+              },
+              "topic": {
+               "kind": "ref",
+               "index": 4
+              }
+             }
+            }
+           },
+           "attribute": {
+            "kind": "sp",
+            "mods": [
+             {
+              "mod": "BIG"
+             }
+            ],
+            "head": {
+             "kind": "primeHead",
+             "prime": "SOMETHING~THING"
             }
            }
           }
          }
         ]
        }
+      }
+     }
+    }
+   ]
+  },
+  {
+   "type": "op",
+   "op": "WHEN",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "WANT",
+     "roles": {
+      "experiencer": {
+       "kind": "sp",
+       "quant": "MUCH~MANY",
+       "head": {
+        "kind": "primeHead",
+        "prime": "PEOPLE"
+       },
+       "bind": 5
+      },
+      "complement": {
+       "kind": "clause",
+       "clause": {
+        "type": "pred",
+        "pred": "KNOW",
+        "roles": {
+         "experiencer": {
+          "kind": "ref",
+          "index": 5
+         },
+         "topic": {
+          "kind": "sp",
+          "det": "OTHER~ELSE~ANOTHER",
+          "head": {
+           "kind": "primeHead",
+           "prime": "SOMETHING~THING"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    {
+     "type": "pred",
+     "pred": "THINK",
+     "roles": {
+      "experiencer": {
+       "kind": "ref",
+       "index": 5
+      },
+      "topic": {
+       "kind": "ref",
+       "index": 4
       }
      }
     }

@@ -1,0 +1,1080 @@
+# Bridge-lexicon review rubric (S5-v2 proxy adjudication)
+
+> FROZEN DESIGN ARTEFACT (DESIGN-v2.md §4.1; sha256-pinned in FREEZE-v2.json).
+> Used as the system prompt for the independent proxy adjudication of every
+> `urn:molaug-v0:*` bridge record AND every `urn:kernel-v0:*` record in the
+> bridges' reference closure. Edits are allowed ONLY before the freeze.
+
+You are an independent reviewer of formal semantic-lexicon records. You will
+receive ONE record: its id, label, scholarly gloss, self-flag notes, declared
+references (with the referenced records' glosses), any mechanical
+lemma-collision warnings, and — the object of judgment — its **EXPANDED
+RENDERING**: the record's own explication with every referenced concept
+recursively inlined as a `{"kind":"subExplication", frame, referents,
+clauses}` block, so the rendering contains ONLY profile-1 prime material.
+Read a `subExplication` block as a self-contained sub-definition whose full
+meaning applies at that position (its `referents` indices are local to the
+block). Judge what the rendering ACTUALLY encodes — never take the gloss or
+any label on credit.
+
+Review each record against FOUR criteria:
+
+1. **gloss_scholarly** — the gloss meets the scholarly-definition bar:
+   genus–differentia, sense-fixed, non-circular, no mere synonym list.
+2. **explication_carries_gloss** — the expanded rendering carries the gloss's
+   CRITERIAL content: someone reading only the rendered primes would pick out
+   this concept and not a sibling. Non-criterial encyclopedic residue is not
+   a failure; dropped or wrongly-asserted criterial meaning is.
+3. **self_flag_correct** — the record's `AST adequacy: faithful|lossy — …`
+   self-flag honestly matches what the rendering carries. A record MAY be
+   self-flagged lossy and still be acceptable (admission-as-endorsement,
+   DESIGN.md §3.3.4) — the flag must simply be TRUE.
+4. **sense_collision_free** — the record's sense does not collide with an
+   evaluation sense (consider the listed mechanical lemma-collision
+   warnings: a warning is only a collision if the SENSES actually coincide).
+
+**Verdict:**
+- **ACCEPT** — usable as-is in the referenceable lexicon (self-flagged
+  lossiness allowed if the flag is correct and the gloss + criterial core
+  hold).
+- **REPAIR** — the record is salvageable but a criterion above fails in a
+  fixable way (e.g. wrong self-flag, weak gloss, one missing criterial
+  clause). Name the fix in `reason`.
+- **REJECT** — wrong sense, circular, misleading, or unsalvageable without
+  redesign.
+
+Do not reward size or nesting; judge each record in isolation; provenance is
+irrelevant.
+
+## Output — STRICT JSON only
+
+Your ENTIRE reply must be exactly ONE JSON object, no prose, no markdown
+fences:
+
+```
+{"id": "<the record id you were shown>",
+ "verdict": "ACCEPT",
+ "gloss_scholarly": true,
+ "explication_carries_gloss": true,
+ "self_flag_correct": true,
+ "sense_collision_free": true,
+ "reason": "<one line justifying the verdict; for REPAIR, name the fix>"}
+```
+
+(The fence above is illustration only — your reply must not contain fences.)
+`verdict` ∈ {"ACCEPT","REPAIR","REJECT"}; the four criteria are booleans;
+`reason` is a short non-empty string.
+
+
+=== INPUT (define this one concept) ===
+record id: urn:molaug-v0:sex
+label: sex (mating)
+gloss: Bodily activity in which two people engage together, characteristically pleasurable, and of the kind such that when the partners are a man and a woman a birth can later come of it.
+notes (self-flag): AST adequacy: lossy — the specifically genital character and the erotic quality of the act are beyond the primes; rendered as joint two-person bodily doing, felt bodily pleasure, and the man-woman-conditioned birth linkage, which underdetermines the act against other joint bodily activity.
+references: urn:kernel-v0:birth, urn:molaug-v0:man, urn:molaug-v0:woman
+mechanical lemma-collision warnings: (none)
+
+REFERENCED GLOSSES:
+urn:kernel-v0:birth — birth (the event): this something is a something of kind event; it happens at some time; before this time someone does not live; after this time this someone lives.
+urn:molaug-v0:man — man (adult male): An adult male human being: a grown person of the bodily kind from whose body a child cannot be born.
+urn:molaug-v0:woman — woman (adult female): An adult female human being: a grown person of the bodily kind from whose body a child can be born.
+
+=== EXPANDED RENDERING (judge THIS: recursively inlined, prime-only) ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 3,
+   "refKind": "TimeRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "DO",
+   "roles": {
+    "agent": {
+     "kind": "sp",
+     "quant": "TWO",
+     "head": {
+      "kind": "primeHead",
+      "prime": "PEOPLE"
+     },
+     "bind": 2
+    },
+    "undergoer": {
+     "kind": "ref",
+     "index": 1
+    },
+    "instrument": {
+     "kind": "sp",
+     "quant": "TWO",
+     "head": {
+      "kind": "primeHead",
+      "prime": "BODY"
+     }
+    },
+    "time": {
+     "kind": "sp",
+     "det": "SOME",
+     "head": {
+      "kind": "primeHead",
+      "prime": "WHEN~TIME"
+     },
+     "bind": 3
+    }
+   }
+  },
+  {
+   "type": "op",
+   "op": "WHEN",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "DO",
+     "roles": {
+      "agent": {
+       "kind": "ref",
+       "index": 2
+      },
+      "undergoer": {
+       "kind": "ref",
+       "index": 1
+      }
+     }
+    },
+    {
+     "type": "pred",
+     "pred": "FEEL",
+     "roles": {
+      "experiencer": {
+       "kind": "ref",
+       "index": 2
+      },
+      "attribute": {
+       "kind": "prime",
+       "prime": "GOOD"
+      },
+      "place": {
+       "kind": "sp",
+       "head": {
+        "kind": "primeHead",
+        "prime": "BODY"
+       }
+      }
+     }
+    }
+   ]
+  },
+  {
+   "type": "op",
+   "op": "IF",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "BE-SPEC",
+     "roles": {
+      "undergoer": {
+       "kind": "sp",
+       "quant": "ONE",
+       "head": {
+        "kind": "refHead",
+        "index": 2
+       }
+      },
+      "attribute": {
+       "kind": "sp",
+       "head": {
+        "kind": "kindFrame",
+        "of": {
+         "kind": "subExplication",
+         "frame": "InstanceSchema",
+         "referents": [
+          {
+           "index": 1,
+           "refKind": "SomeoneRef"
+          },
+          {
+           "index": 2,
+           "refKind": "SomeoneRef"
+          }
+         ],
+         "clauses": [
+          {
+           "type": "pred",
+           "pred": "BE-SPEC",
+           "roles": {
+            "undergoer": {
+             "kind": "ref",
+             "index": 1
+            },
+            "attribute": {
+             "kind": "sp",
+             "head": {
+              "kind": "kindFrame",
+              "of": {
+               "kind": "sp",
+               "head": {
+                "kind": "primeHead",
+                "prime": "SOMEONE"
+               },
+               "bind": 2,
+               "restrictedBy": {
+                "type": "op",
+                "op": "NOT",
+                "args": [
+                 {
+                  "type": "op",
+                  "op": "CAN",
+                  "args": [
+                   {
+                    "type": "pred",
+                    "pred": "HAPPEN",
+                    "roles": {
+                     "undergoer": {
+                      "kind": "sp",
+                      "head": {
+                       "kind": "kindFrame",
+                       "of": {
+                        "kind": "subExplication",
+                        "frame": "InstanceSchema",
+                        "referents": [
+                         {
+                          "index": 1,
+                          "refKind": "SomethingRef"
+                         },
+                         {
+                          "index": 2,
+                          "refKind": "SomeoneRef"
+                         },
+                         {
+                          "index": 3,
+                          "refKind": "TimeRef"
+                         }
+                        ],
+                        "clauses": [
+                         {
+                          "type": "pred",
+                          "pred": "BE-SPEC",
+                          "roles": {
+                           "undergoer": {
+                            "kind": "ref",
+                            "index": 1
+                           },
+                           "attribute": {
+                            "kind": "sp",
+                            "head": {
+                             "kind": "kindFrame",
+                             "of": {
+                              "kind": "subExplication",
+                              "frame": "InstanceSchema",
+                              "referents": [
+                               {
+                                "index": 1,
+                                "refKind": "SomethingRef"
+                               },
+                               {
+                                "index": 2,
+                                "refKind": "TimeRef"
+                               }
+                              ],
+                              "clauses": [
+                               {
+                                "type": "pred",
+                                "pred": "HAPPEN",
+                                "roles": {
+                                 "undergoer": {
+                                  "kind": "ref",
+                                  "index": 1
+                                 },
+                                 "time": {
+                                  "kind": "sp",
+                                  "head": {
+                                   "kind": "primeHead",
+                                   "prime": "WHEN~TIME"
+                                  },
+                                  "det": "SOME",
+                                  "bind": 2
+                                 }
+                                }
+                               },
+                               {
+                                "type": "op",
+                                "op": "AFTER",
+                                "args": [
+                                 {
+                                  "kind": "ref",
+                                  "index": 2
+                                 },
+                                 {
+                                  "type": "op",
+                                  "op": "NOT",
+                                  "args": [
+                                   {
+                                    "type": "pred",
+                                    "pred": "HAPPEN",
+                                    "roles": {
+                                     "undergoer": {
+                                      "kind": "ref",
+                                      "index": 1
+                                     }
+                                    }
+                                   }
+                                  ]
+                                 }
+                                ]
+                               },
+                               {
+                                "type": "op",
+                                "op": "CAN",
+                                "args": [
+                                 {
+                                  "type": "pred",
+                                  "pred": "KNOW",
+                                  "roles": {
+                                   "experiencer": {
+                                    "kind": "sp",
+                                    "head": {
+                                     "kind": "primeHead",
+                                     "prime": "PEOPLE"
+                                    }
+                                   },
+                                   "complement": {
+                                    "kind": "clause",
+                                    "clause": {
+                                     "type": "pred",
+                                     "pred": "HAPPEN",
+                                     "roles": {
+                                      "undergoer": {
+                                       "kind": "ref",
+                                       "index": 1
+                                      },
+                                      "time": {
+                                       "kind": "temporal",
+                                       "op": "BEFORE",
+                                       "anchor": {
+                                        "kind": "prime",
+                                        "prime": "NOW"
+                                       }
+                                      }
+                                     }
+                                    }
+                                   }
+                                  }
+                                 }
+                                ]
+                               }
+                              ]
+                             }
+                            }
+                           }
+                          }
+                         },
+                         {
+                          "type": "pred",
+                          "pred": "HAPPEN",
+                          "roles": {
+                           "undergoer": {
+                            "kind": "ref",
+                            "index": 1
+                           },
+                           "time": {
+                            "kind": "sp",
+                            "head": {
+                             "kind": "primeHead",
+                             "prime": "WHEN~TIME"
+                            },
+                            "det": "SOME",
+                            "bind": 3
+                           }
+                          }
+                         },
+                         {
+                          "type": "op",
+                          "op": "BEFORE",
+                          "args": [
+                           {
+                            "kind": "ref",
+                            "index": 3
+                           },
+                           {
+                            "type": "op",
+                            "op": "NOT",
+                            "args": [
+                             {
+                              "type": "pred",
+                              "pred": "LIVE",
+                              "roles": {
+                               "undergoer": {
+                                "kind": "sp",
+                                "head": {
+                                 "kind": "primeHead",
+                                 "prime": "SOMEONE"
+                                },
+                                "bind": 2
+                               }
+                              }
+                             }
+                            ]
+                           }
+                          ]
+                         },
+                         {
+                          "type": "op",
+                          "op": "AFTER",
+                          "args": [
+                           {
+                            "kind": "ref",
+                            "index": 3
+                           },
+                           {
+                            "type": "pred",
+                            "pred": "LIVE",
+                            "roles": {
+                             "undergoer": {
+                              "kind": "ref",
+                              "index": 2
+                             }
+                            }
+                           }
+                          ]
+                         }
+                        ]
+                       }
+                      }
+                     },
+                     "place": {
+                      "kind": "sp",
+                      "head": {
+                       "kind": "primeHead",
+                       "prime": "BODY"
+                      }
+                     },
+                     "manner": {
+                      "kind": "prime",
+                      "prime": "INSIDE"
+                     }
+                    }
+                   }
+                  ]
+                 }
+                ]
+               }
+              }
+             }
+            }
+           }
+          },
+          {
+           "type": "pred",
+           "pred": "LIVE",
+           "roles": {
+            "undergoer": {
+             "kind": "ref",
+             "index": 1
+            },
+            "time": {
+             "kind": "temporal",
+             "op": "BEFORE",
+             "anchor": {
+              "kind": "prime",
+              "prime": "NOW"
+             }
+            },
+            "duration": {
+             "kind": "prime",
+             "prime": "A-LONG-TIME"
+            }
+           }
+          }
+         ]
+        }
+       }
+      }
+     }
+    },
+    {
+     "type": "op",
+     "op": "IF",
+     "args": [
+      {
+       "type": "pred",
+       "pred": "BE-SPEC",
+       "roles": {
+        "undergoer": {
+         "kind": "sp",
+         "det": "OTHER~ELSE~ANOTHER",
+         "quant": "ONE",
+         "head": {
+          "kind": "refHead",
+          "index": 2
+         }
+        },
+        "attribute": {
+         "kind": "sp",
+         "head": {
+          "kind": "kindFrame",
+          "of": {
+           "kind": "subExplication",
+           "frame": "InstanceSchema",
+           "referents": [
+            {
+             "index": 1,
+             "refKind": "SomeoneRef"
+            },
+            {
+             "index": 2,
+             "refKind": "SomeoneRef"
+            }
+           ],
+           "clauses": [
+            {
+             "type": "pred",
+             "pred": "BE-SPEC",
+             "roles": {
+              "undergoer": {
+               "kind": "ref",
+               "index": 1
+              },
+              "attribute": {
+               "kind": "sp",
+               "head": {
+                "kind": "kindFrame",
+                "of": {
+                 "kind": "sp",
+                 "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMEONE"
+                 },
+                 "bind": 2,
+                 "restrictedBy": {
+                  "type": "op",
+                  "op": "CAN",
+                  "args": [
+                   {
+                    "type": "pred",
+                    "pred": "HAPPEN",
+                    "roles": {
+                     "undergoer": {
+                      "kind": "sp",
+                      "head": {
+                       "kind": "kindFrame",
+                       "of": {
+                        "kind": "subExplication",
+                        "frame": "InstanceSchema",
+                        "referents": [
+                         {
+                          "index": 1,
+                          "refKind": "SomethingRef"
+                         },
+                         {
+                          "index": 2,
+                          "refKind": "SomeoneRef"
+                         },
+                         {
+                          "index": 3,
+                          "refKind": "TimeRef"
+                         }
+                        ],
+                        "clauses": [
+                         {
+                          "type": "pred",
+                          "pred": "BE-SPEC",
+                          "roles": {
+                           "undergoer": {
+                            "kind": "ref",
+                            "index": 1
+                           },
+                           "attribute": {
+                            "kind": "sp",
+                            "head": {
+                             "kind": "kindFrame",
+                             "of": {
+                              "kind": "subExplication",
+                              "frame": "InstanceSchema",
+                              "referents": [
+                               {
+                                "index": 1,
+                                "refKind": "SomethingRef"
+                               },
+                               {
+                                "index": 2,
+                                "refKind": "TimeRef"
+                               }
+                              ],
+                              "clauses": [
+                               {
+                                "type": "pred",
+                                "pred": "HAPPEN",
+                                "roles": {
+                                 "undergoer": {
+                                  "kind": "ref",
+                                  "index": 1
+                                 },
+                                 "time": {
+                                  "kind": "sp",
+                                  "head": {
+                                   "kind": "primeHead",
+                                   "prime": "WHEN~TIME"
+                                  },
+                                  "det": "SOME",
+                                  "bind": 2
+                                 }
+                                }
+                               },
+                               {
+                                "type": "op",
+                                "op": "AFTER",
+                                "args": [
+                                 {
+                                  "kind": "ref",
+                                  "index": 2
+                                 },
+                                 {
+                                  "type": "op",
+                                  "op": "NOT",
+                                  "args": [
+                                   {
+                                    "type": "pred",
+                                    "pred": "HAPPEN",
+                                    "roles": {
+                                     "undergoer": {
+                                      "kind": "ref",
+                                      "index": 1
+                                     }
+                                    }
+                                   }
+                                  ]
+                                 }
+                                ]
+                               },
+                               {
+                                "type": "op",
+                                "op": "CAN",
+                                "args": [
+                                 {
+                                  "type": "pred",
+                                  "pred": "KNOW",
+                                  "roles": {
+                                   "experiencer": {
+                                    "kind": "sp",
+                                    "head": {
+                                     "kind": "primeHead",
+                                     "prime": "PEOPLE"
+                                    }
+                                   },
+                                   "complement": {
+                                    "kind": "clause",
+                                    "clause": {
+                                     "type": "pred",
+                                     "pred": "HAPPEN",
+                                     "roles": {
+                                      "undergoer": {
+                                       "kind": "ref",
+                                       "index": 1
+                                      },
+                                      "time": {
+                                       "kind": "temporal",
+                                       "op": "BEFORE",
+                                       "anchor": {
+                                        "kind": "prime",
+                                        "prime": "NOW"
+                                       }
+                                      }
+                                     }
+                                    }
+                                   }
+                                  }
+                                 }
+                                ]
+                               }
+                              ]
+                             }
+                            }
+                           }
+                          }
+                         },
+                         {
+                          "type": "pred",
+                          "pred": "HAPPEN",
+                          "roles": {
+                           "undergoer": {
+                            "kind": "ref",
+                            "index": 1
+                           },
+                           "time": {
+                            "kind": "sp",
+                            "head": {
+                             "kind": "primeHead",
+                             "prime": "WHEN~TIME"
+                            },
+                            "det": "SOME",
+                            "bind": 3
+                           }
+                          }
+                         },
+                         {
+                          "type": "op",
+                          "op": "BEFORE",
+                          "args": [
+                           {
+                            "kind": "ref",
+                            "index": 3
+                           },
+                           {
+                            "type": "op",
+                            "op": "NOT",
+                            "args": [
+                             {
+                              "type": "pred",
+                              "pred": "LIVE",
+                              "roles": {
+                               "undergoer": {
+                                "kind": "sp",
+                                "head": {
+                                 "kind": "primeHead",
+                                 "prime": "SOMEONE"
+                                },
+                                "bind": 2
+                               }
+                              }
+                             }
+                            ]
+                           }
+                          ]
+                         },
+                         {
+                          "type": "op",
+                          "op": "AFTER",
+                          "args": [
+                           {
+                            "kind": "ref",
+                            "index": 3
+                           },
+                           {
+                            "type": "pred",
+                            "pred": "LIVE",
+                            "roles": {
+                             "undergoer": {
+                              "kind": "ref",
+                              "index": 2
+                             }
+                            }
+                           }
+                          ]
+                         }
+                        ]
+                       }
+                      }
+                     },
+                     "place": {
+                      "kind": "sp",
+                      "head": {
+                       "kind": "primeHead",
+                       "prime": "BODY"
+                      }
+                     },
+                     "manner": {
+                      "kind": "prime",
+                      "prime": "INSIDE"
+                     }
+                    }
+                   }
+                  ]
+                 }
+                }
+               }
+              }
+             }
+            },
+            {
+             "type": "pred",
+             "pred": "LIVE",
+             "roles": {
+              "undergoer": {
+               "kind": "ref",
+               "index": 1
+              },
+              "time": {
+               "kind": "temporal",
+               "op": "BEFORE",
+               "anchor": {
+                "kind": "prime",
+                "prime": "NOW"
+               }
+              },
+              "duration": {
+               "kind": "prime",
+               "prime": "A-LONG-TIME"
+              }
+             }
+            }
+           ]
+          }
+         }
+        }
+       }
+      },
+      {
+       "type": "op",
+       "op": "BECAUSE",
+       "args": [
+        {
+         "type": "pred",
+         "pred": "HAPPEN",
+         "roles": {
+          "undergoer": {
+           "kind": "ref",
+           "index": 1
+          }
+         }
+        },
+        {
+         "type": "op",
+         "op": "CAN",
+         "args": [
+          {
+           "type": "pred",
+           "pred": "HAPPEN",
+           "roles": {
+            "undergoer": {
+             "kind": "sp",
+             "head": {
+              "kind": "kindFrame",
+              "of": {
+               "kind": "subExplication",
+               "frame": "InstanceSchema",
+               "referents": [
+                {
+                 "index": 1,
+                 "refKind": "SomethingRef"
+                },
+                {
+                 "index": 2,
+                 "refKind": "SomeoneRef"
+                },
+                {
+                 "index": 3,
+                 "refKind": "TimeRef"
+                }
+               ],
+               "clauses": [
+                {
+                 "type": "pred",
+                 "pred": "BE-SPEC",
+                 "roles": {
+                  "undergoer": {
+                   "kind": "ref",
+                   "index": 1
+                  },
+                  "attribute": {
+                   "kind": "sp",
+                   "head": {
+                    "kind": "kindFrame",
+                    "of": {
+                     "kind": "subExplication",
+                     "frame": "InstanceSchema",
+                     "referents": [
+                      {
+                       "index": 1,
+                       "refKind": "SomethingRef"
+                      },
+                      {
+                       "index": 2,
+                       "refKind": "TimeRef"
+                      }
+                     ],
+                     "clauses": [
+                      {
+                       "type": "pred",
+                       "pred": "HAPPEN",
+                       "roles": {
+                        "undergoer": {
+                         "kind": "ref",
+                         "index": 1
+                        },
+                        "time": {
+                         "kind": "sp",
+                         "head": {
+                          "kind": "primeHead",
+                          "prime": "WHEN~TIME"
+                         },
+                         "det": "SOME",
+                         "bind": 2
+                        }
+                       }
+                      },
+                      {
+                       "type": "op",
+                       "op": "AFTER",
+                       "args": [
+                        {
+                         "kind": "ref",
+                         "index": 2
+                        },
+                        {
+                         "type": "op",
+                         "op": "NOT",
+                         "args": [
+                          {
+                           "type": "pred",
+                           "pred": "HAPPEN",
+                           "roles": {
+                            "undergoer": {
+                             "kind": "ref",
+                             "index": 1
+                            }
+                           }
+                          }
+                         ]
+                        }
+                       ]
+                      },
+                      {
+                       "type": "op",
+                       "op": "CAN",
+                       "args": [
+                        {
+                         "type": "pred",
+                         "pred": "KNOW",
+                         "roles": {
+                          "experiencer": {
+                           "kind": "sp",
+                           "head": {
+                            "kind": "primeHead",
+                            "prime": "PEOPLE"
+                           }
+                          },
+                          "complement": {
+                           "kind": "clause",
+                           "clause": {
+                            "type": "pred",
+                            "pred": "HAPPEN",
+                            "roles": {
+                             "undergoer": {
+                              "kind": "ref",
+                              "index": 1
+                             },
+                             "time": {
+                              "kind": "temporal",
+                              "op": "BEFORE",
+                              "anchor": {
+                               "kind": "prime",
+                               "prime": "NOW"
+                              }
+                             }
+                            }
+                           }
+                          }
+                         }
+                        }
+                       ]
+                      }
+                     ]
+                    }
+                   }
+                  }
+                 }
+                },
+                {
+                 "type": "pred",
+                 "pred": "HAPPEN",
+                 "roles": {
+                  "undergoer": {
+                   "kind": "ref",
+                   "index": 1
+                  },
+                  "time": {
+                   "kind": "sp",
+                   "head": {
+                    "kind": "primeHead",
+                    "prime": "WHEN~TIME"
+                   },
+                   "det": "SOME",
+                   "bind": 3
+                  }
+                 }
+                },
+                {
+                 "type": "op",
+                 "op": "BEFORE",
+                 "args": [
+                  {
+                   "kind": "ref",
+                   "index": 3
+                  },
+                  {
+                   "type": "op",
+                   "op": "NOT",
+                   "args": [
+                    {
+                     "type": "pred",
+                     "pred": "LIVE",
+                     "roles": {
+                      "undergoer": {
+                       "kind": "sp",
+                       "head": {
+                        "kind": "primeHead",
+                        "prime": "SOMEONE"
+                       },
+                       "bind": 2
+                      }
+                     }
+                    }
+                   ]
+                  }
+                 ]
+                },
+                {
+                 "type": "op",
+                 "op": "AFTER",
+                 "args": [
+                  {
+                   "kind": "ref",
+                   "index": 3
+                  },
+                  {
+                   "type": "pred",
+                   "pred": "LIVE",
+                   "roles": {
+                    "undergoer": {
+                     "kind": "ref",
+                     "index": 2
+                    }
+                   }
+                  }
+                 ]
+                }
+               ]
+              }
+             }
+            },
+            "time": {
+             "kind": "temporal",
+             "op": "AFTER",
+             "anchor": {
+              "kind": "ref",
+              "index": 3
+             }
+            }
+           }
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

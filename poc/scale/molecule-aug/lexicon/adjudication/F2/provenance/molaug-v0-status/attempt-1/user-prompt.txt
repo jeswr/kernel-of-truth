@@ -1,7 +1,7 @@
 record id: urn:molaug-v0:status
 label: status (X's standing in group Y)
 gloss: A person's standing within a group: the position, higher or lower relative to the other members, that the group's members accord the person in their shared thinking of one another — a place held in esteem, not in space.
-notes (self-flag): AST adequacy: lossy — social rank is rendered through a spatial above/below metaphor scoped inside the members' thinking, with the literal spatial reading explicitly negated; the evaluative and normative content of standing (esteem, deference, entitlement) is dropped, and the generic quote (above some, below others) overstates the extreme top and bottom ranks.
+notes (self-flag): AST adequacy: lossy — social rank is rendered through a spatial above/below metaphor scoped inside the members' shared thinking, with the literal spatial reading explicitly negated; the compared parties are the other members of the group (part-of restriction), and the top and bottom ranks are accommodated by MAYBE-scoped placement; the accorded evaluative content is rendered only as the members' good-someone regard for one they place above many others — deference and entitlement are dropped.
 references: urn:molaug-v0:group
 mechanical lemma-collision warnings: (none)
 
@@ -198,42 +198,78 @@ urn:molaug-v0:group — group (organized people): A number of people united as a
          "index": 1
         },
         "locus": {
-         "kind": "sp",
-         "det": "OTHER~ELSE~ANOTHER",
-         "quant": "SOME",
-         "head": {
-          "kind": "primeHead",
-          "prime": "SOMEONE"
-         }
+         "kind": "ref",
+         "index": 2
         },
         "manner": {
          "kind": "prime",
-         "prime": "ABOVE"
+         "prime": "INSIDE"
         }
        }
       },
       {
-       "type": "pred",
-       "pred": "BE-SOMEWHERE",
-       "roles": {
-        "undergoer": {
-         "kind": "sp",
-         "det": "OTHER~ELSE~ANOTHER",
-         "quant": "SOME",
-         "head": {
-          "kind": "primeHead",
-          "prime": "SOMEONE"
+       "type": "op",
+       "op": "MAYBE",
+       "args": [
+        {
+         "type": "pred",
+         "pred": "BE-SOMEWHERE",
+         "roles": {
+          "undergoer": {
+           "kind": "ref",
+           "index": 1
+          },
+          "locus": {
+           "kind": "sp",
+           "det": "OTHER~ELSE~ANOTHER",
+           "quant": "SOME",
+           "head": {
+            "kind": "partFrame",
+            "of": {
+             "kind": "ref",
+             "index": 2
+            }
+           }
+          },
+          "manner": {
+           "kind": "prime",
+           "prime": "ABOVE"
+          }
          }
-        },
-        "locus": {
-         "kind": "ref",
-         "index": 1
-        },
-        "manner": {
-         "kind": "prime",
-         "prime": "ABOVE"
         }
-       }
+       ]
+      },
+      {
+       "type": "op",
+       "op": "MAYBE",
+       "args": [
+        {
+         "type": "pred",
+         "pred": "BE-SOMEWHERE",
+         "roles": {
+          "undergoer": {
+           "kind": "sp",
+           "det": "OTHER~ELSE~ANOTHER",
+           "quant": "SOME",
+           "head": {
+            "kind": "partFrame",
+            "of": {
+             "kind": "ref",
+             "index": 2
+            }
+           }
+          },
+          "locus": {
+           "kind": "ref",
+           "index": 1
+          },
+          "manner": {
+           "kind": "prime",
+           "prime": "ABOVE"
+          }
+         }
+        }
+       ]
       }
      ]
     },
@@ -264,13 +300,100 @@ urn:molaug-v0:group — group (organized people): A number of people united as a
        "det": "OTHER~ELSE~ANOTHER",
        "quant": "SOME",
        "head": {
-        "kind": "primeHead",
-        "prime": "SOMEONE"
+        "kind": "partFrame",
+        "of": {
+         "kind": "ref",
+         "index": 2
+        }
        }
       },
       "manner": {
        "kind": "prime",
        "prime": "ABOVE"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "type": "op",
+   "op": "IF",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "THINK",
+     "roles": {
+      "experiencer": {
+       "kind": "ref",
+       "index": 3
+      },
+      "quote": {
+       "kind": "quote",
+       "clauses": [
+        {
+         "type": "pred",
+         "pred": "BE-SOMEWHERE",
+         "roles": {
+          "undergoer": {
+           "kind": "ref",
+           "index": 1
+          },
+          "locus": {
+           "kind": "sp",
+           "det": "OTHER~ELSE~ANOTHER",
+           "quant": "MUCH~MANY",
+           "head": {
+            "kind": "partFrame",
+            "of": {
+             "kind": "ref",
+             "index": 2
+            }
+           }
+          },
+          "manner": {
+           "kind": "prime",
+           "prime": "ABOVE"
+          }
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "type": "pred",
+     "pred": "THINK",
+     "roles": {
+      "experiencer": {
+       "kind": "ref",
+       "index": 3
+      },
+      "quote": {
+       "kind": "quote",
+       "clauses": [
+        {
+         "type": "pred",
+         "pred": "BE-SPEC",
+         "roles": {
+          "undergoer": {
+           "kind": "ref",
+           "index": 1
+          },
+          "attribute": {
+           "kind": "sp",
+           "mods": [
+            {
+             "mod": "GOOD"
+            }
+           ],
+           "head": {
+            "kind": "primeHead",
+            "prime": "SOMEONE"
+           }
+          }
+         }
+        }
+       ]
       }
      }
     }

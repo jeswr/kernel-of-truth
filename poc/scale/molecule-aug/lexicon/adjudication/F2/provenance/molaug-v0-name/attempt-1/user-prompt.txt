@@ -1,7 +1,7 @@
 record id: urn:molaug-v0:name
 label: name (the word for X)
 gloss: The word or words by which a particular person or thing is spoken of, used so that those who hear them know which one is meant.
-notes (self-flag): AST adequacy: faithful — designation is rendered as a convention: when someone thinking of the bearer says these words, hearers know whom the speaker is thinking of, and many people know the words; the type-word distinction (a name names across occasions) rides on the KNOW clause over many people.
+notes (self-flag): AST adequacy: faithful — designation is rendered as one conditional convention: when someone who is thinking of the bearer says these words, another someone who hears them knows whom the speaker is thinking of; the many-people-know clause carries the type-word (across-occasions) character.
 references: (none)
 mechanical lemma-collision warnings: (none)
 
@@ -57,68 +57,37 @@ mechanical lemma-collision warnings: (none)
    "args": [
     {
      "type": "pred",
-     "pred": "THINK",
+     "pred": "SAY",
      "roles": {
-      "experiencer": {
+      "agent": {
        "kind": "sp",
        "det": "SOME",
        "head": {
         "kind": "primeHead",
         "prime": "SOMEONE"
        },
-       "bind": 3
-      },
-      "topic": {
-       "kind": "sp",
-       "det": "SOME",
-       "head": {
-        "kind": "primeHead",
-        "prime": "SOMETHING~THING"
-       },
-       "bind": 2
-      }
-     }
-    },
-    {
-     "type": "op",
-     "op": "CAN",
-     "args": [
-      {
-       "type": "pred",
-       "pred": "SAY",
-       "roles": {
-        "agent": {
-         "kind": "ref",
-         "index": 3
-        },
-        "topic": {
-         "kind": "ref",
-         "index": 1
+       "bind": 3,
+       "restrictedBy": {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+         "experiencer": {
+          "kind": "ref",
+          "index": 3
+         },
+         "topic": {
+          "kind": "sp",
+          "det": "SOME",
+          "head": {
+           "kind": "primeHead",
+           "prime": "SOMETHING~THING"
+          },
+          "bind": 2
+         }
         }
        }
-      }
-     ]
-    }
-   ]
-  },
-  {
-   "type": "op",
-   "op": "WHEN",
-   "args": [
-    {
-     "type": "pred",
-     "pred": "HEAR",
-     "roles": {
-      "experiencer": {
-       "kind": "sp",
-       "det": "OTHER~ELSE~ANOTHER",
-       "head": {
-        "kind": "primeHead",
-        "prime": "SOMEONE"
-       },
-       "bind": 4
       },
-      "stimulus": {
+      "topic": {
        "kind": "ref",
        "index": 1
       }
@@ -129,8 +98,27 @@ mechanical lemma-collision warnings: (none)
      "pred": "KNOW",
      "roles": {
       "experiencer": {
-       "kind": "ref",
-       "index": 4
+       "kind": "sp",
+       "det": "OTHER~ELSE~ANOTHER",
+       "head": {
+        "kind": "primeHead",
+        "prime": "SOMEONE"
+       },
+       "bind": 4,
+       "restrictedBy": {
+        "type": "pred",
+        "pred": "HEAR",
+        "roles": {
+         "experiencer": {
+          "kind": "ref",
+          "index": 4
+         },
+         "stimulus": {
+          "kind": "ref",
+          "index": 1
+         }
+        }
+       }
       },
       "complement": {
        "kind": "clause",

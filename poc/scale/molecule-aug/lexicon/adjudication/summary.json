@@ -2,47 +2,46 @@
   "design": "DESIGN-v2.md \u00a74",
   "closure_size": 39,
   "verdict_counts": {
-    "REPAIR": 15,
-    "ACCEPT": 21,
-    "UNRESOLVED": 3
+    "ACCEPT": 27,
+    "REPAIR": 12
   },
   "finals": {
-    "urn:kernel-v0:birth": "REPAIR",
+    "urn:kernel-v0:birth": "ACCEPT",
     "urn:kernel-v0:death": "ACCEPT",
     "urn:kernel-v0:event": "ACCEPT",
-    "urn:kernel-v0:give": "ACCEPT",
-    "urn:kernel-v0:make": "ACCEPT",
+    "urn:kernel-v0:give": "REPAIR",
+    "urn:kernel-v0:make": "REPAIR",
     "urn:kernel-v0:right": "ACCEPT",
-    "urn:kernel-v0:take": "REPAIR",
+    "urn:kernel-v0:take": "ACCEPT",
     "urn:kernel-v0:wrong": "ACCEPT",
     "urn:molaug-v0:animal": "ACCEPT",
-    "urn:molaug-v0:art": "ACCEPT",
+    "urn:molaug-v0:art": "REPAIR",
     "urn:molaug-v0:authority": "ACCEPT",
-    "urn:molaug-v0:country": "REPAIR",
+    "urn:molaug-v0:country": "ACCEPT",
     "urn:molaug-v0:duty": "REPAIR",
     "urn:molaug-v0:eat": "REPAIR",
     "urn:molaug-v0:fight": "REPAIR",
     "urn:molaug-v0:food": "ACCEPT",
-    "urn:molaug-v0:game": "REPAIR",
+    "urn:molaug-v0:game": "ACCEPT",
     "urn:molaug-v0:group": "ACCEPT",
     "urn:molaug-v0:grow": "ACCEPT",
-    "urn:molaug-v0:hot": "REPAIR",
-    "urn:molaug-v0:ill": "REPAIR",
-    "urn:molaug-v0:institution": "ACCEPT",
+    "urn:molaug-v0:hot": "ACCEPT",
+    "urn:molaug-v0:ill": "ACCEPT",
+    "urn:molaug-v0:institution": "REPAIR",
     "urn:molaug-v0:kill": "ACCEPT",
-    "urn:molaug-v0:law": "REPAIR",
-    "urn:molaug-v0:machine": "ACCEPT",
-    "urn:molaug-v0:man": "UNRESOLVED",
-    "urn:molaug-v0:material": "UNRESOLVED",
+    "urn:molaug-v0:law": "ACCEPT",
+    "urn:molaug-v0:machine": "REPAIR",
+    "urn:molaug-v0:man": "REPAIR",
+    "urn:molaug-v0:material": "ACCEPT",
     "urn:molaug-v0:measure": "REPAIR",
-    "urn:molaug-v0:money": "REPAIR",
-    "urn:molaug-v0:name": "REPAIR",
+    "urn:molaug-v0:money": "ACCEPT",
+    "urn:molaug-v0:name": "ACCEPT",
     "urn:molaug-v0:own": "ACCEPT",
     "urn:molaug-v0:sex": "ACCEPT",
     "urn:molaug-v0:status": "REPAIR",
     "urn:molaug-v0:surface": "ACCEPT",
     "urn:molaug-v0:tool": "ACCEPT",
-    "urn:molaug-v0:woman": "UNRESOLVED",
+    "urn:molaug-v0:woman": "ACCEPT",
     "urn:molaug-v0:work": "ACCEPT",
     "urn:molaug-v0:worth": "ACCEPT",
     "urn:molaug-v0:write": "REPAIR"
@@ -75,6 +74,7 @@
     "urn:molaug-v0:art": {
       "chain_lossy": true,
       "lossy_members": [
+        "urn:kernel-v0:make",
         "urn:molaug-v0:art"
       ]
     },
@@ -96,7 +96,7 @@
     "urn:molaug-v0:duty": {
       "chain_lossy": true,
       "lossy_members": [
-        "urn:kernel-v0:take",
+        "urn:kernel-v0:give",
         "urn:molaug-v0:duty",
         "urn:molaug-v0:money",
         "urn:molaug-v0:work"
@@ -143,16 +143,15 @@
       ]
     },
     "urn:molaug-v0:ill": {
-      "chain_lossy": true,
-      "lossy_members": [
-        "urn:molaug-v0:ill"
-      ]
+      "chain_lossy": false,
+      "lossy_members": []
     },
     "urn:molaug-v0:institution": {
       "chain_lossy": true,
       "lossy_members": [
         "urn:molaug-v0:authority",
         "urn:molaug-v0:group",
+        "urn:molaug-v0:institution",
         "urn:molaug-v0:law"
       ]
     },
@@ -169,19 +168,22 @@
       ]
     },
     "urn:molaug-v0:machine": {
-      "chain_lossy": false,
-      "lossy_members": []
+      "chain_lossy": true,
+      "lossy_members": [
+        "urn:kernel-v0:make",
+        "urn:molaug-v0:machine"
+      ]
     },
     "urn:molaug-v0:man": {
       "chain_lossy": true,
       "lossy_members": [
-        "urn:kernel-v0:birth",
         "urn:molaug-v0:man"
       ]
     },
     "urn:molaug-v0:material": {
       "chain_lossy": true,
       "lossy_members": [
+        "urn:kernel-v0:make",
         "urn:molaug-v0:material"
       ]
     },
@@ -194,26 +196,21 @@
     "urn:molaug-v0:money": {
       "chain_lossy": true,
       "lossy_members": [
-        "urn:kernel-v0:take",
+        "urn:kernel-v0:give",
         "urn:molaug-v0:money"
       ]
     },
     "urn:molaug-v0:name": {
-      "chain_lossy": true,
-      "lossy_members": [
-        "urn:molaug-v0:name"
-      ]
+      "chain_lossy": false,
+      "lossy_members": []
     },
     "urn:molaug-v0:own": {
-      "chain_lossy": true,
-      "lossy_members": [
-        "urn:kernel-v0:take"
-      ]
+      "chain_lossy": false,
+      "lossy_members": []
     },
     "urn:molaug-v0:sex": {
       "chain_lossy": true,
       "lossy_members": [
-        "urn:kernel-v0:birth",
         "urn:molaug-v0:man",
         "urn:molaug-v0:sex"
       ]
@@ -230,19 +227,19 @@
       "lossy_members": []
     },
     "urn:molaug-v0:tool": {
-      "chain_lossy": false,
-      "lossy_members": []
-    },
-    "urn:molaug-v0:woman": {
       "chain_lossy": true,
       "lossy_members": [
-        "urn:kernel-v0:birth"
+        "urn:kernel-v0:make"
       ]
+    },
+    "urn:molaug-v0:woman": {
+      "chain_lossy": false,
+      "lossy_members": []
     },
     "urn:molaug-v0:work": {
       "chain_lossy": true,
       "lossy_members": [
-        "urn:kernel-v0:take",
+        "urn:kernel-v0:give",
         "urn:molaug-v0:money",
         "urn:molaug-v0:work"
       ]
@@ -250,7 +247,7 @@
     "urn:molaug-v0:worth": {
       "chain_lossy": true,
       "lossy_members": [
-        "urn:kernel-v0:take",
+        "urn:kernel-v0:give",
         "urn:molaug-v0:money",
         "urn:molaug-v0:worth"
       ]
@@ -258,26 +255,21 @@
     "urn:molaug-v0:write": {
       "chain_lossy": true,
       "lossy_members": [
+        "urn:kernel-v0:make",
         "urn:molaug-v0:write"
       ]
     }
   },
   "relabelled_now": [
-    "urn:molaug-v0:animal",
-    "urn:molaug-v0:art",
-    "urn:molaug-v0:authority",
-    "urn:molaug-v0:food",
-    "urn:molaug-v0:group",
-    "urn:molaug-v0:grow",
-    "urn:molaug-v0:institution",
-    "urn:molaug-v0:kill",
-    "urn:molaug-v0:machine",
-    "urn:molaug-v0:own",
-    "urn:molaug-v0:sex",
-    "urn:molaug-v0:surface",
-    "urn:molaug-v0:tool",
-    "urn:molaug-v0:work",
-    "urn:molaug-v0:worth"
+    "urn:molaug-v0:country",
+    "urn:molaug-v0:game",
+    "urn:molaug-v0:hot",
+    "urn:molaug-v0:ill",
+    "urn:molaug-v0:law",
+    "urn:molaug-v0:material",
+    "urn:molaug-v0:money",
+    "urn:molaug-v0:name",
+    "urn:molaug-v0:woman"
   ],
   "relabel": "provisional/model-authored (proxy-adjudicated)"
 }

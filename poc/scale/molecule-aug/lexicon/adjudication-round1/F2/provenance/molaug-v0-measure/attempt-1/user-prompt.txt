@@ -1,0 +1,175 @@
+record id: urn:molaug-v0:measure
+label: measure (X measures Y)
+gloss: To ascertain the size or amount of something by doing something to it, coming thereby to know how it stands in comparison with things commonly known and taken as a standard, so that this can afterwards be stated in words.
+notes (self-flag): AST adequacy: lossy — number, unit and exact ratio are beyond the primes; measuring is rendered as acting on a thing so as to know it as comparable (LIKE) with standard things that many people know, with the result sayable afterwards; the direction and degree of the comparison are dropped.
+references: (none)
+mechanical lemma-collision warnings: (none)
+
+=== EXPANDED RENDERING (judge THIS: recursively inlined, prime-only) ===
+{
+ "schema": "kot-ast/1",
+ "frame": "RelationalSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 3,
+   "refKind": "TimeRef"
+  },
+  {
+   "index": 4,
+   "refKind": "SomethingRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "DO",
+   "roles": {
+    "agent": {
+     "kind": "ref",
+     "index": 1
+    },
+    "undergoer": {
+     "kind": "ref",
+     "index": 2
+    },
+    "time": {
+     "kind": "sp",
+     "det": "SOME",
+     "head": {
+      "kind": "primeHead",
+      "prime": "WHEN~TIME"
+     },
+     "bind": 3
+    }
+   }
+  },
+  {
+   "type": "op",
+   "op": "BECAUSE",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "DO",
+     "roles": {
+      "agent": {
+       "kind": "ref",
+       "index": 1
+      },
+      "undergoer": {
+       "kind": "ref",
+       "index": 2
+      }
+     }
+    },
+    {
+     "type": "pred",
+     "pred": "KNOW",
+     "roles": {
+      "experiencer": {
+       "kind": "ref",
+       "index": 1
+      },
+      "complement": {
+       "kind": "clause",
+       "clause": {
+        "type": "op",
+        "op": "LIKE",
+        "args": [
+         {
+          "kind": "ref",
+          "index": 2
+         },
+         {
+          "kind": "sp",
+          "det": "OTHER~ELSE~ANOTHER",
+          "quant": "SOME",
+          "head": {
+           "kind": "primeHead",
+           "prime": "SOMETHING~THING"
+          },
+          "bind": 4,
+          "restrictedBy": {
+           "type": "pred",
+           "pred": "KNOW",
+           "roles": {
+            "experiencer": {
+             "kind": "sp",
+             "quant": "MUCH~MANY",
+             "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+             }
+            },
+            "topic": {
+             "kind": "ref",
+             "index": 4
+            }
+           }
+          }
+         }
+        ]
+       }
+      }
+     }
+    }
+   ]
+  },
+  {
+   "type": "op",
+   "op": "AFTER",
+   "args": [
+    {
+     "kind": "ref",
+     "index": 3
+    },
+    {
+     "type": "op",
+     "op": "CAN",
+     "args": [
+      {
+       "type": "pred",
+       "pred": "SAY",
+       "roles": {
+        "agent": {
+         "kind": "ref",
+         "index": 1
+        },
+        "topic": {
+         "kind": "ref",
+         "index": 2
+        },
+        "quote": {
+         "kind": "quote",
+         "clauses": [
+          {
+           "type": "op",
+           "op": "LIKE",
+           "args": [
+            {
+             "kind": "ref",
+             "index": 2
+            },
+            {
+             "kind": "ref",
+             "index": 4
+            }
+           ]
+          }
+         ]
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

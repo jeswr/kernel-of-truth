@@ -1,7 +1,7 @@
 record id: urn:molaug-v0:write
 label: write (X writes Y)
 gloss: To set words down in lasting visible form: to make marks on the surface of something such that whoever sees the marks can know the words.
-notes (self-flag): AST adequacy: faithful — mark-making on a surface with see-to-know uptake of the words is the criterial content and is rendered via the make and surface references; the conventional script system linking mark-shapes to words is presupposed, not decomposed.
+notes (self-flag): AST adequacy: faithful — mark-making on a surface with see-to-know uptake of the words is the criterial content and is rendered via the make and surface references; the lasting form is rendered as the marks being at that surface for a long time; the conventional script system linking mark-shapes to words is presupposed, not decomposed.
 references: urn:kernel-v0:make, urn:molaug-v0:surface
 mechanical lemma-collision warnings: (none)
 
@@ -29,6 +29,10 @@ urn:molaug-v0:surface — surface (of a thing): The outermost part of a thing: t
   {
    "index": 4,
    "refKind": "SomeoneRef"
+  },
+  {
+   "index": 5,
+   "refKind": "SomethingRef"
   }
  ],
  "clauses": [
@@ -345,7 +349,26 @@ urn:molaug-v0:surface — surface (of a thing): The outermost part of a thing: t
         }
        ]
       }
-     }
+     },
+     "bind": 5
+    }
+   }
+  },
+  {
+   "type": "pred",
+   "pred": "BE-SOMEWHERE",
+   "roles": {
+    "undergoer": {
+     "kind": "ref",
+     "index": 3
+    },
+    "locus": {
+     "kind": "ref",
+     "index": 5
+    },
+    "duration": {
+     "kind": "prime",
+     "prime": "A-LONG-TIME"
     }
    }
   },

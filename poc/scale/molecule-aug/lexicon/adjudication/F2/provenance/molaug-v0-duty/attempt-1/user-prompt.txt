@@ -1,7 +1,7 @@
 record id: urn:molaug-v0:duty
 label: duty
 gloss: Something a person is bound to do by virtue of their work or position, the leaving-undone of which is counted a wrong in them.
-notes (self-flag): AST adequacy: lossy — deontic 'must' has no prime: obligation is rendered as the person's knowledge that not doing this thing would be judged wrong by others; duties of station beyond employment are narrowed to the work case, and the binding source (agreement, role) is not decomposed.
+notes (self-flag): AST adequacy: lossy — deontic 'must' has no prime: obligation is rendered as the person's knowledge that leaving this thing undone would be judged wrong by many; the thing itself is rendered as a part of the work this person does (so the requirement is grounded in the work, and actual performance is not entailed); duties of station beyond employment are narrowed to the work case (the grammar has no disjunction), and the binding source (agreement, role) is not decomposed.
 references: urn:kernel-v0:wrong, urn:molaug-v0:work
 mechanical lemma-collision warnings: (none)
 
@@ -163,6 +163,14 @@ urn:molaug-v0:work — work (job): Sustained activity that a person carries on r
                      {
                       "index": 3,
                       "refKind": "SomethingRef"
+                     },
+                     {
+                      "index": 4,
+                      "refKind": "SomeoneRef"
+                     },
+                     {
+                      "index": 5,
+                      "refKind": "SomeoneRef"
                      }
                     ],
                     "clauses": [
@@ -190,7 +198,8 @@ urn:molaug-v0:work — work (job): Sustained activity that a person carries on r
                            "prime": "SOMETHING~THING"
                           }
                          }
-                        }
+                        },
+                        "quant": "ONE"
                        }
                       }
                      },
@@ -601,6 +610,390 @@ urn:molaug-v0:work — work (job): Sustained activity that a person carries on r
                       ]
                      },
                      {
+                      "type": "op",
+                      "op": "IF",
+                      "args": [
+                       {
+                        "type": "pred",
+                        "pred": "DO",
+                        "roles": {
+                         "agent": {
+                          "kind": "sp",
+                          "det": "SOME",
+                          "head": {
+                           "kind": "primeHead",
+                           "prime": "SOMEONE"
+                          },
+                          "bind": 4
+                         },
+                         "undergoer": {
+                          "kind": "sp",
+                          "quant": "SOME",
+                          "head": {
+                           "kind": "refHead",
+                           "index": 1
+                          }
+                         },
+                         "manner": {
+                          "kind": "subExplication",
+                          "frame": "RelationalSchema",
+                          "referents": [
+                           {
+                            "index": 1,
+                            "refKind": "SomeoneRef"
+                           },
+                           {
+                            "index": 2,
+                            "refKind": "SomethingRef"
+                           },
+                           {
+                            "index": 3,
+                            "refKind": "SomeoneRef"
+                           },
+                           {
+                            "index": 4,
+                            "refKind": "TimeRef"
+                           }
+                          ],
+                          "clauses": [
+                           {
+                            "type": "pred",
+                            "pred": "DO",
+                            "roles": {
+                             "agent": {
+                              "kind": "ref",
+                              "index": 1
+                             },
+                             "undergoer": {
+                              "kind": "ref",
+                              "index": 2
+                             },
+                             "time": {
+                              "kind": "sp",
+                              "head": {
+                               "kind": "primeHead",
+                               "prime": "WHEN~TIME"
+                              },
+                              "det": "SOME",
+                              "bind": 4
+                             }
+                            }
+                           },
+                           {
+                            "type": "op",
+                            "op": "BEFORE",
+                            "args": [
+                             {
+                              "kind": "ref",
+                              "index": 4
+                             },
+                             {
+                              "type": "op",
+                              "op": "CAN",
+                              "args": [
+                               {
+                                "type": "pred",
+                                "pred": "SAY",
+                                "roles": {
+                                 "agent": {
+                                  "kind": "ref",
+                                  "index": 1
+                                 },
+                                 "quote": {
+                                  "kind": "quote",
+                                  "clauses": [
+                                   {
+                                    "type": "pred",
+                                    "pred": "IS-MINE",
+                                    "roles": {
+                                     "undergoer": {
+                                      "kind": "ref",
+                                      "index": 2
+                                     },
+                                     "possessor": {
+                                      "kind": "prime",
+                                      "prime": "I"
+                                     }
+                                    }
+                                   }
+                                  ]
+                                 }
+                                }
+                               }
+                              ]
+                             }
+                            ]
+                           },
+                           {
+                            "type": "op",
+                            "op": "AFTER",
+                            "args": [
+                             {
+                              "kind": "ref",
+                              "index": 4
+                             },
+                             {
+                              "type": "op",
+                              "op": "CAN",
+                              "args": [
+                               {
+                                "type": "pred",
+                                "pred": "SAY",
+                                "roles": {
+                                 "agent": {
+                                  "kind": "sp",
+                                  "head": {
+                                   "kind": "primeHead",
+                                   "prime": "SOMEONE"
+                                  },
+                                  "det": "OTHER~ELSE~ANOTHER",
+                                  "bind": 3
+                                 },
+                                 "quote": {
+                                  "kind": "quote",
+                                  "clauses": [
+                                   {
+                                    "type": "pred",
+                                    "pred": "IS-MINE",
+                                    "roles": {
+                                     "undergoer": {
+                                      "kind": "ref",
+                                      "index": 2
+                                     },
+                                     "possessor": {
+                                      "kind": "prime",
+                                      "prime": "I"
+                                     }
+                                    }
+                                   }
+                                  ]
+                                 }
+                                }
+                               }
+                              ]
+                             }
+                            ]
+                           },
+                           {
+                            "type": "op",
+                            "op": "AFTER",
+                            "args": [
+                             {
+                              "kind": "ref",
+                              "index": 4
+                             },
+                             {
+                              "type": "op",
+                              "op": "NOT",
+                              "args": [
+                               {
+                                "type": "op",
+                                "op": "CAN",
+                                "args": [
+                                 {
+                                  "type": "pred",
+                                  "pred": "SAY",
+                                  "roles": {
+                                   "agent": {
+                                    "kind": "ref",
+                                    "index": 1
+                                   },
+                                   "quote": {
+                                    "kind": "quote",
+                                    "clauses": [
+                                     {
+                                      "type": "pred",
+                                      "pred": "IS-MINE",
+                                      "roles": {
+                                       "undergoer": {
+                                        "kind": "ref",
+                                        "index": 2
+                                       },
+                                       "possessor": {
+                                        "kind": "prime",
+                                        "prime": "I"
+                                       }
+                                      }
+                                     }
+                                    ]
+                                   }
+                                  }
+                                 }
+                                ]
+                               }
+                              ]
+                             }
+                            ]
+                           }
+                          ]
+                         }
+                        }
+                       },
+                       {
+                        "type": "pred",
+                        "pred": "DO",
+                        "roles": {
+                         "agent": {
+                          "kind": "sp",
+                          "det": "OTHER~ELSE~ANOTHER",
+                          "head": {
+                           "kind": "primeHead",
+                           "prime": "SOMEONE"
+                          },
+                          "bind": 5
+                         },
+                         "undergoer": {
+                          "kind": "sp",
+                          "det": "THE-SAME",
+                          "head": {
+                           "kind": "primeHead",
+                           "prime": "SOMETHING~THING"
+                          }
+                         },
+                         "manner": {
+                          "kind": "subExplication",
+                          "frame": "RelationalSchema",
+                          "referents": [
+                           {
+                            "index": 1,
+                            "refKind": "SomeoneRef"
+                           },
+                           {
+                            "index": 2,
+                            "refKind": "SomethingRef"
+                           },
+                           {
+                            "index": 3,
+                            "refKind": "TimeRef"
+                           }
+                          ],
+                          "clauses": [
+                           {
+                            "type": "pred",
+                            "pred": "DO",
+                            "roles": {
+                             "agent": {
+                              "kind": "ref",
+                              "index": 1
+                             },
+                             "undergoer": {
+                              "kind": "ref",
+                              "index": 2
+                             },
+                             "time": {
+                              "kind": "sp",
+                              "head": {
+                               "kind": "primeHead",
+                               "prime": "WHEN~TIME"
+                              },
+                              "det": "SOME",
+                              "bind": 3
+                             }
+                            }
+                           },
+                           {
+                            "type": "op",
+                            "op": "BEFORE",
+                            "args": [
+                             {
+                              "kind": "ref",
+                              "index": 3
+                             },
+                             {
+                              "type": "op",
+                              "op": "NOT",
+                              "args": [
+                               {
+                                "type": "op",
+                                "op": "CAN",
+                                "args": [
+                                 {
+                                  "type": "pred",
+                                  "pred": "SAY",
+                                  "roles": {
+                                   "agent": {
+                                    "kind": "ref",
+                                    "index": 1
+                                   },
+                                   "quote": {
+                                    "kind": "quote",
+                                    "clauses": [
+                                     {
+                                      "type": "pred",
+                                      "pred": "IS-MINE",
+                                      "roles": {
+                                       "undergoer": {
+                                        "kind": "ref",
+                                        "index": 2
+                                       },
+                                       "possessor": {
+                                        "kind": "prime",
+                                        "prime": "I"
+                                       }
+                                      }
+                                     }
+                                    ]
+                                   }
+                                  }
+                                 }
+                                ]
+                               }
+                              ]
+                             }
+                            ]
+                           },
+                           {
+                            "type": "op",
+                            "op": "AFTER",
+                            "args": [
+                             {
+                              "kind": "ref",
+                              "index": 3
+                             },
+                             {
+                              "type": "op",
+                              "op": "CAN",
+                              "args": [
+                               {
+                                "type": "pred",
+                                "pred": "SAY",
+                                "roles": {
+                                 "agent": {
+                                  "kind": "ref",
+                                  "index": 1
+                                 },
+                                 "quote": {
+                                  "kind": "quote",
+                                  "clauses": [
+                                   {
+                                    "type": "pred",
+                                    "pred": "IS-MINE",
+                                    "roles": {
+                                     "undergoer": {
+                                      "kind": "ref",
+                                      "index": 2
+                                     },
+                                     "possessor": {
+                                      "kind": "prime",
+                                      "prime": "I"
+                                     }
+                                    }
+                                   }
+                                  ]
+                                 }
+                                }
+                               }
+                              ]
+                             }
+                            ]
+                           }
+                          ]
+                         }
+                        }
+                       }
+                      ]
+                     },
+                     {
                       "type": "pred",
                       "pred": "KNOW",
                       "roles": {
@@ -645,7 +1038,7 @@ urn:molaug-v0:work — work (job): Sustained activity that a person carries on r
                       "roles": {
                        "experiencer": {
                         "kind": "sp",
-                        "quant": "MUCH~MANY",
+                        "quant": "ALL",
                         "head": {
                          "kind": "primeHead",
                          "prime": "PEOPLE"
@@ -1146,6 +1539,26 @@ urn:molaug-v0:work — work (job): Sustained activity that a person carries on r
    }
   },
   {
+   "type": "pred",
+   "pred": "BE-SPEC",
+   "roles": {
+    "undergoer": {
+     "kind": "ref",
+     "index": 1
+    },
+    "attribute": {
+     "kind": "sp",
+     "head": {
+      "kind": "partFrame",
+      "of": {
+       "kind": "ref",
+       "index": 3
+      }
+     }
+    }
+   }
+  },
+  {
    "type": "op",
    "op": "BECAUSE",
    "args": [
@@ -1368,28 +1781,6 @@ urn:molaug-v0:work — work (job): Sustained activity that a person carries on r
      }
     }
    ]
-  },
-  {
-   "type": "pred",
-   "pred": "DO",
-   "roles": {
-    "agent": {
-     "kind": "ref",
-     "index": 2
-    },
-    "undergoer": {
-     "kind": "ref",
-     "index": 1
-    },
-    "time": {
-     "kind": "sp",
-     "quant": "MUCH~MANY",
-     "head": {
-      "kind": "primeHead",
-      "prime": "WHEN~TIME"
-     }
-    }
-   }
   }
  ]
 }

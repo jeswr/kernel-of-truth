@@ -1,0 +1,565 @@
+record id: urn:molaug-v0:food
+label: food
+gloss: That which is eaten in order to live: things of a kind that people take into the body as nourishment, and by which the body is kept alive.
+notes (self-flag): AST adequacy: faithful — edible-and-life-sustaining is the criterial content and is rendered via the eat reference and the can-live linkage; nutritional mechanism is encyclopedic, and the extension to animal food rides on the eat reference rather than being stated.
+references: urn:molaug-v0:eat
+mechanical lemma-collision warnings: (none)
+
+REFERENCED GLOSSES:
+urn:molaug-v0:eat — eat (X eats Y): To take something into the body through the mouth and swallow it, so that it passes within the body and is in time made part of it.
+
+=== EXPANDED RENDERING (judge THIS: recursively inlined, prime-only) ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomethingRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "BE-SPEC",
+   "roles": {
+    "undergoer": {
+     "kind": "ref",
+     "index": 1
+    },
+    "attribute": {
+     "kind": "sp",
+     "head": {
+      "kind": "kindFrame",
+      "of": {
+       "kind": "sp",
+       "head": {
+        "kind": "primeHead",
+        "prime": "SOMETHING~THING"
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "type": "pred",
+   "pred": "DO",
+   "roles": {
+    "agent": {
+     "kind": "sp",
+     "head": {
+      "kind": "primeHead",
+      "prime": "PEOPLE"
+     }
+    },
+    "undergoer": {
+     "kind": "ref",
+     "index": 1
+    },
+    "manner": {
+     "kind": "subExplication",
+     "frame": "RelationalSchema",
+     "referents": [
+      {
+       "index": 1,
+       "refKind": "SomeoneRef"
+      },
+      {
+       "index": 2,
+       "refKind": "SomethingRef"
+      },
+      {
+       "index": 3,
+       "refKind": "TimeRef"
+      }
+     ],
+     "clauses": [
+      {
+       "type": "pred",
+       "pred": "DO",
+       "roles": {
+        "agent": {
+         "kind": "ref",
+         "index": 1
+        },
+        "undergoer": {
+         "kind": "ref",
+         "index": 2
+        },
+        "instrument": {
+         "kind": "sp",
+         "head": {
+          "kind": "partFrame",
+          "of": {
+           "kind": "sp",
+           "head": {
+            "kind": "primeHead",
+            "prime": "BODY"
+           }
+          }
+         }
+        },
+        "time": {
+         "kind": "sp",
+         "det": "SOME",
+         "head": {
+          "kind": "primeHead",
+          "prime": "WHEN~TIME"
+         },
+         "bind": 3
+        }
+       }
+      },
+      {
+       "type": "op",
+       "op": "BECAUSE",
+       "args": [
+        {
+         "type": "pred",
+         "pred": "DO",
+         "roles": {
+          "agent": {
+           "kind": "ref",
+           "index": 1
+          },
+          "undergoer": {
+           "kind": "ref",
+           "index": 2
+          }
+         }
+        },
+        {
+         "type": "pred",
+         "pred": "BE-SOMEWHERE",
+         "roles": {
+          "undergoer": {
+           "kind": "ref",
+           "index": 2
+          },
+          "locus": {
+           "kind": "sp",
+           "head": {
+            "kind": "primeHead",
+            "prime": "BODY"
+           }
+          },
+          "manner": {
+           "kind": "prime",
+           "prime": "INSIDE"
+          }
+         }
+        }
+       ]
+      },
+      {
+       "type": "op",
+       "op": "AFTER",
+       "args": [
+        {
+         "kind": "ref",
+         "index": 3
+        },
+        {
+         "type": "pred",
+         "pred": "BE-SPEC",
+         "roles": {
+          "undergoer": {
+           "kind": "ref",
+           "index": 2
+          },
+          "attribute": {
+           "kind": "sp",
+           "head": {
+            "kind": "partFrame",
+            "of": {
+             "kind": "sp",
+             "head": {
+              "kind": "primeHead",
+              "prime": "BODY"
+             }
+            }
+           }
+          }
+         }
+        }
+       ]
+      }
+     ]
+    },
+    "time": {
+     "kind": "sp",
+     "quant": "MUCH~MANY",
+     "head": {
+      "kind": "primeHead",
+      "prime": "WHEN~TIME"
+     }
+    }
+   }
+  },
+  {
+   "type": "op",
+   "op": "BECAUSE",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "DO",
+     "roles": {
+      "agent": {
+       "kind": "sp",
+       "head": {
+        "kind": "primeHead",
+        "prime": "PEOPLE"
+       }
+      },
+      "undergoer": {
+       "kind": "ref",
+       "index": 1
+      },
+      "manner": {
+       "kind": "subExplication",
+       "frame": "RelationalSchema",
+       "referents": [
+        {
+         "index": 1,
+         "refKind": "SomeoneRef"
+        },
+        {
+         "index": 2,
+         "refKind": "SomethingRef"
+        },
+        {
+         "index": 3,
+         "refKind": "TimeRef"
+        }
+       ],
+       "clauses": [
+        {
+         "type": "pred",
+         "pred": "DO",
+         "roles": {
+          "agent": {
+           "kind": "ref",
+           "index": 1
+          },
+          "undergoer": {
+           "kind": "ref",
+           "index": 2
+          },
+          "instrument": {
+           "kind": "sp",
+           "head": {
+            "kind": "partFrame",
+            "of": {
+             "kind": "sp",
+             "head": {
+              "kind": "primeHead",
+              "prime": "BODY"
+             }
+            }
+           }
+          },
+          "time": {
+           "kind": "sp",
+           "det": "SOME",
+           "head": {
+            "kind": "primeHead",
+            "prime": "WHEN~TIME"
+           },
+           "bind": 3
+          }
+         }
+        },
+        {
+         "type": "op",
+         "op": "BECAUSE",
+         "args": [
+          {
+           "type": "pred",
+           "pred": "DO",
+           "roles": {
+            "agent": {
+             "kind": "ref",
+             "index": 1
+            },
+            "undergoer": {
+             "kind": "ref",
+             "index": 2
+            }
+           }
+          },
+          {
+           "type": "pred",
+           "pred": "BE-SOMEWHERE",
+           "roles": {
+            "undergoer": {
+             "kind": "ref",
+             "index": 2
+            },
+            "locus": {
+             "kind": "sp",
+             "head": {
+              "kind": "primeHead",
+              "prime": "BODY"
+             }
+            },
+            "manner": {
+             "kind": "prime",
+             "prime": "INSIDE"
+            }
+           }
+          }
+         ]
+        },
+        {
+         "type": "op",
+         "op": "AFTER",
+         "args": [
+          {
+           "kind": "ref",
+           "index": 3
+          },
+          {
+           "type": "pred",
+           "pred": "BE-SPEC",
+           "roles": {
+            "undergoer": {
+             "kind": "ref",
+             "index": 2
+            },
+            "attribute": {
+             "kind": "sp",
+             "head": {
+              "kind": "partFrame",
+              "of": {
+               "kind": "sp",
+               "head": {
+                "kind": "primeHead",
+                "prime": "BODY"
+               }
+              }
+             }
+            }
+           }
+          }
+         ]
+        }
+       ]
+      }
+     }
+    },
+    {
+     "type": "op",
+     "op": "CAN",
+     "args": [
+      {
+       "type": "pred",
+       "pred": "LIVE",
+       "roles": {
+        "undergoer": {
+         "kind": "sp",
+         "head": {
+          "kind": "primeHead",
+          "prime": "PEOPLE"
+         }
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "op",
+   "op": "IF",
+   "args": [
+    {
+     "type": "op",
+     "op": "NOT",
+     "args": [
+      {
+       "type": "pred",
+       "pred": "DO",
+       "roles": {
+        "agent": {
+         "kind": "sp",
+         "head": {
+          "kind": "primeHead",
+          "prime": "PEOPLE"
+         }
+        },
+        "undergoer": {
+         "kind": "sp",
+         "quant": "SOME",
+         "head": {
+          "kind": "refHead",
+          "index": 1
+         }
+        },
+        "manner": {
+         "kind": "subExplication",
+         "frame": "RelationalSchema",
+         "referents": [
+          {
+           "index": 1,
+           "refKind": "SomeoneRef"
+          },
+          {
+           "index": 2,
+           "refKind": "SomethingRef"
+          },
+          {
+           "index": 3,
+           "refKind": "TimeRef"
+          }
+         ],
+         "clauses": [
+          {
+           "type": "pred",
+           "pred": "DO",
+           "roles": {
+            "agent": {
+             "kind": "ref",
+             "index": 1
+            },
+            "undergoer": {
+             "kind": "ref",
+             "index": 2
+            },
+            "instrument": {
+             "kind": "sp",
+             "head": {
+              "kind": "partFrame",
+              "of": {
+               "kind": "sp",
+               "head": {
+                "kind": "primeHead",
+                "prime": "BODY"
+               }
+              }
+             }
+            },
+            "time": {
+             "kind": "sp",
+             "det": "SOME",
+             "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+             },
+             "bind": 3
+            }
+           }
+          },
+          {
+           "type": "op",
+           "op": "BECAUSE",
+           "args": [
+            {
+             "type": "pred",
+             "pred": "DO",
+             "roles": {
+              "agent": {
+               "kind": "ref",
+               "index": 1
+              },
+              "undergoer": {
+               "kind": "ref",
+               "index": 2
+              }
+             }
+            },
+            {
+             "type": "pred",
+             "pred": "BE-SOMEWHERE",
+             "roles": {
+              "undergoer": {
+               "kind": "ref",
+               "index": 2
+              },
+              "locus": {
+               "kind": "sp",
+               "head": {
+                "kind": "primeHead",
+                "prime": "BODY"
+               }
+              },
+              "manner": {
+               "kind": "prime",
+               "prime": "INSIDE"
+              }
+             }
+            }
+           ]
+          },
+          {
+           "type": "op",
+           "op": "AFTER",
+           "args": [
+            {
+             "kind": "ref",
+             "index": 3
+            },
+            {
+             "type": "pred",
+             "pred": "BE-SPEC",
+             "roles": {
+              "undergoer": {
+               "kind": "ref",
+               "index": 2
+              },
+              "attribute": {
+               "kind": "sp",
+               "head": {
+                "kind": "partFrame",
+                "of": {
+                 "kind": "sp",
+                 "head": {
+                  "kind": "primeHead",
+                  "prime": "BODY"
+                 }
+                }
+               }
+              }
+             }
+            }
+           ]
+          }
+         ]
+        },
+        "duration": {
+         "kind": "prime",
+         "prime": "A-LONG-TIME"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "type": "op",
+     "op": "NOT",
+     "args": [
+      {
+       "type": "op",
+       "op": "CAN",
+       "args": [
+        {
+         "type": "pred",
+         "pred": "LIVE",
+         "roles": {
+          "undergoer": {
+           "kind": "sp",
+           "head": {
+            "kind": "primeHead",
+            "prime": "PEOPLE"
+           }
+          }
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -69,8 +69,8 @@ fences:
 === INPUT (define this one concept) ===
 record id: urn:molaug-v0:eat
 label: eat (X eats Y)
-gloss: To take something into the body through the mouth and swallow it, so that it passes within the body and is in time made part of it.
-notes (self-flag): AST adequacy: lossy — the mouth, chewing and swallowing cannot be named: rendered as acting on the thing with a part of the body so that it comes to be inside, then part of, the body; as rendered this also fits drinking, so the eat/drink distinction is dropped.
+gloss: To take something into the body through the mouth, breaking it up small and swallowing it, so that it passes within the body and is in time made part of it.
+notes (self-flag): AST adequacy: lossy — the mouth and swallowing cannot be named: rendered as acting on the thing with a part of the body so that there come to be many small parts of it and it comes to be inside, then part of, the body; the breaking-up-small clause carries the eat/drink distinction (drinking breaks nothing up), though the oral route itself stays undecomposed.
 references: (none)
 mechanical lemma-collision warnings: (none)
 
@@ -128,6 +128,48 @@ mechanical lemma-collision warnings: (none)
      "bind": 3
     }
    }
+  },
+  {
+   "type": "op",
+   "op": "BECAUSE",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "DO",
+     "roles": {
+      "agent": {
+       "kind": "ref",
+       "index": 1
+      },
+      "undergoer": {
+       "kind": "ref",
+       "index": 2
+      }
+     }
+    },
+    {
+     "type": "pred",
+     "pred": "THERE-IS",
+     "roles": {
+      "undergoer": {
+       "kind": "sp",
+       "quant": "MUCH~MANY",
+       "mods": [
+        {
+         "mod": "SMALL"
+        }
+       ],
+       "head": {
+        "kind": "partFrame",
+        "of": {
+         "kind": "ref",
+         "index": 2
+        }
+       }
+      }
+     }
+    }
+   ]
   },
   {
    "type": "op",

@@ -70,7 +70,7 @@ fences:
 record id: urn:molaug-v0:man
 label: man (adult male)
 gloss: An adult male human being: a grown person of the bodily kind from whose body a child cannot be born.
-notes (self-flag): AST adequacy: lossy — maleness is rendered only negatively, as the grown person of the bodily kind in which a birth-kind event cannot happen (mirroring the molecules-v0 woman-first rule); positive male bodily character and the social dimension of manhood are dropped, and the body-to-kind linkage is approximate.
+notes (self-flag): AST adequacy: lossy — maleness is rendered only negatively, as the grown person of the bodily kind in whose own body (a part of such a someone) a birth-kind event cannot happen, mirroring the molecules-v0 woman-first rule; adulthood is rendered as being a big someone who has lived a long time; positive male bodily character and the social dimension of manhood are dropped.
 references: urn:kernel-v0:birth
 mechanical lemma-collision warnings: (none)
 
@@ -89,6 +89,10 @@ urn:kernel-v0:birth — birth (the event): this something is a something of kind
   {
    "index": 2,
    "refKind": "SomeoneRef"
+  },
+  {
+   "index": 3,
+   "refKind": "SomethingRef"
   }
  ],
  "clauses": [
@@ -340,6 +344,27 @@ urn:kernel-v0:birth — birth (the event): this something is a something of kind
               "head": {
                "kind": "primeHead",
                "prime": "BODY"
+              },
+              "bind": 3,
+              "restrictedBy": {
+               "type": "pred",
+               "pred": "BE-SPEC",
+               "roles": {
+                "undergoer": {
+                 "kind": "ref",
+                 "index": 3
+                },
+                "attribute": {
+                 "kind": "sp",
+                 "head": {
+                  "kind": "partFrame",
+                  "of": {
+                   "kind": "ref",
+                   "index": 2
+                  }
+                 }
+                }
+               }
               }
              },
              "manner": {
@@ -353,6 +378,28 @@ urn:kernel-v0:birth — birth (the event): this something is a something of kind
         ]
        }
       }
+     }
+    }
+   }
+  },
+  {
+   "type": "pred",
+   "pred": "BE-SPEC",
+   "roles": {
+    "undergoer": {
+     "kind": "ref",
+     "index": 1
+    },
+    "attribute": {
+     "kind": "sp",
+     "mods": [
+      {
+       "mod": "BIG"
+      }
+     ],
+     "head": {
+      "kind": "primeHead",
+      "prime": "SOMEONE"
      }
     }
    }

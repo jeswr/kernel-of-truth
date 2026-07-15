@@ -70,7 +70,7 @@ fences:
 record id: urn:molaug-v0:woman
 label: woman (adult female)
 gloss: An adult female human being: a grown person of the bodily kind from whose body a child can be born.
-notes (self-flag): AST adequacy: faithful — for the bodily sense: a grown person of the birth-capable bodily kind, following Goddard/Wierzbicka practice; the capability is kind-level (an individual woman need not be able to bear children), the body-to-kind linkage is approximate, and the social dimension of womanhood is not rendered.
+notes (self-flag): AST adequacy: faithful — for the bodily sense: a grown (big, long-lived) person of the bodily kind in whose own body (a part of such a someone) a birth-kind event can happen, following Goddard/Wierzbicka practice; the capability is kind-level (an individual woman need not be able to bear children), the body-to-bearer linkage is the part-of approximation, and the social dimension of womanhood is not rendered.
 references: urn:kernel-v0:birth
 mechanical lemma-collision warnings: (none)
 
@@ -89,6 +89,10 @@ urn:kernel-v0:birth — birth (the event): this something is a something of kind
   {
    "index": 2,
    "refKind": "SomeoneRef"
+  },
+  {
+   "index": 3,
+   "refKind": "SomethingRef"
   }
  ],
  "clauses": [
@@ -336,6 +340,27 @@ urn:kernel-v0:birth — birth (the event): this something is a something of kind
             "head": {
              "kind": "primeHead",
              "prime": "BODY"
+            },
+            "bind": 3,
+            "restrictedBy": {
+             "type": "pred",
+             "pred": "BE-SPEC",
+             "roles": {
+              "undergoer": {
+               "kind": "ref",
+               "index": 3
+              },
+              "attribute": {
+               "kind": "sp",
+               "head": {
+                "kind": "partFrame",
+                "of": {
+                 "kind": "ref",
+                 "index": 2
+                }
+               }
+              }
+             }
             }
            },
            "manner": {
@@ -347,6 +372,28 @@ urn:kernel-v0:birth — birth (the event): this something is a something of kind
         ]
        }
       }
+     }
+    }
+   }
+  },
+  {
+   "type": "pred",
+   "pred": "BE-SPEC",
+   "roles": {
+    "undergoer": {
+     "kind": "ref",
+     "index": 1
+    },
+    "attribute": {
+     "kind": "sp",
+     "mods": [
+      {
+       "mod": "BIG"
+      }
+     ],
+     "head": {
+      "kind": "primeHead",
+      "prime": "SOMEONE"
      }
     }
    }

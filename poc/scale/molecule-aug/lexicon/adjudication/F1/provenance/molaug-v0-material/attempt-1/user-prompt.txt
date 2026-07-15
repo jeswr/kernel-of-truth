@@ -70,7 +70,7 @@ fences:
 record id: urn:molaug-v0:material
 label: material (what a thing is made of)
 gloss: The stuff of which a thing consists: that kind of matter such that every part of the thing is of it, and on which someone who makes the thing works in the making.
-notes (self-flag): AST adequacy: lossy — substancehood (continuous mass, and the persistence of the same stuff through the making) exceeds the primes; rendered as kind-membership of all the thing's parts plus a linkage to the act of making.
+notes (self-flag): AST adequacy: lossy — substancehood (continuous mass, and the persistence of the same stuff through the making) exceeds the primes; rendered as kind-membership of all the thing's parts plus the maker's acting on some of this kind at the same time as the make-type act on the thing; the make reference is an event-kind (manner) reference, so its own participants are carried by the outer clause's agent and undergoer.
 references: urn:kernel-v0:make
 mechanical lemma-collision warnings: (none)
 
@@ -93,6 +93,10 @@ urn:kernel-v0:make — make (X makes Y): because X did something at some time, t
   {
    "index": 3,
    "refKind": "SomeoneRef"
+  },
+  {
+   "index": 4,
+   "refKind": "TimeRef"
   }
  ],
  "clauses": [
@@ -260,6 +264,15 @@ urn:kernel-v0:make — make (X makes Y): because X did something at some time, t
          ]
         }
        ]
+      },
+      "time": {
+       "kind": "sp",
+       "det": "SOME",
+       "head": {
+        "kind": "primeHead",
+        "prime": "WHEN~TIME"
+       },
+       "bind": 4
       }
      }
     },
@@ -278,6 +291,10 @@ urn:kernel-v0:make — make (X makes Y): because X did something at some time, t
         "kind": "refHead",
         "index": 1
        }
+      },
+      "time": {
+       "kind": "ref",
+       "index": 4
       }
      }
     }
