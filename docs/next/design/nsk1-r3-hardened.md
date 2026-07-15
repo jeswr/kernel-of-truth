@@ -188,6 +188,48 @@ search multiplicity to correct beyond the two declared cells.
   effect B″ measured at ~0.31–0.35 above coin — R3 asks only whether the LB
   clears 0.70 on fresh data, not whether a smaller effect exists.
 
+### 3.4 Registered hypotheses (BLOCKER-4 discharge, 2026-07-15)
+
+Hypotheses in this programme are registered as formal definitions in the
+line's design document and referenced by id from the experiment record — the
+HNSK0/HNSK1 precedent (`docs/design-neurosym-kernel-internals.md` §2); there
+is no separate `registry/hypotheses.jsonl`. The two ids the record
+(`registry/experiments/nsk1-r3.json` `hypotheses`) references are defined
+here. Note: an earlier BLOCKER-4 parenthetical glossed `HNSKR3S` as
+"specificity"; that gloss is superseded — item-specificity is a **conjunct of
+HNSKR3D** (the `real > role` co-gate, §3.3 H1), not a separate hypothesis.
+`HNSKR3S` is the surface-bridge hypothesis, per the coordinator's pre-freeze
+batching instruction.
+
+**HNSKR3D (confirmatory D-branch — the hypothesis the frozen verdict tests).**
+At R3 (SmolLM2-1.7B-Instruct, pinned commit) on the fresh, structurally
+identical, synthetic-surface CLUTRR substrate, the B″ internal-write keyed
+delivery clears the pre-registered MCID at the PRIMARY cell: at
+C1 = (16,16) on disjoint fresh partition A, one-sided Wilson
+LB(keyacc_real, z = 2.3940) ≥ **0.70** AND paired `real > coin` AND
+`real > role` at p < 0.0083333 at all three derangement seeds (= H1, §3.3),
+with H2 at C2 = (12,16)/partition B as the co-primary independent-replication
+reading. **Pre-registered directional prediction:** keyacc_real ≥ 0.81 at
+both cells (the weaker-B″-cell planning value), floor LB clears 0.70
+(power 0.954 at the achieved n = 266, §6.3). Decision rules verbatim in §5.2;
+PASS/REFUTED substrate-scoped per D-1. [STIPULATED prediction anchored to
+MEASURED-exploratory B″/Stage-1 values.]
+
+**HNSKR3S (surface-bridge S-branch — EXPLORATORY calibration; never gates the
+frozen verdict).** On the §6.5 paired same-item AMT-vs-synthetic bridge at C1
+(n = 200 burned items, seed 20260714, B″ derangement family):
+**pre-registered directional prediction** — the synthetic surface does not
+degrade keyed delivery below the planning band, i.e.
+Δ̂_surface = keyacc_syn − keyacc_amt ≥ −0.04 with **keyacc_syn ≥ 0.81**;
+grounds: every endpoint comparison is within-surface by construction (D-1 §3)
+and the register-convergence direction (D-1 §4) predicts a null-to-positive
+shift on the terser canonical surface. Its pre-registered **branch rule
+governs the freeze decision, not the verdict** (ASM-2364): syn ≥ 0.81 →
+freeze the §4/§6.3 plan as-is; 0.75 ≤ syn < 0.81 → re-anchor planning keyacc
++ n per §6.3-resolution (ii); syn < 0.75 → do not freeze, escalate per D-1
+§6(c). Reported MEASURED-exploratory (`phase:"explore"`,
+`gate:"NSK1-R3-BRIDGE"`); its rows never enter the confirmatory analysis.
+
 ---
 
 ## 4. The complete FWER / multiplicity plan (fix a)
@@ -392,6 +434,36 @@ cell** (600 fresh covered items total, split disjoint). Pre-freeze count gate:
   more fresh items or reconsider). The count is a to-measure build fact,
   deliberately not estimated at design time.
 
+**COUNT-GATE RESOLUTION at the achieved build (2026-07-15; BLOCKER-2
+discharge — PREP, not freeze).** [MEASURED (provenance):
+`data/nsk1-clutrr-r3/manifest.json` — fresh deduped covered pool = 532,
+**n_A = n_B = 266**, contamination 0/532, `remainder_unused = 0`.] The build
+lands in the **reduced branch** (175 ≤ 266 < 300). Power redone at achieved
+n per this section's rule — exact binomial, identical method to the §4 table
+(one-sided Wilson LB ≥ 0.70 at z = 2.3940), verified to reproduce the §4 rows
+at n = 175/200/300 before use:
+
+| true keyacc | 0.75 | 0.78 | **0.81 (planning)** | 0.83 | 0.85 |
+|---|---|---|---|---|---|
+| **power @ n = 266** | 0.24 | 0.67 | **0.954** | 0.995 | 0.9998 |
+
+Critical count k\* = 205/266: the observed keyacc must be ≥ 0.7707 for the
+floor conjunct to clear. Joint H1 ∧ H2 power (both cells independently at
+n = 266, true 0.81) ≈ 0.91. **Gate decision: 0.954 ≥ 0.80 at planning
+keyacc 0.81 → n = 266 is SUFFICIENT TO FREEZE; the endpoint and MCID are NOT
+rescoped** (keyed-accuracy floor 0.70 = SESOI +0.20 absolute over the 0.50
+coin anchor, unchanged). Tags: the n = 266 is MEASURED (build provenance);
+the 0.81 planning keyacc, the 0.70 MCID/floor, and the 0.80 reduced-branch
+power target are STIPULATED (ASM-2359, ASM-2353). Honest sensitivity: power
+falls to 0.67 if the true synthetic-surface keyacc is 0.78 — so the §6.5
+bridge re-anchor remains REQUIRED before freeze. Interaction with the §6.5
+branch rule at the achieved n: (i) bridge syn ≥ 0.81 → freeze at n = 266
+as-is; (ii) 0.75 ≤ syn < 0.81 → the ≥ 0.90-power-at-bridge-value requirement
+generally CANNOT be met at n = 266 (e.g. 0.67 at 0.78) — the branch's "raise
+the n target" then means a supplementary same-recipe build at a NEW disclosed
+seed (a pre-freeze amendment, never silent) or maintainer-adjudicated
+non-freeze; (iii) syn < 0.75 → do not freeze (unchanged).
+
 ### 6.4 Procedure (runner-role, against the FROZEN record)
 
 1. **Build** `data/nsk1-clutrr-r3` (generator + seed 20260720 + S4 filter),
@@ -544,6 +616,16 @@ headroom pass. Hard caps in the record: **USD 25 / 10 GPU-h / 12 h wall**
 filter), ~USD 0. The **pre-freeze §6.5 surface-bridge** adds ≈ 8k GPU calls ≈
 **USD 0.10–0.35** (own hard caps USD 2 / 0.5 GPU-h / 2 h wall; own sign-off).
 
+**Envelope at the ACHIEVED n = 266/cell (2026-07-15; same planning
+arithmetic, never a measurement).** Call mix: margins 2 × 266 × 16 = 8,512 +
+donor harvest 1,064 + baselines 1,064 + text-only 532 gens ≈ **11.2k GPU
+calls** (0.89× the n = 300 plan) ≈ 0.13–0.45 GPU-h ≈ **USD 0.18–1.35**;
+padded confirmatory ceiling **≤ USD 3** unchanged. **Single batched sign-off
+number for the maintainer: worst-case USD 5** = surface-bridge hard cap
+USD 2 (expected USD 0.10–0.35) + confirmatory padded ceiling USD 3 (expected
+USD 0.18–1.35), all inside the record's overall caps USD 25 / 10 GPU-h /
+12 h wall.
+
 ### 8.2 Freeze-readiness
 
 **Design-complete and launch-ready in structure:** the endpoint, hypotheses,
@@ -562,6 +644,40 @@ harness sha, prereg-doc sha) that only a build + freeze can fill.
   per the §6.5 branch rule, and register **ASM-2364** with the bridge summary
   sha. If the bridge lands in the < 0.75 branch, **do not freeze** — escalate
   per D-1 §6(c). Runnable in parallel with BLOCKER-1 (burned items only).
+> **Blocker status at 2026-07-15 prep (nothing frozen/run/committed):**
+> BLOCKER-1 **BUILT** — `data/nsk1-clutrr-r3` exists (manifest: n = 266/266,
+> contamination 0/532, S9 asserts all PASS). BLOCKER-2 **RESOLVED-PREP** —
+> power redone at achieved n = 266 (§6.3 resolution: 0.954 at planning 0.81 ≥
+> the 0.80 gate → sufficient to freeze), subject only to the §6.5 bridge
+> re-anchor. BLOCKER-3 **RESOLVED-PREP except the runner entrypoint** — pins
+> resolved below (corpus digest, builder sha, analysis sha, prereg-doc sha);
+> the real-mode Modal entrypoint sha is runner-role and re-pins at freeze.
+> BLOCKER-4 **RESOLVED-PREP** — HNSKR3D/HNSKR3S registered in §3.4.
+> BLOCKER-0 (bridge run) and BLOCKER-5 (sign-off, ASM registration at commit,
+> freeze) remain with the coordinator/maintainer/runner.
+>
+> **Resolved pin values (BLOCKER-3; recompute/verify mechanically at freeze):**
+> - `pins.corpus_hashes.nsk1-clutrr-r3` =
+>   `7997bafcc6b933b38fd3fdf731d5c93158bfce9f8ff5d3a0bc4f29f01fbc2147`
+>   (kot-corpus-hash/1 via `tools/registry/corpus-pin.py`, computed 2026-07-15
+>   over the built corpus; MEASURED-provenance).
+> - `pins.harness_manifest`: fresh-corpus builder
+>   `poc/nsk1/build_clutrr_r3_corpus.py` sha256
+>   `dc9175bd6ddcbba8c46232efb95d50054e4e9eea8392c8d3d725b78107c89358`
+>   (matches the manifest's `builder_sha256`) + corpus output digest above +
+>   B″-helper base `poc/modal/modal_nsk1_g2.py` sha256
+>   `97f9758c2fff39e07f97ddfe74cf93cc7561807ea73b45ebd6e79b87a2833ec4`
+>   (`_build_specs_bprime2` / injection hook / margin read-out live here); the
+>   nsk1-r3 real-mode entrypoint is written by the runner and its sha appended
+>   **at freeze** (the one remaining freeze-time fill, per the nsk1 precedent).
+> - `pins.analysis_script.sha256` =
+>   `eb3042b361759379c8cf16c959b5f10b7bcb8103c73f4bb1ae5c8cd5a7ae1402`
+>   (recomputed 2026-07-15; byte-identical to the draft pin — no review edit
+>   has landed; recompute again if review edits the script).
+> - `prereg_doc.sha256` = sha256 of this document as amended 2026-07-15,
+>   written into the record at prep; **must be recomputed at freeze** if this
+>   document changes again (any bridge re-anchor edit WILL change it).
+
 - **BLOCKER-1 (data, hard).** The covered pool is **exhausted**
   (`remainder_unused = 0`). A **fresh held-out covered corpus** must be built
   by regenerating with the pinned CLUTRR generator at seed 20260720 under the
@@ -576,8 +692,11 @@ harness sha, prereg-doc sha) that only a build + freeze can fill.
 - **BLOCKER-3 (pins).** Fill `pins.corpus_hashes.nsk1-clutrr-r3`,
   `pins.harness_manifest` (real-mode Modal entrypoint + builder shas), and
   recompute `pins.analysis_script.sha256` and `prereg_doc.sha256` after review.
-- **BLOCKER-4 (hypotheses).** Register `HNSKR3D` (delivery) and `HNSKR3S`
-  (specificity) in the hypothesis registry, or re-map to existing ids.
+- **BLOCKER-4 (hypotheses).** Register `HNSKR3D` (confirmatory delivery
+  D-branch) and `HNSKR3S` (surface-bridge S-branch) — **done in §3.4**
+  (design-doc registration, the HNSK0/HNSK1 precedent; the earlier
+  "specificity" gloss for HNSKR3S is superseded there: specificity is a
+  conjunct of HNSKR3D).
 - **BLOCKER-5 (governance).** Register ASM-2353..2359 (ASM-2357 **as amended
   2026-07-15**) plus **ASM-2364** at commit; obtain maintainer Tier-2 GPU
   sign-off; run the pre-freeze gates (surface-bridge + re-anchor, build+count,
