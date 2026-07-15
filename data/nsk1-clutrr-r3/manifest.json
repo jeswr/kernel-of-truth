@@ -1,0 +1,167 @@
+{
+ "build_assertions_S9": {
+  "s9_1_engine_resolution": "PASS (100%, 532 items)",
+  "s9_2_rule_equivalence": "PASS (exactly one licensed unique lookup / item)",
+  "s9_3_names_and_donor_pair": "PASS (3-name distinct; D_top/D_bridge differ only in the answer-slot name)",
+  "s9_4_gold_not_in_dbridge": "PASS (no gold token in any D_bridge donor)",
+  "s9_5_story_gold_token_contamination_covered": 0,
+  "s9_6_disjointness": "PASS (fresh\u2229prior=\u2205 vs all 1058 prior story shas; A\u2229B=\u2205; no internal dups)"
+ },
+ "builder_sha256": "dc9175bd6ddcbba8c46232efb95d50054e4e9eea8392c8d3d725b78107c89358",
+ "built_by": "poc/nsk1/build_clutrr_r3_corpus.py (runner role; nsk1-r3 \u00a76.4 step 1)",
+ "corpus": "nsk1-clutrr-r3",
+ "count_gate_6_3": {
+  "branch": "REDUCED (175<=n<300): power must be redone at achieved n BEFORE freeze",
+  "n_A": 266,
+  "n_B": 266,
+  "n_target_per_cell": 300,
+  "non_freeze_floor_per_cell": 175
+ },
+ "counts": {
+  "covered_candidates": 776,
+  "covered_pool_dedup_collisions": 244,
+  "covered_pool_deduped": 532,
+  "fresh_pool": 532,
+  "generated_rows": 12016,
+  "n_partition_A": 266,
+  "n_partition_B": 266,
+  "parse_drops": 0,
+  "prior_overlap_dropped": 0,
+  "remainder_unused": 0,
+  "world_records": 2660
+ },
+ "derangement_seed_families_declared": {
+  "A": [
+   20260720,
+   20260721,
+   20260722
+  ],
+  "B": [
+   20260723,
+   20260724,
+   20260725
+  ],
+  "note": "run-time seeds declared in registry/experiments/nsk1-r3.json; not used at build"
+ },
+ "deviation_disclosures": {
+  "D-1_synthetic_templating": "The design (ASM-2357) stipulates generator regeneration yields 'distributionally identical' fresh items. The AMT paraphrase templates (cleaned_placeholders.zip, sha256 pinned in the generator's main.py) are NO LONGER OBTAINABLE: canonical URL 404s, no Wayback snapshot, no public mirror found (2026-07-14). This build uses the pinned generator's SYNTHETIC templating branch (use_mturk_template=False; combination_length=1 forced by that branch): chain structure/genders/proof_state/query are from the identical pinned code, but story surfaces are the generator's built-in per-relation phrasings \u2014 terser and less varied than the AMT-paraphrase surfaces B'/B\"/Stage-1 measured. REQUIRES designer adjudication BEFORE prereg-freeze.",
+  "D-2_question_fallback_forced": "All items use the fallback question template 'How is [A] related to [B]?' (released query order) to match 958/958 of the prior corpus (whose text_query was empty); the generator's synthetic text_query is preserved unused in provenance.",
+  "D-3_csv_row_id_is_generation_index": "The generator's per-puzzle uuid4 id is process-random (not seed-derived); provenance csv_row_id is the deterministic generation row index genrow-NNNNNN instead, keeping corpus bytes reproducible."
+ },
+ "drops": {
+  "class_records_skipped_missing_gender": 0,
+  "duplicate_names_in_item": 0,
+  "f_comb_disagreement": 0,
+  "missing_or_inconsistent_gender": 0
+ },
+ "epistemic_status": "MEASURED (provenance only) \u2014 every count below is a pure function of the pinned generator commit + seeds 20260720/20260726 under PYTHONHASHSEED=0; no experimental outcome is recorded here.",
+ "license": {
+  "citation": "Sinha et al., EMNLP 2019, arXiv:1908.06177",
+  "eval_side_only_S11": true,
+  "quarantine_notice": "LICENSE-NOTICE",
+  "spdx": "CC-BY-NC-4.0"
+ },
+ "orientation_S3": {
+  "counts": {
+   "C1/Q1": {
+    "agree": 776,
+    "n": 776
+   },
+   "C1/Q2": {
+    "agree": 0,
+    "n": 776
+   },
+   "C2/Q1": {
+    "agree": 0,
+    "n": 776
+   },
+   "C2/Q2": {
+    "agree": 388,
+    "n": 776
+   }
+  },
+  "determined_convention": "C1/Q1",
+  "gender_G_vs_2nd_edge_disagreements": 0,
+  "population_clean_2edge_upedge_rows": 776,
+  "scores": {
+   "C1/Q1": 1.0,
+   "C1/Q2": 0.0,
+   "C2/Q1": 0.0,
+   "C2/Q2": 0.5
+  }
+ },
+ "prior_recipe_carried_from": {
+  "builder": "poc/nsk1/build_clutrr_corpus.py",
+  "builder_sha256": "b82993cec1322a0040ed00266a36f18a1d9b90b753e71e0826a038e46362db77",
+  "carried": "S2 parse, S3 orientation self-check, S4 covered predicate, S6 story-byte dedup, S9.1/S9.2/S9.4 asserts, item/world schema"
+ },
+ "seeds": {
+  "generation": 20260720,
+  "partition_split": 20260726
+ },
+ "source": {
+  "dependency_versions": {
+   "PyYAML": "5.4.1",
+   "networkx": "2.8.8",
+   "numpy": "1.26.4",
+   "pandas": "1.5.3",
+   "python": "3.9.25"
+  },
+  "generation_invocation": {
+   "argv_equivalent": "--train_tasks 1.2 --test_tasks 1.2 --equal --question 0",
+   "entry": "clutrr.generator.generate_rows(args, store, 'task_1.2', split=0.8)",
+   "graph_params": {
+    "boundary": true,
+    "equal": true,
+    "max_child": 4,
+    "max_levels": 3,
+    "min_child": 4,
+    "p_marry": 1.0
+   },
+   "overrides": {
+    "combination_length": 1,
+    "data_type": "train",
+    "memory": 0,
+    "noise_*": false,
+    "num_rows": 12000,
+    "relation_length": 2,
+    "split": 0.8,
+    "template_file": "(empty stub, unused)",
+    "use_mturk_template": false
+   },
+   "seeding": {
+    "PYTHONHASHSEED": "0",
+    "numpy.random.seed": 20260720,
+    "random.seed": 20260720
+   }
+  },
+  "generator_commit": "d045fae289d3746503677ceed7631c999202501e",
+  "generator_repo": "https://github.com/facebookresearch/clutrr",
+  "relation_vocabulary_verbatim": [
+   "aunt",
+   "brother",
+   "brother-in-law",
+   "daughter",
+   "daughter-in-law",
+   "father",
+   "father-in-law",
+   "granddaughter",
+   "grandfather",
+   "grandmother",
+   "grandson",
+   "husband",
+   "mother",
+   "mother-in-law",
+   "neice",
+   "nephew",
+   "no-relation",
+   "sister",
+   "sister-in-law",
+   "son",
+   "son-in-law",
+   "uncle",
+   "wife"
+  ],
+  "relations_store_yaml_sha256": "c2b9e2723aea7007abb7418e97f294fa696a75c0466d0195c21d78c96c33363d"
+ }
+}
