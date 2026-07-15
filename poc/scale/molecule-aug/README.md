@@ -9,9 +9,20 @@ concept lexicon (65 primes + `data/kernel-v0/` 54 + 31 authored bridge concepts)
 reduces AST-lossiness vs the flat 65-prime baseline, on the same concepts, under
 the `poc/scale/ast-pipeline/` blind cross-vendor judges.
 
+**2026-07-15 — v2 revision (per the Sol readiness review + maintainer delegation):**
+`DESIGN-v2.md` supersedes DESIGN.md §§2/6/7/8 — matched flat-E2-vs-mol-E2 primary
+(McNemar, ITT) on **n=200 fresh frozen concepts**, single-candidate
+**expanded-rendering** proxy judging (F1 gpt-5.6-sol annotator-proxy, F2 opus, F3
+terra; no human judges available — all verdicts PROXY-PROVISIONAL, human re-judge of
+the frozen artefacts is the upgrade path), proxy adjudication of all 31 bridges +
+chains, prospective freeze. v1 Stage 2 will not run. Run commands: DESIGN-v2 §10;
+run_s5.py v2 build spec: DESIGN-v2 §9.
+
 | file | what |
 |---|---|
-| `DESIGN.md` | the experiment: arms, lexicon, endpoint, stats, cost, ALGORITHM_VERSION analysis |
+| `DESIGN.md` | v1 design of record for lexicon/prompt/gate mechanics; §§2/6/7/8 superseded |
+| `DESIGN-v2.md` | **the operative design + delegated PROCEED decision** (arms, n=200, judges, freeze, cost, claim scope, commands) |
+| `judge-addendum-v2.md` | PRIMARY instrument: single-candidate, expanded-rendering fidelity addendum |
 | `lexicon/PLAN.md` | the 31 bridge words (mined from consensus-100 lossy notes), authoring order, briefs, gates |
 | `ref-addendum.md` | generation-prompt delta (composed with the unmodified base prompt at gen time) |
 | `judge-addendum.md` | judge-prompt delta (reference semantics; applied to ALL candidates in a run) |

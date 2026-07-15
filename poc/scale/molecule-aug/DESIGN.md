@@ -1,5 +1,14 @@
 # Molecule-augmented generation (S5) — reference-lexicon AST generation vs the flat 65-prime baseline
 
+> **⚠ SUPERSEDED IN PART BY `DESIGN-v2.md` (2026-07-15).** Following the GPT-5.6-sol
+> readiness review (`docs/next/analysis/s5-readiness-review.md`, verdict
+> NOT-YET-confirmatory), §§2, 6, 7, 8 of this file (arms, judging, endpoint/stats,
+> run plan) are replaced by DESIGN-v2: matched flat-ensemble-vs-molecule-ensemble
+> E2 primary at n=200 fresh, single-candidate expanded-rendering proxy judging,
+> full bridge adjudication, prospective freeze. Stage 2 below will NOT run as
+> designed. §§3–5 and 9 (lexicon, prompt/gate mechanics, ALGORITHM_VERSION
+> analysis) remain the design of record.
+
 **Status: DESIGN ONLY — exploratory methodology R&D.** No prereg-freeze, no registry
 write, no git commit, no full run, no GPU. Every design choice below is
 **STIPULATED-not-MEASURED** unless it cites a measured artefact by path. Author:
