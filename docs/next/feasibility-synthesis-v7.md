@@ -1,5 +1,7 @@
 # Cross-experiment feasibility synthesis v7 — after R4 (efficiency's first live datum), the D-1 substrate loss, and a content-not-structure ledger at five
 
+> **SUPERSEDED (2026-07-15, Fable): the GPT-5.6 dual-model co-read of this document landed (`poc/gpt56-review/v7-coread/last-message.json`, bottom line ADOPT WITH corrections; both verdict-words confirmed). Per this document's own supersession clause, the corrected standing synthesis is `docs/next/feasibility-synthesis-v8.md` (v7 + the eight co-read corrections + the post-v7 window: #39=(a)/ASM-2364, the AST-sweep readout, S5 DESIGN-v2). Do NOT adopt v7 as the standing synthesis; it remains the pre-co-read record. Its evidence state below is unedited.**
+
 ## Status, scope, and tags
 
 - **Status:** synthesis update, **ANALYSIS ONLY** (Fable, lead scientist, 2026-07-14). This document supersedes `docs/next/feasibility-synthesis-v6.md` as the standing programme-level feasibility picture **once the coordinator commits it after the GPT-5.6 review gate** (codex lane down since 07-07; the dual-model co-read this synthesis is owed is **[REVIEW-GATE-PENDING]** and marked wherever it is load-bearing). It changes no frozen record, verdict, audit, registry row, or manifest; nothing is run, frozen, or committed by this document. Proposed assumption rows PROPOSED-ASM-2360..2363 (§9) are for coordinator registration at commit; numbers are proposals from the next free block (register verified through ASM-2359 this session).
