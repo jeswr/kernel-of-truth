@@ -1,0 +1,163 @@
+--- a/c/Makefile	2026-07-15 13:08:53.575900245 +0000
++++ b/c/Makefile	2026-07-15 13:15:29.440523588 +0000
+@@ -85,7 +85,7 @@
+ # phony 'glm' → 'glm.exe' on Windows (so 'make glm' and 'coli build' work on every platform)
+ glm: glm$(EXE)
+ 
+-glm$(EXE): glm.c st.h json.h tok.h tok_unicode.h compat.h grammar.h $(CUDA_OBJ)
++glm$(EXE): glm.c st.h json.h tok.h tok_unicode.h compat.h grammar.h rtrace.h $(CUDA_OBJ)
+ 	$(CC) $(CFLAGS) glm.c $(CUDA_OBJ) -o glm$(EXE) $(LDFLAGS)
+ 
+ backend_cuda.o: backend_cuda.cu backend_cuda.h
+--- a/c/glm.c	2026-07-15 13:08:53.575900245 +0000
++++ b/c/glm.c	2026-07-15 13:15:16.280373233 +0000
+@@ -35,6 +35,7 @@
+ #include "tok.h"
+ #include "tier.h"
+ #include "grammar.h"                              /* metodo F: draft grammaticali (#48) */
++#include "rtrace.h"                               /* GLM-5.2 backend-smoke per-token router TRACE — READ-ONLY, inert unless RTRACE=<file> */
+ #ifdef COLI_CUDA
+ #include <omp.h>
+ #include "backend_cuda.h"
+@@ -566,6 +567,7 @@
+ static float g_nuc=0.95f;/* NUCLEUS: top-p sul vocabolario (default dal generation_config GLM-5.2) */
+ static int g_topk=0;     /* TOPK=n -> usa n expert/token invece di config (ricerca: meno disco) */
+ static float g_topp=0;   /* TOPP=p (0..1) -> top-p adattivo: tieni gli expert fino a peso cumulato p */
++static RTrace *g_rt=NULL; /* GLM-5.2 backend-smoke router TRACE (READ-ONLY); NULL unless RTRACE=<file> -> every rtrace_*() call is a no-op and output stays byte-identical to upstream */
+ static int g_spec=1;     /* metodo C: SPEC=0 disabilita il prefetch speculativo cross-layer */
+ static int g_draft=0;    /* metodo E: DRAFT=n token auto-speculati per forward via n-gram lookup
+                           * (0=off). LOSSLESS: verifica = output identico al greedy. Default OFF:
+@@ -1267,9 +1269,11 @@
+  * una volta sola e moltiplicato per tutte le posizioni che lo usano (pesi letti 1 volta);
+  * lo shared expert e' un unico matmul a S righe. Per posizione l'accumulo resta
+  * nell'ordine (routed nel loro ordine di union, poi shared). */
+-static void moe(Model *m, Layer *l, int layer, float *x, int S, float *out){
++static void moe(Model *m, Layer *l, int layer, float *x, int S, int pos_base, float *out){
+     Cfg *c=&m->c; int D=c->hidden, E=c->n_experts, K=c->topk, I=c->moe_inter;
+     float *logit=falloc(E), *choice=falloc(E);
++    /* RTRACE: pre-sigmoid router logits, per expert. READ-ONLY; NULL unless RTRACE set. */
++    float *traw = g_rt ? falloc(E) : NULL;
+     int sI=c->moe_inter*c->n_shared;
+     /* ---- FASE A: routing di tutte le S posizioni ---- */
+     int *idxs=malloc((size_t)S*K*sizeof(int)); float *ws=malloc((size_t)S*K*sizeof(float));
+@@ -1277,7 +1281,7 @@
+     for(int s=0;s<S;s++){
+         const float *xs=x+(int64_t)s*D;
+         matmul(logit, xs, l->router, 1, D, E);
+-        for(int e=0;e<E;e++){ logit[e]=sigmoidf(logit[e]); choice[e]=logit[e]+l->router_bias[e]; }
++        for(int e=0;e<E;e++){ if(traw) traw[e]=logit[e]; logit[e]=sigmoidf(logit[e]); choice[e]=logit[e]+l->router_bias[e]; }
+         int *idx=idxs+(int64_t)s*K; float *w=ws+(int64_t)s*K;
+         int Ksel = g_topk>0 ? (g_topk<K?g_topk:K) : K;
+         for(int kk=0;kk<Ksel;kk++){ int best=-1; float bv=-1e30f;
+@@ -1299,6 +1303,20 @@
+         }
+         if(c->norm_topk){ float sm=0; for(int kk=0;kk<Ke;kk++) sm+=w[kk]; sm+=1e-20f; for(int kk=0;kk<Ke;kk++) w[kk]/=sm; }
+         for(int kk=0;kk<Ke;kk++) w[kk]*=c->routed_scale;
++        /* RTRACE emit (READ-ONLY). logit[]=sigmoid gate per expert (pre-norm router
++         * score), choice[]=gate+bias (selection criterion), traw[]=raw logit, w[]=
++         * normalised routed weight. margin = min-over-kept sel - max-over-dropped sel
++         * (top-k / top-k+1 separation). is_mtp = layer==n_layers (MTP head). */
++        if(g_rt){
++            float minkept=1e30f;
++            for(int kk=0;kk<Ke;kk++){ float sv=choice[idx[kk]]; if(sv<minkept) minkept=sv; }
++            float maxdrop=-1e30f;
++            for(int e=0;e<E;e++){ int kept=0; for(int kk=0;kk<Ke;kk++) if(idx[kk]==e){kept=1;break;}
++                if(!kept && choice[e]>maxdrop) maxdrop=choice[e]; }
++            float margin = (maxdrop>-1e29f) ? (minkept-maxdrop) : minkept;
++            rtrace_token(g_rt, layer, layer==c->n_layers, pos_base+s, Ke,
++                         idx, traw, logit, choice, w, margin);
++        }
+         for(int d=0;d<D;d++) out[(int64_t)s*D+d]=0;
+     }
+     if(g_looka && S==1 && layer<c->n_layers){
+@@ -1402,6 +1420,7 @@
+     for(int64_t z=0;z<(int64_t)S*D;z++) out[z]+=hh[z];
+     free(logit); free(choice); free(idxs); free(ws); free(keff); free(uniq);
+     free(xg); free(gg); free(uu); free(hh); free(rows); free(rw); free(sg); free(su);
++    free(traw);   /* RTRACE scratch (NULL when tracing off -> free(NULL) no-op) */
+ }
+ 
+ static void dense_mlp(Layer *l, float *x, int S, int D, int I, float *out){
+@@ -1497,7 +1516,7 @@
+     if(g_pilot && S<=8 && li+1<c->n_layers && m->L[li+1].sparse) pilot_prefetch(m,li+1,x,S);
+     if(g_looka && S==1 && li+1<c->n_layers && m->L[li+1].sparse) la_predict(m,li+1,x,1);
+     for(int s=0;s<S;s++) rmsnorm(nrm+(int64_t)s*D, x+(int64_t)s*D, l->post_ln, D, c->eps);
+-    if(l->sparse) moe(m,l,li,nrm,S,tmp); else dense_mlp(l,nrm,S,D,c->dense_inter,tmp);
++    if(l->sparse) moe(m,l,li,nrm,S,pos_base,tmp); else dense_mlp(l,nrm,S,D,c->dense_inter,tmp);
+     for(int64_t j=0;j<(int64_t)S*D;j++) x[j]+=tmp[j];
+ }
+ static void layers_forward(Model *m, float *x, int S, int pos_base){
+@@ -1907,6 +1926,50 @@
+     free(ln); free(ids); free(x); free(lo); free(row); fclose(f);
+ }
+ 
++/* GLM-5.2 backend-smoke TEACHER-FORCED router-trace path (READ-ONLY).
++ * Reached via TRACE_SCORE=<manifest> (needs RTRACE=<file> to record anything).
++ * Manifest: one item per line, whitespace ints:  item_id  T  n_prompt  t_0..t_{T-1}
++ *   item_id  = integer probe id (joined to the corpus by index on the host)
++ *   T        = sequence length (prompt + teacher-forced target)
++ *   n_prompt = number of prompt tokens; positions [0,n_prompt) are tagged io=0
++ *              (input), [n_prompt,T) io=1 (target)
++ *   t_*      = token ids (host pre-tokenised with the model tokenizer; tiny model
++ *              uses raw ids < vocab)
++ * Per item: RESET the trace (rtrace_begin_item), ONE prefill (splice-free; moe()
++ * emits per-token router rows), rtrace_end_item flushes the per-item fingerprint.
++ * Nothing carries across items (the anti-contamination invariant). */
++static void run_trace_score(Model *m, const char *path){
++    Cfg *c=&m->c; int D=c->hidden;
++    FILE *f=fopen(path,"rb"); if(!f){perror(path);exit(1);}
++    int maxT=1; { char *ln=NULL; size_t cp=0;
++        while(getline(&ln,&cp,f)>0){ long id,T; char *e;
++            id=strtol(ln,&e,10); if(e==ln) continue; T=strtol(e,&e,10);
++            if(T>maxT) maxT=(int)T; (void)id; }
++        free(ln); }
++    kv_alloc(m,maxT);
++    float *x=falloc((int64_t)maxT*D);
++    int *ids=malloc((size_t)maxT*sizeof(int));
++    int topk_rec = g_topk>0 ? (g_topk<c->topk?g_topk:c->topk) : c->topk;
++    rewind(f); char *ln=NULL; size_t cp=0; int nreq=0; double t0=now_s();
++    while(getline(&ln,&cp,f)>0){
++        char *p=ln, *e;
++        long item=strtol(p,&e,10); if(e==p){ continue; } p=e;             /* blank line */
++        long T=strtol(p,&e,10); if(e==p){ fprintf(stderr,"[trace] bad T\n"); continue; } p=e;
++        long np=strtol(p,&e,10); if(e==p){ fprintf(stderr,"[trace] bad n_prompt\n"); continue; } p=e;
++        int bad=(T<1 || T>maxT || np<0 || np>T);
++        for(long i=0;i<T && !bad;i++){ long v=strtol(p,&e,10); if(e==p){bad=1;break;} p=e;
++            if(v<0 || v>=c->vocab) bad=1; else ids[i]=(int)v; }
++        if(bad){ fprintf(stderr,"[trace] ERR item %ld (bad token/len)\n",item); continue; }
++        rtrace_begin_item(g_rt, item, (int)T, (int)np, topk_rec, g_draft);
++        for(int s=0;s<T;s++) embed_row(m, ids[s], x+(int64_t)s*D);
++        layers_forward(m,x,(int)T,0);                                     /* ONE prefill; moe() emits */
++        rtrace_end_item(g_rt);
++        if(++nreq%4==0) fprintf(stderr,"[trace %d item | %.1fs | RSS %.2f GB | hit %.0f%%]\n",
++            nreq, now_s()-t0, rss_gb(), (m->hits+m->miss)?100.0*m->hits/(m->hits+m->miss):0.0);
++    }
++    free(ln); free(ids); free(x); fclose(f);
++}
++
+ static void generate(Model *m, const int *prompt, int np, int n_new, int *out){
+     kv_alloc(m,np+n_new+g_draft+2);
+     for(int i=0;i<np;i++) out[i]=prompt[i];
+@@ -2696,6 +2759,10 @@
+     g_mem_avail_boot = mem_available_gb();
+     Model m; double t0=now_s(); model_init(&m,snap,cap,ebits,dbits);
+     if(g_draft<0) g_draft = m.has_mtp ? 3 : 0;
++    /* GLM-5.2 backend-smoke router TRACE (READ-ONLY). Opened after model_init so
++     * n_layers (MTP-head disambiguation) is known; NULL disables all tracing and
++     * keeps output byte-identical to upstream. */
++    if(getenv("RTRACE")) g_rt = rtrace_open(getenv("RTRACE"), m.c.n_layers);
+     if(getenv("DSA_TOPK")) m.c.index_topk=atoi(getenv("DSA_TOPK"));   /* override per test */
+     printf("loaded in %.2fs | resident dense: %.2f MB | layers=%d experts=%d | MTP %s (draft=%d)\n",
+            now_s()-t0, m.resident_bytes/(1024.0*1024.0), m.c.n_layers, m.c.n_experts,
+@@ -2730,6 +2797,11 @@
+       cap_for_ram(&m, ram_env, ebits, est_ctx); }
+     const char *stats=getenv("STATS");   /* STATS=<file> -> istogramma uso expert a fine run */
+ 
++    /* GLM-5.2 backend-smoke: TRACE_SCORE=<manifest> -> teacher-forced per-token
++     * router trace (READ-ONLY). Precedes SCORE/TF; needs RTRACE=<file> to record. */
++    if(getenv("TRACE_SCORE")){ run_trace_score(&m, getenv("TRACE_SCORE"));
++        if(stats) stats_dump(&m,stats); rtrace_close(g_rt); g_rt=NULL; return 0; }
++
+     /* modo scoring per benchmark: SCORE=<requests.txt> -> log-likelihood per riga */
+     if(getenv("SCORE")){ run_score(&m, getenv("SCORE")); if(stats) stats_dump(&m,stats); return 0; }
+ 
