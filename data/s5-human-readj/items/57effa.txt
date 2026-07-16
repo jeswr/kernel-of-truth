@@ -1,0 +1,144 @@
+concept: conception
+synset: urn:lexical-wn31:n-00846508
+pos: n
+lemmas: conception
+wn31-gloss (sense-fixing only): the act of becoming pregnant; fertilization of an ovum by a spermatozoon
+
+=== CANDIDATE A ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 3,
+   "refKind": "TimeRef"
+  },
+  {
+   "index": 4,
+   "refKind": "SomeoneRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "HAPPEN",
+   "roles": {
+    "undergoer": {
+     "kind": "ref",
+     "index": 1
+    },
+    "time": {
+     "kind": "sp",
+     "det": "SOME",
+     "head": {
+      "kind": "primeHead",
+      "prime": "WHEN~TIME"
+     },
+     "bind": 3
+    },
+    "place": {
+     "kind": "sp",
+     "head": {
+      "kind": "primeHead",
+      "prime": "BODY"
+     },
+     "bind": 2
+    },
+    "manner": {
+     "kind": "prime",
+     "prime": "INSIDE"
+    }
+   }
+  },
+  {
+   "type": "op",
+   "op": "AFTER",
+   "args": [
+    {
+     "kind": "ref",
+     "index": 3
+    },
+    {
+     "type": "pred",
+     "pred": "BE-SOMEWHERE",
+     "roles": {
+      "undergoer": {
+       "kind": "sp",
+       "mods": [
+        {
+         "mod": "SMALL",
+         "intensifier": "VERY"
+        }
+       ],
+       "head": {
+        "kind": "primeHead",
+        "prime": "SOMEONE"
+       },
+       "bind": 4
+      },
+      "locus": {
+       "kind": "ref",
+       "index": 2
+      },
+      "manner": {
+       "kind": "prime",
+       "prime": "INSIDE"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "type": "op",
+   "op": "BEFORE",
+   "args": [
+    {
+     "kind": "ref",
+     "index": 3
+    },
+    {
+     "type": "op",
+     "op": "NOT",
+     "args": [
+      {
+       "type": "pred",
+       "pred": "THERE-IS",
+       "roles": {
+        "undergoer": {
+         "kind": "ref",
+         "index": 4
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "pred",
+   "pred": "LIVE",
+   "roles": {
+    "undergoer": {
+     "kind": "ref",
+     "index": 4
+    },
+    "time": {
+     "kind": "temporal",
+     "op": "AFTER",
+     "anchor": {
+      "kind": "ref",
+      "index": 3
+     }
+    }
+   }
+  }
+ ]
+}

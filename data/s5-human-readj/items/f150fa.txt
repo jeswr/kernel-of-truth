@@ -1,0 +1,45 @@
+concept: inhabitancy
+synset: urn:lexical-wn31:n-01056469
+pos: n
+lemmas: inhabitancy, inhabitation, habitation
+wn31-gloss (sense-fixing only): the act of dwelling in or living permanently in a place (said of both animals and men); "he studied the creation and inhabitation and demise of the colony"
+
+=== CANDIDATE A ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 2,
+   "refKind": "PlaceRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "LIVE",
+   "roles": {
+    "undergoer": {
+     "kind": "ref",
+     "index": 1
+    },
+    "place": {
+     "kind": "sp",
+     "head": {
+      "kind": "primeHead",
+      "prime": "WHERE~PLACE"
+     },
+     "bind": 2
+    },
+    "duration": {
+     "kind": "prime",
+     "prime": "A-LONG-TIME"
+    }
+   }
+  }
+ ]
+}

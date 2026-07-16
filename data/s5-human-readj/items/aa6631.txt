@@ -1,0 +1,69 @@
+concept: wealth
+synset: urn:lexical-wn31:n-05123428
+pos: n
+lemmas: wealth
+wn31-gloss (sense-fixing only): the quality of profuse abundance; "she has a wealth of talent"
+
+=== CANDIDATE A ===
+{
+ "schema": "kot-ast/1",
+ "frame": "WhenTrue",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomethingRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "THERE-IS",
+   "roles": {
+    "undergoer": {
+     "kind": "sp",
+     "quant": "MUCH~MANY",
+     "head": {
+      "kind": "refHead",
+      "index": 1
+     }
+    },
+    "place": {
+     "kind": "prime",
+     "prime": "HERE"
+    }
+   }
+  },
+  {
+   "type": "op",
+   "op": "NOT",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "THERE-IS",
+     "roles": {
+      "undergoer": {
+       "kind": "sp",
+       "quant": "MUCH~MANY",
+       "head": {
+        "kind": "kindFrame",
+        "of": {
+         "kind": "ref",
+         "index": 1
+        }
+       }
+      },
+      "place": {
+       "kind": "sp",
+       "det": "OTHER~ELSE~ANOTHER",
+       "quant": "MUCH~MANY",
+       "head": {
+        "kind": "primeHead",
+        "prime": "WHERE~PLACE"
+       }
+      }
+     }
+    }
+   ]
+  }
+ ]
+}

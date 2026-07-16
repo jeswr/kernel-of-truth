@@ -1,0 +1,204 @@
+concept: repeater
+synset: urn:lexical-wn31:n-10541063
+pos: n
+lemmas: repeater
+wn31-gloss (sense-fixing only): a person who repeats; "the audience consisted largely of repeaters who had seen the movie many times"
+
+=== CANDIDATE A ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 3,
+   "refKind": "TimeRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "DO",
+   "roles": {
+    "agent": {
+     "kind": "ref",
+     "index": 1
+    },
+    "undergoer": {
+     "kind": "sp",
+     "det": "SOME",
+     "head": {
+      "kind": "primeHead",
+      "prime": "SOMETHING~THING"
+     },
+     "bind": 2
+    },
+    "time": {
+     "kind": "sp",
+     "det": "SOME",
+     "head": {
+      "kind": "primeHead",
+      "prime": "WHEN~TIME"
+     },
+     "bind": 3
+    }
+   }
+  },
+  {
+   "type": "pred",
+   "pred": "BE-SPEC",
+   "roles": {
+    "undergoer": {
+     "kind": "ref",
+     "index": 2
+    },
+    "attribute": {
+     "kind": "sp",
+     "head": {
+      "kind": "kindFrame",
+      "of": {
+       "kind": "subExplication",
+       "frame": "InstanceSchema",
+       "referents": [
+        {
+         "index": 1,
+         "refKind": "SomethingRef"
+        },
+        {
+         "index": 2,
+         "refKind": "TimeRef"
+        }
+       ],
+       "clauses": [
+        {
+         "type": "pred",
+         "pred": "HAPPEN",
+         "roles": {
+          "undergoer": {
+           "kind": "ref",
+           "index": 1
+          },
+          "time": {
+           "kind": "sp",
+           "head": {
+            "kind": "primeHead",
+            "prime": "WHEN~TIME"
+           },
+           "det": "SOME",
+           "bind": 2
+          }
+         }
+        },
+        {
+         "type": "op",
+         "op": "AFTER",
+         "args": [
+          {
+           "kind": "ref",
+           "index": 2
+          },
+          {
+           "type": "op",
+           "op": "NOT",
+           "args": [
+            {
+             "type": "pred",
+             "pred": "HAPPEN",
+             "roles": {
+              "undergoer": {
+               "kind": "ref",
+               "index": 1
+              }
+             }
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "type": "op",
+         "op": "CAN",
+         "args": [
+          {
+           "type": "pred",
+           "pred": "KNOW",
+           "roles": {
+            "experiencer": {
+             "kind": "sp",
+             "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+             }
+            },
+            "complement": {
+             "kind": "clause",
+             "clause": {
+              "type": "pred",
+              "pred": "HAPPEN",
+              "roles": {
+               "undergoer": {
+                "kind": "ref",
+                "index": 1
+               },
+               "time": {
+                "kind": "temporal",
+                "op": "BEFORE",
+                "anchor": {
+                 "kind": "prime",
+                 "prime": "NOW"
+                }
+               }
+              }
+             }
+            }
+           }
+          }
+         ]
+        }
+       ]
+      }
+     }
+    }
+   }
+  },
+  {
+   "type": "op",
+   "op": "AFTER",
+   "args": [
+    {
+     "kind": "ref",
+     "index": 3
+    },
+    {
+     "type": "pred",
+     "pred": "DO",
+     "roles": {
+      "agent": {
+       "kind": "ref",
+       "index": 1
+      },
+      "undergoer": {
+       "kind": "ref",
+       "index": 2
+      },
+      "time": {
+       "kind": "sp",
+       "quant": "MUCH~MANY",
+       "head": {
+        "kind": "primeHead",
+        "prime": "WHEN~TIME"
+       }
+      }
+     }
+    }
+   ]
+  }
+ ]
+}

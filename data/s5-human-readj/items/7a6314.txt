@@ -1,0 +1,142 @@
+concept: builder
+synset: urn:lexical-wn31:n-09898025
+pos: n
+lemmas: builder
+wn31-gloss (sense-fixing only): a person who creates a business or who organizes and develops a country; "empire builder"
+
+=== CANDIDATE A ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 3,
+   "refKind": "TimeRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "DO",
+   "roles": {
+    "agent": {
+     "kind": "ref",
+     "index": 1
+    },
+    "undergoer": {
+     "kind": "sp",
+     "quant": "MUCH~MANY",
+     "head": {
+      "kind": "primeHead",
+      "prime": "SOMETHING~THING"
+     }
+    },
+    "time": {
+     "kind": "sp",
+     "det": "SOME",
+     "head": {
+      "kind": "primeHead",
+      "prime": "WHEN~TIME"
+     },
+     "bind": 3
+    },
+    "duration": {
+     "kind": "prime",
+     "prime": "A-LONG-TIME"
+    }
+   }
+  },
+  {
+   "type": "op",
+   "op": "BECAUSE",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "DO",
+     "roles": {
+      "agent": {
+       "kind": "ref",
+       "index": 1
+      }
+     }
+    },
+    {
+     "type": "pred",
+     "pred": "THERE-IS",
+     "roles": {
+      "undergoer": {
+       "kind": "sp",
+       "mods": [
+        {
+         "mod": "BIG",
+         "intensifier": "VERY"
+        }
+       ],
+       "head": {
+        "kind": "primeHead",
+        "prime": "SOMETHING~THING"
+       },
+       "bind": 2
+      }
+     }
+    }
+   ]
+  },
+  {
+   "type": "op",
+   "op": "BEFORE",
+   "args": [
+    {
+     "kind": "ref",
+     "index": 3
+    },
+    {
+     "type": "op",
+     "op": "NOT",
+     "args": [
+      {
+       "type": "pred",
+       "pred": "THERE-IS",
+       "roles": {
+        "undergoer": {
+         "kind": "ref",
+         "index": 2
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "pred",
+   "pred": "BE-SOMEWHERE",
+   "roles": {
+    "undergoer": {
+     "kind": "sp",
+     "quant": "MUCH~MANY",
+     "head": {
+      "kind": "primeHead",
+      "prime": "PEOPLE"
+     }
+    },
+    "locus": {
+     "kind": "ref",
+     "index": 2
+    },
+    "manner": {
+     "kind": "prime",
+     "prime": "INSIDE"
+    }
+   }
+  }
+ ]
+}

@@ -1,0 +1,93 @@
+concept: stockholder
+synset: urn:lexical-wn31:n-10677408
+pos: n
+lemmas: stockholder, shareholder, shareowner
+wn31-gloss (sense-fixing only): someone who holds shares of stock in a corporation
+
+=== CANDIDATE A ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 3,
+   "refKind": "SomethingRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "THERE-IS",
+   "roles": {
+    "undergoer": {
+     "kind": "sp",
+     "det": "SOME",
+     "head": {
+      "kind": "primeHead",
+      "prime": "SOMETHING~THING"
+     },
+     "bind": 3
+    }
+   }
+  },
+  {
+   "type": "pred",
+   "pred": "THERE-IS",
+   "roles": {
+    "undergoer": {
+     "kind": "sp",
+     "quant": "SOME",
+     "head": {
+      "kind": "partFrame",
+      "of": {
+       "kind": "ref",
+       "index": 3
+      }
+     },
+     "bind": 2
+    }
+   }
+  },
+  {
+   "type": "pred",
+   "pred": "THINK",
+   "roles": {
+    "experiencer": {
+     "kind": "ref",
+     "index": 1
+    },
+    "topic": {
+     "kind": "ref",
+     "index": 2
+    },
+    "quote": {
+     "kind": "quote",
+     "clauses": [
+      {
+       "type": "pred",
+       "pred": "IS-MINE",
+       "roles": {
+        "undergoer": {
+         "kind": "ref",
+         "index": 2
+        },
+        "possessor": {
+         "kind": "prime",
+         "prime": "I"
+        }
+       }
+      }
+     ]
+    }
+   }
+  }
+ ]
+}

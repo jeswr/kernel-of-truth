@@ -1,0 +1,147 @@
+concept: dissociation
+synset: urn:lexical-wn31:n-00385610
+pos: n
+lemmas: dissociation
+wn31-gloss (sense-fixing only): the act of removing from association
+
+=== CANDIDATE A ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 3,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 4,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 5,
+   "refKind": "TimeRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "HAPPEN",
+   "roles": {
+    "undergoer": {
+     "kind": "ref",
+     "index": 1
+    },
+    "time": {
+     "kind": "sp",
+     "det": "SOME",
+     "head": {
+      "kind": "primeHead",
+      "prime": "WHEN~TIME"
+     },
+     "bind": 5
+    }
+   }
+  },
+  {
+   "type": "op",
+   "op": "BEFORE",
+   "args": [
+    {
+     "kind": "ref",
+     "index": 5
+    },
+    {
+     "type": "pred",
+     "pred": "DO",
+     "roles": {
+      "agent": {
+       "kind": "sp",
+       "det": "SOME",
+       "head": {
+        "kind": "primeHead",
+        "prime": "SOMETHING~THING"
+       },
+       "bind": 2
+      },
+      "comitative": {
+       "kind": "sp",
+       "det": "OTHER~ELSE~ANOTHER",
+       "head": {
+        "kind": "primeHead",
+        "prime": "SOMETHING~THING"
+       },
+       "bind": 3
+      }
+     }
+    }
+   ]
+  },
+  {
+   "type": "op",
+   "op": "BECAUSE",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "DO",
+     "roles": {
+      "agent": {
+       "kind": "sp",
+       "det": "SOME",
+       "head": {
+        "kind": "primeHead",
+        "prime": "SOMEONE"
+       },
+       "bind": 4
+      },
+      "undergoer": {
+       "kind": "ref",
+       "index": 2
+      },
+      "time": {
+       "kind": "ref",
+       "index": 5
+      }
+     }
+    },
+    {
+     "type": "op",
+     "op": "AFTER",
+     "args": [
+      {
+       "kind": "ref",
+       "index": 5
+      },
+      {
+       "type": "op",
+       "op": "NOT",
+       "args": [
+        {
+         "type": "pred",
+         "pred": "DO",
+         "roles": {
+          "agent": {
+           "kind": "ref",
+           "index": 2
+          },
+          "comitative": {
+           "kind": "ref",
+           "index": 3
+          }
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

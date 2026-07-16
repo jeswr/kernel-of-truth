@@ -1,0 +1,208 @@
+concept: ransom
+synset: urn:lexical-wn31:n-00097671
+pos: n
+lemmas: ransom
+wn31-gloss (sense-fixing only): the act of freeing from captivity or punishment
+
+=== CANDIDATE A ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 3,
+   "refKind": "PlaceRef"
+  },
+  {
+   "index": 4,
+   "refKind": "TimeRef"
+  },
+  {
+   "index": 5,
+   "refKind": "SomeoneRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "HAPPEN",
+   "roles": {
+    "undergoer": {
+     "kind": "ref",
+     "index": 1
+    },
+    "time": {
+     "kind": "sp",
+     "det": "SOME",
+     "head": {
+      "kind": "primeHead",
+      "prime": "WHEN~TIME"
+     },
+     "bind": 4
+    }
+   }
+  },
+  {
+   "type": "pred",
+   "pred": "DO",
+   "roles": {
+    "agent": {
+     "kind": "sp",
+     "head": {
+      "kind": "primeHead",
+      "prime": "SOMEONE"
+     },
+     "bind": 5
+    },
+    "undergoer": {
+     "kind": "sp",
+     "head": {
+      "kind": "primeHead",
+      "prime": "SOMEONE"
+     },
+     "bind": 2
+    }
+   }
+  },
+  {
+   "type": "op",
+   "op": "IF",
+   "args": [
+    {
+     "type": "op",
+     "op": "BEFORE",
+     "args": [
+      {
+       "kind": "ref",
+       "index": 4
+      },
+      {
+       "type": "pred",
+       "pred": "BE-SOMEWHERE",
+       "roles": {
+        "undergoer": {
+         "kind": "ref",
+         "index": 2
+        },
+        "locus": {
+         "kind": "sp",
+         "head": {
+          "kind": "primeHead",
+          "prime": "WHERE~PLACE"
+         },
+         "bind": 3
+        },
+        "manner": {
+         "kind": "prime",
+         "prime": "INSIDE"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "type": "op",
+     "op": "AFTER",
+     "args": [
+      {
+       "kind": "ref",
+       "index": 4
+      },
+      {
+       "type": "op",
+       "op": "NOT",
+       "args": [
+        {
+         "type": "pred",
+         "pred": "BE-SOMEWHERE",
+         "roles": {
+          "undergoer": {
+           "kind": "ref",
+           "index": 2
+          },
+          "locus": {
+           "kind": "ref",
+           "index": 3
+          },
+          "manner": {
+           "kind": "prime",
+           "prime": "INSIDE"
+          }
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "op",
+   "op": "IF",
+   "args": [
+    {
+     "type": "op",
+     "op": "BEFORE",
+     "args": [
+      {
+       "kind": "ref",
+       "index": 4
+      },
+      {
+       "type": "pred",
+       "pred": "FEEL",
+       "roles": {
+        "experiencer": {
+         "kind": "ref",
+         "index": 2
+        },
+        "attribute": {
+         "kind": "prime",
+         "prime": "BAD"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "type": "op",
+     "op": "AFTER",
+     "args": [
+      {
+       "kind": "ref",
+       "index": 4
+      },
+      {
+       "type": "op",
+       "op": "NOT",
+       "args": [
+        {
+         "type": "pred",
+         "pred": "FEEL",
+         "roles": {
+          "experiencer": {
+           "kind": "ref",
+           "index": 2
+          },
+          "attribute": {
+           "kind": "prime",
+           "prime": "BAD"
+          }
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

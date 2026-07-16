@@ -1,0 +1,81 @@
+concept: feasibility
+synset: urn:lexical-wn31:n-05159611
+pos: n
+lemmas: feasibility, feasibleness
+wn31-gloss (sense-fixing only): the quality of being doable
+
+=== CANDIDATE A ===
+{
+ "schema": "kot-ast/1",
+ "frame": "WhenTrue",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomeoneRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "op",
+   "op": "IF",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "WANT",
+     "roles": {
+      "experiencer": {
+       "kind": "sp",
+       "det": "SOME",
+       "head": {
+        "kind": "primeHead",
+        "prime": "SOMEONE"
+       },
+       "bind": 2
+      },
+      "complement": {
+       "kind": "clause",
+       "clause": {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+         "agent": {
+          "kind": "ref",
+          "index": 2
+         },
+         "undergoer": {
+          "kind": "ref",
+          "index": 1
+         }
+        }
+       }
+      }
+     }
+    },
+    {
+     "type": "op",
+     "op": "CAN",
+     "args": [
+      {
+       "type": "pred",
+       "pred": "DO",
+       "roles": {
+        "agent": {
+         "kind": "ref",
+         "index": 2
+        },
+        "undergoer": {
+         "kind": "ref",
+         "index": 1
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

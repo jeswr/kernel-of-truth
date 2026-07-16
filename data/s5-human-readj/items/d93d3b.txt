@@ -1,0 +1,69 @@
+concept: access
+synset: urn:lexical-wn31:n-00281976
+pos: n
+lemmas: access
+wn31-gloss (sense-fixing only): the act of approaching or entering; "he gained access to the building"
+
+=== CANDIDATE A ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 3,
+   "refKind": "PlaceRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "MOVE",
+   "roles": {
+    "undergoer": {
+     "kind": "sp",
+     "det": "SOME",
+     "head": {
+      "kind": "primeHead",
+      "prime": "SOMEONE"
+     },
+     "bind": 2
+    },
+    "place": {
+     "kind": "sp",
+     "det": "SOME",
+     "head": {
+      "kind": "primeHead",
+      "prime": "WHERE~PLACE"
+     },
+     "bind": 3
+    }
+   }
+  },
+  {
+   "type": "pred",
+   "pred": "BE-SOMEWHERE",
+   "roles": {
+    "undergoer": {
+     "kind": "ref",
+     "index": 2
+    },
+    "locus": {
+     "kind": "ref",
+     "index": 3
+    },
+    "manner": {
+     "kind": "prime",
+     "prime": "NEAR"
+    }
+   }
+  }
+ ]
+}

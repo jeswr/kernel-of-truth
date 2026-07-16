@@ -1,0 +1,115 @@
+concept: view
+synset: urn:lexical-wn31:n-00883327
+pos: n
+lemmas: view, survey, sight
+wn31-gloss (sense-fixing only): the act of looking or seeing or observing; "he tried to get a better view of it"; "his survey of the battlefield was limited"
+
+=== CANDIDATE A ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomethingRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "WANT",
+   "roles": {
+    "experiencer": {
+     "kind": "ref",
+     "index": 1
+    },
+    "complement": {
+     "kind": "clause",
+     "clause": {
+      "type": "pred",
+      "pred": "SEE",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "stimulus": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        },
+        "bind": 2
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "type": "pred",
+   "pred": "DO",
+   "roles": {
+    "agent": {
+     "kind": "ref",
+     "index": 1
+    },
+    "instrument": {
+     "kind": "sp",
+     "head": {
+      "kind": "partFrame",
+      "of": {
+       "kind": "sp",
+       "head": {
+        "kind": "primeHead",
+        "prime": "BODY"
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "type": "op",
+   "op": "BECAUSE",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "SEE",
+     "roles": {
+      "experiencer": {
+       "kind": "ref",
+       "index": 1
+      },
+      "stimulus": {
+       "kind": "ref",
+       "index": 2
+      },
+      "duration": {
+       "kind": "prime",
+       "prime": "FOR-SOME-TIME"
+      }
+     }
+    },
+    {
+     "type": "pred",
+     "pred": "KNOW",
+     "roles": {
+      "experiencer": {
+       "kind": "ref",
+       "index": 1
+      },
+      "topic": {
+       "kind": "ref",
+       "index": 2
+      }
+     }
+    }
+   ]
+  }
+ ]
+}

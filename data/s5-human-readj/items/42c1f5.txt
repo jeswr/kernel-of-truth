@@ -1,0 +1,152 @@
+concept: poisoning
+synset: urn:lexical-wn31:n-00225605
+pos: n
+lemmas: poisoning
+wn31-gloss (sense-fixing only): the act of giving poison to a person or animal with the intent to kill
+
+=== CANDIDATE A ===
+{
+ "schema": "kot-ast/1",
+ "frame": "InstanceSchema",
+ "referents": [
+  {
+   "index": 1,
+   "refKind": "SomeoneRef"
+  },
+  {
+   "index": 2,
+   "refKind": "SomethingRef"
+  },
+  {
+   "index": 3,
+   "refKind": "SomethingRef"
+  }
+ ],
+ "clauses": [
+  {
+   "type": "pred",
+   "pred": "LIVE",
+   "roles": {
+    "undergoer": {
+     "kind": "sp",
+     "head": {
+      "kind": "primeHead",
+      "prime": "SOMETHING~THING"
+     },
+     "bind": 2
+    }
+   }
+  },
+  {
+   "type": "op",
+   "op": "BECAUSE",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "DO",
+     "roles": {
+      "agent": {
+       "kind": "ref",
+       "index": 1
+      },
+      "undergoer": {
+       "kind": "sp",
+       "det": "SOME",
+       "mods": [
+        {
+         "mod": "BAD"
+        }
+       ],
+       "head": {
+        "kind": "primeHead",
+        "prime": "SOMETHING~THING"
+       },
+       "bind": 3
+      }
+     }
+    },
+    {
+     "type": "pred",
+     "pred": "BE-SOMEWHERE",
+     "roles": {
+      "undergoer": {
+       "kind": "ref",
+       "index": 3
+      },
+      "locus": {
+       "kind": "ref",
+       "index": 2
+      },
+      "manner": {
+       "kind": "prime",
+       "prime": "INSIDE"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "type": "op",
+   "op": "BECAUSE",
+   "args": [
+    {
+     "type": "pred",
+     "pred": "BE-SOMEWHERE",
+     "roles": {
+      "undergoer": {
+       "kind": "ref",
+       "index": 3
+      },
+      "locus": {
+       "kind": "ref",
+       "index": 2
+      },
+      "manner": {
+       "kind": "prime",
+       "prime": "INSIDE"
+      }
+     }
+    },
+    {
+     "type": "op",
+     "op": "CAN",
+     "args": [
+      {
+       "type": "pred",
+       "pred": "DIE",
+       "roles": {
+        "undergoer": {
+         "kind": "ref",
+         "index": 2
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "pred",
+   "pred": "WANT",
+   "roles": {
+    "experiencer": {
+     "kind": "ref",
+     "index": 1
+    },
+    "complement": {
+     "kind": "clause",
+     "clause": {
+      "type": "pred",
+      "pred": "DIE",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 2
+       }
+      }
+     }
+    }
+   }
+  }
+ ]
+}
