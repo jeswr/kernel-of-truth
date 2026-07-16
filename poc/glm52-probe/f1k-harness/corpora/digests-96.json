@@ -1,0 +1,83 @@
+{
+ "_recipe": "kot-corpus-hash/1: digest = sha256 over the UTF-8 concatenation of one line per regular file under data/<corpus>/ (recursive; symlinks and directories excluded), each line '<sha256-of-file-bytes-hex>  <relpath>\\n' with exactly two spaces, relpath POSIX-style ('/'-separated) relative to data/<corpus>/, lines sorted by the UTF-8 byte order of relpath; reference implementation tools/registry/corpus-pin.py",
+ "built": "2026-07-15 fable REVISION-6 data-construction pass ($0)",
+ "caveat": "f1k-eval-v1 digest changes when the tokenizer-derived sidecar files land (pre-(6)). f1k-carriers-v1 digest is NOT the B0 pin (realized tables + norms land post-construction).",
+ "digests": {
+  "f1k-carriers-v1": "cac24e18c895c1903217ac9df1db7fec06385af016c1438654419d60fd1d476b",
+  "f1k-eval-v1": "aba3f111efc9da00476b749d9809c9c1d2354092ebe490d38be588d0f558c112",
+  "f1k-trigger-map-v1": "296e50dbf01850f4f397c5ab675d10630b7c2b4dc27ce24118cb4b9be6fd0e49"
+ },
+ "fidelity_checks": [
+  {
+   "check": "sources: parquet sha256 == [BC] SOURCES pins (+ lock file)",
+   "note": "verified twice (screen loader + gold loader); source/ unchanged",
+   "ok": true
+  },
+  {
+   "check": "gold sidecar covers every admitted item",
+   "note": "19311 items",
+   "ok": true
+  },
+  {
+   "check": "redacted-input hash == frozen pre-screen pin",
+   "note": "4f7cf1c6a5b5e926…",
+   "ok": true
+  },
+  {
+   "check": "re-derived selection == candidate-report.json (rank, urn)",
+   "note": "96 concepts, ranks 1..96",
+   "ok": true
+  },
+  {
+   "check": "all selected pass contrast (distinctness-report.json)",
+   "note": "96/96",
+   "ok": true
+  },
+  {
+   "check": "identity allocator == screen.allocate (test counts, all 96)",
+   "note": "",
+   "ok": true
+  },
+  {
+   "check": "identity allocator == screen.allocate (dev counts, all 96)",
+   "note": "",
+   "ok": true
+  },
+  {
+   "check": "per-cluster test counts == power-report m_list_by_rank (element-by-element, rank order)",
+   "note": "min 10 mean 16.3854 max 18 sum 1573",
+   "ok": true
+  },
+  {
+   "check": "totals: n_test == 1573, n_dev == 96 == screen n_dev",
+   "note": "",
+   "ok": true
+  },
+  {
+   "check": "clusters_with_m_ge_8 == 96/96",
+   "note": "",
+   "ok": true
+  },
+  {
+   "check": "guard = 60 zero-trigger items (supply 9719)",
+   "note": "",
+   "ok": true
+  },
+  {
+   "check": "concept texts byte-identical to f1k-contrast-v1 (kernel.txt + dictionary.txt + kernel.ast.json)",
+   "note": "96/96 concepts",
+   "ok": true
+  },
+  {
+   "check": "derangements seeds 11/101/102/103 fixed-point-free over 96 slots",
+   "note": "[DRV seeded_derangement], OP-7",
+   "ok": true
+  },
+  {
+   "check": "construction contexts: 1536 rows (m=16 x 96), eval-disjoint",
+   "note": "OP-8 DRAFT frames, exact-substring disjointness",
+   "ok": true
+  }
+ ],
+ "supersedes": "supersedes the 2026-07-13 designer-23 kernel-v0-only pass (49 clusters, n=1440) — REVISION-6 frozen geometry C=96 / n_test=1573, maintainer-approved 2026-07-15"
+}

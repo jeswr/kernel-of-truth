@@ -38,7 +38,8 @@ prints the realized line number of every anchor:
           REG sec-replace-ni): dev delta_R = REPLACE-vs-ADD discordance is
           MEASURED on dev-96 at the frozen (L,g) whenever the engine
           supports REPLACE; n_NI = delta_R*DEFF/SE_NI^2; RUN iff
-          n_NI <= 1440; a stubbed REPLACE engine (byte-identical to b0) is
+          n_NI <= n_max (= N_TEST, 1573 since [R6-1]); a stubbed REPLACE
+          engine (byte-identical to b0) is
           DETECTED and fails closed; the decision drives EXECUTION (guard
           + test schedule the REPLACE pass; sidecar replace.ran is real).
   [FIX-4] The affordability d3-text deferral (§R6 step 3) is honored in
@@ -57,11 +58,73 @@ prints the realized line number of every anchor:
           test spend; the pilot dev subset is the freeze-manifest (A)
           committed id list, not a driver-invented rule.
   [FIX-7] FROZEN CONSTANTS exact: z0.80 = 0.842 (design verbatim);
-          n = 1440 EXACTLY (never min(1440, ceil(n_req))); the power block
+          n = N_TEST EXACTLY (1573 since [R6-1]; never
+          min(cap, ceil(n_req))); the power block
           is fully validated (rho_u == 0.10, N_sim == 10000, mu* == 4.09,
           seed, MC pass threshold + coherence); the cost/elapsed ledger is
           RESUME-SAFE (cost-ledger.json accumulates across invocations and
           phases, includes pilot + construction, survives interruption).
+
+REVISION-3 of this driver — the GPT-5.6 pre-run review-gate (post
+reset-refreeze, 2026-07-16) returned HOLD blocker 2: the driver was still
+on the SUPERSEDED pre-REVISION-6 geometry and could not run the frozen
+96/1573 record. Every alignment site carries an [R6-n] anchor:
+
+  [R6-1] N_TEST = 1573 EXACT (REG design.n_planned.n_test_items/n_max,
+         ASM-2369; the superseded 1440 cap is REJECTED by the pinned
+         analysis).
+  [R6-2] EQUALITY-form power gate: n_clusters == 96 AND
+         clusters-with-m>=8 == 96 AND n == 1573 — byte-matches
+         analysis/f1k.py's /gates/power_gate_valid; the cached >=-form
+         (C >= 65) gate is REMOVED (a 97-cluster universe must FAIL here
+         exactly as the analysis hard-rejects it).
+  [R6-3] USD_CAP = $155 (REG budget.usd_cap, ASM-2374, successor of the
+         $149 ceiling) + the worst-case $ RECOMPUTED for 96/1573 at the
+         ASM-2205 pessimistic corner (WORST_CASE block below): mandatory
+         campaign $145.94 <= $155; +REPLACE $156.13 > $155, so REPLACE
+         runs ONLY if the measured (7) projection keeps the ledger <= cap
+         (the pre-registered ASM-2374 resolution — never a silent raise).
+  [R6-4] power.mc_exact_power.joint_power is the REVISION-6 PER-RUNG dict
+         {"K-1","K-2","K-3"} (each numeric in [0,1]; coherence
+         pass == all three >= 0.80, the ASM-2371 per-rung criterion);
+         power.mc_intersection (the ASM-2376 joint-dependence sim block)
+         is REQUIRED and carried verbatim into the sidecar. The superseded
+         scalar joint_power is REJECTED. DELTA_R_RUN_MAX re-derived
+         (~0.0397 at n_max = 1573).
+  [R6-5] mock fixtures realize the FROZEN geometry (96 clusters, 37x17 +
+         59x16 = 1573 test items; dev 96; guard 60) and the mock campaign
+         round-trips the FIXED strict-bool analysis end-to-end.
+
+REVISION-4 of this driver — the GPT-5.6 round-2 re-review (2026-07-16)
+returned HOLD: attestation laundering, an unpinned power block, no
+realized-cost stop, and a structurally impossible official ingestion seam.
+Every fix site carries an [R3-*] anchor:
+
+  [R3-ATTEST] NO bool() coercion anywhere on the attestation surface: the
+          driver previously emitted bool(<config value>) so an upstream
+          JSON STRING "false" (truthy) became an emitted `true` and the
+          analysis PASSed. Emission goes through attest_bool (a non-bool
+          FAILS the run, ERR_F1K_ATTEST — `true` is never fabricated);
+          every gate/report READ uses strict `is True`.
+  [R3-POWER] the sidecar power block is pinned EXACTLY to the frozen
+          registered values: ASM-2371 marginals 0.8043/0.8058/0.8001 and
+          the ASM-2376 intersection sim block (non-empty, values pinned);
+          any deviation fails closed (the pinned analysis independently
+          enforces the same equality).
+  [R3-COST] realized-ledger ceiling ENFORCED (REG budget.usd_cap $155,
+          ASM-2374) at ledger init/resume, at EVERY accumulation, and at
+          sidecar emission — exceeding it STOPS the run fail-closed with
+          NO success record (previously only the pre-test projection was
+          checked).
+  [R3-SEAM] the run record is kot-log/1-CONFORMANT (artifacts ARRAY with
+          the D10-paired role:"rows" + role:"sidecar" entries,
+          prereg_hash, config/metrics) and the mock drives the REAL
+          official path — log-append -> verdict-gen -> pinned analysis ->
+          verdict — in a sandboxed repo root, on BOTH a PASS-eligible
+          fixture (PASS-PENDING-AUDIT) and an attacker-consistent
+          tampered fixture (INSTRUMENT-INVALID). The previous mock's
+          direct analysis call is retained only as a supplementary shape
+          check and labeled as such.
 
   INPUT SEAMS (review §1/§2/§3): the eval manifest, carrier tables, and
   trigger map are verified against their kot-corpus-hash/1 pins and the
@@ -82,8 +145,10 @@ NO invented thresholds):
           the latest revision governs on conflict
   [ANA]   analysis/f1k.py                        (pinned analysis; this
           driver's rows/sidecar output MUST match what it reads)
-  [COST]  docs/next/design/glm52-f1k-cost-reduction.md  ($149 ceiling,
-          spot i4i.2xlarge + expert-pinning + R=3; ASM-2205)
+  [COST]  docs/next/design/glm52-f1k-cost-reduction.md (spot i4i.2xlarge +
+          expert-pinning + R=3 levers; ASM-2205) — the CEILING itself is
+          now the REVISION-6 $155 (REG budget.usd_cap, ASM-2374,
+          successor of the doc's $149) [R6-3]
   [PATCH] poc/glm52-probe/kae-patch-draft/ (KaE ADD splice + §R1.1 scorer:
           KAE / KAE_CARRIER / KAE_G / KAE_MODE / KAE_SCORE interface)
   [CACHE] docs/next/design/glm52-expert-cache.md (FREEZE-READY; optional
@@ -167,19 +232,26 @@ R_DRNG = 3
 #    step 1 pre-applied per maintainer reduced-cost GO #28); ANA R_DRNG]
 DRNG_SEEDS = (101, 102, 103)
 #   [REG design.seeds; ANA DRNG_SEEDS — dose gate fails closed on mismatch]
-N_TEST = 1440
-#   [REG design.n_planned.n_test_items / n_max: F1-K runs AT the cap
-#    (§R-REV3.1 item 4); ANA N_REGISTERED — any other n is REJECTED]
+N_TEST = 1573
+#   [R6-1] [REG design.n_planned.n_test_items / n_max = 1573 EXACT
+#    (REVISION-6 powered geometry, ASM-2369: the maintainer-approved raise
+#    of the SUPERSEDED 1440 cap, 2026-07-15): F1-K runs AT the cap
+#    (§R-REV3.1 item 4); ANA N_REGISTERED — any other realized n REJECTED]
 DEV_N = 96
 #   [REG design.n_planned.dev_split_items; DES §R3.2 dev split expanded to 96]
 GUARD_N = 60
 #   [REG design.n_planned.off_concept_guard_items; DES §2.5 off-concept guard]
-POWER_GATE_MIN_C = 65
+C_REGISTERED = 96
 POWER_GATE_MIN_M = 8
-#   [REG design.n_planned.power_gate: >= 65 clusters EACH with >= 8 test
-#    items (each-cluster reading, ASM-2271); ANA POWER_GATE_MIN_C/M]
-USD_CAP = 149.0
-#   [REG budget.usd_cap; COST validated reduced ceiling, ASM-2205]
+#   [R6-2] [REG design.n_planned.power_gate (REVISION-6/RUN-HOLD equality
+#    form, ASM-2369): EXACTLY 96 concept clusters, EACH with >= 8 test
+#    items, at EXACTLY n = 1573 — matches ANA C_REGISTERED and the
+#    equality-form /gates/power_gate_valid; SUPERSEDES the §R-REV2.2
+#    C>=65 >=-form gate (ASM-2271)]
+USD_CAP = 155.0
+#   [R6-3] [REG budget.usd_cap = 155; ASM-2374 REVISION-6 ceiling,
+#    successor of the $149 ASM-2283/ASM-2205 ceiling — see WORST_CASE_*
+#    below for the recomputed 96/1573 worst-case arithmetic]
 SPOT_RATE_DEFAULT = 0.28
 #   [COST: $0.28/h spot i4i.2xlarge, the pessimistic corner of $0.20-0.28]
 PILOT_DEV_SUBSET_N = 48
@@ -206,13 +278,40 @@ Z80 = 0.842   # [FIX-7] EXACT design value
 SE_NI = 0.008
 #   [DES §R-REV2.1/ASM-2044: REPLACE-NI design target SE_NI <= 0.80 pts
 #    (fraction 0.008); n_NI = delta_R * DEFF / SE_NI^2 = delta_R*DEFF/0.000064]
-DELTA_R_RUN_MAX = 0.038
-#   [DES §R-REV4.3 / ASM-2124: REPLACE runs only if dev delta_R <= ~0.038,
-#    i.e. n_NI <= n_max = 1440 at rho_U = 0.10 — the n_NI rule is primary]
+DELTA_R_RUN_MAX = 0.0397
+#   [R6-4] [DES §R-REV4.3 / ASM-2124 rule AT the REVISION-6 geometry:
+#    REPLACE runs only if n_NI = delta_R*DEFF/SE_NI^2 <= n_max = 1573; at
+#    planned m = 1573/96 (DEFF = 1 + (m-1)*rho_U = 2.5385) that is
+#    delta_R <= 1573*0.008^2/2.5385 ~= 0.0397 (was ~0.038 at the
+#    superseded 1440 geometry) — the n_NI rule is PRIMARY, this figure is
+#    the descriptive equivalent only]
 MU_STAR_POINTS = 4.09
 MC_N_SIM = 10000
 MC_PASS_MIN = 0.80
 MC_SEED = PERM_SEED
+REGISTERED_JOINT_POWER = {"K-1": 0.8043, "K-2": 0.8058, "K-3": 0.8001}
+#   [R3-POWER] the frozen ASM-2371 per-rung exact joint-power table
+#   (MEASURED, seed 20260713, REVISION-6 geometry; REG
+#   mc_exact_power_confirmation VERBATIM). HOLD round-3 item 5: the driver
+#   previously accepted ARBITRARY marginals (0.9/0.9/0.9) and an EMPTY
+#   mc_intersection {} — the power block is now pinned EXACTLY to these
+#   registered values; any deviation fails closed (the pinned analysis
+#   enforces the same equality independently).
+REGISTERED_MC_INTERSECTION = {
+    "lambda_grid": [0.0, 0.25, 0.5, 0.75, 1.0],
+    "intersection_power_by_lambda": [0.5220, 0.5675, 0.6165, 0.6763,
+                                     0.7984],
+    "range_under_family": [0.5220, 0.7984],
+    "at_lambda_0.5": 0.6165,
+    "seed": PERM_SEED,
+}
+#   [R3-POWER] the frozen ASM-2376 shared-K joint-dependence intersection
+#   sim (MEASURED; poc/f1k-askability/power_intersection_n1573.py ->
+#   reports/power-intersection-n1573.json; REG n_planned assumption
+#   VERBATIM). The sidecar block must carry EXACTLY these values on the
+#   required keys (extra disclosure keys like mc_se_max/source permitted);
+#   an empty or deviating block fails closed — never carried "verbatim"
+#   into the disclosure unverified.
 #   [FIX-7] [DES §R-REV5 / REG design.n_planned.mc_exact_power_confirmation:
 #    frozen pre-spend Monte-Carlo of the EXACT sign-flip joint power at
 #    mu* = +4.09 pts, N_sim = 10000, pass iff >= 0.80, procedure + seed =
@@ -235,6 +334,36 @@ DEGRADATION_ORDER = (
 )
 #   [DES §R6 pre-registered degradation order; n never cut below n_required,
 #    no ladder arm (b0, d0, d1-drng, d2, K) ever dropped]
+
+# [R6-3] WORST-CASE $ RECOMPUTED for the REVISION-6 96/1573 geometry, per
+# the ASM-2374 derivation at the ASM-2205 pessimistic corner (100 s/prefill
+# raw engine throughput / 1.20x expert-pinning speedup / $0.28/h spot
+# i4i.2xlarge). Mandatory campaign (no REPLACE): 12,584 main + 3,072
+# construction + 6,200 pilot + 660 guard = 22,516 prefills -> 521.2 h ->
+# $145.94 <= the $155 cap. WITH the conditional REPLACE arm (+1,573):
+# 24,089 -> 557.6 h -> $156.13, MARGINALLY ABOVE the cap at this corner —
+# the pre-registered ASM-2374 resolution (never a silent cap raise):
+# REPLACE runs ONLY if the bring-up-MEASURED (7) projection keeps the
+# total ledger <= $155; otherwise it is DEFERRED (its registered modal
+# expectation) by the §R6 step-2 degradation already implemented below.
+WORST_S_PER_PREFILL = 100.0 / 1.20      # ASM-2205 corner, pinning lever
+WORST_PREFILLS_MAIN = 8 * N_TEST        # 12,584: b0,d0,3x d1-drng,d2,d3,K
+WORST_PREFILLS_CONSTRUCTION = 3072      # <= bound [ASM-2374]
+WORST_PREFILLS_PILOT = 6200             # ~ bound [ASM-2374]
+WORST_PREFILLS_GUARD = 660              # <= bound [ASM-2374]
+WORST_PREFILLS_REPLACE = N_TEST         # the conditional arm
+
+
+def worst_case_usd(replace=False):
+    """[R6-3] Deterministic worst-case $ at the ASM-2374 pessimistic
+    corner; the mandatory-campaign figure MUST clear USD_CAP (asserted
+    fail-closed in load_config) — exceeding it is a STOP-and-return, never
+    a silent ceiling raise."""
+    pf = (WORST_PREFILLS_MAIN + WORST_PREFILLS_CONSTRUCTION
+          + WORST_PREFILLS_PILOT + WORST_PREFILLS_GUARD
+          + (WORST_PREFILLS_REPLACE if replace else 0))
+    return pf * WORST_S_PER_PREFILL / 3600.0 * SPOT_RATE_DEFAULT
+
 
 ANALYSIS_SCRIPT = ROOT / "analysis" / "f1k.py"     # [REG pins.analysis_script]
 REGISTRY_RECORD = ROOT / "registry" / "experiments" / "f1k.json"
@@ -264,6 +393,30 @@ def sha256_file(path):
         for chunk in iter(lambda: f.read(1 << 20), b""):
             h.update(chunk)
     return h.hexdigest()
+
+
+def attest_bool(value, what):
+    """[R3-ATTEST] STRICT attestation emission (HOLD round-3 item 4 — the
+    attestation-laundering fix). The driver previously bool()-coerced
+    manifest/template/guard/dose values before emitting, so an upstream
+    JSON STRING "false" (truthy in Python) was emitted as the JSON boolean
+    `true` and the analysis PASSed — the driver itself laundered a failing
+    attestation into a passing one. RULE: the driver NEVER coerces; every
+    emitted validity flag must ALREADY be a genuine JSON boolean derived
+    from a strict check of the real underlying condition. A non-bool here
+    means the underlying value is not a valid measurement/commitment —
+    the RUN fails closed; `true` is never fabricated. Truthiness is banned
+    on the whole attestation surface (reads use `is True`, emission uses
+    this function)."""
+    if not isinstance(value, bool):
+        fail("ERR_F1K_ATTEST",
+             "%s is %r (%s), not a JSON boolean — attestations are never "
+             "coerced (bool() truthiness previously laundered the string "
+             "\"false\" into an emitted true => spurious PASS); the run "
+             "fails closed until the underlying value is a genuine strict "
+             "boolean [HOLD round-3 item 4]"
+             % (what, value, type(value).__name__))
+    return value
 
 
 def write_json(path, obj):
@@ -403,8 +556,8 @@ def load_config(path):
         fail("ERR_F1K_REPLACE",
              "config.replace.ran is not an input: the REPLACE RUN/DEFER "
              "decision is the frozen NI power gate (dev delta_R on dev-96, "
-             "n_NI = delta_R*DEFF/SE_NI^2 <= 1440, §R-REV4.3/ASM-2124) "
-             "computed at pilot addendum (6) — remove the key")
+             "n_NI = delta_R*DEFF/SE_NI^2 <= %d, §R-REV4.3/ASM-2124) "
+             "computed at pilot addendum (6) — remove the key" % N_TEST)
     if not isinstance(rep.get("engine_supported"), bool):
         fail("ERR_F1K_REPLACE",
              "config.replace.engine_supported must be an explicit bool: "
@@ -419,6 +572,17 @@ def load_config(path):
                  "silent arm change" % k)
     validate_pinning(cfg)
     validate_power(cfg)
+    # [R6-3] worst-case $ sanity, fail-closed: the RECOMPUTED 96/1573
+    # mandatory-campaign worst case must clear the approved ceiling —
+    # exceeding it is a STOP-and-return-to-maintainer, never a silent
+    # ceiling raise (ASM-2374).
+    wc = worst_case_usd(replace=False)
+    if wc > USD_CAP:
+        fail("ERR_F1K_COST",
+             "recomputed worst-case $%.2f for the MANDATORY 96/1573 "
+             "campaign EXCEEDS the approved $%.0f ceiling (ASM-2374) — "
+             "STOP and return to the maintainer; the cap is never raised "
+             "silently" % (wc, USD_CAP))
     return cfg
 
 
@@ -427,16 +591,16 @@ def validate_pinning(cfg):
     'expert-pinning + warm page-cache, priced conservatively at 1.20x';
     bringup.sh step 6: configured via the engine's PIN= / PIN_GB env].
     Optional pass-through is not enough: an unpinned run silently voids the
-    $149 ceiling arithmetic. Realized values are recorded in the ledger and
-    sidecar so the metered speedup resolves ASM-2205."""
+    $155 ceiling arithmetic [R6-3/ASM-2374]. Realized values are recorded
+    in the ledger and sidecar so the metered speedup resolves ASM-2205."""
     env = (cfg.get("engine") or {}).get("env") or {}
     pin = env.get("PIN")
     pin_gb = env.get("PIN_GB")
     if str(pin) != "1":
         fail("ERR_F1K_PINNING",
              "engine.env.PIN must be \"1\" (expert pinning ENFORCED — the "
-             "$149 ceiling prices the 1.20x pinning lever; COST item 2 / "
-             "ASM-2205; got %r)" % (pin,))
+             "$155 ceiling prices the 1.20x pinning lever; COST item 2 / "
+             "ASM-2205/ASM-2374; got %r)" % (pin,))
     try:
         gb = float(pin_gb)
     except (TypeError, ValueError):
@@ -449,10 +613,10 @@ def validate_pinning(cfg):
     return {"PIN": "1", "PIN_GB": gb,
             "semantics": "PIN=1 pins the hot expert working set resident; "
                          "PIN_GB = pinned budget in GB. The 1.20x-"
-                         "pessimistic throughput lever of the $149 ceiling "
-                         "[glm52-f1k-cost-reduction.md item 2 / ASM-2205]; "
-                         "realized speedup resolves ASM-2205 from the "
-                         "metered ledger."}
+                         "pessimistic throughput lever of the $155 ceiling "
+                         "[glm52-f1k-cost-reduction.md item 2 / ASM-2205; "
+                         "REVISION-6 cap ASM-2374]; realized speedup "
+                         "resolves ASM-2205 from the metered ledger."}
 
 
 def validate_power(cfg):
@@ -482,17 +646,60 @@ def validate_power(cfg):
         fail("ERR_F1K_POWER", "mc_exact_power.seed %r != registered %d "
              "(freeze-manifest (A) MC procedure + seed)"
              % (mc.get("seed"), MC_SEED))
+    # [R6-4] REVISION-6 record: joint_power is the PER-RUNG dict of the
+    # frozen co-primary power table {"K-1","K-2","K-3"} (ASM-2369/2371;
+    # the committed 0.8043/0.8058/0.8001) — the pinned analysis computes
+    # the ASM-2376 Frechet intersection bounds from EXACTLY these three
+    # numbers, so the superseded scalar form is REJECTED, and coherence is
+    # the PER-RUNG >= 0.80 criterion (pass iff ALL THREE clear it).
     jp = mc.get("joint_power")
-    if not isinstance(jp, (int, float)) or isinstance(jp, bool):
-        fail("ERR_F1K_POWER", "mc_exact_power.joint_power must be numeric "
-             "(got %r)" % (jp,))
+    if not isinstance(jp, dict) or sorted(jp) != ["K-1", "K-2", "K-3"]:
+        fail("ERR_F1K_POWER",
+             "mc_exact_power.joint_power must be the REVISION-6 per-rung "
+             "dict over exactly {'K-1','K-2','K-3'} (ASM-2371 co-primary "
+             "power table; the superseded scalar form is rejected; got %r)"
+             % (jp,))
+    # [R3-POWER] HOLD round-3 item 5: the power block is pinned to the
+    # FROZEN REGISTERED values EXACTLY — the prior numeric-in-[0,1] range
+    # check accepted arbitrary marginals (0.9/0.9/0.9) into the sidecar
+    # and the registered disclosure. Any deviation from the ASM-2371
+    # table fails closed; the pinned analysis enforces the same equality.
+    if jp != REGISTERED_JOINT_POWER:
+        fail("ERR_F1K_POWER",
+             "mc_exact_power.joint_power %r != the REGISTERED ASM-2371 "
+             "per-rung table %s — the frozen power block is pinned "
+             "EXACTLY; arbitrary marginals are never emitted [HOLD "
+             "round-3 item 5]" % (jp, REGISTERED_JOINT_POWER))
     if not isinstance(mc.get("pass"), bool):
         fail("ERR_F1K_POWER", "mc_exact_power.pass must be a bool")
-    if mc["pass"] != (jp >= MC_PASS_MIN):
+    if mc["pass"] != all(jp[r] >= MC_PASS_MIN
+                         for r in ("K-1", "K-2", "K-3")):
         fail("ERR_F1K_POWER",
-             "mc_exact_power incoherent: pass=%r with joint_power=%s vs "
-             "the frozen >= %s threshold [DES §R-REV5]"
+             "mc_exact_power incoherent: pass=%r with per-rung powers %s "
+             "vs the frozen PER-RUNG >= %s criterion (ASM-2371; ALL THREE "
+             "co-primary rungs must clear it) [DES §R-REV5]"
              % (mc["pass"], jp, MC_PASS_MIN))
+    # [R6-4]/[R3-POWER] the ASM-2376 shared-K joint-dependence intersection
+    # sim block is part of the registered sidecar power contract (carried
+    # into /analysis/power_scope/intersection_all_three by the pinned
+    # analysis — the executable successor of the withdrawn prose figure).
+    # HOLD round-3 item 5: an EMPTY dict previously satisfied the
+    # isinstance check — the block must now carry the registered ASM-2376
+    # values EXACTLY on every required key; deviation/absence fails closed.
+    inter = p.get("mc_intersection")
+    if not isinstance(inter, dict) or not inter:
+        fail("ERR_F1K_POWER",
+             "power.mc_intersection must be the NON-EMPTY ASM-2376 shared-K "
+             "joint-dependence intersection sim block (got %r) [HOLD "
+             "round-3 item 5]" % (inter,))
+    for k, want in sorted(REGISTERED_MC_INTERSECTION.items()):
+        if inter.get(k) != want:
+            fail("ERR_F1K_POWER",
+                 "power.mc_intersection[%r] = %r != the REGISTERED "
+                 "ASM-2376 value %r (poc/f1k-askability/reports/"
+                 "power-intersection-n1573.json; pinned EXACTLY, never "
+                 "carried unverified) [HOLD round-3 item 5]"
+                 % (k, inter.get(k), want))
     return p
 
 
@@ -571,11 +778,22 @@ def verify_corpus_pins(cfg, mock):
             out[name] = {"kot_corpus_hash": got,
                          "registry": "PINNED-AT-INPUTS placeholder "
                                      "(MOCK fixtures only)"}
-        else:
-            if got != pinned:
+        elif got != pinned:
+            # [R6-5] the reset-refrozen record carries REAL digests for
+            # f1k-eval-v1 / f1k-trigger-map-v1 (ASM-2377). MOCK fixtures
+            # are SHAPED synthetics and legitimately diverge — disclosed,
+            # never silently passed off as the pinned corpus; a REAL run
+            # fails closed on this mismatch exactly as before.
+            if not mock:
                 fail("ERR_F1K_CORPUS",
                      "%s kot-corpus-hash %s != frozen record pin %s"
                      % (name, got, pinned))
+            out[name] = {"kot_corpus_hash": got,
+                         "registry": "MOCK fixture DIVERGES from the REAL "
+                                     "frozen pin %s... (mock-only "
+                                     "disclosure; a real run fails closed "
+                                     "on this mismatch)" % pinned[:12]}
+        else:
             out[name] = {"kot_corpus_hash": got, "registry": "MATCH"}
     # path containment: the scored bytes must be COVERED by the pins
     evdir = corp["f1k-eval-v1"]["dir"]
@@ -671,18 +889,26 @@ def load_eval_manifest(path):
 
 
 def check_power_gate(test_items):
-    """[REG design.n_planned.power_gate / ASM-2271]: >= 65 clusters EACH with
-    >= 8 test items, n == 1440. A shortfall is a PRE-RUN RETURN to the
-    maintainer, never a run."""
+    """[R6-2] [REG design.n_planned.power_gate / ASM-2369, RUN-HOLD
+    EQUALITY form]: EXACTLY C_REGISTERED = 96 clusters, EACH with >= 8
+    test items, at EXACTLY n = N_TEST = 1573 — byte-matches the pinned
+    analysis/f1k.py /gates/power_gate_valid (n_clusters == 96 AND
+    clusters-with-m>=8 == 96 AND n == 1573; never >=: a 97-cluster
+    universe must FAIL here exactly as the analysis hard-rejects it).
+    A shortfall is a PRE-RUN RETURN to the maintainer, never a run."""
     sizes = {}
     for it in test_items:
         sizes[it["cluster"]] = sizes.get(it["cluster"], 0) + 1
     c_ok = sum(1 for v in sizes.values() if v >= POWER_GATE_MIN_M)
-    ok = (c_ok >= POWER_GATE_MIN_C and len(test_items) == N_TEST)
+    ok = (len(sizes) == C_REGISTERED and c_ok == C_REGISTERED
+          and len(test_items) == N_TEST)
     return {"n_items": len(test_items), "n_clusters": len(sizes),
             "clusters_with_m_ge_8": c_ok,
-            "gate": "C>=%d each with m>=%d and n==%d (ASM-2271)"
-                    % (POWER_GATE_MIN_C, POWER_GATE_MIN_M, N_TEST),
+            "gate": "n_clusters==%d AND clusters-with-m>=%d==%d AND n==%d "
+                    "(EQUALITY form, ASM-2369 / RUN-HOLD fix; matches "
+                    "analysis/f1k.py)"
+                    % (C_REGISTERED, POWER_GATE_MIN_M, C_REGISTERED,
+                       N_TEST),
             "pass": ok}
 
 
@@ -706,10 +932,17 @@ def validate_dose(carriers_cfg):
         if any(der[i] == i for i in range(len(der))):
             fail("ERR_F1K_DOSE", "seed %d: derangement has a fixed point "
                  "(§R2: no concept keeps its own carrier)" % s)
-        if not meta.get("layerwise_norm_matched"):
-            fail("ERR_F1K_DOSE", "seed %d: layerwise_norm_matched not "
-                 "attested by the B0 addendum (§R2 rescale to ||v^K_{c,l}||)"
-                 % s)
+        if meta.get("layerwise_norm_matched") is not True:
+            # [R3-ATTEST] strict `is True`: a truthy STRING here previously
+            # laundered into the emitted dose attestation below
+            fail("ERR_F1K_DOSE", "seed %d: layerwise_norm_matched is %r, "
+                 "not the strict boolean true — the B0 addendum must attest "
+                 "it as a genuine JSON boolean (§R2 rescale to "
+                 "||v^K_{c,l}||; HOLD round-3 item 4)"
+                 % (s, meta.get("layerwise_norm_matched")))
+    # the emitted dose attestations are literal booleans PROVEN by the
+    # strict checks above (derangement re-verified element-wise, norm
+    # matching attested `is True`) — never coerced from config values
     return {"r_seeds": list(DRNG_SEEDS),
             "derangement_no_fixed_point": True,
             "norm_matched_within_tol": True}
@@ -757,6 +990,9 @@ class Ledger:
         else:
             self.d = base
             self._write()
+        # [R3-COST] a resumed/prior-spend ledger already over the ceiling
+        # stops HERE — before a single new prefill
+        self.enforce_cap("ledger init/resume")
 
     def _write(self):
         tmp = self.path.with_suffix(".json.tmp")
@@ -771,6 +1007,28 @@ class Ledger:
         pf = self.d["prefills"]
         pf[phase] = pf.get(phase, 0) + int(prefills)
         self._write()
+        # [R3-COST] realized-cost stop AT ACCUMULATION (HOLD round-3 item
+        # 6): the pre-test PROJECTION gate alone never re-checked the
+        # ledger as real spend accrued — a slower-than-projected campaign
+        # could meter past $155 and still emit a success record. Every
+        # accumulation now enforces the registered ceiling; the spend is
+        # RECORDED first (the ledger stays truthful), then the run STOPS.
+        self.enforce_cap("accumulation (phase %s)" % phase)
+
+    def enforce_cap(self, where):
+        """[R3-COST] Fail-closed realized-ledger ceiling (REG budget.usd_cap
+        = $155, ASM-2374): called at every accumulation AND at sidecar
+        emission. Exceeding the cap STOPS the run (exit 2) — no success
+        sidecar/run-record is ever emitted; the STOP is a
+        return-to-maintainer, never a silent overrun."""
+        usd = self.usd_total()
+        if usd > USD_CAP:
+            fail("ERR_F1K_COST_STOP",
+                 "REALIZED ledger $%.2f EXCEEDS the registered $%.0f "
+                 "ceiling at %s (ASM-2374) — STOP; no success record is "
+                 "emitted; return to the maintainer with the metered "
+                 "ledger %s [HOLD round-3 item 6]"
+                 % (usd, USD_CAP, where, self.path))
 
     def phase_seconds(self, phase):
         return float(self.d["phase_seconds"].get(phase, 0.0))
@@ -1219,8 +1477,10 @@ def read_d3_deferral(outdir):
     if not p.exists():
         fail("ERR_F1K_ORDER",
              "pilot addendum (7) missing (%s): run --phase pilot first" % p)
-    return bool(json.loads(p.read_text(encoding="utf-8"))
-                .get("d3_text_deferred"))
+    # [R3-ATTEST] strict read: a malformed/tampered addendum never coerces
+    return attest_bool(json.loads(p.read_text(encoding="utf-8"))
+                       .get("d3_text_deferred"),
+                       "addendum-7 d3_text_deferred")
 
 
 def phase_guard(cfg, ev, outdir, frozen, replace_run, ledger,
@@ -1319,11 +1579,16 @@ def enforce_pretest_commits(cfg, outdir):
             "entry5_committed", "entry7_committed", "entry6_committed",
             "test_untouched_until_complete")
     for k in need:
-        if not man.get(k):
+        if man.get(k) is not True:
+            # [R3-ATTEST] strict `is True`: a truthy string ("false"/"yes")
+            # previously passed this check AND was bool()-laundered to true
+            # in the sidecar — both channels now fail closed
             fail("ERR_F1K_FREEZE",
-                 "freeze.manifest_flags.%s is not TRUE — no test spend "
-                 "until (A),(B0),(5),(7),(6) are ALL coordinator-committed "
-                 "(§R-REV4.2/ASM-2123)" % k)
+                 "freeze.manifest_flags.%s is %r, not the strict boolean "
+                 "true — no test spend until (A),(B0),(5),(7),(6) are ALL "
+                 "coordinator-committed as genuine JSON booleans "
+                 "(§R-REV4.2/ASM-2123; HOLD round-3 item 4)"
+                 % (k, man.get(k)))
     pdir = Path(outdir) / "pilot"
     arts = {}
     for fname in ("addendum-5-frozen-lg.json", "addendum-6-inputs.json",
@@ -1338,15 +1603,19 @@ def enforce_pretest_commits(cfg, outdir):
     gates = arts["pilot-gates.json"]
     for gname in ("power_gate", "placebo_gate_pilot_n",
                   "affordability_gate", "semantics_gate"):
-        if not (gates.get(gname) or {}).get("pass"):
+        # [R3-ATTEST] strict `is True` on every persisted gate read
+        if (gates.get(gname) or {}).get("pass") is not True:
             fail("ERR_F1K_FREEZE",
-                 "pilot gate %r did not PASS (%s) — no test spend "
-                 "(§R-REV4.2 pre-test gates)" % (gname, gates.get(gname)))
+                 "pilot gate %r did not PASS as a strict boolean (%s) — no "
+                 "test spend (§R-REV4.2 pre-test gates; HOLD round-3 "
+                 "item 4)" % (gname, gates.get(gname)))
     add7 = arts["addendum-7-affordability.json"]
-    if not add7.get("affordable"):
-        fail("ERR_F1K_AFFORD", "addendum (7) projection not affordable — "
-             "no test spend (§R6)")
-    d3_deferred = bool(add7.get("d3_text_deferred"))
+    if add7.get("affordable") is not True:
+        fail("ERR_F1K_AFFORD", "addendum (7) affordable is %r, not the "
+             "strict boolean true — no test spend (§R6; HOLD round-3 "
+             "item 4)" % (add7.get("affordable"),))
+    d3_deferred = attest_bool(add7.get("d3_text_deferred"),
+                              "addendum-7 d3_text_deferred")
     rg = (arts["addendum-6-inputs.json"].get("replace_gate")) or {}
     if rg.get("decision") not in ("RUN", "DEFER"):
         fail("ERR_F1K_REPLACE", "addendum-6 replace_gate.decision %r invalid"
@@ -1407,19 +1676,32 @@ def build_sidecar(cfg, outdir, guard_report, dose, ledger, d3_deferred,
     km = kaec_read(str(ksub))
     io_saving = (cfg.get("replace") or {}).get(
         "io_saving_bytes_per_gated_token") if replace_run else None
+    # [R3-ATTEST] HOLD round-3 item 4 (attestation laundering CLOSED): every
+    # validity flag below goes through attest_bool — NO bool() coercion
+    # anywhere on the emission surface. bool() previously turned an
+    # upstream JSON STRING "false" (truthy) into an emitted JSON `true`,
+    # so a failing attestation reached the analysis as a passing one and
+    # the campaign PASSed officially. Now a non-bool upstream value FAILS
+    # THE RUN (ERR_F1K_ATTEST) before any sidecar byte is written; `true`
+    # is only ever emitted when the underlying strict check produced the
+    # genuine boolean true.
     side = {
-        "manifest": {k: bool(man[k]) for k in need},
+        "manifest": {k: attest_bool(man[k], "freeze.manifest_flags.%s" % k)
+                     for k in need},
         "guard": {"n_items": guard_report["n_items"],
-                  "byte_identical": bool(guard_report["byte_identical"])},
-        "template": {"labels_single_token": bool(
-                         tpl["labels_single_token"]),
-                     "header_cue_labels_trigger_free": bool(
-                         tpl["header_cue_labels_trigger_free"])},
+                  "byte_identical": attest_bool(
+                      guard_report["byte_identical"],
+                      "guard-report byte_identical")},
+        "template": {k: attest_bool(tpl[k], "template_checks.%s" % k)
+                     for k in ("labels_single_token",
+                               "header_cue_labels_trigger_free")},
         "dose": dose,
         "inference": {"method": inf["method"],
-                      "dev_sign_symmetry_pass":
-                          bool(inf["dev_sign_symmetry_pass"])},
-        "replace": {"ran": bool(replace_run),                 # [FIX-3]
+                      "dev_sign_symmetry_pass": attest_bool(
+                          inf["dev_sign_symmetry_pass"],
+                          "inference.dev_sign_symmetry_pass")},
+        "replace": {"ran": attest_bool(replace_run,           # [FIX-3]
+                                       "replace_run decision"),
                     "delta_r_dev": replace_gate.get("delta_r_dev"),
                     "n_ni": replace_gate.get("n_ni"),
                     "io_saving_bytes_per_gated_token": io_saving},
@@ -1441,24 +1723,85 @@ def build_sidecar(cfg, outdir, guard_report, dose, ledger, d3_deferred,
                               ledger.d["phase_seconds"].items()},
             "expert_pinning": ledger.d["expert_pinning"],     # [FIX-5]
             "resume_safe_ledger": str(ledger.path),
-            "d3_text_deferred": bool(d3_deferred)},           # [FIX-4]
+            "d3_text_deferred": attest_bool(d3_deferred,      # [FIX-4]
+                                            "d3_text_deferred")},
         "b0_ceiling_threshold": CEILING_B0,   # echo of the pinned constant
     }
+    # [R3-COST] realized-cost stop AT EMISSION (HOLD round-3 item 6): the
+    # metered ledger is re-checked against the $155 ceiling as the final
+    # act before the success sidecar exists — an over-ceiling campaign can
+    # never emit a success record (the accumulation-time stop in
+    # Ledger.add is the first line; this is the second, independent one).
+    ledger.enforce_cap("sidecar emission")
     spath = Path(outdir) / "test" / "sidecar.json"
     write_json(spath, side)
     return spath
 
 
+def _repo_rel(path):
+    """Repo-relative POSIX path for a run artifact. kot-log/1 artifact
+    paths resolve against the repo root (verdict-gen joins them to --root;
+    the pinned analysis resolves them against its own repo root), so an
+    artifact OUTSIDE the repo could never be consumed through the official
+    seam — fail closed, never emit an absolute/escaping path."""
+    try:
+        rel = Path(path).resolve().relative_to(ROOT)
+    except ValueError:
+        fail("ERR_F1K_RECORD",
+             "artifact %s is outside the repo root %s — kot-log/1 artifact "
+             "paths are repo-relative; keep --outdir inside the repo so "
+             "the official verdict-gen seam can consume the record"
+             % (path, ROOT))
+    return rel.as_posix()
+
+
 def emit_run_record(outdir, rows_path, sidecar_path):
-    """The verdict-gen stdin record [ANA 'INPUT CONTRACT']: event=run,
-    phase=final, exit=ok, artifacts pinned by path+sha256."""
-    rec = {"event": "run", "phase": "final", "exit": "ok",
-           "experiment": "f1k",
-           "artifacts": {
-               "rows_path": str(Path(rows_path).resolve()),
-               "rows_sha256": sha256_file(rows_path),
-               "sidecar_path": str(Path(sidecar_path).resolve()),
-               "sidecar_sha256": sha256_file(sidecar_path)}}
+    """[R3-SEAM] The kot-log/1-conformant run-record BODY (HOLD round-3
+    item 7). The pre-round-3 driver emitted `artifacts` as a DICT
+    {rows_path, ...} with none of the chained fields — schema-invalid for
+    log-append, so the OFFICIAL driver-record -> verdict-gen -> analysis
+    round-trip was structurally impossible and had never been tested (the
+    mock called the analysis directly). Now: event=run, phase=final,
+    exit=ok, prereg_hash = the CURRENT frozen_sha256 from
+    registry/frozen-index.json (verdict-gen eligibility), config/metrics
+    (raw counts only, P2 §2.4), and the D10-PAIRED artifacts ARRAY —
+    exactly one {path, sha256, role:"rows"} entry and one
+    {path, sha256, role:"sidecar"} entry, repo-relative. log-append stamps
+    seq/prev_sha256/ts/runner/schema_version; the coordinator appends this
+    body via log-append (the single write path), then verdict-gen verifies
+    both pins and pipes the record line to the pinned analysis."""
+    idx_path = ROOT / "registry" / "frozen-index.json"
+    try:
+        idx = json.loads(idx_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as e:
+        fail("ERR_F1K_RECORD", "cannot read %s: %s" % (idx_path, e))
+    if "f1k" not in idx:
+        fail("ERR_F1K_RECORD",
+             "f1k absent from registry/frozen-index.json — no run record "
+             "without a frozen prereg (G-1)")
+    n_rows = sum(1 for line in
+                 Path(rows_path).read_text(encoding="utf-8").splitlines()
+                 if line.strip())
+    rec = {
+        "event": "run", "phase": "final", "exit": "ok",
+        "prereg_hash": idx["f1k"],
+        "config": {
+            "protocol": "f1k-main-campaign",
+            "engine": "colibri",
+            "n_test_items": N_TEST,
+            "r_drng_passes": R_DRNG,
+        },
+        "metrics": {
+            "rows_emitted": n_rows,
+            "n_test_items": N_TEST,
+        },
+        "artifacts": [
+            {"path": _repo_rel(rows_path),
+             "sha256": sha256_file(rows_path), "role": "rows"},
+            {"path": _repo_rel(sidecar_path),
+             "sha256": sha256_file(sidecar_path), "role": "sidecar"},
+        ],
+    }
     rpath = Path(outdir) / "test" / "run-record.jsonl"
     with open(rpath, "w", encoding="utf-8") as f:
         f.write(json.dumps(rec, sort_keys=True) + "\n")
@@ -1657,8 +2000,12 @@ def phase_pilot(cfg, ev, outdir, ledger, mock_gold_dir=None):
     # colibri knob-semantics re-verification (ASM-1971; §R-REV4.2 step 3
     # runs it alongside the pilot; addendum (7) is the SEMANTIC gate too)
     sem = cfg.get("semantics_reverification") or {}
-    sem_ok = bool(sem.get("performed")) and bool(sem.get("evidence_path")) \
-        and Path(str(sem.get("evidence_path"))).exists()
+    # [R3-ATTEST] strict: performed must be the genuine boolean true (a
+    # truthy string previously counted AND was bool()-laundered into the
+    # (7) artifact); evidence_path must be a real on-disk path
+    sem_ok = (sem.get("performed") is True
+              and isinstance(sem.get("evidence_path"), str)
+              and Path(sem["evidence_path"]).exists())
     panel_facts = validate_panel(cfg)       # [FIX-6]
     panel = pil["panel"]
     members = panel["members"]
@@ -1750,8 +2097,9 @@ def phase_pilot(cfg, ev, outdir, ledger, mock_gold_dir=None):
     #         pilot freezes (L,g) ... on dev-96" [DES §R3.2 dev-measured
     #         inputs; §R-REV4.2 step 3], NOT on the 48-item tuning subset. --
     dev96 = sorted(ev["dev"], key=lambda x: (x["cluster"], x["item_id"]))
-    replace_supported = bool((cfg.get("replace") or {})
-                             .get("engine_supported"))
+    replace_supported = (cfg.get("replace") or {}) \
+        .get("engine_supported") is True    # [R3-ATTEST] strict (load_config
+    #                                         already enforces a real bool)
     env = arm_env(cfg, "b0", None, str(pdir), frozen)
     run_scoring_pass(cfg, dev96, "dev96:b0", 0, None, env, rows_path, done,
                      ledger=ledger, mock_gold_dir=mock_gold_dir,
@@ -1812,12 +2160,13 @@ def phase_pilot(cfg, ev, outdir, ledger, mock_gold_dir=None):
     m_planned = test_pg["n_items"] / max(test_pg["n_clusters"], 1)
     deff = 1 + (m_planned - 1) * RHO_U
     n_required = delta_u * deff / (SE_TARGET ** 2)
-    # [FIX-7] n = 1440 EXACTLY [REG design.n_planned.n_test_items: F1-K
-    # runs AT the cap (§R-REV3.1 item 4); ANA N_REGISTERED rejects any
-    # other realized n]. Never min(1440, ceil(n_required)): the frozen n is
-    # the cap itself; n_required is recorded, and a measured n_required
-    # below the cap is DISCLOSED as an anomaly against §R-REV3.1 item 4
-    # (running at the cap only adds power — n is never reduced).
+    # [FIX-7]/[R6-1] n = 1573 EXACTLY [REG design.n_planned.n_test_items:
+    # F1-K runs AT the cap (§R-REV3.1 item 4; REVISION-6/ASM-2369); ANA
+    # N_REGISTERED rejects any other realized n]. Never
+    # min(cap, ceil(n_required)): the frozen n is the cap itself;
+    # n_required is recorded, and a measured n_required below the cap is
+    # DISCLOSED as an anomaly against §R-REV3.1 item 4 (running at the cap
+    # only adds power — n is never reduced).
     n_run = N_TEST
     n_req_note = None
     if math.ceil(n_required) < N_TEST:
@@ -1852,10 +2201,11 @@ def phase_pilot(cfg, ev, outdir, ledger, mock_gold_dir=None):
         n_ni = delta_r * deff / (SE_NI ** 2)
         decision = "RUN" if n_ni <= N_TEST else "DEFER"
         reason = ("dev delta_R=%.4f -> n_NI=%.0f %s n_max=%d "
-                  "[§R-REV4.3/ASM-2124: RUN only if n_NI <= 1440, i.e. "
-                  "delta_R <= ~%.3f at rho_U=%.2f]"
+                  "[§R-REV4.3/ASM-2124 at the REVISION-6 geometry: RUN "
+                  "only if n_NI <= %d, i.e. delta_R <= ~%.4f at "
+                  "rho_U=%.2f]"
                   % (delta_r, n_ni, "<=" if decision == "RUN" else ">",
-                     N_TEST, DELTA_R_RUN_MAX, RHO_U))
+                     N_TEST, N_TEST, DELTA_R_RUN_MAX, RHO_U))
     else:
         delta_r, n_ni = None, None
         decision = "DEFER"
@@ -1930,7 +2280,10 @@ def phase_pilot(cfg, ev, outdir, ledger, mock_gold_dir=None):
         "d3_text_deferred": d3_deferred,                      # [FIX-4]
         "replace_pass_in_projection": replace_candidate,
         "semantics_reverification": {
-            "performed": bool(sem.get("performed")),
+            # [R3-ATTEST] emitted ONLY when already a strict bool (sem_ok
+            # gates the run below, so a non-bool never reaches emission)
+            "performed": sem.get("performed")
+            if isinstance(sem.get("performed"), bool) else False,
             "evidence_path": sem.get("evidence_path"),
             "pass": sem_ok,
             "rule": "colibri knob-semantics re-verified on the fetched "
@@ -2049,10 +2402,14 @@ def gen_mock_fixtures(outdir):
     """Synthetic f1k-eval-v1 / f1k-carriers-v1 / f1k-trigger-map-v1 SHAPED
     fixtures (MOCK ONLY; the real pins are coordinator-committed corpus
     pins [REG pins.corpus_hashes] produced by a SEPARATE build — this
-    driver never fabricates them for a real run). Geometry: 72 clusters x
-    20 = 1440 test items (satisfies n==1440 and the C>=65/m>=8 gate),
-    96 dev, 60 guard. Corpus dirs mirror data/<corpus>/ so the
-    kot-corpus-hash/1 verification path is exercised end-to-end."""
+    driver never fabricates them for a real run). [R6-5] Geometry mirrors
+    the FROZEN REVISION-6 record (ASM-2369): 96 clusters, the first 37
+    carrying 17 test items and the remaining 59 carrying 16 (37*17 +
+    59*16 = 1573 = N_TEST exactly; every m >= 8, satisfying the
+    EQUALITY-form 96/1573 gate AND the pinned analysis's hard geometry
+    rejection), 96 dev (one per cluster), 60 guard. Corpus dirs mirror
+    data/<corpus>/ so the kot-corpus-hash/1 verification path is
+    exercised end-to-end."""
     fx = Path(outdir) / "fixtures"
     fx.mkdir(parents=True, exist_ok=True)
     eval_dir = fx / "data" / "f1k-eval-v1"
@@ -2060,7 +2417,7 @@ def gen_mock_fixtures(outdir):
     tdir = fx / "data" / "f1k-trigger-map-v1"
     for d in (eval_dir, cdir, tdir):
         d.mkdir(parents=True, exist_ok=True)
-    C, M = 72, 20
+    C, EXTRA = C_REGISTERED, 37          # [R6-5] 37x17 + 59x16 = 1573
     labels = ["A", "B", "C", "D"]
     label_ids = [65, 66, 67, 68]
     ev_path = eval_dir / "mock-eval-v1.jsonl"
@@ -2084,7 +2441,7 @@ def gen_mock_fixtures(outdir):
             f.write(json.dumps(it, sort_keys=True) + "\n")
             split_ids[split].append(iid)
         for c in range(C):
-            for j in range(M):
+            for j in range(17 if c < EXTRA else 16):    # [R6-5] n = 1573
                 emit("it-%03d-%02d" % (c, j), "test", "c-%03d" % c, c)
         dev_i = 0
         for c in range(C):
@@ -2249,12 +2606,39 @@ def gen_mock_fixtures(outdir):
             "performed": True, "evidence_path": str(semlog),
             "note": "MOCK attestation (ASM-1971)"},
         "power": {"rho_u": RHO_U, "joint_mde_points_at_rho_u": 4.09,
+                  # [R6-4] the REGISTERED per-rung co-primary power table
+                  # (ASM-2371, frozen record verbatim — real values, not
+                  # mock inventions) + the ASM-2376 intersection sim block
+                  # (poc/f1k-askability/power_intersection_n1573.py)
                   "mc_exact_power": {"mu_star": 4.09, "n_sim": 10000,
-                                     "joint_power": 0.81,
-                                     "seed": PERM_SEED, "pass": True}},
+                                     "joint_power": {"K-1": 0.8043,
+                                                     "K-2": 0.8058,
+                                                     "K-3": 0.8001},
+                                     "seed": PERM_SEED, "pass": True},
+                  "mc_intersection": {
+                      "lambda_grid": [0.0, 0.25, 0.5, 0.75, 1.0],
+                      "intersection_power_by_lambda": [0.5220, 0.5675,
+                                                       0.6165, 0.6763,
+                                                       0.7984],
+                      "range_under_family": [0.5220, 0.7984],
+                      "at_lambda_0.5": 0.6165,
+                      "mc_se_max": 0.005, "seed": PERM_SEED,
+                      "source": "poc/f1k-askability/reports/"
+                                "power-intersection-n1573.json"}},
+        # [R6-4]-style REAL registered figures, not mock inventions
+        # (HOLD round-6, 2026-07-16): the pinned analysis now enforces
+        # BUDGET-HONESTY SCALE FLOORS (a real mandatory campaign is
+        # ~$146 / 521.2 metered hours at the ASM-2374 corner — a
+        # zero/under-reported ledger is never a valid success record),
+        # so the $0 mock's cost CONFIG carries the ASM-2374
+        # planning-scale prior-spend/construction figures; the mock's
+        # own metered run seconds/prefills accrue on top exactly as a
+        # real run's would. Still $0 REAL spend — these are ledger
+        # fixture values, disclosed here, exercising the same emission
+        # surface the real run uses.
         "cost": {"spot_rate_usd_per_hour": SPOT_RATE_DEFAULT,
-                 "usd_spent_prior": 0.0,
-                 "construction_instance_hours": 0.0},
+                 "usd_spent_prior": 146.0,
+                 "construction_instance_hours": 521.2},
     }
     cfg_path = fx / "mock-config.json"
     write_json(cfg_path, cfg)
@@ -2262,15 +2646,103 @@ def gen_mock_fixtures(outdir):
 
 
 def run_analysis(run_record_path):
-    """Pipe the run record to the PINNED analysis/f1k.py on stdin (the
-    verdict-gen contract [ANA 'INPUT CONTRACT'])."""
+    """DIRECT pure-function ingest of the run record by the PINNED
+    analysis/f1k.py on stdin. NOTE [R3-SEAM]: this is a SUPPLEMENTARY
+    shape check only — it bypasses log-append/verdict-gen and proves
+    nothing about the official path; the REAL seam (log-append ->
+    verdict-gen -> analysis -> verdict) is exercised by
+    run_official_seam below (HOLD round-3 item 7: the pre-round-3 mock
+    had ONLY this direct call, so the driver had never been tested
+    through the official path — and could not be, since its record was
+    not kot-log/1-conformant).
+
+    HOLD ROUND-5 (2026-07-16): the pinned analysis now REQUIRES the
+    kot-log/1 chain fields on every record line (an UNSTAMPED record —
+    one that never went through log-append, the single write path — must
+    never validate), so this supplementary check stamps the SAME sentinel
+    fields log-append would stamp (schema_version / seq 0 / zero
+    prev_sha256 / fixed mock ts / experiment / runner-1) onto a COPY of
+    the body before piping — mirroring the stamp, never bypassing it; the
+    REAL stamp + chain walk are still exercised end-to-end by
+    run_official_seam. The emitted run-record BODY on disk stays
+    bare (log-append owns the real stamp)."""
     if not ANALYSIS_SCRIPT.exists():
         fail("ERR_F1K_ANALYSIS", "pinned analysis missing: %s"
              % ANALYSIS_SCRIPT)
-    rec = Path(run_record_path).read_text(encoding="utf-8")
+    body = json.loads(Path(run_record_path).read_text(encoding="utf-8"))
+    stamped = dict(body)
+    stamped.update({"schema_version": "kot-log/1", "seq": 0,
+                    "prev_sha256": "0" * 64,
+                    "ts": "2026-07-16T00:00:00Z",
+                    "experiment": "f1k", "runner": "runner-1"})
     proc = subprocess.run([sys.executable, str(ANALYSIS_SCRIPT)],
-                          input=rec, capture_output=True, text=True)
+                          input=json.dumps(stamped, sort_keys=True) + "\n",
+                          capture_output=True, text=True)
     return proc
+
+
+def run_official_seam(outdir, tag, rec_path, tamper=None):
+    """[R3-SEAM] Drive the REAL official ingestion path end-to-end in an
+    ISOLATED sandbox repo root:
+
+        driver run-record BODY -> tools/registry/log-append.py (the single
+        write path: kot-log/1 schema validation, chain stamping, raw-
+        metrics rule) -> tools/registry/verdict-gen.py (frozen-record hash
+        check, eligibility, D10-PAIRED rows+sidecar pin verification,
+        pinned-analysis execution, frozen verdict_rules) ->
+        registry/verdicts/f1k.json
+
+    Sandboxed because a REAL results-log/f1k.jsonl line is a lawful-window
+    event (the RT-5 cutoff witness) that a $0 mock must never create. The
+    sandbox carries byte-identical copies of the frozen record, frozen
+    index, schemas, and the pinned analysis, plus the mock rows/sidecar at
+    their exact repo-relative paths — verdict-gen's own hash checks then
+    hold or fail exactly as they would on the real repo. `tamper(side)`
+    mutates the sandbox sidecar JSON and re-pins its sha in the record
+    body (an attacker-consistent tamper: every sha check stays green, the
+    VERDICT must still refuse). Returns the verdict object."""
+    sb = Path(outdir) / ("seam-" + tag)
+    shutil.rmtree(str(sb), ignore_errors=True)
+    (sb / "registry" / "experiments").mkdir(parents=True)
+    (sb / "analysis").mkdir(parents=True)
+    shutil.copytree(str(ROOT / "registry" / "schema"),
+                    str(sb / "registry" / "schema"))
+    for rel in ("registry/experiments/f1k.json", "registry/frozen-index.json",
+                "analysis/f1k.py"):
+        shutil.copy2(str(ROOT / rel), str(sb / rel))
+    body = json.loads(Path(rec_path).read_text(encoding="utf-8"))
+    for ent in body["artifacts"]:
+        dst = sb / ent["path"]
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(str(ROOT / ent["path"]), str(dst))
+    if tamper is not None:
+        side_ent = [a for a in body["artifacts"]
+                    if a["role"] == "sidecar"][0]
+        sp = sb / side_ent["path"]
+        side = json.loads(sp.read_text(encoding="utf-8"))
+        tamper(side)
+        write_json(sp, side)
+        side_ent["sha256"] = sha256_file(sp)   # attacker-consistent re-pin
+    tools = ROOT / "tools" / "registry"
+    p = subprocess.run(
+        [sys.executable, str(tools / "log-append.py"), "--experiment",
+         "f1k", "--agent-id", "runner-1", "--record", "-", "--root",
+         str(sb)],
+        input=json.dumps(body, sort_keys=True), capture_output=True,
+        text=True)
+    if p.returncode != 0:
+        fail("ERR_F1K_SEAM", "official seam (%s): log-append REFUSED the "
+             "driver record: %s" % (tag, p.stderr.strip()[:600]))
+    p = subprocess.run(
+        [sys.executable, str(tools / "verdict-gen.py"), "--experiment",
+         "f1k", "--agent-id", "coordinator-1", "--root", str(sb),
+         "--computed-at", "2026-07-16T00:00:00Z"],
+        capture_output=True, text=True)
+    if p.returncode != 0:
+        fail("ERR_F1K_SEAM", "official seam (%s): verdict-gen failed: %s"
+             % (tag, p.stderr.strip()[:600]))
+    vpath = sb / "registry" / "verdicts" / "f1k.json"
+    return json.loads(vpath.read_text(encoding="utf-8"))
 
 
 def fix_line_refs():
@@ -2289,7 +2761,9 @@ def mock_main(args):
     outdir = Path(args.outdir or (HERE / "mock-out")).resolve()
     # deterministic mock: start from a clean slate (stale checkpoints from
     # an earlier protocol revision must never satisfy the new schedule)
-    for sub in ("pilot", "guard", "test", "fixtures", "mock-gold"):
+    for sub in ("pilot", "guard", "test", "fixtures", "mock-gold",
+                "seam-official", "seam-tampered", "cost-stop-probe",
+                "cost-stop-probe-init"):
         shutil.rmtree(str(outdir / sub), ignore_errors=True)
     try:
         (outdir / "cost-ledger.json").unlink()
@@ -2387,6 +2861,80 @@ def mock_main(args):
         }
         write_json(outdir / "test" / "analysis-output.json", out)
 
+    # 5b. [R3-ATTEST]/[R3-POWER]/[R3-COST] fail-closed probes (each prints
+    # an EXPECTED ERR_F1K_* line) — the round-3 laundering/pinning/cost
+    # classes, each proven CLOSED against the live code paths.
+    import copy as _copy
+
+    def expect_stop(thunk):
+        try:
+            thunk()
+        except SystemExit as e:
+            return e.code == 2
+        return False
+
+    print("probe: round-3 fail-closed probes — the next ERR_F1K_* lines "
+          "are EXPECTED")
+    side_sha_before = sha256_file(sidecar_path)
+    cfg_bad = _copy.deepcopy(cfg)
+    cfg_bad["freeze"]["manifest_flags"]["entry6_committed"] = "false"
+    launder_emit_closed = expect_stop(
+        lambda: build_sidecar(cfg_bad, outdir, guard_report, dose, ledger,
+                              d3_deferred, replace_gate, replace_run))
+    launder_gate_closed = expect_stop(
+        lambda: enforce_pretest_commits(cfg_bad, outdir))
+    cfg_bad2 = _copy.deepcopy(cfg)
+    cfg_bad2["template_checks"]["labels_single_token"] = "true"
+    launder_tpl_closed = expect_stop(
+        lambda: build_sidecar(cfg_bad2, outdir, guard_report, dose, ledger,
+                              d3_deferred, replace_gate, replace_run))
+    cfg_bad3 = _copy.deepcopy(cfg)
+    cfg_bad3["carriers"]["d1-drng"]["101"]["meta"][
+        "layerwise_norm_matched"] = "true"
+    launder_dose_closed = expect_stop(
+        lambda: validate_dose(cfg_bad3["carriers"]))
+    launder_closed = (launder_emit_closed and launder_gate_closed
+                      and launder_tpl_closed and launder_dose_closed
+                      and sha256_file(sidecar_path) == side_sha_before)
+
+    cfg_pow = _copy.deepcopy(cfg)
+    cfg_pow["power"]["mc_exact_power"]["joint_power"] = {
+        "K-1": 0.9, "K-2": 0.9, "K-3": 0.9}
+    power_pin_closed = expect_stop(lambda: validate_power(cfg_pow))
+    cfg_pow2 = _copy.deepcopy(cfg)
+    cfg_pow2["power"]["mc_intersection"] = {}
+    power_inter_closed = expect_stop(lambda: validate_power(cfg_pow2))
+
+    cfg_cost = _copy.deepcopy(cfg)
+    cfg_cost["cost"]["usd_spent_prior"] = 154.9
+    led2 = Ledger(outdir / "cost-stop-probe", cfg_cost)  # 154.9 <= cap: OK
+    cost_stop_closed = expect_stop(lambda: led2.add("test", 4 * 3600.0,
+                                                    100))
+    led2_disk = json.loads((outdir / "cost-stop-probe" /
+                            "cost-ledger.json").read_text(encoding="utf-8"))
+    cost_stop_closed = (cost_stop_closed
+                        and led2_disk["phase_seconds"].get("test", 0) > 0)
+    cfg_cost2 = _copy.deepcopy(cfg)
+    cfg_cost2["cost"]["usd_spent_prior"] = 156.0
+    cost_init_closed = expect_stop(
+        lambda: Ledger(outdir / "cost-stop-probe-init", cfg_cost2))
+
+    # 5c. [R3-SEAM] the OFFICIAL round-trip, both fixtures: the driver's
+    # kot-log/1 record through the REAL log-append -> verdict-gen ->
+    # pinned-analysis path (sandboxed repo root; see run_official_seam).
+    verdict_good = run_official_seam(outdir, "official", rec_path)
+    paired = (verdict_good.get("inputs") or {}).get(
+        "paired_artifacts_verified") or []
+    seam_pass = (verdict_good.get("verdict") == "PASS-PENDING-AUDIT"
+                 and len(paired) == 1
+                 and paired[0]["rows"]["rows"] == expected_units)
+
+    def _tamper(side):
+        side["guard"]["n_items"] = 0    # incomplete guard instrument
+    verdict_bad = run_official_seam(outdir, "tampered", rec_path,
+                                    tamper=_tamper)
+    seam_tamper = verdict_bad.get("verdict") == "INSTRUMENT-INVALID"
+
     add6 = json.loads((outdir / "pilot" / "addendum-6-inputs.json")
                       .read_text(encoding="utf-8"))
     add5 = json.loads((outdir / "pilot" / "addendum-5-frozen-lg.json")
@@ -2398,6 +2946,8 @@ def mock_main(args):
     dev96_rows = [r for r in
                   read_ckpt(outdir / "pilot" / "pilot-rows.jsonl")[1]
                   if r["arm"] == "dev96:b0"]
+    pg = json.loads((outdir / "pilot" / "pilot-gates.json")
+                    .read_text(encoding="utf-8"))["power_gate"]   # [R6-2]
     refs = fix_line_refs()
 
     def ref(n):
@@ -2451,17 +3001,34 @@ def mock_main(args):
          and add5["frozen"]["g"] == add5["frozen"]["g_multiplier"]
          * add5["frozen"]["mean_native_expert_weight"]
          and add5["panel_validation"]["derangement_reconstructed"]),
-        ("[7] frozen constants: z0.80=%s EXACT; n_run=%s EXACT (=1440); "
-         "power block validated (rho_u/N_sim/mu*/seed/threshold); ledger "
-         "resume-safe with pilot+construction (%s) [%s]"
+        ("[7] frozen constants: z0.80=%s EXACT; n_run=%s EXACT (=1573, "
+         "REVISION-6); power block validated (rho_u/N_sim/mu*/seed/"
+         "per-rung threshold); ledger resume-safe with pilot+construction "
+         "(%s) [%s]"
          % (Z80, add6["n_run"], sorted(led["phase_seconds"]), ref(7)),
-         Z80 == 0.842 and add6["n_run"] == N_TEST
+         Z80 == 0.842 and add6["n_run"] == N_TEST and N_TEST == 1573
          and "pilot" in led["phase_seconds"]
          and "construction_instance_hours" in led),
+        ("[R6] REVISION-6 alignment: EQUALITY-form power gate PASS "
+         "(realized %d clusters / %d with m>=8 / n=%d); per-rung "
+         "joint_power dict K-1/K-2/K-3 + ASM-2376 intersection block in "
+         "the sidecar; worst-case $ RECOMPUTED for 96/1573 at the "
+         "ASM-2374 pessimistic corner: mandatory campaign $%.2f <= cap "
+         "$%.0f; +REPLACE $%.2f (> cap at the corner => REPLACE runs ONLY "
+         "if the measured (7) projection keeps the ledger <= cap — "
+         "ASM-2374, never a silent raise)"
+         % (pg["n_clusters"], pg["clusters_with_m_ge_8"], pg["n_items"],
+            worst_case_usd(False), USD_CAP, worst_case_usd(True)),
+         pg["pass"] is True and pg["n_clusters"] == C_REGISTERED
+         and pg["n_items"] == N_TEST
+         and worst_case_usd(False) <= USD_CAP
+         and worst_case_usd(True) > USD_CAP),
         ("input seams: kot-corpus-hash/1 verified for %s (registry "
-         "placeholders honored: mock-only); id-list hashes verified; "
-         "eval/carrier paths contained; NO fabricated real corpora "
-         "(fixtures labeled MOCK)" % ", ".join(sorted(corpus_pins)),
+         "placeholders + REAL pins honored: mock fixtures disclosed as "
+         "DIVERGING, real runs fail closed on any mismatch); id-list "
+         "hashes verified; eval/carrier paths contained; NO fabricated "
+         "real corpora (fixtures labeled MOCK)"
+         % ", ".join(sorted(corpus_pins)),
          len(corpus_pins) == 3),
         ("mock run executed end-to-end (pilot -> KaE probe -> guard -> "
          "test interrupt+resume -> sidecar -> analysis)", True),
@@ -2474,11 +3041,38 @@ def mock_main(args):
         ("guard byte-identity asserted (60 items x spliced passes == b0, "
          "REPLACE included when scheduled: %s)"
          % ("yes" if replace_run else "n/a"),
-         bool(guard_report["byte_identical"])),
+         guard_report["byte_identical"] is True),   # [R3-ATTEST] strict
         ("dose-exactness pre-validated (seeds %s, fixed-point-free, "
          "norm-matched)" % (list(DRNG_SEEDS),), True),
+        ("[R3-ATTEST] attestation laundering CLOSED: string-'false' "
+         "manifest flag => build_sidecar FAILS (ERR_F1K_ATTEST, no "
+         "coercion, sidecar bytes untouched) AND enforce_pretest_commits "
+         "refuses (`is True` reads); string-'true' template check and B0 "
+         "dose attestation equally refused — bool() is gone from the "
+         "whole attestation surface", launder_closed),
+        ("[R3-POWER] power block pinned EXACTLY: 0.9/0.9/0.9 marginals "
+         "REJECTED against the registered ASM-2371 table "
+         "0.8043/0.8058/0.8001; empty mc_intersection {} REJECTED "
+         "(ASM-2376 block required, values pinned)",
+         power_pin_closed and power_inter_closed),
+        ("[R3-COST] realized-cost stop: accumulation past $155 STOPPED "
+         "fail-closed (spend recorded, run halted, NO success record); "
+         "over-cap ledger at init/resume STOPPED; the same enforce_cap "
+         "runs at sidecar emission", cost_stop_closed and cost_init_closed),
+        ("[R3-SEAM] OFFICIAL round-trip (sandboxed real path): kot-log/1 "
+         "driver record -> log-append (chain, schema) -> verdict-gen "
+         "(D10-paired rows+sidecar pins verified, %d rows) -> pinned "
+         "analysis -> verdict %r (PASS fired, audit pending)"
+         % (paired[0]["rows"]["rows"] if paired else -1,
+            verdict_good.get("verdict")), seam_pass),
+        ("[R3-SEAM] TAMPERED fixture through the same official path "
+         "(guard.n_items=0, sha re-pinned attacker-consistent, every "
+         "hash check green) -> verdict %r" % (verdict_bad.get("verdict"),),
+         seam_tamper),
         ("governance: engine referred to only as 'colibri'; $0; no "
-         "instance, no model download, no git, no registry write", True),
+         "instance, no model download, no git, no registry write "
+         "(official-seam runs are SANDBOXED repo copies — no real "
+         "results-log/f1k.jsonl line exists)", True),
     ]
     for msg, okc in checks:
         print("  [%s] %s" % ("PASS" if okc else "FAIL", msg))
@@ -2536,9 +3130,12 @@ def main():
              "(the byte-identity guard is a run-voiding instrument check, "
              "§2.5)")
     guard_report = json.loads(grep.read_text(encoding="utf-8"))
-    if not guard_report.get("byte_identical"):
-        fail("ERR_F1K_GUARD", "guard report shows a byte-identity mismatch "
-             "— run VOID")
+    # [R3-ATTEST] strict `is True`: a persisted report tampered to the
+    # STRING "false" previously passed this truthy read
+    if guard_report.get("byte_identical") is not True:
+        fail("ERR_F1K_GUARD", "guard report byte_identical is %r, not the "
+             "strict boolean true — run VOID (HOLD round-3 item 4)"
+             % (guard_report.get("byte_identical"),))
     if replace_run and \
             "REPLACE/pass0" not in (guard_report.get("passes_compared")
                                     or []):

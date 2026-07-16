@@ -1,0 +1,93 @@
+{
+ "MEASURED": "every lambda-grid intersection estimate (Monte-Carlo, MC-SE ~= 0.005); the Frechet bounds are arithmetic on the committed ASM-2371 marginals",
+ "STIPULATED": "the dependence FAMILY (equicorrelated Gaussian copula over cluster means via a shared component; the true cross-contrast correlation lambda is unknown pre-run and unmodellable without arm-level variance data) and lambda=0.5 as the equal-arm-variance shared-K point. The intersection is NOT separately powered to >= 0.80 anywhere on the grid; the registered maintainer criterion is PER-RUNG power >= 0.80 (ASM-2371) and is unchanged.",
+ "built": "2026-07-15 fable RUN-HOLD defect-2 fix: co-primary intersection joint-dependence sim ($0, blind)",
+ "consequence": "elevated INCONCLUSIVE risk (2-of-3 shapes), NEVER a false null: TOST/NULL rides only on K-1 and every non-fire is scoped by the ~4.06-4.09-pt MDE wording at /analysis/power_scope",
+ "defect": "the frozen record's '~0.70-0.75' all-three-rungs figure was unsupported prose; marginals alone only give the Frechet interval below",
+ "dgp": "D_c^(j) = mu* + sd_c*(sqrt(lambda)*A_c + sqrt(1-lambda)*E_c^(j)); sd_c^2 = delta*(rho_U+(1-rho_U)/m_c); registered marginal law preserved exactly at every lambda; per-contrast E and sign-flip matrices are the BYTE-IDENTICAL committed streams (fidelity anchor asserted at lambda=0)",
+ "frechet_bounds_from_committed_marginals": {
+  "basis": "assumption-free: max(0, 1-sum(1-p_j)) <= P(all 3) <= min_j p_j at p = 0.8043/0.8058/0.8001",
+  "lower": 0.4102,
+  "upper": 0.8001
+ },
+ "geometry": {
+  "C": 96,
+  "m_list_source": "reports/power-report-n1573.json (ASM-2371 committed artifact)",
+  "n_test": 1573
+ },
+ "intersection_power_range_under_family": {
+  "at_equal_arm_variance_lambda_0.5": 0.6165,
+  "lower": 0.522,
+  "upper": 0.7984
+ },
+ "lambda_grid_results": [
+  {
+   "intersection_power": 0.522,
+   "lambda": 0.0,
+   "marginals": {
+    "K-1": 0.8043,
+    "K-2": 0.8058,
+    "K-3": 0.8001
+   },
+   "mc_se": 0.005
+  },
+  {
+   "intersection_power": 0.5675,
+   "lambda": 0.25,
+   "marginals": {
+    "K-1": 0.8047,
+    "K-2": 0.8088,
+    "K-3": 0.803
+   },
+   "mc_se": 0.00495
+  },
+  {
+   "intersection_power": 0.6165,
+   "lambda": 0.5,
+   "marginals": {
+    "K-1": 0.8025,
+    "K-2": 0.8088,
+    "K-3": 0.8028
+   },
+   "mc_se": 0.00486
+  },
+  {
+   "intersection_power": 0.6763,
+   "lambda": 0.75,
+   "marginals": {
+    "K-1": 0.8032,
+    "K-2": 0.8073,
+    "K-3": 0.8027
+   },
+   "mc_se": 0.00468
+  },
+  {
+   "intersection_power": 0.7984,
+   "lambda": 1.0,
+   "marginals": {
+    "K-1": 0.7984,
+    "K-2": 0.7984,
+    "K-3": 0.7984
+   },
+   "mc_se": 0.00401
+  }
+ ],
+ "params": {
+  "b_flip": 10000,
+  "delta": 0.1,
+  "lambda_grid": [
+   0.0,
+   0.25,
+   0.5,
+   0.75,
+   1.0
+  ],
+  "mu_star": 0.0409,
+  "n_sim": 10000,
+  "rho_u": 0.1,
+  "seed": 20260713,
+  "shared_component_seed_label": "20260713|intersection-shared|C96",
+  "t_fire_pts": 3.0
+ },
+ "part": "co-primary intersection joint-dependence power sim (RUN-HOLD defect-2 fix)"
+}

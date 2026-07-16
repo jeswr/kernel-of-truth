@@ -428,6 +428,7 @@ def select_eligible(records, frozen_sha, design):
 # row-consuming analysis would compute over n=0 and emit a spurious
 # INSTRUMENT-INVALID).
 ROWS_ROLE = "rows"
+SIDECAR_ROLE = "sidecar"
 
 
 def rows_artifact_entry(rec):
@@ -445,6 +446,29 @@ def rows_artifact_entry(rec):
         raise kc.KotError("ERR_P2_ROWS_AMBIGUOUS",
                           "run record seq %s carries %d role:\"rows\" artifacts entries; the D10 "
                           "convention admits exactly one per record" % (rec.get("seq"), len(entries)))
+    return entries[0]
+
+
+def sidecar_artifact_entry(rec):
+    """The record's single role:"sidecar" artifacts entry, or None.
+
+    D10-PAIRED convention (F1-K seam fix, 2026-07-16): an analysis whose
+    frozen input contract is (per-item rows + run sidecar) TOGETHER marks
+    BOTH on the same run record; step 5a then verifies both pins and feeds
+    the RECORD LINE instead of expanding the rows (a bare expansion would
+    strand the sidecar and the pinned analysis would reject raw rows).
+    More than one marked entry is unintelligible and refuses, exactly like
+    the rows marker.
+    """
+    entries = [a for a in (rec.get("artifacts") or [])
+               if isinstance(a, dict) and a.get("role") == SIDECAR_ROLE]
+    if not entries:
+        return None
+    if len(entries) > 1:
+        raise kc.KotError("ERR_P2_SIDECAR_AMBIGUOUS",
+                          "run record seq %s carries %d role:\"sidecar\" artifacts entries; the "
+                          "D10-paired convention admits exactly one per record"
+                          % (rec.get("seq"), len(entries)))
     return entries[0]
 
 
@@ -520,6 +544,45 @@ def load_rows_payload(root, rec, entry):
     if not data.endswith(b"\n"):
         data += b"\n"
     return data, n_rows
+
+
+def verify_sidecar_pin(root, rec, entry):
+    """Fail-closed verification of a paired record's pinned sidecar JSON.
+
+    Same at-consumption discipline as load_rows_payload: existence
+    (ERR_P2_SIDECAR_MISSING), sha256 against the chained log's pin
+    (ERR_P2_SIDECAR_DRIFT — no verdict is producible from a drifted
+    sidecar), and a strict RFC 8259 parse to a top-level JSON OBJECT via
+    the same two non-finite-refusing hooks (ERR_P2_SIDECAR_MALFORMED).
+    The pinned analysis re-verifies the same sha before reading a byte —
+    two independent enforcements of one pin.
+    """
+    seq = rec.get("seq")
+    path = os.path.join(root, entry["path"])
+    if not os.path.isfile(path):
+        raise kc.KotError("ERR_P2_SIDECAR_MISSING",
+                          "run record seq %s: pinned sidecar file %s does not exist"
+                          % (seq, entry["path"]))
+    with open(path, "rb") as f:
+        data = f.read()
+    got = kc.sha256_hex(data)
+    if got != entry["sha256"]:
+        raise kc.KotError("ERR_P2_SIDECAR_DRIFT",
+                          "run record seq %s: sidecar file %s sha256 %s != pinned %s — no verdict "
+                          "is producible from a drifted sidecar" % (seq, entry["path"], got, entry["sha256"]))
+    try:
+        side = json.loads(data.decode("utf-8"),
+                          parse_constant=_refuse_nonstandard_constant,
+                          parse_float=_finite_float)
+    except (ValueError, UnicodeDecodeError) as e:
+        raise kc.KotError("ERR_P2_SIDECAR_MALFORMED",
+                          "run record seq %s: sidecar file %s is not strict JSON (%s)"
+                          % (seq, entry["path"], e))
+    if not isinstance(side, dict):
+        raise kc.KotError("ERR_P2_SIDECAR_MALFORMED",
+                          "run record seq %s: sidecar file %s is a top-level %s, not the JSON "
+                          "OBJECT the sidecar contract requires"
+                          % (seq, entry["path"], type(side).__name__))
 
 
 def confirmed_audit(root, exp_id, runner_ids):
@@ -650,6 +713,7 @@ def run(root, exp_id, agent_id, computed_at):
     endpoint_results = []
     coverage = None
     rows_expanded = []
+    paired_verified = []
 
     if not eligible:
         # Step 4 — completeness gate (minimal form).
@@ -688,9 +752,20 @@ def run(root, exp_id, agent_id, computed_at):
         # artifact is lawful (it contributes its record line, no expansion),
         # and script-baked pinned rows paths (rules-1-c) are invisible here
         # — they are not D10 rows-artifacts at all.
-        marked = [(r, rows_artifact_entry(r)) for r in eligible]
+        # D10-PAIRED extension (F1-K seam fix, 2026-07-16): a record marking
+        # BOTH role:"rows" AND role:"sidecar" declares the paired input
+        # contract — its analysis consumes (rows + sidecar) via the record
+        # line's pins, so step 5a verifies BOTH artifacts fail-closed here
+        # and contributes the RECORD LINE (an expansion would strand the
+        # sidecar; the pinned analysis re-verifies both pins again). A
+        # sidecar marker without its rows partner is unintelligible
+        # (ERR_P2_SIDECAR_ORPHAN). Rows-only and unmarked records keep
+        # their pre-existing behaviour byte-identically, and the
+        # ERR_P2_ROWS_DUP guard covers paired rows entries unchanged.
+        marked = [(r, rows_artifact_entry(r), sidecar_artifact_entry(r))
+                  for r in eligible]
         seen_rows = {}
-        for r, entry in marked:
+        for r, entry, _side in marked:
             if entry is None:
                 continue
             for dim in ("sha256", "path"):
@@ -704,20 +779,38 @@ def run(root, exp_id, agent_id, computed_at):
                         "could force a verdict" % (seen_rows[key], r.get("seq"), dim, entry[dim]))
                 seen_rows[key] = r.get("seq")
         payload = []
-        for r, entry in marked:
-            if entry is None:
+        for r, entry, side_entry in marked:
+            if entry is None and side_entry is None:
                 payload.append((kc.canonical_dumps(r) + "\n").encode("utf-8"))
-            else:
+            elif entry is not None and side_entry is not None:
+                _rows_bytes, n_rows = load_rows_payload(root, r, entry)
+                verify_sidecar_pin(root, r, side_entry)
+                payload.append((kc.canonical_dumps(r) + "\n").encode("utf-8"))
+                paired_verified.append({
+                    "seq": r["seq"],
+                    "rows": {"path": entry["path"],
+                             "sha256": entry["sha256"], "rows": n_rows},
+                    "sidecar": {"path": side_entry["path"],
+                                "sha256": side_entry["sha256"]}})
+            elif entry is not None:
                 rows_bytes, n_rows = load_rows_payload(root, r, entry)
                 payload.append(rows_bytes)
                 rows_expanded.append({"seq": r["seq"], "path": entry["path"],
                                       "sha256": entry["sha256"], "rows": n_rows})
+            else:
+                raise kc.KotError(
+                    "ERR_P2_SIDECAR_ORPHAN",
+                    "run record seq %s carries a role:\"sidecar\" artifacts entry without its "
+                    "role:\"rows\" partner — the D10-paired convention requires both; refusing "
+                    "rather than guessing which stdin shape the frozen analysis expects"
+                    % r.get("seq"))
         for r in reused_rows:
-            if rows_artifact_entry(r) is not None:
+            if rows_artifact_entry(r) is not None or sidecar_artifact_entry(r) is not None:
                 raise kc.KotError("ERR_P2_ROWS_REUSE",
                                   "reused producer row seq %s (producer %s) carries a role:\"rows\" "
-                                  "artifacts entry — row-heavy reuse has no ratified D9/D10 "
-                                  "consumption semantics; extend the convention deliberately"
+                                  "or role:\"sidecar\" artifacts entry — row-heavy/paired reuse has "
+                                  "no ratified D9/D10 consumption semantics; extend the convention "
+                                  "deliberately"
                                   % (r.get("seq"), r["reuse_provenance"]["producer"]))
             payload.append((kc.canonical_dumps(r) + "\n").encode("utf-8"))
         stdin_payload = b"".join(payload)
@@ -871,6 +964,13 @@ def run(root, exp_id, agent_id, computed_at):
         # parsed row counts. Added only when the row-heavy path was taken, so
         # every pre-D10 verdict object keeps its exact byte shape.
         verdict_obj["inputs"]["rows_expanded"] = rows_expanded
+    if paired_verified:
+        # D10-paired transparency (F1-K seam fix): which eligible records'
+        # rows+sidecar artifact PAIRS were verified at consumption time (the
+        # record line itself fed the analysis, which re-verified the same
+        # pins). Added only when the paired path was taken, so every earlier
+        # verdict object keeps its exact byte shape.
+        verdict_obj["inputs"]["paired_artifacts_verified"] = paired_verified
 
     # RT-14 applies to verdict objects too (they are re-hashed by audits).
     kc.check_identity_fields(verdict_obj)

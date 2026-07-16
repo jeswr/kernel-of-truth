@@ -1253,5 +1253,249 @@ class TestRowHeavyRobustness(RowHeavyFixture):
         self.assertFalse(os.path.exists(self.path("registry/verdicts/mock-strict.json")))
 
 
+MOCK_ANALYSIS_PAIRED = """\
+import hashlib, json, sys
+recs = [json.loads(l) for l in sys.stdin if l.strip()]
+n_rows, acc_n, sidecar_ok = 0, 0, False
+for rec in recs:
+    ents = {a.get("role"): a for a in rec.get("artifacts") or []
+            if isinstance(a, dict)}
+    if "rows" not in ents or "sidecar" not in ents:
+        print("ERR_P2_ANALYSIS: record lacks the paired rows+sidecar pins",
+              file=sys.stderr)
+        sys.exit(1)
+    for what in ("rows", "sidecar"):
+        raw = open(ents[what]["path"], "rb").read()
+        if hashlib.sha256(raw).hexdigest() != ents[what]["sha256"]:
+            print("ERR_P2_ANALYSIS: %s pin drift at the analysis" % what,
+                  file=sys.stderr)
+            sys.exit(1)
+    rows = [json.loads(x)
+            for x in open(ents["rows"]["path"], encoding="utf-8")
+            if x.strip()]
+    side = json.load(open(ents["sidecar"]["path"], encoding="utf-8"))
+    n_rows += len(rows)
+    acc_n += sum(1 for r in rows if r.get("y") == 1)
+    sidecar_ok = side.get("ok") is True   # strict-bool attestation read
+print(json.dumps({"n_records": len(recs), "n_rows": n_rows,
+                  "acc": (acc_n / n_rows) if n_rows else 0.0,
+                  "sidecar_ok": sidecar_ok}))
+"""
+
+
+class TestPairedSidecarStep5a(RowHeavyFixture):
+    """The D10-PAIRED rows+sidecar convention through the REAL CLIs
+    (F1-K seam fix, 2026-07-16; verdict-gen step 5a paired branch) —
+    round-4 review coverage: NEITHER registry suite previously carried a
+    single paired-sidecar test, so the seam's fail-closed branches
+    (ERR_P2_SIDECAR_MISSING/DRIFT/MALFORMED/AMBIGUOUS/ORPHAN), the success
+    path (record line + inputs.paired_artifacts_verified), the kot-log/1
+    non-run scope guard for role:'sidecar', and the rows-only/unmarked
+    preservation controls were protected by NO executing test."""
+
+    SIDE_REL = "data/rowsets/mock-sidecar.json"
+
+    def paired_record(self, exp_id):
+        script = "analysis/mock_paired.py"
+        self.write(script, MOCK_ANALYSIS_PAIRED)
+        rec = self.base_record(exp_id=exp_id)
+        rec["pins"]["analysis_script"] = {
+            "path": script, "sha256": sha256_file(self.path(script)),
+            "output_fields": ["/n_records", "/n_rows", "/acc", "/sidecar_ok"],
+        }
+        rec["endpoints"] = [{"id": "primary", "role": "primary", "metric": "/acc",
+                             "test": "per-item accuracy vs the 0.7 floor"}]
+        rec["verdict_rules"] = [
+            {"verdict": "INSTRUMENT-INVALID",
+             "when": {"op": "not", "a": {"metric": "/sidecar_ok"}}},
+            {"verdict": "PASS", "when": {"op": "gte", "a": {"metric": "/acc"}, "b": {"const": 0.7}}},
+            {"verdict": "FAIL", "when": {"op": "lt", "a": {"metric": "/acc"}, "b": {"const": 0.7}}},
+            {"verdict": "INCONCLUSIVE", "when": {"const": True}},
+        ]
+        return rec
+
+    def write_sidecar(self, content='{"ok": true}\n', rel=SIDE_REL):
+        os.makedirs(os.path.dirname(self.path(rel)), exist_ok=True)
+        self.write(rel, content)
+        return sha256_file(self.path(rel))
+
+    def paired_artifacts(self, rows_sha, side_sha):
+        return [{"path": self.ROWS_REL, "sha256": rows_sha, "role": "rows"},
+                {"path": self.SIDE_REL, "sha256": side_sha, "role": "sidecar"}]
+
+    def freeze_and_append(self, exp_id, artifacts):
+        self.assertEqual(self.freeze(self.paired_record(exp_id)).returncode, 0)
+        p = self.append_run_with_artifacts(exp_id, 0, artifacts)
+        self.assertEqual(p.returncode, 0, p.stderr)
+
+    def assert_no_verdict(self, exp_id, p, err_code):
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn(err_code, p.stderr)
+        self.assertFalse(
+            os.path.exists(self.path("registry/verdicts/%s.json" % exp_id)),
+            "no verdict of any kind is producible (%s)" % err_code)
+
+    def test_success_record_line_and_paired_disclosure(self):
+        # HAND-COMPUTED: acc 16/20 = 0.8 >= 0.7 and sidecar ok:true -> PASS
+        rows_sha = self.write_rows(n=20, k=16)
+        side_sha = self.write_sidecar()
+        self.freeze_and_append("mock-pair", self.paired_artifacts(rows_sha, side_sha))
+        p = self.run_verdict("mock-pair")
+        self.assertEqual(p.returncode, 0, p.stderr)
+        analysis = self.read_json("reports/auto/mock-pair/analysis-output.json")
+        # the analysis saw the RECORD LINE (never a bare rows expansion) and
+        # loaded/verified both pins itself — the second enforcement
+        self.assertEqual(analysis, {"n_records": 1, "n_rows": 20,
+                                    "acc": 0.8, "sidecar_ok": True})
+        verdict = self.read_json("registry/verdicts/mock-pair.json")
+        self.assertEqual(verdict["verdict"], "PASS-PENDING-AUDIT")
+        self.assertEqual(verdict["inputs"]["paired_artifacts_verified"], [
+            {"seq": 0,
+             "rows": {"path": self.ROWS_REL, "sha256": rows_sha, "rows": 20},
+             "sidecar": {"path": self.SIDE_REL, "sha256": side_sha}}])
+        self.assertNotIn("rows_expanded", verdict["inputs"],
+                         "the paired path must not also expand the rows")
+
+    def test_sidecar_value_defect_yields_instrument_invalid(self):
+        # the VALUE channel at the real seam: every pin verifies (sha green)
+        # but the sidecar attests ok:"false" (string) — the analysis's
+        # strict-bool read fails the gate CLOSED, the verdict is
+        # INSTRUMENT-INVALID, never PASS and never a plumbing error
+        rows_sha = self.write_rows(n=20, k=16)
+        side_sha = self.write_sidecar('{"ok": "false"}\n')
+        self.freeze_and_append("mock-pairval", self.paired_artifacts(rows_sha, side_sha))
+        p = self.run_verdict("mock-pairval")
+        self.assertEqual(p.returncode, 0, p.stderr)
+        verdict = self.read_json("registry/verdicts/mock-pairval.json")
+        self.assertEqual(verdict["verdict"], "INSTRUMENT-INVALID")
+        self.assertEqual(verdict["fired_rule_index"], 0)
+
+    def test_missing_sidecar_fails_closed(self):
+        rows_sha = self.write_rows()
+        side_sha = self.write_sidecar()
+        self.freeze_and_append("mock-pairgone", self.paired_artifacts(rows_sha, side_sha))
+        os.remove(self.path(self.SIDE_REL))
+        self.assert_no_verdict("mock-pairgone", self.run_verdict("mock-pairgone"),
+                               "ERR_P2_SIDECAR_MISSING")
+
+    def test_drifted_sidecar_fails_closed(self):
+        rows_sha = self.write_rows()
+        side_sha = self.write_sidecar()
+        self.freeze_and_append("mock-pairdrift", self.paired_artifacts(rows_sha, side_sha))
+        self.write_sidecar('{"ok": true, "edited": "post-append"}\n')
+        self.assert_no_verdict("mock-pairdrift", self.run_verdict("mock-pairdrift"),
+                               "ERR_P2_SIDECAR_DRIFT")
+
+    def test_malformed_sidecar_array_fails_closed(self):
+        # the sha pin VERIFIES (appended after writing the bad bytes) —
+        # STRICTNESS refuses, not drift: a top-level array is not the
+        # JSON-object sidecar contract
+        rows_sha = self.write_rows()
+        side_sha = self.write_sidecar('[{"ok": true}]\n')
+        self.freeze_and_append("mock-pairarr", self.paired_artifacts(rows_sha, side_sha))
+        self.assert_no_verdict("mock-pairarr", self.run_verdict("mock-pairarr"),
+                               "ERR_P2_SIDECAR_MALFORMED")
+
+    def test_malformed_sidecar_nan_fails_closed(self):
+        # same strictness channel: NaN is not RFC 8259 JSON — refused even
+        # though the sha pin verifies
+        rows_sha = self.write_rows()
+        side_sha = self.write_sidecar('{"ok": NaN}\n')
+        self.freeze_and_append("mock-pairnan", self.paired_artifacts(rows_sha, side_sha))
+        self.assert_no_verdict("mock-pairnan", self.run_verdict("mock-pairnan"),
+                               "ERR_P2_SIDECAR_MALFORMED")
+
+    def test_two_sidecar_entries_are_ambiguous(self):
+        rows_sha = self.write_rows()
+        side_sha = self.write_sidecar()
+        other = "data/rowsets/other-sidecar.json"
+        side_sha2 = self.write_sidecar('{"ok": true}\n', rel=other)
+        self.freeze_and_append("mock-pairdup", self.paired_artifacts(rows_sha, side_sha) + [
+            {"path": other, "sha256": side_sha2, "role": "sidecar"}])
+        self.assert_no_verdict("mock-pairdup", self.run_verdict("mock-pairdup"),
+                               "ERR_P2_SIDECAR_AMBIGUOUS")
+
+    def test_orphan_sidecar_without_rows_fails_closed(self):
+        side_sha = self.write_sidecar()
+        self.freeze_and_append("mock-pairorph", [
+            {"path": self.SIDE_REL, "sha256": side_sha, "role": "sidecar"}])
+        self.assert_no_verdict("mock-pairorph", self.run_verdict("mock-pairorph"),
+                               "ERR_P2_SIDECAR_ORPHAN")
+
+    def test_two_paired_records_sharing_rows_hit_the_dup_guard(self):
+        # the ERR_P2_ROWS_DUP guard covers paired records' rows entries
+        # unchanged: duplicated rows behind green shas could inflate n
+        rows_sha = self.write_rows()
+        side_sha = self.write_sidecar()
+        self.freeze_and_append("mock-pairdup2", self.paired_artifacts(rows_sha, side_sha))
+        p = self.append_run_with_artifacts("mock-pairdup2", 1,
+                                           self.paired_artifacts(rows_sha, side_sha))
+        self.assertEqual(p.returncode, 0, p.stderr)
+        self.assert_no_verdict("mock-pairdup2", self.run_verdict("mock-pairdup2"),
+                               "ERR_P2_ROWS_DUP")
+
+    def test_role_sidecar_rejected_on_every_non_run_event(self):
+        # kot-log/1 scope guard: role:'sidecar' (like role:'rows') is a
+        # RUN-record marker only — the empty-enum else-branch refuses it on
+        # every other event; the unmarked artifact stays lawful anywhere
+        schema = load_json("registry/schema/kot-log-1.json")
+        base = {"schema_version": "kot-log/1", "seq": 9, "prev_sha256": "0" * 64,
+                "ts": "2026-07-16T00:00:00Z", "experiment": "mock-x",
+                "runner": "runner-1", "prereg_hash": "0" * 64,
+                "artifacts": [{"path": "s.json", "sha256": "0" * 64,
+                               "role": "sidecar"}]}
+        run_rec = dict(base, event="run", phase="final", config={}, metrics={}, exit="ok")
+        self.assertEqual(kc.validate_schema(run_rec, schema), [])
+        for event, extra in (("status", {"from": "a", "to": "b"}), ("unblind", {}),
+                             ("audit-ref", {}), ("note", {"note": "n"}),
+                             ("supersede", {"target_seq": 0, "reason": "r"}),
+                             ("reuse", {})):
+            rec = dict(base, event=event, **extra)
+            errs = kc.validate_schema(rec, schema)
+            self.assertTrue(errs, "role:'sidecar' on event %r must be rejected" % event)
+            rec = json.loads(json.dumps(rec))
+            del rec["artifacts"][0]["role"]
+            self.assertEqual(kc.validate_schema(rec, schema), [], event)
+
+    def test_preservation_rows_only_record_still_expands(self):
+        # a rows-only (bare D10) record under the PAIRED-capable verdict-gen
+        # keeps the expansion behaviour byte-identically: rows on stdin,
+        # rows_expanded disclosed, no paired_artifacts_verified key
+        self.assertEqual(self.freeze(self.row_record("mock-pairrows")).returncode, 0)
+        sha = self.write_rows(n=20, k=16)
+        p = self.append_run_with_artifacts("mock-pairrows", 0, [
+            {"path": self.ROWS_REL, "sha256": sha, "role": "rows"}])
+        self.assertEqual(p.returncode, 0, p.stderr)
+        p = self.run_verdict("mock-pairrows")
+        self.assertEqual(p.returncode, 0, p.stderr)
+        analysis = self.read_json("reports/auto/mock-pairrows/analysis-output.json")
+        self.assertEqual((analysis["n_rows"], analysis["n_records"]), (20, 0))
+        verdict = self.read_json("registry/verdicts/mock-pairrows.json")
+        self.assertEqual([e["seq"] for e in verdict["inputs"]["rows_expanded"]], [0])
+        self.assertNotIn("paired_artifacts_verified", verdict["inputs"],
+                         "rows-only records must keep their exact pre-paired shape")
+
+    def test_preservation_unmarked_record_keeps_record_line(self):
+        # an UNMARKED record citing the sidecar file as a plain artifact:
+        # record-line stdin, file never opened, no disclosure keys added
+        self.assertEqual(self.freeze(self.row_record("mock-pairplain")).returncode, 0)
+        rows_sha = self.write_rows()
+        side_sha = self.write_sidecar()
+        p = self.append_run_with_artifacts("mock-pairplain", 0, [
+            {"path": self.ROWS_REL, "sha256": rows_sha},
+            {"path": self.SIDE_REL, "sha256": side_sha}])
+        self.assertEqual(p.returncode, 0, p.stderr)
+        os.remove(self.path(self.ROWS_REL))   # never opened
+        os.remove(self.path(self.SIDE_REL))   # never opened
+        p = self.run_verdict("mock-pairplain")
+        self.assertEqual(p.returncode, 0, p.stderr)
+        analysis = self.read_json("reports/auto/mock-pairplain/analysis-output.json")
+        self.assertEqual((analysis["n_rows"], analysis["n_records"]), (0, 1))
+        verdict = self.read_json("registry/verdicts/mock-pairplain.json")
+        self.assertNotIn("rows_expanded", verdict["inputs"])
+        self.assertNotIn("paired_artifacts_verified", verdict["inputs"],
+                         "unmarked records must keep their exact pre-D10 shape")
+
+
 if __name__ == "__main__":
     unittest.main()

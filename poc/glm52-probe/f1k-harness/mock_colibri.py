@@ -67,7 +67,13 @@ interface):
   mock-A shape):
       no splice or ungated : p = 0.70   (b0, d3-text, guard items)
       *d0*, *drng*         : p = 0.70   (placebo / derangements == b0 draws)
-      *d2*                 : p = 0.78
+      *d2*                 : p = 0.72   (K-3 lift = +8 pts, so ALL THREE
+                                         co-primary rungs fire and the mock
+                                         campaign is PASS-ELIGIBLE — the
+                                         [R3-SEAM] official round-trip must
+                                         reach PASS-PENDING-AUDIT; the K~d2
+                                         TIE shape is separately covered by
+                                         analysis/f1k.py --selftest mock D)
       *k-true* / other K   : p = 0.80   (0.79 under KAE_MODE=1 REPLACE, so
                                          dev delta_R is small -> gate RUN)
 """
@@ -88,7 +94,7 @@ def family_p(carrier_path, mode):
     if "drng" in b or "d0" in b:
         p = 0.70
     elif "d2" in b:
-        p = 0.78
+        p = 0.72   # K-3 fires (+8 pts): the mock campaign is PASS-eligible
     else:
         p = 0.80  # K family
     if mode == 1:
