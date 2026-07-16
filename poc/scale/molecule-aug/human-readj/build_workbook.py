@@ -54,10 +54,13 @@ for idx, item_id in enumerate(order, start=1):
         if ci in (4, 5): c.fill = YELL
     adj.row_dimensions[r].height = 120
 
-dv = DataValidation(type="list", formula1='"FAITHFUL,LOSSY,CANNOT-SAY"', allow_blank=True, showDropDown=False)
-dv.prompt = "Pick your verdict"; adj.add_data_validation(dv)
-for r in range(2, len(order) + 2):
-    dv.add(adj.cell(row=r, column=4))
+# Complete, consistent list validation over a COMPACT range (per-cell sqref trips Excel's repair).
+dv = DataValidation(type="list", formula1='"FAITHFUL,LOSSY,CANNOT-SAY"', allow_blank=True,
+                    showDropDown=False, showErrorMessage=True, showInputMessage=True)
+dv.errorTitle = "Invalid verdict"; dv.error = "Choose FAITHFUL, LOSSY, or CANNOT-SAY."
+dv.promptTitle = "Verdict"; dv.prompt = "Choose FAITHFUL, LOSSY, or CANNOT-SAY."
+adj.add_data_validation(dv)
+dv.add(f"D2:D{len(order) + 1}")
 
 wb.save(OUT)
 print(f"built {OUT.name}: {len(order)} items, arm-blind, in the pinned shuffled order")
