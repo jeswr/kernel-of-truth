@@ -80,9 +80,15 @@ on the SUPERSEDED pre-REVISION-6 geometry and could not run the frozen
          exactly as the analysis hard-rejects it).
   [R6-3] USD_CAP = $155 (REG budget.usd_cap, ASM-2374, successor of the
          $149 ceiling) + the worst-case $ RECOMPUTED for 96/1573 at the
-         ASM-2205 pessimistic corner (WORST_CASE block below): mandatory
-         campaign $145.94 <= $155; +REPLACE $156.13 > $155, so REPLACE
-         runs ONLY if the measured (7) projection keeps the ledger <= cap
+         ASM-2205 pessimistic corner (WORST_CASE block below). [FREEZE-A
+         2026-07-16] envelopes amended at the freeze-(A) completion
+         refreeze: construction = 4,608 dump passes EXACT (96x16x3 — the
+         3,072 figure under-counted d2's with-dictionary passes), pilot
+         <= 2,112 DETERMINISTIC (grid 1,728 + dev-96 3x96 + conditional
+         REPLACE dev pass 96; supersedes the ~6,200 planning bound):
+         mandatory campaign $129.40 <= $155; +REPLACE $139.59 <= $155 at
+         the corner — REPLACE STILL runs ONLY if its §R-REV4.3 NI gate
+         says RUN and the measured (7) projection keeps the ledger <= cap
          (the pre-registered ASM-2374 resolution — never a silent raise).
   [R6-4] power.mc_exact_power.joint_power is the REVISION-6 PER-RUNG dict
          {"K-1","K-2","K-3"} (each numeric in [0,1]; coherence
@@ -191,6 +197,7 @@ an ERR_F1K_* code and exits 2; nothing falls back silently (house rule:
 """
 
 import argparse
+import array
 import hashlib
 import json
 import math
@@ -338,18 +345,29 @@ DEGRADATION_ORDER = (
 # [R6-3] WORST-CASE $ RECOMPUTED for the REVISION-6 96/1573 geometry, per
 # the ASM-2374 derivation at the ASM-2205 pessimistic corner (100 s/prefill
 # raw engine throughput / 1.20x expert-pinning speedup / $0.28/h spot
-# i4i.2xlarge). Mandatory campaign (no REPLACE): 12,584 main + 3,072
-# construction + 6,200 pilot + 660 guard = 22,516 prefills -> 521.2 h ->
-# $145.94 <= the $155 cap. WITH the conditional REPLACE arm (+1,573):
-# 24,089 -> 557.6 h -> $156.13, MARGINALLY ABOVE the cap at this corner —
-# the pre-registered ASM-2374 resolution (never a silent cap raise):
-# REPLACE runs ONLY if the bring-up-MEASURED (7) projection keeps the
-# total ledger <= $155; otherwise it is DEFERRED (its registered modal
-# expectation) by the §R6 step-2 degradation already implemented below.
+# i4i.2xlarge), envelopes as AMENDED at the freeze-(A) completion refreeze
+# (2026-07-16 [FREEZE-A]; REG scoring_passes/budget_note riders):
+#   construction = 96 x 16 x 3 = 4,608 dump passes EXACT (WITHOUT shared
+#     between K and d2; the superseded 3,072 figure counted K's two
+#     variants only and under-counted d2's §2.6 "same construction"
+#     with-dictionary passes — build_carriers.py is the deterministic
+#     counter);
+#   pilot <= 2,112 DETERMINISTIC (this driver's own frozen-grid
+#     arithmetic: 9 configs x 4 panel members x 48 dev = 1,728, + dev-96
+#     post-freeze passes b0/K/d0 = 288, + the conditional dev-96 REPLACE
+#     pass 96; supersedes the ~6,200 pre-driver planning bound).
+# Mandatory campaign (no REPLACE): 12,584 main + 4,608 construction +
+# 2,112 pilot + 660 guard = 19,964 prefills -> 462.1 h -> $129.40 <= the
+# $155 cap. WITH the conditional REPLACE arm (+1,573): 21,537 -> 498.5 h
+# -> $139.59, ALSO <= the cap at this corner — REPLACE nevertheless runs
+# ONLY if its §R-REV4.3 NI gate says RUN AND the bring-up-MEASURED (7)
+# projection keeps the total ledger <= $155 (the pre-registered ASM-2374
+# resolution; never a silent cap raise), else DEFERRED (its registered
+# modal expectation) by the §R6 step-2 degradation implemented below.
 WORST_S_PER_PREFILL = 100.0 / 1.20      # ASM-2205 corner, pinning lever
 WORST_PREFILLS_MAIN = 8 * N_TEST        # 12,584: b0,d0,3x d1-drng,d2,d3,K
-WORST_PREFILLS_CONSTRUCTION = 3072      # <= bound [ASM-2374]
-WORST_PREFILLS_PILOT = 6200             # ~ bound [ASM-2374]
+WORST_PREFILLS_CONSTRUCTION = 4608      # EXACT [FREEZE-A: 96*16*3]
+WORST_PREFILLS_PILOT = 2112             # deterministic <= [FREEZE-A]
 WORST_PREFILLS_GUARD = 660              # <= bound [ASM-2374]
 WORST_PREFILLS_REPLACE = N_TEST         # the conditional arm
 
@@ -370,6 +388,109 @@ REGISTRY_RECORD = ROOT / "registry" / "experiments" / "f1k.json"
 CORPUS_NAMES = ("f1k-eval-v1", "f1k-carriers-v1", "f1k-trigger-map-v1")
 #   [REG pins.corpus_hashes — all three currently PINNED-AT-INPUTS: a
 #    SEPARATE build; this driver verifies, never creates]
+
+# [R9-PROV] Carrier-construction provenance gate constants (carrier
+# RE-REVIEW item 8, 2026-07-16): the driver previously checked ONLY the
+# carrier-dir digest + path containment at ingest, never the construction
+# report's mode / D / layers / bindings — so a mode=mock D=6144 table set
+# with 8 non-pinned layers was accepted END-TO-END for what claimed to be
+# a real campaign. These are the REGISTERED values the driver now enforces
+# fail-closed BEFORE ingesting carriers for a REAL campaign (sources:
+# build_carriers.py module docstring + the frozen record riders).
+REGISTERED_SPLICE_LAYERS = list(range(3, 79))
+#   the A(iv) candidate splice union: ALL 76 MoE layers of the pinned
+#   GLM-5.2 config, ENGINE IDS 3..78 INCLUSIVE [MEASURED ASM-2342 R3;
+#   STIPULATED ASM-2406; REG A_pre_spend carrier-pipeline hardening rider]
+D_REGISTERED = 6144           # [generator-spec kaec_format "D = 6144"]
+REGISTERED_CONSTRUCTION_SEED = 20260716
+#   [REG freeze_manifest A(vii), freeze-(A) completion refreeze]
+CONSTRUCTION_MANIFEST = (ROOT / "data" / "f1k-carriers-v1" / "generator" /
+                         "construction-manifest.jsonl")
+#   the (A)-time deterministic construction manifest the binding pins
+CONSTRUCTION_BINDING_FIELDS = (
+    "mode", "manifest_sha256", "tokenizer_sha256", "engine_weights_sha256",
+    "dump_patch_sha256", "construction_seed", "layers")
+#   [build_carriers.py BINDING_FIELDS — carrier-HOLD fix 1]
+CONSTRUCTION_ECHO_RE = re.compile(
+    r"^\[KAE-DUMP\] armed:.*?\bseed=([0-9-]+)", re.M)
+#   [kot-f1k-dump/1 REQUIRED provenance echo — carrier-HOLD fix 5]
+PROVENANCE_ARTIFACT_KEYS = {
+    # config.carrier_provenance.<key> (a REAL-run artifact path) -> the
+    # binding field its sha256 must DERIVE to (re-review item 8: derived
+    # from the actual artifact bytes and compared, never accepted as a
+    # caller assertion of mere 64-hex syntax)
+    "tokenizer_artifact": "tokenizer_sha256",
+    "engine_weights_artifact": "engine_weights_sha256",
+    "dump_patch_artifact": "dump_patch_sha256",
+}
+
+# [R10] Carrier re-review CONTENT-AUTHENTICATION constants (2026-07-16,
+# round-10; the metadata gates above were confirmed sound — these close the
+# CONTENT-integrity holes).
+MOCK_STACK_SCRIPTS = ("mock_colibri_dump.py", "mock_tokenizer.py",
+                      "mock_colibri.py")
+#   [R10-1] the repo's $0 mock stack. A REAL construction/report can NEVER
+#   be satisfied by a mock table: any real-claiming binding whose
+#   provenance shas match the digest of a repo mock script (i.e. a
+#   relabeled mock construction, or a config that names a mock script as
+#   the pinned artifact) is refused fail-closed.
+NONDEGEN_MIN_STD_OVER_RMS = 1e-3
+NONDEGEN_MIN_NONZERO_FRAC = 1.0 / 1024.0
+#   [R10-2] non-degeneracy floors for carrier-table vectors (STIPULATED;
+#   see ASM ledger, round-10 rider). A REAL §2.4 mean-difference carrier is
+#   a dense difference of hidden-state means: component std ~ component rms
+#   (mean component ~ 0) and essentially every component nonzero. The
+#   floors sit ORDERS OF MAGNITUDE below any real carrier and exist only
+#   to kill degenerate bodies: all-zero, constant/near-constant, and
+#   below-min-variance vectors (the round-10 exploit: correctly-SHAPED
+#   all-zero mode-real tables passed the provenance gate end-to-end).
+ROWS_AUTH_DOMAIN = "kot-f1k-rows-auth/1"
+#   [R10-4] campaign checkpoint/resume authentication: rows.jsonl resume
+#   state is content-hashed (running sha256 over the exact row lines under
+#   this domain) and BOUND to the current run's pinned inputs (carrier
+#   table + construction report + engine files + eval manifest + phase);
+#   a resume whose hash/bindings do not match is refused, so resume can
+#   never skip real execution or inject foreign rows.
+
+
+def vector_degeneracy(v):
+    """[R10-2] Non-degeneracy check for one (concept, layer) carrier
+    vector. Returns None when the vector is non-degenerate, else a short
+    reason string. Enforced classes (the round-10 review's list): all-zero,
+    near-constant, below-min-variance, plus a trivially-sparse floor.
+    C-speed on lists/tuples/array('f'): count() + math.hypot(*v) + sum()."""
+    n = len(v)
+    if n == 0:
+        return "empty vector"
+    nz = n - v.count(0.0)
+    if nz == 0:
+        return "all-zero"
+    if nz < NONDEGEN_MIN_NONZERO_FRAC * n:
+        return ("only %d/%d components nonzero (< the 1/1024 floor)"
+                % (nz, n))
+    norm = math.hypot(*v)
+    if norm == 0.0 or not math.isfinite(norm):
+        return "zero/non-finite norm"
+    mean = sum(v) / n
+    rms = norm / math.sqrt(n)
+    var = max(norm * norm / n - mean * mean, 0.0)
+    if math.sqrt(var) < NONDEGEN_MIN_STD_OVER_RMS * rms:
+        return ("near-constant: component std %.3g < %g x rms %.3g "
+                "(min-variance floor)"
+                % (math.sqrt(var), NONDEGEN_MIN_STD_OVER_RMS, rms))
+    return None
+
+
+def mock_stack_shas():
+    """[R10-1] Current digests of the repo mock stack (recomputed at every
+    call — editing a mock changes its digest, which only ever WIDENS what a
+    stale relabeled binding fails against)."""
+    out = {}
+    for name in MOCK_STACK_SCRIPTS:
+        p = HERE / name
+        if p.is_file():
+            out[sha256_file(p)] = name
+    return out
 
 # instrumentation counters surfaced by the --mock self-check
 BANNERS_SKIPPED = {"n": 0}
@@ -822,6 +943,351 @@ def verify_corpus_pins(cfg, mock):
     return out
 
 
+def _kaec_header_layers(path):
+    """KAEC header incl. the layer-id list (16 + 4*nl bytes; cheap —
+    never loads the body)."""
+    try:
+        with open(path, "rb") as f:
+            raw = f.read(16)
+            if len(raw) < 16 or raw[:4] != b"KAEC":
+                fail("ERR_F1K_CARRIERPROV",
+                     "bad KAEC magic/short header: %s" % path)
+            nc, nl, D = struct.unpack_from("<iii", raw, 4)
+            if nc <= 0 or nl <= 0 or D <= 0:
+                fail("ERR_F1K_CARRIERPROV",
+                     "non-positive KAEC dims in %s" % path)
+            lay = f.read(4 * nl)
+            if len(lay) != 4 * nl:
+                fail("ERR_F1K_CARRIERPROV",
+                     "short KAEC layer-id block in %s" % path)
+            layers = list(struct.unpack("<%di" % nl, lay))
+    except OSError as e:
+        fail("ERR_F1K_CARRIERPROV", "cannot read carrier %s: %s"
+             % (path, e))
+    return nc, nl, D, layers
+
+
+def _configured_carrier_paths(cfg):
+    """Every carrier table the run config points the engine at (main arms
+    + d1-drng seeds + pilot panel members) — the exact set the KAE seam
+    splices."""
+    cars = cfg.get("carriers") or {}
+    paths = []
+    for arm in ("K", "d0", "d2"):
+        paths.append(((cars.get(arm) or {}).get("path"), arm))
+    for s, ent in sorted((cars.get("d1-drng") or {}).items()):
+        paths.append((ent.get("path"), "d1-drng/%s" % s))
+    for mid, ent in sorted((((cfg.get("pilot") or {}).get("panel") or {})
+                            .get("members") or {}).items()):
+        paths.append((ent.get("path"), "panel/%s" % mid))
+    return paths
+
+
+def kaec_nondegeneracy_scan(path, what):
+    """[R10-2] FULL-coverage non-degeneracy scan of a KAEC carrier table:
+    EVERY (concept, layer) vector must pass vector_degeneracy (all-zero /
+    near-constant / below-min-variance / trivially-sparse bodies are
+    refused). Streams the body cell-by-cell (never holds a full 179 MB
+    real table in Python floats); array('f') gives C-speed count/min/max
+    and hypot/sum. KAEC bodies are little-endian f32 [PATCH kae.h];
+    byteswap on a big-endian host keeps the arithmetic identical."""
+    with open(path, "rb") as f:
+        hdr = f.read(16)
+        if len(hdr) < 16 or hdr[:4] != b"KAEC":
+            fail("ERR_F1K_CARRIERPROV",
+                 "carrier %s (%s): bad KAEC header at non-degeneracy scan"
+                 % (what, path))
+        nc, nl, D = struct.unpack_from("<iii", hdr, 4)
+        f.seek(16 + 4 * nl)
+        for c in range(nc):
+            for li in range(nl):
+                buf = f.read(4 * D)
+                if len(buf) != 4 * D:
+                    fail("ERR_F1K_CARRIERPROV",
+                         "carrier %s (%s): short body at cell (c=%d, li=%d)"
+                         % (what, path, c, li))
+                a = array.array("f")
+                a.frombytes(buf)
+                if sys.byteorder != "little":
+                    a.byteswap()
+                reason = vector_degeneracy(a)
+                if reason:
+                    fail("ERR_F1K_CARRIERPROV",
+                         "carrier %s (%s): DEGENERATE vector at (concept=%d"
+                         ", layer_index=%d): %s — a real §2.4 mean-"
+                         "difference carrier is non-degenerate; degenerate "
+                         "mode-real bodies are never ingested "
+                         "([R10-2] carrier re-review content gap 2)"
+                         % (what, Path(path).name, c, li, reason))
+
+
+def verify_carrier_construction(cfg, mock):
+    """[R9-PROV] The driver<->generator PROVENANCE seam (carrier RE-REVIEW
+    item 8, 2026-07-16). verify_corpus_pins checks the carrier-DIR digest
+    and path containment, but NEVER looked inside the generator's
+    construction-report — so mode=mock D=6144 tables with 8 non-pinned
+    layers were ingested end-to-end with every gate green. Now, BEFORE any
+    carrier is spliced for a REAL campaign, the driver enforces
+    fail-closed (ERR_F1K_CARRIERPROV):
+
+      * construction-report.json present next to the K master table, with
+        the full carrier-HOLD-fix-1 provenance binding;
+      * report + binding mode == "real" (a mode=mock construction can
+        NEVER feed a real campaign);
+      * layers == the REGISTERED A(iv) splice union (76 MoE layers 3..78
+        [ASM-2342/ASM-2406]), D == 6144, nc == C_REGISTERED == 96,
+        construction_seed == the registered 20260716 [REG A(vii)];
+      * binding.manifest_sha256 == sha256 of the COMMITTED (A)-time
+        construction manifest (re-derived here, never trusted);
+      * the engine provenance-echo summary re-verified (expected seed,
+        one verified batch per concept, sample line re-parsed);
+      * the three engine-side provenance shas DERIVED from the actual
+        artifacts named by config.carrier_provenance.{tokenizer_artifact,
+        engine_weights_artifact, dump_patch_artifact} and compared to the
+        binding — a caller assertion of mere 64-hex syntax is never
+        accepted (re-review item 8);
+      * every configured carrier table byte-witnessed against the report:
+        sha256 + size + KAEC header geometry (nc/nl/D/layer ids) + the
+        exact KAEC fp32 size arithmetic.
+
+    In MOCK runs (the $0 wiring validation): driver-fabricated stub
+    fixtures carry no construction report — DISCLOSED, never passed off
+    as generator output; when a generator report IS present (the
+    mock_e2e_carriers acceptance fixture) its binding/table witness
+    checks run identically, with mode=mock disclosed.
+
+    Returns (disclosure, pins_observed): the disclosure is written to the
+    outdir as carrier-provenance.json, and pins_observed is carried on
+    the kot-log/1 run record (the typed {observed[, expected]} sha256 map
+    — the record-level witness channel; the sidecar schema is CLOSED
+    [ANA SIDECAR_SCHEMA default-deny], so the run record, which
+    verdict-gen re-verifies, is where mode+bindings are witnessed)."""
+    cars = cfg.get("carriers") or {}
+    kpath = Path((cars.get("K") or {}).get("path") or "")
+    rep_path = kpath.parent / "construction-report.json"
+    pins = {}
+    if not rep_path.is_file():
+        if not mock:
+            fail("ERR_F1K_CARRIERPROV",
+                 "REAL campaign: construction-report.json is ABSENT next "
+                 "to the K master table (%s) — carriers without the "
+                 "generator's bound construction report are NEVER ingested "
+                 "for a real run (re-review item 8)" % rep_path)
+        if kpath.is_file():
+            pins["f1k-carriers-v1.k-true"] = {
+                "observed": sha256_file(kpath)}
+        return ({"mode": "MOCK-FIXTURE (driver-fabricated stub tables; no "
+                         "construction report — mock only, disclosed)",
+                 "construction_report": None}, pins)
+    try:
+        rep = json.loads(rep_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as e:
+        fail("ERR_F1K_CARRIERPROV",
+             "cannot read construction report %s: %s" % (rep_path, e))
+    binding = rep.get("binding")
+    if not isinstance(binding, dict) or \
+            any(k not in binding for k in CONSTRUCTION_BINDING_FIELDS):
+        fail("ERR_F1K_CARRIERPROV",
+             "construction report %s carries no complete provenance "
+             "binding %s (carrier-HOLD fix 1 shape) — unbound carrier "
+             "artifacts are never ingested" % (rep_path,
+                                               CONSTRUCTION_BINDING_FIELDS))
+    mode = binding.get("mode")
+    if mode not in ("mock", "real") or rep.get("mode") != mode:
+        fail("ERR_F1K_CARRIERPROV",
+             "construction report mode %r / binding mode %r incoherent — "
+             "refusing" % (rep.get("mode"), mode))
+    if not mock:
+        if mode != "real":
+            fail("ERR_F1K_CARRIERPROV",
+                 "REAL campaign: the construction report is a mode=%s "
+                 "artifact — a mock construction can NEVER feed a real "
+                 "campaign (re-review item 8; generator binding, "
+                 "carrier-HOLD fix 1)" % mode)
+        if binding.get("construction_seed") != REGISTERED_CONSTRUCTION_SEED \
+                or rep.get("construction_seed") != \
+                REGISTERED_CONSTRUCTION_SEED:
+            fail("ERR_F1K_CARRIERPROV",
+                 "construction_seed %r/%r != the registered %d "
+                 "[REG A(vii)]" % (binding.get("construction_seed"),
+                                   rep.get("construction_seed"),
+                                   REGISTERED_CONSTRUCTION_SEED))
+        if binding.get("layers") != REGISTERED_SPLICE_LAYERS or \
+                rep.get("layers") != REGISTERED_SPLICE_LAYERS:
+            fail("ERR_F1K_CARRIERPROV",
+                 "REAL campaign: construction layers != the REGISTERED "
+                 "A(iv) splice union (76 MoE layers %d..%d [ASM-2342]); "
+                 "got %r... — wrong-layer tables are never ingested "
+                 "(re-review item 8)"
+                 % (REGISTERED_SPLICE_LAYERS[0],
+                    REGISTERED_SPLICE_LAYERS[-1],
+                    (binding.get("layers") or [])[:8]))
+        if rep.get("D") != D_REGISTERED:
+            fail("ERR_F1K_CARRIERPROV",
+                 "REAL campaign: construction D %r != the frozen "
+                 "kaec_format D = %d" % (rep.get("D"), D_REGISTERED))
+        if rep.get("nc") != C_REGISTERED:
+            fail("ERR_F1K_CARRIERPROV",
+                 "REAL campaign: construction nc %r != C_REGISTERED = %d"
+                 % (rep.get("nc"), C_REGISTERED))
+        if not CONSTRUCTION_MANIFEST.is_file():
+            fail("ERR_F1K_CARRIERPROV",
+                 "the committed (A)-time construction manifest %s is "
+                 "ABSENT — the binding's manifest pin cannot be "
+                 "re-derived" % CONSTRUCTION_MANIFEST)
+        man_sha = sha256_file(CONSTRUCTION_MANIFEST)
+        if binding.get("manifest_sha256") != man_sha:
+            fail("ERR_F1K_CARRIERPROV",
+                 "binding manifest_sha256 %r != the committed (A)-time "
+                 "construction manifest's %s — the carriers were not "
+                 "built from the frozen manifest"
+                 % (binding.get("manifest_sha256"), man_sha))
+        echo = rep.get("engine_provenance_echo") or {}
+        m = CONSTRUCTION_ECHO_RE.search(str(echo.get("sample") or ""))
+        if echo.get("expected_seed") != REGISTERED_CONSTRUCTION_SEED or \
+                echo.get("verified_batches") != C_REGISTERED or \
+                not m or m.group(1) != str(REGISTERED_CONSTRUCTION_SEED):
+            fail("ERR_F1K_CARRIERPROV",
+                 "engine provenance-echo summary invalid (%r) — expected "
+                 "seed %d, %d verified batches, and a parseable "
+                 "'[KAE-DUMP] armed: ... seed=' sample (carrier-HOLD "
+                 "fix 5 witness)" % (echo, REGISTERED_CONSTRUCTION_SEED,
+                                     C_REGISTERED))
+        pa = cfg.get("carrier_provenance") or {}
+        for akey in sorted(PROVENANCE_ARTIFACT_KEYS):
+            bfield = PROVENANCE_ARTIFACT_KEYS[akey]
+            apath = pa.get(akey)
+            if not apath or not Path(apath).is_file():
+                fail("ERR_F1K_CARRIERPROV",
+                     "REAL campaign: config.carrier_provenance.%s must "
+                     "name the actual pinned artifact file (got %r) — "
+                     "the %s is DERIVED from its bytes, never accepted "
+                     "as a bare 64-hex assertion (re-review item 8)"
+                     % (akey, apath, bfield))
+            derived = sha256_file(apath)
+            if derived != binding.get(bfield):
+                fail("ERR_F1K_CARRIERPROV",
+                     "binding %s %r != sha256(%s) = %s — the asserted "
+                     "provenance pin is not the artifact's actual digest "
+                     "(re-review item 8)"
+                     % (bfield, binding.get(bfield), apath, derived))
+            pins["carrier-%s" % akey.replace("_", "-")] = {
+                "observed": derived, "expected": binding[bfield]}
+        # ---- [R10-1] a REAL construction can NEVER be backed by the repo
+        # mock stack: if any binding provenance sha (== the artifact-derived
+        # digest checked above) matches a repo mock script's current bytes,
+        # the "real" report is a relabeled mock construction (or the config
+        # names a mock script as the pinned artifact) — refused fail-closed.
+        mstack = mock_stack_shas()
+        for bfield in ("tokenizer_sha256", "engine_weights_sha256",
+                       "dump_patch_sha256"):
+            hit = mstack.get(binding.get(bfield))
+            if hit:
+                fail("ERR_F1K_CARRIERPROV",
+                     "REAL campaign: binding %s equals the digest of the "
+                     "repo mock stack script %s — a real construction/"
+                     "report can NEVER be satisfied by a mock table/"
+                     "toolchain (relabeled mock construction refused; "
+                     "[R10-1] carrier re-review content gap 1)"
+                     % (bfield, hit))
+        # ---- [R10-3] checkpoint-content witness: the generator now binds
+        # a content hash (sha256 over the exact f64 vector bytes) of every
+        # per-concept construction checkpoint into the report; a real
+        # report without the full 96-entry witness list predates (or
+        # strips) content authentication and is refused.
+        cks = rep.get("checkpoint_content_sha256")
+        if not (isinstance(cks, list) and len(cks) == C_REGISTERED
+                and all(isinstance(x, str)
+                        and re.fullmatch(r"[0-9a-f]{64}", x)
+                        for x in cks)):
+            fail("ERR_F1K_CARRIERPROV",
+                 "REAL campaign: construction report carries no complete "
+                 "checkpoint_content_sha256 witness (need %d x 64-hex; "
+                 "got %r) — checkpoint vector contents must be content-"
+                 "authenticated ([R10-3] carrier re-review content gap 3)"
+                 % (C_REGISTERED,
+                    (len(cks) if isinstance(cks, list) else type(cks))))
+    # ---- table byte-witness (BOTH modes): every configured carrier must
+    # be pinned by the report and match by sha256 + size + KAEC header
+    # geometry + the exact fp32 size arithmetic --------------------------
+    tables = rep.get("tables") or {}
+    rep_layers = rep.get("layers")
+    rep_D, rep_nc = rep.get("D"), rep.get("nc")
+    checked = {}
+    for p, what in _configured_carrier_paths(cfg):
+        if not p:
+            fail("ERR_F1K_CARRIERPROV",
+                 "carrier path missing for %s" % what)
+        rp = str(Path(p).resolve())
+        if rp in checked:
+            continue
+        name = Path(p).name
+        ent = tables.get(name)
+        if not isinstance(ent, dict):
+            fail("ERR_F1K_CARRIERPROV",
+                 "carrier %s (%s) is not pinned by the construction "
+                 "report's tables block — unwitnessed table refused"
+                 % (what, name))
+        size = os.path.getsize(p)
+        got_sha = sha256_file(p)
+        if ent.get("sha256") != got_sha or ent.get("bytes") != size:
+            fail("ERR_F1K_CARRIERPROV",
+                 "carrier %s (%s): bytes on disk (sha %s, %d B) != the "
+                 "construction report's pin (sha %r, %r B) — the table "
+                 "is not the constructed artifact"
+                 % (what, name, got_sha, size, ent.get("sha256"),
+                    ent.get("bytes")))
+        nc_, nl_, D_, layers_ = _kaec_header_layers(p)
+        if (nc_, D_, layers_) != (rep_nc, rep_D, rep_layers) or \
+                nl_ != len(rep_layers or []):
+            fail("ERR_F1K_CARRIERPROV",
+                 "carrier %s (%s): KAEC header (nc=%d, nl=%d, D=%d, "
+                 "layers=%r...) != the construction report's geometry "
+                 "(nc=%r, D=%r, layers=%r...)"
+                 % (what, name, nc_, nl_, D_, layers_[:8], rep_nc, rep_D,
+                    (rep_layers or [])[:8]))
+        if size != 16 + 4 * nl_ + 4 * nc_ * nl_ * D_:
+            fail("ERR_F1K_CARRIERPROV",
+                 "carrier %s (%s): file size %d != the exact KAEC fp32 "
+                 "layout 16 + 4*nl + 4*nc*nl*D = %d"
+                 % (what, name, size,
+                    16 + 4 * nl_ + 4 * nc_ * nl_ * D_))
+        if not mock:
+            # [R10-2] REAL campaigns: full-coverage non-degeneracy — an
+            # all-zero/constant/min-variance-floor body with a perfectly
+            # coherent report is still never spliced.
+            kaec_nondegeneracy_scan(p, what)
+        checked[rp] = name
+    rep_sha = sha256_file(rep_path)
+    pins["carrier-construction-report.mode-%s" % mode] = {
+        "observed": rep_sha}
+    man_pin = {"observed": binding["manifest_sha256"]}
+    if CONSTRUCTION_MANIFEST.is_file():
+        man_pin["expected"] = sha256_file(CONSTRUCTION_MANIFEST)
+    pins["carrier-construction-manifest"] = man_pin
+    if kpath.is_file():
+        pins["f1k-carriers-v1.k-true"] = {"observed": sha256_file(kpath)}
+    disclosure = {
+        "mode": mode,
+        "construction_report": str(rep_path),
+        "construction_report_sha256": rep_sha,
+        "binding": binding,
+        "tables_byte_witnessed": sorted(checked.values()),
+        "registered_splice_layers_enforced": (not mock),
+        "nondegeneracy_enforced": (not mock),
+        "gate": "[R9-PROV] carrier re-review item 8 (2026-07-16): "
+                "mode/D/layers/bindings verified fail-closed before "
+                "ingest; provenance shas artifact-derived; tables "
+                "byte-witnessed against the report. [R10] content "
+                "authentication (2026-07-16 round-10): real bindings "
+                "denylisted against the repo mock-stack digests; "
+                "checkpoint_content_sha256 witness required; every "
+                "witnessed table non-degeneracy-scanned full-coverage "
+                "(all-zero/near-constant/min-variance bodies refused)",
+    }
+    return disclosure, pins
+
+
 def verify_id_lists(cfg, items):
     """Freeze-manifest (A): guard/dev/test id-list hashes [REG
     harness_manifest '(A) ... guard/dev/test id-list hashes']. Hash =
@@ -1214,10 +1680,14 @@ def check_kae_engagement(stderr_path, env, where):
 
 def run_scoring_pass(cfg, items, arm, pass_no, seed, env, out_rows_path,
                      done_keys, ledger=None, mock_gold_dir=None,
-                     phase="test", interrupt_state=None, store_raw=False):
+                     phase="test", interrupt_state=None, store_raw=False,
+                     auth=None):
     """Score `items` under one (arm, pass): ONE engine process, ONE prefill
     per item [DES §R1.1], streaming per-item checkpoint appends (a spot
-    interruption resumes at item granularity [COST lever 1]).
+    interruption resumes at item granularity [COST lever 1]). `auth` is the
+    RowsAuth from read_ckpt_authed [R10-4]: every appended row line is
+    absorbed + persisted in lockstep, so the checkpoint stays resumable
+    ONLY by the run that produced it.
     Returns (n_scored, raw_output_lines_by_item_id)."""
     pending = [it for it in items
                if (arm, pass_no, it["item_id"]) not in done_keys]
@@ -1357,9 +1827,16 @@ def run_scoring_pass(cfg, items, arm, pass_no, seed, env, out_rows_path,
                     # guard/dev raw persistence: byte-identity + stub
                     # comparisons survive a resume
                     row["raw"] = line
-                rf.write(json.dumps(row, sort_keys=True) + "\n")
+                row_line = json.dumps(row, sort_keys=True)
+                rf.write(row_line + "\n")
                 rf.flush()
                 os.fsync(rf.fileno())
+                if auth is not None:
+                    # [R10-4] auth state updated in lockstep (rows first,
+                    # then auth: a kill between the two leaves at most one
+                    # uncovered trailing row, which resume DROPS+re-scores)
+                    auth.absorb(row_line)
+                    auth.write()
                 done_keys.add((arm, pass_no, it["item_id"]))
                 n += 1
                 pend_prefills += 1
@@ -1415,6 +1892,145 @@ def read_ckpt(rows_path):
         rows.append(r)
     p.write_text("\n".join(good) + ("\n" if good else ""), encoding="utf-8")
     return done, rows
+
+
+# ---------------------------------------------------------------------------
+# [R10-4] Campaign checkpoint/resume AUTHENTICATION (carrier re-review
+# content gap 4, 2026-07-16). read_ckpt alone treated ANY well-formed
+# rows.jsonl as completed work, so a pre-fabricated/foreign rows file could
+# bypass carrier/engine execution entirely (phase_test would score nothing
+# and emit a sidecar over rows no engine produced). Now every scoring
+# checkpoint file carries a sidecar auth state (<rows>.auth.json):
+#   binding     the CURRENT run's pinned inputs (carrier K table +
+#               construction report + engine argv/file digests + eval
+#               manifest + phase) — a resume under different inputs is a
+#               FOREIGN run and is refused;
+#   rows_sha256 a running content hash (sha256, domain kot-f1k-rows-auth/1)
+#               over the exact row lines the driver itself wrote, updated
+#               in lockstep with every fsync'd row append;
+#   n_rows      the number of rows the hash covers.
+# On resume the stored binding must EQUAL the recomputed current binding
+# and the hash of the first n_rows lines must EQUAL rows_sha256; rows
+# beyond n_rows (a tail the auth state never covered — at most the torn
+# write of an interruption) are DROPPED and re-scored, never trusted.
+# Rows present with NO auth state = unauthenticated resume, refused.
+# ---------------------------------------------------------------------------
+def rows_auth_path(rows_path):
+    return Path(str(rows_path) + ".auth.json")
+
+
+def campaign_resume_binding(cfg, phase):
+    """The pinned-input binding [R10-4] a resume must match. Pure function
+    of the loaded config + on-disk pinned artifacts; deterministic across
+    invocations of the same run."""
+    b = {"domain": ROWS_AUTH_DOMAIN, "phase": str(phase)}
+    kpath = Path(((cfg.get("carriers") or {}).get("K") or {})
+                 .get("path") or "")
+    if kpath.is_file():
+        b["k_table_sha256"] = sha256_file(kpath)
+    rep = kpath.parent / "construction-report.json"
+    if rep.is_file():
+        b["construction_report_sha256"] = sha256_file(rep)
+    evp = cfg.get("eval_manifest")
+    if evp and Path(evp).is_file():
+        b["eval_manifest_sha256"] = sha256_file(evp)
+    argv = [str(a) for a in ((cfg.get("engine") or {}).get("argv") or [])]
+    b["engine_argv"] = argv
+    b["engine_file_sha256"] = {a: sha256_file(a) for a in argv
+                               if Path(a).is_file()}
+    return b
+
+
+class RowsAuth:
+    """Running rows-content authenticator [R10-4]; absorb() every row line
+    the driver writes, write() persists atomically in lockstep."""
+
+    def __init__(self, rows_path, binding):
+        self.path = rows_auth_path(rows_path)
+        self.binding = binding
+        self.h = hashlib.sha256((ROWS_AUTH_DOMAIN + "\n").encode("utf-8"))
+        self.n = 0
+
+    def absorb(self, line):
+        self.h.update(line.encode("utf-8") + b"\n")
+        self.n += 1
+
+    def write(self):
+        tmp = Path(str(self.path) + ".tmp")
+        tmp.write_text(json.dumps(
+            {"binding": self.binding, "n_rows": self.n,
+             "rows_sha256": self.h.hexdigest()}, sort_keys=True) + "\n",
+            encoding="utf-8")
+        tmp.rename(self.path)
+
+
+def read_ckpt_authed(rows_path, binding):
+    """read_ckpt + [R10-4] authentication. Returns (done, rows, auth); the
+    returned RowsAuth is primed with the authenticated content and MUST be
+    handed to run_scoring_pass so new rows stay covered."""
+    read_ckpt(rows_path)              # torn-tail repair + duplicate check
+    p = Path(rows_path)
+    lines = [ln for ln in (p.read_text(encoding="utf-8").splitlines()
+                           if p.exists() else []) if ln.strip()]
+    ap = rows_auth_path(rows_path)
+    auth = RowsAuth(rows_path, binding)
+    if lines and not ap.exists():
+        fail("ERR_F1K_RESUME",
+             "%s carries %d completed row(s) but NO auth state (%s) — an "
+             "unauthenticated resume could skip carrier/engine execution "
+             "entirely; refusing fail-closed. Delete the foreign rows "
+             "file (re-scoring is checkpoint-cheap) or restore the auth "
+             "state written by the run that produced it "
+             "([R10-4] carrier re-review content gap 4)"
+             % (rows_path, len(lines), ap))
+    if ap.exists():
+        try:
+            st = json.loads(ap.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as e:
+            fail("ERR_F1K_RESUME",
+                 "cannot read resume auth state %s: %s — refusing an "
+                 "unauthenticated resume [R10-4]" % (ap, e))
+        if st.get("binding") != binding:
+            got, want = st.get("binding") or {}, binding
+            diff = sorted(k for k in set(got) | set(want)
+                          if got.get(k) != want.get(k))
+            fail("ERR_F1K_RESUME",
+                 "%s was produced under DIFFERENT pinned inputs than this "
+                 "run (binding mismatch on %s) — rows from a foreign run "
+                 "are never resumed into this one [R10-4]"
+                 % (rows_path, ", ".join(diff) or "(shape)"))
+        n = st.get("n_rows")
+        if not isinstance(n, int) or isinstance(n, bool) or n < 0 \
+                or n > len(lines):
+            fail("ERR_F1K_RESUME",
+                 "resume auth state %s covers n_rows=%r but %s carries "
+                 "only %d row(s) — the auth state does not describe this "
+                 "file; refusing [R10-4]" % (ap, n, rows_path, len(lines)))
+        for ln in lines[:n]:
+            auth.absorb(ln)
+        if auth.h.hexdigest() != st.get("rows_sha256"):
+            fail("ERR_F1K_RESUME",
+                 "%s content hash %s != the auth state's rows_sha256 %r "
+                 "over the first %d row(s) — the completed-rows content "
+                 "was tampered with/replaced; a resume can never inject "
+                 "rows the engine did not produce [R10-4]"
+                 % (rows_path, auth.h.hexdigest(),
+                    st.get("rows_sha256"), n))
+        if n < len(lines):
+            print("[R10-4] %s: dropping %d unauthenticated trailing "
+                  "row(s) beyond the auth-covered %d (torn/injected tail "
+                  "— re-scored, never trusted)"
+                  % (rows_path, len(lines) - n, n))
+            p.write_text("\n".join(lines[:n]) + ("\n" if n else ""),
+                         encoding="utf-8")
+            lines = lines[:n]
+    done, rows = set(), []
+    for ln in lines:
+        r = json.loads(ln)
+        done.add((r["arm"], r["pass"], r["item_id"]))
+        rows.append(r)
+    auth.write()
+    return done, rows, auth
 
 
 # ---------------------------------------------------------------------------
@@ -1496,14 +2112,17 @@ def phase_guard(cfg, ev, outdir, frozen, replace_run, ledger,
     gdir.mkdir(parents=True, exist_ok=True)
     outputs = {}
     passes = main_arm_passes(d3_deferred=True, replace_run=replace_run)
+    gbind = campaign_resume_binding(cfg, "guard")     # [R10-4]
     for arm, pass_no, seed in passes:
         env = arm_env(cfg, arm, seed, str(gdir), frozen, cache_off=True)
         raw_path = gdir / ("raw.%s.pass%d.jsonl" % (arm, pass_no))
-        done, _ = read_ckpt(raw_path)      # resume-safe per pass
+        # resume-safe per pass; [R10-4] authenticated (a fabricated raw
+        # file would otherwise skip the byte-identity instrument itself)
+        done, _, auth = read_ckpt_authed(raw_path, gbind)
         run_scoring_pass(
             cfg, ev["guard"], arm, pass_no, seed, env, raw_path, done,
             ledger=ledger, mock_gold_dir=mock_gold_dir, phase="guard",
-            store_raw=True)
+            store_raw=True, auth=auth)
         # rebuild the FULL raw map from the checkpoint file (resume-safe)
         _, rows = read_ckpt(raw_path)
         if len(rows) != GUARD_N:
@@ -1549,7 +2168,10 @@ def phase_test(cfg, ev, outdir, frozen, passes, ledger, mock_gold_dir=None,
     tdir = Path(outdir) / "test"
     tdir.mkdir(parents=True, exist_ok=True)
     rows_path = tdir / "rows.jsonl"
-    done, _ = read_ckpt(rows_path)
+    # [R10-4] authenticated resume: completed rows are consumed ONLY when
+    # their content hash + pinned-input binding match this run
+    done, _, auth = read_ckpt_authed(rows_path,
+                                     campaign_resume_binding(cfg, "test"))
     n_new = 0
     expected = N_TEST * len(passes)
     for arm, pass_no, seed in passes:
@@ -1557,7 +2179,7 @@ def phase_test(cfg, ev, outdir, frozen, passes, ledger, mock_gold_dir=None,
         n, _ = run_scoring_pass(cfg, ev["test"], arm, pass_no, seed, env,
                                 rows_path, done, ledger=ledger,
                                 mock_gold_dir=mock_gold_dir, phase="test",
-                                interrupt_state=interrupt_state)
+                                interrupt_state=interrupt_state, auth=auth)
         n_new += n
         print("test: arm=%s pass=%d scored %d new (total done %d/%d)"
               % (arm, pass_no, n, len(done), expected))
@@ -1755,7 +2377,7 @@ def _repo_rel(path):
     return rel.as_posix()
 
 
-def emit_run_record(outdir, rows_path, sidecar_path):
+def emit_run_record(outdir, rows_path, sidecar_path, pins_observed=None):
     """[R3-SEAM] The kot-log/1-conformant run-record BODY (HOLD round-3
     item 7). The pre-round-3 driver emitted `artifacts` as a DICT
     {rows_path, ...} with none of the chained fields — schema-invalid for
@@ -1769,7 +2391,15 @@ def emit_run_record(outdir, rows_path, sidecar_path):
     {path, sha256, role:"sidecar"} entry, repo-relative. log-append stamps
     seq/prev_sha256/ts/runner/schema_version; the coordinator appends this
     body via log-append (the single write path), then verdict-gen verifies
-    both pins and pipes the record line to the pinned analysis."""
+    both pins and pipes the record line to the pinned analysis.
+
+    [R9-PROV] pins_observed (carrier re-review item 8, 2026-07-16): the
+    carrier-construction provenance witness from
+    verify_carrier_construction — the typed kot-f1k-record/1
+    {observed[, expected]} sha256 map (the sidecar schema is CLOSED, so
+    the RECORD is the lawful channel that witnesses the construction
+    mode + bindings; the key carrier-construction-report.mode-<mode>
+    names the mode, its value pins the report bytes that bind it)."""
     idx_path = ROOT / "registry" / "frozen-index.json"
     try:
         idx = json.loads(idx_path.read_text(encoding="utf-8"))
@@ -1802,6 +2432,8 @@ def emit_run_record(outdir, rows_path, sidecar_path):
              "sha256": sha256_file(sidecar_path), "role": "sidecar"},
         ],
     }
+    if pins_observed:
+        rec["pins_observed"] = pins_observed     # [R9-PROV] typed witness
     rpath = Path(outdir) / "test" / "run-record.jsonl"
     with open(rpath, "w", encoding="utf-8") as f:
         f.write(json.dumps(rec, sort_keys=True) + "\n")
@@ -2014,7 +2646,10 @@ def phase_pilot(cfg, ev, outdir, ledger, mock_gold_dir=None):
 
     # ---- 1. score the grid over the UNLABELED panel (48-item subset) ------
     rows_path = pdir / "pilot-rows.jsonl"
-    done, _ = read_ckpt(rows_path)
+    # [R10-4] authenticated resume (pilot rows feed the (5)/(6)/(7)
+    # addenda — fabricated rows must never select (L,g) or pass gates)
+    done, _, auth = read_ckpt_authed(rows_path,
+                                     campaign_resume_binding(cfg, "pilot"))
     configs = []
     for ls_id in sorted(layer_sets):
         for mult in mults:
@@ -2039,7 +2674,8 @@ def phase_pilot(cfg, ev, outdir, ledger, mock_gold_dir=None):
             env["KAE_MODE"] = "0"
             run_scoring_pass(cfg, subset, arm_tag, 0, None, env,
                              rows_path, done, ledger=ledger,
-                             mock_gold_dir=mock_gold_dir, phase="pilot")
+                             mock_gold_dir=mock_gold_dir, phase="pilot",
+                             auth=auth)
     _, rows = read_ckpt(rows_path)
     acc = {}
     for r in rows:
@@ -2103,22 +2739,22 @@ def phase_pilot(cfg, ev, outdir, ledger, mock_gold_dir=None):
     env = arm_env(cfg, "b0", None, str(pdir), frozen)
     run_scoring_pass(cfg, dev96, "dev96:b0", 0, None, env, rows_path, done,
                      ledger=ledger, mock_gold_dir=mock_gold_dir,
-                     phase="pilot", store_raw=True)
+                     phase="pilot", store_raw=True, auth=auth)
     env = arm_env(cfg, "K", None, str(pdir), frozen)
     run_scoring_pass(cfg, dev96, "dev96:K", 0, None, env, rows_path, done,
                      ledger=ledger, mock_gold_dir=mock_gold_dir,
-                     phase="pilot", store_raw=True)
+                     phase="pilot", store_raw=True, auth=auth)
     env = arm_env(cfg, "d0", None, str(pdir), frozen)
     run_scoring_pass(cfg, dev96, "dev96:d0", 0, None, env, rows_path, done,
                      ledger=ledger, mock_gold_dir=mock_gold_dir,
-                     phase="pilot")
+                     phase="pilot", auth=auth)
     if replace_supported:
         # [FIX-3]/[FIX-6] measure REPLACE-vs-ADD dev discordance
         env = arm_env(cfg, ARM_REPLACE, None, str(pdir), frozen)
         run_scoring_pass(cfg, dev96, "dev96:REPLACE", 0, None, env,
                          rows_path, done, ledger=ledger,
                          mock_gold_dir=mock_gold_dir, phase="pilot",
-                         store_raw=True)
+                         store_raw=True, auth=auth)
     _, rows = read_ckpt(rows_path)
     acc, raws = {}, {}
     for r in rows:
@@ -2763,7 +3399,8 @@ def mock_main(args):
     # an earlier protocol revision must never satisfy the new schedule)
     for sub in ("pilot", "guard", "test", "fixtures", "mock-gold",
                 "seam-official", "seam-tampered", "cost-stop-probe",
-                "cost-stop-probe-init"):
+                "cost-stop-probe-init", "carrier-prov-probes",
+                "resume-auth-probes"):
         shutil.rmtree(str(outdir / sub), ignore_errors=True)
     try:
         (outdir / "cost-ledger.json").unlink()
@@ -2775,6 +3412,13 @@ def mock_main(args):
     cfg_path = gen_mock_fixtures(outdir)
     cfg = load_config(cfg_path)
     corpus_pins = verify_corpus_pins(cfg, mock=True)
+    # [R9-PROV] carrier-construction provenance gate — mock fixtures carry
+    # no construction report (DISCLOSED, mock-only); the witness pins that
+    # DO exist (the K table bytes) still ride the run record so the
+    # official seam exercises the pins_observed emission surface.
+    carrier_prov, carrier_pins = verify_carrier_construction(cfg,
+                                                             mock=True)
+    write_json(outdir / "carrier-provenance.json", carrier_prov)
     ev = load_eval_manifest(cfg["eval_manifest"])
     verify_id_lists(cfg, ev)
     ledger = Ledger(outdir, cfg)
@@ -2839,7 +3483,8 @@ def mock_main(args):
     # 5. sidecar + run record + pinned analysis ingest
     sidecar_path = build_sidecar(cfg, outdir, guard_report, dose, ledger,
                                  d3_deferred, replace_gate, replace_run)
-    rec_path = emit_run_record(outdir, rows_path, sidecar_path)
+    rec_path = emit_run_record(outdir, rows_path, sidecar_path,
+                               pins_observed=carrier_pins)  # [R9-PROV]
     proc = run_analysis(rec_path)
     ok = proc.returncode == 0
     verdict_bits = {}
@@ -2918,6 +3563,212 @@ def mock_main(args):
     cfg_cost2["cost"]["usd_spent_prior"] = 156.0
     cost_init_closed = expect_stop(
         lambda: Ledger(outdir / "cost-stop-probe-init", cfg_cost2))
+
+    # 5b2. [R9-PROV] carrier-construction provenance-gate probes (carrier
+    # re-review item 8, 2026-07-16) — the mock-D=6144-carriers-ingested-
+    # for-real exploit class, each proven CLOSED against the live gate,
+    # plus a VALID real-mode fixture positive control (sparse tables:
+    # correct KAEC headers + exact fp32 sizes + report-pinned shas, $0).
+    print("probe: [R9-PROV] carrier-provenance fail-closed probes — the "
+          "next ERR_F1K_CARRIERPROV lines are EXPECTED")
+    prov_root = outdir / "carrier-prov-probes"
+    prov_root.mkdir(parents=True, exist_ok=True)
+    prov_arts = {}
+    for k, payload in (("tokenizer_artifact", b"mock-pinned-tokenizer"),
+                       ("engine_weights_artifact",
+                        b"mock-pinned-engine-weights"),
+                       ("dump_patch_artifact", b"mock-pinned-dump-patch")):
+        p = prov_root / (k + ".bin")
+        p.write_bytes(payload)
+        prov_arts[k] = p
+    prov_man_sha = sha256_file(CONSTRUCTION_MANIFEST) \
+        if CONSTRUCTION_MANIFEST.is_file() else "0" * 64
+
+    # [R10-2] a cheap NON-DEGENERATE per-(c,l) body pattern: zero-mean,
+    # std/rms == 1, 16/6144 nonzero (>= the 1/1024 floor) — written sparse
+    # (16 f32 at each cell start), so the fixture stays $0-sized on disk
+    # while every cell passes the full-coverage non-degeneracy scan.
+    NONDEGEN_CELL_PATTERN = struct.pack(
+        "<16f", *[v for v in (1.0, -1.0, 0.5, -0.5, 0.25, -0.25, 2.0, -2.0,
+                              0.75, -0.75, 1.5, -1.5, 0.125, -0.125,
+                              3.0, -3.0)])
+
+    def _prov_fixture(tag, mode="real", layers=None, D=D_REGISTERED,
+                      tables=True, degenerate=False, prov_paths=None,
+                      content_witness=True):
+        d = prov_root / tag
+        shutil.rmtree(str(d), ignore_errors=True)
+        d.mkdir(parents=True)
+        lay = list(REGISTERED_SPLICE_LAYERS if layers is None else layers)
+        nl = len(lay)
+        arts = prov_paths if prov_paths is not None else prov_arts
+        binding = {
+            "mode": mode, "manifest_sha256": prov_man_sha,
+            "tokenizer_sha256":
+                sha256_file(arts["tokenizer_artifact"]),
+            "engine_weights_sha256":
+                sha256_file(arts["engine_weights_artifact"]),
+            "dump_patch_sha256":
+                sha256_file(arts["dump_patch_artifact"]),
+            "construction_seed": REGISTERED_CONSTRUCTION_SEED,
+            "layers": lay}
+        names = ["k-true.kaec", "d0-seed7.kaec", "d2-dict.kaec"] + \
+                ["d1-drng-%d.kaec" % s for s in DRNG_SEEDS]
+        tbl = {}
+        if tables:
+            hdr = b"KAEC" + struct.pack("<iii", C_REGISTERED, nl, D) + \
+                struct.pack("<%di" % nl, *lay)
+            size = 16 + 4 * nl + 4 * C_REGISTERED * nl * D
+            sha_common = None
+            for nm in names:
+                p = d / nm
+                with open(p, "wb") as f:
+                    f.write(hdr)
+                    f.truncate(size)        # sparse fp32 body ($0)
+                    if not degenerate:      # [R10-2] non-degenerate cells
+                        for c in range(C_REGISTERED):
+                            for li in range(nl):
+                                f.seek(16 + 4 * nl
+                                       + 4 * (c * nl + li) * D)
+                                f.write(NONDEGEN_CELL_PATTERN)
+                if sha_common is None:
+                    sha_common = sha256_file(p)
+                tbl[nm] = {"sha256": sha_common, "bytes": size}
+        rep = {
+            "mode": mode, "binding": binding,
+            "construction_seed": REGISTERED_CONSTRUCTION_SEED,
+            "layers": lay, "D": D, "nc": C_REGISTERED,
+            "engine_provenance_echo": {
+                "expected_seed": REGISTERED_CONSTRUCTION_SEED,
+                "verified_batches": C_REGISTERED,
+                "sample": "[KAE-DUMP] armed: %d layers, D=%d, seed=%d"
+                          % (nl, D, REGISTERED_CONSTRUCTION_SEED)},
+            "tables": tbl}
+        if content_witness:
+            # [R10-3] shape-valid checkpoint-content witness (probe pins)
+            rep["checkpoint_content_sha256"] = [
+                hashlib.sha256(b"prov-probe-ckpt-%d" % c).hexdigest()
+                for c in range(C_REGISTERED)]
+        write_json(d / "construction-report.json", rep)
+        return {"carriers": {
+                    "K": {"path": str(d / "k-true.kaec")},
+                    "d0": {"path": str(d / "d0-seed7.kaec")},
+                    "d2": {"path": str(d / "d2-dict.kaec")},
+                    "d1-drng": {str(s):
+                                {"path": str(d / ("d1-drng-%d.kaec" % s))}
+                                for s in DRNG_SEEDS}},
+                "carrier_provenance": {k: str(v)
+                                       for k, v in arts.items()}}
+
+    cfg_prov_ok = _prov_fixture("valid-real")
+    prov_pos, prov_pos_pins = verify_carrier_construction(cfg_prov_ok,
+                                                          mock=False)
+    prov_pos_ok = (prov_pos["mode"] == "real"
+                   and "carrier-construction-report.mode-real"
+                   in prov_pos_pins
+                   and len(prov_pos["tables_byte_witnessed"]) == 6)
+    prov_none = {"carriers": {"K": {"path": str(prov_root / "no-report" /
+                                                "k-true.kaec")}}}
+    prov_c1 = expect_stop(
+        lambda: verify_carrier_construction(prov_none, mock=False))
+    prov_c2 = expect_stop(lambda: verify_carrier_construction(
+        _prov_fixture("mode-mock", mode="mock", tables=False), mock=False))
+    prov_c3 = expect_stop(lambda: verify_carrier_construction(
+        _prov_fixture("wrong-layers", layers=[1, 2, 3, 5, 7, 8, 9, 11],
+                      tables=False), mock=False))
+    prov_c4 = expect_stop(lambda: verify_carrier_construction(
+        _prov_fixture("wrong-D", D=8, tables=False), mock=False))
+    cfg_bad_art = _copy.deepcopy(cfg_prov_ok)
+    bad_art = prov_root / "wrong-tokenizer.bin"
+    bad_art.write_bytes(b"NOT-the-pinned-tokenizer")
+    cfg_bad_art["carrier_provenance"]["tokenizer_artifact"] = str(bad_art)
+    prov_c5 = expect_stop(
+        lambda: verify_carrier_construction(cfg_bad_art, mock=False))
+    cfg_tamper = _prov_fixture("tampered-table")
+    with open(cfg_tamper["carriers"]["d2"]["path"], "ab") as f:
+        f.write(b"\x00")                    # byte-tamper vs the report pin
+    prov_c6 = expect_stop(
+        lambda: verify_carrier_construction(cfg_tamper, mock=False))
+    # [R10-2] the round-10 exploit: a correctly-SHAPED, report-coherent,
+    # mode=real table set whose bodies are ALL-ZERO must be REFUSED by the
+    # full-coverage non-degeneracy scan (this exact fixture shape WAS the
+    # round-9 positive control and passed end-to-end).
+    prov_c7 = expect_stop(lambda: verify_carrier_construction(
+        _prov_fixture("all-zero-real", degenerate=True), mock=False))
+    # [R10-1] a relabeled mock construction: binding provenance shas ==
+    # the repo mock stack's own digests (artifact-derived, so the item-8
+    # derivation check PASSES) must be REFUSED by the mock-stack denylist
+    # — a real report can never be satisfied by a mock toolchain.
+    prov_c8 = expect_stop(lambda: verify_carrier_construction(
+        _prov_fixture("mock-stack-relabel", prov_paths={
+            "tokenizer_artifact": HERE / "mock_tokenizer.py",
+            "engine_weights_artifact": HERE / "mock_colibri_dump.py",
+            "dump_patch_artifact": HERE / "mock_colibri_dump.py"}),
+        mock=False))
+    # [R10-3] a real report WITHOUT the checkpoint-content witness list
+    # (pre-round-10 shape) is REFUSED.
+    prov_c9 = expect_stop(lambda: verify_carrier_construction(
+        _prov_fixture("no-content-witness", content_witness=False),
+        mock=False))
+    prov_closed = (prov_c1 and prov_c2 and prov_c3 and prov_c4
+                   and prov_c5 and prov_c6 and prov_c7 and prov_c8
+                   and prov_c9)
+
+    # 5b3. [R10-4] campaign resume-authentication probes (carrier
+    # re-review content gap 4, 2026-07-16) — the rows.jsonl-bypass exploit
+    # class: a resume state that is foreign, tampered, unauthenticated, or
+    # carries injected rows must never satisfy (or leak rows into) the
+    # campaign; the genuine state must still resume cleanly.
+    print("probe: [R10-4] resume-auth fail-closed probes — the next "
+          "ERR_F1K_RESUME lines are EXPECTED")
+    ra_root = outdir / "resume-auth-probes"
+    ra_root.mkdir(parents=True, exist_ok=True)
+    tbind = campaign_resume_binding(cfg, "test")
+
+    def _ra_fixture(tag, mutate=None, drop_auth=False):
+        d = ra_root / tag
+        d.mkdir(parents=True, exist_ok=True)
+        rp = d / "rows.jsonl"
+        shutil.copy2(rows_path, rp)
+        if not drop_auth:
+            shutil.copy2(rows_auth_path(rows_path), rows_auth_path(rp))
+        if mutate:
+            mutate(rp)
+        return rp
+
+    ra_pos_done, _, _ = read_ckpt_authed(_ra_fixture("ok"), tbind)
+    ra_pos = len(ra_pos_done) == expected_units    # positive control
+
+    def _ra_flip(rp):                   # tamper one completed row
+        lines = rp.read_text(encoding="utf-8").splitlines()
+        r = json.loads(lines[7])
+        r["correct"] = 1 - r["correct"]
+        lines[7] = json.dumps(r, sort_keys=True)
+        rp.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    ra_tamper = expect_stop(
+        lambda: read_ckpt_authed(_ra_fixture("tamper", _ra_flip), tbind))
+    ra_noauth = expect_stop(
+        lambda: read_ckpt_authed(_ra_fixture("noauth", drop_auth=True),
+                                 tbind))
+    fbind = json.loads(json.dumps(tbind))          # foreign-run binding
+    fbind["engine_file_sha256"] = {"other-engine": "0" * 64}
+    ra_foreign = expect_stop(
+        lambda: read_ckpt_authed(_ra_fixture("foreign"), fbind))
+
+    def _ra_inject(rp):                 # append a row no engine produced
+        forged = {"arm": "K", "pass": 9, "item_id": "forged-item",
+                  "cluster": "zz", "correct": 1, "pred_label": "a",
+                  "gold_label": "a", "tags": []}
+        with open(rp, "a", encoding="utf-8") as f:
+            f.write(json.dumps(forged, sort_keys=True) + "\n")
+
+    ra_inj_done, _, _ = read_ckpt_authed(_ra_fixture("inject", _ra_inject),
+                                         tbind)
+    ra_inject = (len(ra_inj_done) == expected_units
+                 and ("K", 9, "forged-item") not in ra_inj_done)
+    ra_closed = (ra_pos and ra_tamper and ra_noauth and ra_foreign
+                 and ra_inject)
 
     # 5c. [R3-SEAM] the OFFICIAL round-trip, both fixtures: the driver's
     # kot-log/1 record through the REAL log-append -> verdict-gen ->
@@ -3012,17 +3863,19 @@ def mock_main(args):
         ("[R6] REVISION-6 alignment: EQUALITY-form power gate PASS "
          "(realized %d clusters / %d with m>=8 / n=%d); per-rung "
          "joint_power dict K-1/K-2/K-3 + ASM-2376 intersection block in "
-         "the sidecar; worst-case $ RECOMPUTED for 96/1573 at the "
-         "ASM-2374 pessimistic corner: mandatory campaign $%.2f <= cap "
-         "$%.0f; +REPLACE $%.2f (> cap at the corner => REPLACE runs ONLY "
-         "if the measured (7) projection keeps the ledger <= cap — "
-         "ASM-2374, never a silent raise)"
+         "the sidecar; worst-case $ at the ASM-2374 pessimistic corner "
+         "with the [FREEZE-A] amended envelopes (construction 4,608 "
+         "EXACT, pilot <= 2,112 deterministic): mandatory campaign $%.2f "
+         "<= cap $%.0f; +REPLACE $%.2f <= cap at the corner (REPLACE "
+         "still runs ONLY if its NI gate says RUN and the measured (7) "
+         "projection keeps the ledger <= cap — ASM-2374, never a silent "
+         "raise)"
          % (pg["n_clusters"], pg["clusters_with_m_ge_8"], pg["n_items"],
             worst_case_usd(False), USD_CAP, worst_case_usd(True)),
          pg["pass"] is True and pg["n_clusters"] == C_REGISTERED
          and pg["n_items"] == N_TEST
          and worst_case_usd(False) <= USD_CAP
-         and worst_case_usd(True) > USD_CAP),
+         and worst_case_usd(True) <= USD_CAP),
         ("input seams: kot-corpus-hash/1 verified for %s (registry "
          "placeholders + REAL pins honored: mock fixtures disclosed as "
          "DIVERGING, real runs fail closed on any mismatch); id-list "
@@ -3059,6 +3912,40 @@ def mock_main(args):
          "fail-closed (spend recorded, run halted, NO success record); "
          "over-cap ledger at init/resume STOPPED; the same enforce_cap "
          "runs at sidecar emission", cost_stop_closed and cost_init_closed),
+        ("[R9-PROV] carrier-construction provenance gate (re-review "
+         "item 8): REAL-mode ingest REFUSES (a) carriers without a "
+         "construction report, (b) a mode=mock report — the D=6144 "
+         "mock-carrier exploit, (c) non-A(iv) layers [1,2,3,5,7,8,9,11], "
+         "(d) D=8, (e) an asserted provenance sha != the DERIVED artifact "
+         "digest, (f) a byte-tampered table vs the report pin; a VALID "
+         "real-mode fixture (nc=96, D=6144, layers 3..78, artifact-"
+         "derived shas, 6 byte-witnessed NON-DEGENERATE tables) PASSES; "
+         "mock fixtures DISCLOSED (%.24s); pins_observed (%d pin(s)) "
+         "carried on the kot-log/1 record through the OFFICIAL seam"
+         % (carrier_prov["mode"], len(carrier_pins)),
+         prov_closed and prov_pos_ok and bool(carrier_pins)
+         and "pins_observed" in json.loads(
+             Path(rec_path).read_text(encoding="utf-8"))),
+        ("[R10-1/2/3] carrier CONTENT authentication (re-review round-10): "
+         "REAL-mode ingest REFUSES (g) a correctly-shaped ALL-ZERO "
+         "mode=real table set (full-coverage non-degeneracy per (c,l) "
+         "cell: all-zero/near-constant/min-variance-floor bodies "
+         "rejected), (h) a RELABELED mock construction whose artifact-"
+         "derived provenance shas equal the repo mock-stack digests (a "
+         "real report can never be satisfied by a mock toolchain), (i) a "
+         "real report WITHOUT the 96-entry checkpoint_content_sha256 "
+         "witness; the same fixture with non-degenerate bodies + witness "
+         "PASSES (positive control above)",
+         prov_c7 and prov_c8 and prov_c9 and prov_pos_ok),
+        ("[R10-4] campaign resume AUTHENTICATION: rows.jsonl resume state "
+         "content-hashed (%s) + bound to the run's pinned inputs; probes: "
+         "tampered row REFUSED, rows-without-auth REFUSED, foreign-"
+         "binding (different engine) REFUSED, INJECTED trailing row "
+         "DROPPED never resumed; the genuine authenticated state resumes "
+         "%d/%d units cleanly (the live campaign above ALSO resumed "
+         "through the auth path after the forced interruption)"
+         % (ROWS_AUTH_DOMAIN, len(ra_pos_done), expected_units),
+         ra_closed),
         ("[R3-SEAM] OFFICIAL round-trip (sandboxed real path): kot-log/1 "
          "driver record -> log-append (chain, schema) -> verdict-gen "
          "(D10-paired rows+sidecar pins verified, %d rows) -> pinned "
@@ -3107,6 +3994,13 @@ def main():
                  "(or use --mock)")
     cfg = load_config(args.config)
     verify_corpus_pins(cfg, mock=False)     # input seams, fail closed
+    # [R9-PROV] carrier-construction provenance gate (re-review item 8):
+    # mode=real + D/layers/seed/bindings verified BEFORE any carrier is
+    # ingested; provenance shas artifact-derived; disclosure written to
+    # the outdir, witness pins carried on the run record.
+    carrier_prov, carrier_pins = verify_carrier_construction(cfg,
+                                                             mock=False)
+    write_json(Path(args.outdir) / "carrier-provenance.json", carrier_prov)
     ev = load_eval_manifest(cfg["eval_manifest"])
     verify_id_lists(cfg, ev)
     ledger = Ledger(args.outdir, cfg)       # [FIX-7] resume-safe
@@ -3147,7 +4041,8 @@ def main():
     sidecar_path = build_sidecar(cfg, args.outdir, guard_report, dose,
                                  ledger, d3_deferred, replace_gate,
                                  replace_run)
-    rec_path = emit_run_record(args.outdir, rows_path, sidecar_path)
+    rec_path = emit_run_record(args.outdir, rows_path, sidecar_path,
+                               pins_observed=carrier_pins)  # [R9-PROV]
     print("test campaign complete: rows=%s sidecar=%s run-record=%s\n"
           "NEXT (coordinator): verdict-gen pipes the run record to the "
           "PINNED analysis/f1k.py on stdin; this driver never grades."

@@ -648,10 +648,17 @@ def main():
                               "m = 16 construction contexts; K[c][l] := "
                               "v_{c,l} [DES §2.4, ADOPTED row]",
         "m_contexts": bc.M_CONTEXTS,
-        "prepend_protocol": "two variants per context: kernel explication "
-                            "text (concept-texts.jsonl k_explication_text) "
-                            "+ '\\n\\n' prepended vs not [DES §2.4; OP-9 "
-                            "separator]",
+        "prepend_protocol": "THREE sequences per (concept, context) "
+                            "[freeze-(A) completion 2026-07-16]: WITHOUT / "
+                            "WITH the kernel explication (concept-texts."
+                            "jsonl k_explication_text) + '\\n\\n' / WITH "
+                            "the d2 dictionary text (d2_dictionary_text) "
+                            "+ '\\n\\n' — the WITHOUT pass is SHARED "
+                            "between the K and d2 mean differences, so "
+                            "construction = 96 x 16 x 3 = 4,608 forward "
+                            "passes exactly [DES §2.4 + §2.6 d2 'same "
+                            "construction'; OP-9 separator; REG "
+                            "scoring_passes freeze-(A) rider]",
         "gated_position_rule": "G-lex spans of the concept's own triggers "
                                "computed on the context with the SAME "
                                "matching rule as f1k-trigger-map-v1; "
@@ -669,9 +676,18 @@ def main():
             "d1-drng": "identical K table, concept labels deranged per "
                        "derangements.json seeds [101,102,103]; pilot panel "
                        "seed 11 [DES §R2/§R-REV2.3]",
-            "d0": "norm-matched random table, seed 7 — DIRECTION generation "
-                  "algorithm is NOT registered anywhere (flagged in the "
-                  "README; must be fixed at (A) before construction)",
+            "d0": "norm-matched random table, seed 7 — DIRECTION "
+                  "generation algorithm REGISTERED at the freeze-(A) "
+                  "completion refreeze (2026-07-16): kot-f1k-d0/1 = "
+                  "SHA-256 counter stream over 'kot-f1k-d0/1|seed=7|"
+                  "slot=<c>|layer=<l>|blk=<j>', 4 uniforms per digest "
+                  "(8-byte big-endian / 2^64), Box-Muller BOTH branches "
+                  "(z1 = sqrt(-2 ln(1-u1)) cos(2 pi u2), z2 = ... sin "
+                  "...), first D=6144 normals in stream order, unit-"
+                  "normalized (float64), scaled to ||v^K_{c,l}|| per the "
+                  "SSR2 reference-norm rule; f32 cast only at kaec_write "
+                  "[REG A_pre_spend rider; implemented+verified: "
+                  "build_carriers.py d0_direction]",
             "d2": "same construction with the plain-dictionary text "
                   "(concept-texts.jsonl d2_dictionary_text) substituted "
                   "for the explication [DES §2.6 d2]",
@@ -685,10 +701,29 @@ def main():
                    "unit": "x mean native expert weight [DES §2.3] — the "
                            "mean native expert weight is MEASURED on the "
                            "model at construction (bring-up-dependent)"},
-        "construction_seed": "NOT REGISTERED: freeze_manifest A(vii) names "
-                            "a 'construction' seed but no value exists in "
-                            "the frozen record — coordinator must fix at "
-                            "(A); flagged, not invented",
+        "construction_seed": 20260716,
+        "construction_seed_registration": "REGISTERED at the freeze-(A) "
+                            "completion refreeze (2026-07-16) [REG "
+                            "A_pre_spend rider]: the freeze_manifest "
+                            "A(vii) 'construction' seed = 20260716. The "
+                            "§2.4 construction arithmetic is sampling-"
+                            "free (forward passes + means) and its only "
+                            "PRNG uses are the separately-registered "
+                            "d0/derangement seeds, so this seed's "
+                            "registered role is DETERMINISM PROVENANCE: "
+                            "stamped into construction-manifest.jsonl, "
+                            "exported as KAE_SEED to every construction "
+                            "engine invocation, carried into the B0 "
+                            "addendum; any construction artifact carrying "
+                            "a different value fails closed "
+                            "(build_carriers.py)",
+        "construction_generator": "build_carriers.py (poc/glm52-probe/"
+                            "f1k-harness) — manifest [(A)-time $0] / "
+                            "construct [spend] / verify [$0]; engine "
+                            "hidden-state dump contract kot-f1k-dump/1 + "
+                            "tokenizer contract kot-f1k-tok/1 in its "
+                            "module docstring; sha256 pinned in the "
+                            "frozen record's harness_manifest",
         "kaec_format": "[PATCH kae.h]: 'KAEC' | i32 nc | i32 nl | i32 D "
                        "| i32 layer_id[nl] | f32 K[nc*nl*D], D = %d, "
                        "nc = %d (carrier-index-map.json)" % (bc.HIDDEN_D, nc),
@@ -785,14 +820,22 @@ def main():
         "operationalisations": {k: ops[k] for k in ("OP-7", "OP-8", "OP-9")},
         "blocked": [
             "realized K / d2 / d0 / derangement .kaec tables (GLM-5.2 "
-            "forward passes = construction spend)",
-            "raw + rescaled norms (functions of the realized K)",
-            "exact candidate splice-layer ids (model config at bring-up)",
+            "forward passes = construction spend; the GENERATOR that "
+            "produces them exists and is mock-green: build_carriers.py)",
+            "raw + rescaled norms (functions of the realized K; "
+            "build_carriers.py writes norms.json at construction)",
+            "exact candidate splice-layer ids (model config at bring-up; "
+            "passed to build_carriers.py --layers)",
             "mean native expert weight for the g grid (model measurement)",
-            "construction seed (named at A(vii) but never given a value "
-            "in the frozen record)",
-            "d0 direction-generation algorithm (not registered)",
         ],
+        "freeze_A_completion": "2026-07-16: construction seed 20260716 + "
+                               "the kot-f1k-d0/1 d0 direction algorithm "
+                               "REGISTERED (see generator-spec.json) and "
+                               "the carrier-construction generator "
+                               "build_carriers.py authored + sha-pinned "
+                               "in the frozen record; the only remaining "
+                               "B0 blockers are the model-dependent rows "
+                               "above",
     })
 
     bc.write_text(tm_dir / "README.md", """# f1k-trigger-map-v1 — phrase→concept trigger map (F1-K lexical gate)
@@ -913,11 +956,19 @@ arm's table is a pure function of frozen rules:
 - `generator/generator-spec.json` — the §2.4/§R2 formulas + protocol, with
   every model-dependent input explicitly marked BLOCKED.
 
-**Still missing for (A)/(B0), never invented here:** the construction seed
-VALUE (named at freeze_manifest A(vii), no value registered anywhere); the
-d0 direction-generation algorithm; the exact candidate splice-layer ids
-(model config, bring-up); the mean native expert weight for the g grid;
-and the realized tables + raw/rescaled norms themselves. The
+**Freeze-(A) COMPLETION (2026-07-16):** the construction seed VALUE
+(20260716), the d0 direction-generation algorithm (kot-f1k-d0/1, seed 7)
+and the runnable carrier-construction GENERATOR
+(`poc/glm52-probe/f1k-harness/build_carriers.py`, sha-pinned in the frozen
+record) are now REGISTERED — see `generator/generator-spec.json` and the
+frozen record's A_pre_spend rider. `generator/construction-manifest.jsonl`
+is the (A)-time realized construction manifest (96 x 16 x 3 = 4,608
+forward passes; WITHOUT shared between K and d2).
+
+**Still missing for (B0), never invented here:** the exact candidate
+splice-layer ids (model config, bring-up); the mean native expert weight
+for the g grid; and the realized tables + raw/rescaled norms themselves
+(functions of GLM-5.2 forward passes — the construction spend). The
 kot-corpus-hash/1 digest of this directory at THIS pass is NOT the B0 pin.
 """ % (PASS_STAMP, SUPERSEDES))
 

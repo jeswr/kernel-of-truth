@@ -32,9 +32,28 @@ arm's table is a pure function of frozen rules:
 - `generator/generator-spec.json` — the §2.4/§R2 formulas + protocol, with
   every model-dependent input explicitly marked BLOCKED.
 
-**Still missing for (A)/(B0), never invented here:** the construction seed
-VALUE (named at freeze_manifest A(vii), no value registered anywhere); the
-d0 direction-generation algorithm; the exact candidate splice-layer ids
-(model config, bring-up); the mean native expert weight for the g grid;
-and the realized tables + raw/rescaled norms themselves. The
-kot-corpus-hash/1 digest of this directory at THIS pass is NOT the B0 pin.
+**Freeze-(A) COMPLETION (2026-07-16):** the construction seed VALUE
+(20260716), the d0 direction-generation algorithm (kot-f1k-d0/1, seed 7)
+and the runnable carrier-construction GENERATOR
+(`poc/glm52-probe/f1k-harness/build_carriers.py`, sha-pinned in the frozen
+record) are now REGISTERED — see `generator/generator-spec.json` and the
+frozen record's A_pre_spend rider. `generator/construction-manifest.jsonl`
+is the (A)-time realized construction manifest (96 x 16 x 3 = 4,608
+forward passes; WITHOUT shared between K and d2).
+
+**Carrier-pipeline HARDENING refreeze (2026-07-16):** the exact candidate
+splice-layer ids are now RESOLVED + PINNED (A(iv) = ALL 76 MoE layers,
+engine ids 3..78 inclusive [MEASURED ASM-2342 R3]; pilot realization
+L1=[40] / L2=[40,53,65,78] / L3=all — see
+`generator/generator-spec.json .candidate_splice_layers`), and the
+generator is provenance-hardened: mode-bound checkpoints
+(mock-vs-real contamination fail-closed), manifest content verified
+against a fresh (A)-spec re-derivation, engine KAE_SEED echo captured +
+verified, d0 reproducibility scoped to the pinned toolchain with a FULL
+byte-exact `verify` re-derivation.
+
+**Still missing for (B0), never invented here:** the mean native expert
+weight for the g grid (model measurement, bring-up); and the realized
+tables + raw/rescaled norms themselves (functions of GLM-5.2 forward
+passes — the construction spend). The kot-corpus-hash/1 digest of this
+directory at THIS pass is NOT the B0 pin.
