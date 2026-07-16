@@ -1,0 +1,26 @@
+{
+  "range": "ASM-2494..2495",
+  "purpose": "Companion assumption block for the family-disjointness enforcement machinery (largekern WordNet-10k pilot precondition P8; plain-v5-register-lint-spec.md §7 implemented verbatim: poc/plainv5/family-map.json + invoke_seat.py + check_family_disjoint.py + test_family_disjoint.py, 25 tests green 2026-07-16). Ids 2494..2495 are the next-free integers after ASM-2493 (repo-wide grep, 2026-07-16); registered in registry/assumptions.jsonl by the coordinator in the same working-tree pass (nothing committed by this pass). Code numbering note: the largekern §9.1 P8 prose glosses FD-1 as same-family and FD-2 as UNKNOWN; the pinned plain-v5 §7 list (FD-1 = UNKNOWN, FD-2 = same-family) wins — both conditions are enforced and fail-path-tested either way, so no registered claim changes.",
+  "owner": "coordinator-1",
+  "date": "2026-07-16",
+  "backing_artifacts": [
+    "poc/plainv5/family-map.json (kot-family-map/1, byte-copy of plain-v5 spec §7; ^(gpt-|o[0-9]|codex) -> openai)",
+    "poc/plainv5/invoke_seat.py (kot-seat-ledger/1 pinned invoker; FD-1/FD-2 refusal pre-dispatch, pre-dispatch pending append + completion)",
+    "poc/plainv5/check_family_disjoint.py (FD-1..FD-6 validator + ERR_STATUS_INELIGIBLE + ERR_FAMILY_PROVENANCE + resolve_family)",
+    "poc/plainv5/test_family_disjoint.py (25 green fail-path/green-path tests)"
+  ],
+  "assumptions": [
+    {
+      "id": "ASM-2494",
+      "tag": "STIPULATED",
+      "claim": "kot-seat-ledger/1 completion semantics: the invoker appends the PENDING entry (output_sha256=null) before dispatch and completes it on return by amending ONLY the final ledger line in place; the hash chain (kot_common P2 §2.1 convention: prev_sha256 = sha256 of the predecessor line's exact bytes incl. newline, genesis = 64 zeros, lines = canonical JSON) is defined over COMPLETED line bytes, so amending any non-final line breaks FD-6; a pending FINAL line (crash mid-dispatch, dispatch failure, abandoned call) is FD-5 evidence, blocks all further invocations through the invoker, and is never overwritten or deleted.",
+      "rationale": "spec §7 (ASM-2458) pins 'appends the entry pre-dispatch ... completes output_sha256 on return' but not the mechanics reconciling completion with an append-only hash chain; this is the minimal reconciliation that keeps a crashed/bypassed call as sweepable evidence."
+    },
+    {
+      "id": "ASM-2495",
+      "tag": "STIPULATED",
+      "claim": "Mechanical proxy bounds for FD-3 and FD-4: FD-3 'exact dated form' = non-empty whitespace-free model id carrying >=4 consecutive decimal digits (a date/snapshot token; verbatim as-sent/as-returned fidelity remains the manifest-side check, largekern §8); FD-4 protocol-role cross-check = every hyphenated token ending in seat/judge/screen plus any tie-break* token in the record's protocol text must match a declared seat_role (substring-compatible match). False positives are cheap (declare the role / date the id); false negatives are not — both bounds fail closed.",
+      "rationale": "spec §7 names the FD-3/FD-4 conditions but leaves 'exact dated form' and 'strings matching seat|judge|screen|tie-break' as prose; these are the pinned mechanical readings the tests assert."
+    }
+  ]
+}

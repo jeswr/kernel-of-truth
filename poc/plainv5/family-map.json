@@ -1,0 +1,18 @@
+{
+  "schema": "kot-family-map/1",
+  "normalize": ["lowercase",
+                 "strip-prefix-regex: ^(us|eu|apac)\\.",
+                 "strip-prefix-regex: ^(anthropic|openai|bedrock|vertex|azure)[./]"],
+  "rules": [
+    {"match": "^claude-",                 "family": "anthropic"},
+    {"match": "^(gpt-|o[0-9]|codex)",     "family": "openai"},
+    {"match": "^(glm|chatglm)",           "family": "zhipu"},
+    {"match": "^gemini-",                 "family": "google"},
+    {"match": "^(llama|meta-llama)",      "family": "meta"},
+    {"match": "^deepseek",                "family": "deepseek"},
+    {"match": "^qwen",                    "family": "alibaba"},
+    {"match": "^(mistral|mixtral|magistral)", "family": "mistral"},
+    {"match": "^grok",                    "family": "xai"}
+  ],
+  "unmatched": "UNKNOWN-FAILS-CLOSED"
+}
