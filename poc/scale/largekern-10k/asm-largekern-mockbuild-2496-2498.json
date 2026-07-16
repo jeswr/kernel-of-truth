@@ -1,0 +1,31 @@
+{
+  "range": "ASM-2496..2498",
+  "purpose": "Companion assumption block for the WordNet-10k drafting-pipeline MOCK-FIRST build (spec docs/next/design/gpt56-draft-pipeline-large-kernel.md r5, reviewed GO-TO-FREEZE; built under poc/scale/largekern-10k/, $0, no network, no OpenAI call). Ids 2496..2498 are the next-free integers after ASM-2495 (repo-wide grep, 2026-07-16). Registered in registry/assumptions.jsonl in the same working-tree pass; NOTHING committed by this pass (coordinator owns the commit and the prereg-freeze).",
+  "owner": "designer-20",
+  "date": "2026-07-16",
+  "backing_artifacts": [
+    "poc/scale/largekern-10k/pipeline/*.py + validate_shard.mjs (frame/sample, request builder, ledger, mock Batch, mock drafter, orchestrator, acceptance stack)",
+    "poc/scale/largekern-10k/tests/test_pipeline.py (21 green tests incl. P5 crash windows + r5 negative cases, 2026-07-16)",
+    "poc/scale/largekern-10k/out/e2e-report.json (10k mock e2e GREEN: 9521+453+26=10000; spend $182.62 reserved-then-settled under the $500 cap)"
+  ],
+  "assumptions": [
+    {
+      "id": "ASM-2496",
+      "tag": "STIPULATED",
+      "claim": "Mock-harness conventions for the pre-freeze $0 build: (a) the mock store roots at poc/scale/largekern-10k/out/ and NEVER squats the real-run path data/kernel-v1-draft/; (b) the mock author snapshot id is gpt-5.6-sol-20260601 (dated placeholder; the real id is pinned at P6 preflight); (c) mock settlement accounting uses ONLY the registered spec §5.2 price figures ($5/$0.50/$6.25/$30 per Mtok, Batch 0.5x), never mock inventions; (d) the few-shot exemplar block is an explicitly-labelled placeholder pending the P2 4-binary review (g9 records banned; re-freezing the prefix with reviewed exemplars is a deliberate cachePrefixHash change before prereg-freeze); (e) the gloss token cap uses a whitespace-token proxy until the pinned tokenizer lands at P6; (f) mock record shards are uncompressed .jsonl for auditability (the real store gzips per spec §7.2); (g) P5 crash windows are exercised by subprocess SIGKILL (window a) and durable-provider-state + client-death-before-record (window b).",
+      "rationale": "The spec's P7 requires a green $0 mock including budget-reservation accounting before prereg-freeze; these are the minimal divergences a $0 no-network mock needs, each named so the freeze pass can replace them deliberately (F1-K round-6 lesson: mock cost config carries registered figures)."
+    },
+    {
+      "id": "ASM-2497",
+      "tag": "STIPULATED",
+      "claim": "Byte-serialization convention for every spec hash written as sha256(a ‖ b ‖ ...): the pinned mechanical reading is sha256(UTF-8(canonical_dumps([a, b, ...]))) with kot_common canonical JSON (sorted keys, compact separators). Applies to versionHash = sha256([sourceRowSha256, promptHash, cachePrefixHash, modelSnapshotId, genSettingsHash, validatorHash, lintHash]) and jobKey = 'kv1d-job-' + sha256([wave, attempt, sortedMemberIdempotencyKeys])[:24] (spec §6 r5); sampleSha256 = sha256 over the newline-joined lexicographically sorted sampled URNs (mirroring the pinned frameSha256 convention).",
+      "rationale": "Spec §6 names the hash inputs but not the byte concatenation; a list-JSON encoding is separator-unambiguous (no collision between e.g. wave=1,attempt=12 and wave=11,attempt=2) and reproducible from committed code. The r5 (wave, attempt) discriminator distinctness is asserted by test_wave_attempt_discriminator."
+    },
+    {
+      "id": "ASM-2498",
+      "tag": "STIPULATED",
+      "claim": "Sampling mechanics for the §1 pinned seeded stratified draw: (a) a synset's polysemy = max over its lemmas of the count of same-POS FRAME synsets whose lemma list contains that lemma (case-sensitive as extracted), banded mono / 2-5 / >=6; (b) allocation over POS x band strata is proportional with largest-remainder rounding; (c) the single rng is Python random.Random(sha256(seedString) mod 2^64) drawing from lexicographically sorted stratum members in sorted stratum order; (d) the PINNED MOCK seed string is 'largekern10k-sample-mock-v1', recorded in the sample manifest; the operative seed is registered at prereg-freeze and a re-draw is a new experiment id (spec §1); (e) the §9.3 frozen-overlap denylist (107 alignment synsets) is excluded AFTER the frame hash check and BEFORE the draw, so the pinned frameSha256 stays predicate-only.",
+      "rationale": "Spec §1 pins 'seeded stratified over POS x polysemy band, proportional' but not the band's mechanical definition, the rounding rule, or the rng discipline; these are the minimal choices that make the 10,000-row draw byte-reproducible (sampleSha256 in the manifest)."
+    }
+  ]
+}
