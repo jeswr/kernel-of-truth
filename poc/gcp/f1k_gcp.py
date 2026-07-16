@@ -103,7 +103,7 @@ CORNER_BLENDED_S_PER_PREFILL = 462.1 * 3600.0 / 19964.0
 # GCP target (bead pzb6 resolution; MANDATORY provisioning-model = SPOT)
 # ---------------------------------------------------------------------------
 MACHINE_TYPE = "n2d-highmem-8"          # 8 vCPU / 64 GB — i4i.2xlarge-class RAM
-LOCAL_SSD_COUNT = 3                     # 3×375 GiB = 1,125 GiB local NVMe
+LOCAL_SSD_COUNT = 2                     # 2×375 = 750 GiB local NVMe (n2d allows {1,2,4,8,16,24}; 3 infeasible; 750 >= 384 GiB estate; rate $0.174/h in-window). Bump to 4 (1500 GiB) if construction needs more scratch headroom.
 PROVISIONING_MODEL = "SPOT"             # MANDATORY: on-demand busts the ceiling
 INSTANCE_NAME = os.environ.get("KOT_F1K_VM", "kot-f1k-run")
 GCS_BUCKET = os.environ.get("KOT_F1K_BUCKET", "")   # coordinator-supplied mirror
