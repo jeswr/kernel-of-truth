@@ -1,0 +1,88 @@
+plain-v5-natural authoring-prompt TEMPLATE (design deliverable, 2026-07-16)
+companion to: docs/next/design/plain-v5-natural-store-contract.md (section 3)
+and docs/next/design/plain-v5-register-lint-spec.md (sections 2, 5).
+
+RENDERING RULES (for the coordinator/runner; not sent to the author):
+- Section A below, between the BEGIN/END markers, is the main prompt. Replace
+  {{ROWS}} with exactly 108 lines, one per concept, ascending alphabetical
+  order by headword, each line of the form
+      headword | sense note | between {{LO}} and {{HI}} words
+  with LO/HI computed per contract section 2 and the sense note taken
+  verbatim from the pinned sense-annotations file.
+- Section B is the repair sub-prompt for one entry. Replace {{HEADWORD}},
+  {{SENSE}}, {{LO}}, {{HI}}, {{CURRENT}} (the entry's own current text), and
+  {{FEEDBACK}} (one or more lines drawn ONLY from the feedback table, lint
+  spec section 5).
+- Before sending ANY rendered prompt, assert the pinned blinding pattern
+  list has zero case-insensitive hits on the rendered bytes; abort on a hit.
+- The sha256 of every rendered prompt and of the full session transcript is
+  pinned in the store's authoring_disclosure.
+
+=== BEGIN SECTION A: MAIN AUTHORING PROMPT ===
+You are a senior lexicographer preparing defining text for an edited general
+dictionary of English. You will write one definition for each of the 108
+headwords listed at the end of this message. Work to the following contract
+exactly; entries that break it will be returned to you for repair.
+
+STYLE. Each definition is a defining line in the classic genus-plus-
+differentiae manner: name the kind of thing the sense belongs to, then the
+properties that distinguish it from its near neighbours. Write as a very
+well-trained English scholar who knows all of the conventions of the
+language and will use the most appropriate word in a given place. Every
+clause must state part of what the word means. Do not include anything a
+defining line does not need: no encyclopedic facts, no proper names, no
+history, no examples of use, no consequences of the meaning, no remarks
+about people observing or reacting to the thing, no decorative or literary
+closings.
+
+SENSE. Each headword comes with a short sense note. Define exactly that one
+sense, and no other sense of the word.
+
+FORM. For each entry, all of the following are hard requirements:
+1. word count: the line for each headword gives a minimum and a maximum;
+   your definition's whitespace-separated word count must lie inside that
+   range, inclusive. Reach the budget with genuine additional defining
+   content (further distinguishing properties, a load-bearing restriction,
+   a contrast with a neighbouring sense), never by restating something you
+   have already said.
+2. clauses: at least two clauses, separated by ";" or ".", each at least 15
+   characters long.
+3. no self-reference: never use the headword itself, or any inflected or
+   derived form of it, anywhere in its own definition.
+4. no repetition: never repeat a clause, and never repeat any phrase of five
+   or more words, within an entry.
+5. one sense: no numbered senses, no "also:" additions, no parenthetical
+   alternative senses.
+6. surface: lowercase ascii letters and ordinary punctuation only; no
+   capital letters, no digits, no double-quote characters.
+7. distinctness: every entry must be clearly distinct in wording from every
+   other entry in the set.
+8. variety across the set: vary the shapes of your entries as a real
+   dictionary does. Do not let one opening frame or one clause rhythm
+   dominate the set; entries for different kinds of words (things, acts,
+   qualities, states) should read differently.
+
+OUTPUT. Reply with a single JSON object and nothing else: each key is a
+headword exactly as given, each value is your definition as one string. All
+108 keys must be present.
+
+THE HEADWORDS (headword | sense note | word budget):
+{{ROWS}}
+=== END SECTION A ===
+
+=== BEGIN SECTION B: REPAIR SUB-PROMPT (one entry per block) ===
+Your definition for the headword below needs repair. The full contract from
+my first message still applies, including the word budget, the two-clause
+minimum, and the variety requirement across the set.
+
+headword: {{HEADWORD}}
+sense note: {{SENSE}}
+word budget: between {{LO}} and {{HI}} words
+your current definition: {{CURRENT}}
+
+what must change:
+{{FEEDBACK}}
+
+Reply with a single JSON object and nothing else: {"{{HEADWORD}}": "<your
+revised definition>"}.
+=== END SECTION B ===
