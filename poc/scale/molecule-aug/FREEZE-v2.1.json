@@ -1,0 +1,69 @@
+{
+  "design": "REPILOT-v2.1 repair freeze (docs/next/design/molecule-s5-repilot-v2.1.md; repairs ASM-2379). Supersedes FREEZE-v2.json for stage 1 and later campaign stages; every v2-pinned artefact is UNCHANGED and still verified.",
+  "pins": {
+    "lexiconSetHash": "5469d0dc91e1e451a48aa9b60465107317e43f13d311dea61fc3a7e0dc5d7311",
+    "encoderContentHash": "40e8c8ba4c3d081c5051ea62d946d2ee9ee9f3205853b5c377a4c1e647e2d10c",
+    "expander_sha256": "788d56805305b7369675aaa39652990b3f593c35e502dec09fdf81ddfc67afc4",
+    "s5_prompt_sha256": "7f73306e05030c09388faba95df11300bdea4870b14f616c27eb164c80f82bf7",
+    "s5_judge_fidelity_sha256": "4b8c18a9e2ff1e2ac6e876598f4a4770969bc99bb1b58ec7a95de2b5c16a5955",
+    "s5_judge_conditional_sha256": "5576ad46e8558bfe382214e776c3034d8e3ea0e3400bdb9bd0610bf570a16105",
+    "bridge_rubric_sha256": "1b60081438bad29b576d33e4987b9d409224575763cffec18eaae847e4e18424",
+    "fresh_sample_sha256": "34f936d6110545d270d0e876ab1d69a2ac1712315329b4664c4d2dba60ee7f9e",
+    "adjudication_summary_sha256": "30dbf79f9be852a992301f8136502c95cc2786b61974cd66132f60d8c6a9c49b",
+    "s5_prompt_v21_sha256": "e7c56b4509e0fbdf176656a3d2697331eb7ef3d4f5986839aa193bc5af6e53c0",
+    "s5_judge_fidelity_v21_sha256": "6fa6da2e436be6a2deb2be454d572ef367f55e50cb6f5c555f0ee08d472c2ec4",
+    "pilot_sample_sha256": "ff5a31139e3679c17ded330e7252ba86cdc8bf8d9ddadfde3e33d38286f6655c",
+    "resample_code_sha256": "142aa16918382c7b0a7ff3a91c6b31d7367680f056307b07733009271a269f97"
+  },
+  "run_s5_sha256_informational": "0e1b19883d863fef32d10fbf4f983385d405a8ecb34661356d745b7f2735fa57",
+  "carried_from_v2_verified": {
+    "lexiconSetHash": "5469d0dc91e1e451a48aa9b60465107317e43f13d311dea61fc3a7e0dc5d7311",
+    "encoderContentHash": "40e8c8ba4c3d081c5051ea62d946d2ee9ee9f3205853b5c377a4c1e647e2d10c",
+    "s5_prompt_sha256": "7f73306e05030c09388faba95df11300bdea4870b14f616c27eb164c80f82bf7",
+    "s5_judge_fidelity_sha256": "4b8c18a9e2ff1e2ac6e876598f4a4770969bc99bb1b58ec7a95de2b5c16a5955",
+    "s5_judge_conditional_sha256": "5576ad46e8558bfe382214e776c3034d8e3ea0e3400bdb9bd0610bf570a16105",
+    "bridge_rubric_sha256": "1b60081438bad29b576d33e4987b9d409224575763cffec18eaae847e4e18424",
+    "expander_sha256": "788d56805305b7369675aaa39652990b3f593c35e502dec09fdf81ddfc67afc4",
+    "fresh_sample_sha256": "34f936d6110545d270d0e876ab1d69a2ac1712315329b4664c4d2dba60ee7f9e",
+    "adjudication_summary_sha256": "30dbf79f9be852a992301f8136502c95cc2786b61974cd66132f60d8c6a9c49b"
+  },
+  "repairs": {
+    "1_uptake": "reject-and-resample generation (gen_arm_resample + s5_gate require_refs=True: ERR_ZERO_REFS / ERR_REF_NOT_CLOSURE_SAFE / mechanical failures are rejected and the cell regenerated, MAX_RESAMPLE=4; exhaustion => ERR_REF_UPTAKE_EXHAUSTED, ITT NOT-FAITHFUL) + generation listing restricted to the 20 closure-safe ids (s5-prompt-v2.1.md; the v1 85-id listing delivered 65 reject-bait ids)",
+    "2_panel": "s5-judge-fidelity-v2.1.md: criterial-feature checklist with MECHANICAL verdict rule (replaces the holistic threshold that produced F1/F2 kappa 0.204) + F3 INFORMED adjudication on F1/F2 disagreement (sees both anonymized reviewer audits). Judge MODELS unchanged (F1 gpt-5.6-sol, F2 claude-opus-4-8, F3 gpt-5.6-terra): the only stronger same-vendor alternative, claude-fable-5, is a generator in this design and would contaminate judge independence."
+  },
+  "resample_policy": {
+    "rule": "REJECT-AND-RESAMPLE (REPILOT-v2.1): a generated molecule record is admitted iff it passes validate-record-ref.mjs + the pinned mechanical checks AND carries >=1 reference AND every reference is closure-safe; a rejected attempt is preserved under resample-attempts/ and the cell is regenerated, up to MAX_RESAMPLE=4 fresh attempts; exhaustion => canonical gate ERR_REF_UPTAKE_EXHAUSTED, an ITT NOT-FAITHFUL cell that counts AGAINST the 80% ref-bearing floor",
+    "max_resample": 4,
+    "ref_bearing_floor": 0.8,
+    "reject_codes_resampled": [
+      "ERR_ZERO_REFS",
+      "ERR_REF_NOT_CLOSURE_SAFE",
+      "any other gate/mechanical failure"
+    ]
+  },
+  "panel": {
+    "judges": {
+      "F1": "gpt-5.6-sol",
+      "F2": "claude-opus-4-8",
+      "F3": "gpt-5.6-terra"
+    },
+    "rubric": "judge-addendum-fidelity-v2.1.md (composed into s5-judge-fidelity-v2.1.md)",
+    "adjudication": "F3 informed adjudication on F1/F2 disagreement only; final = F1==F2 verdict, else F3 resolves",
+    "expected_agreement_STIPULATED": "F1/F2 raw >= 0.75, kappa >= 0.45 expected under the checklist rubric (ASM-2402); UNMEASURED until the re-pilot -- score reports measured raw/kappa/AC1 + seeded boot95 overall, by arm, and by ref status; a measured kappa < 0.40 marks the readout instrument-unreliable (disclosure, NOT a kill clause; the binding kill is repilot_kill_verbatim alone)"
+  },
+  "repilot_kill_verbatim": "PIVOT iff, after repair, EITHER ref-bearing molecule cells < 80% OR the E2 primary delta <= 0pp again.",
+  "kill_operationalization": {
+    "ref_bearing_mol_cell": "mol cell whose ADMITTED record is gate-clean (s5_ok) with n_refs >= 1 AND expands clean (expanded-manifest status ok)",
+    "denominator": "ALL 2n = 48 mol cells (ITT; GATE-FAIL/exhausted cells count against the floor)",
+    "delta": "E2 primary Mol-E2 - Flat-E2 in pp (unchanged v2 scoring)"
+  },
+  "scoring": "unchanged DESIGN-v2 §2 v2 scoring: E2 primary, ITT, exact McNemar + Tango95, PROXY-PROVISIONAL; the re-pilot can PIVOT or motivate a larger run; it CANNOT confirm at n=24",
+  "pilot_sample": {
+    "file": "../ast-pipeline/sample.json",
+    "n": 24,
+    "sha256": "ff5a31139e3679c17ded330e7252ba86cdc8bf8d9ddadfde3e33d38286f6655c",
+    "note": "same fitted n=24 (no fresh-sample burn); flat cells reuse consensus-100 (disclosed)"
+  },
+  "stage_dir": "s5-run/stage1-repilot (the superseded v2 pilot's s5-run/stage1 is untouched evidence)",
+  "note": "any post-freeze change to a pinned input => the run is exploratory, full stop"
+}

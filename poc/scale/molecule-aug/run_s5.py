@@ -126,6 +126,31 @@ never-adjudicated record -- fails closed (ERR_REF_NOT_CLOSURE_SAFE at the s5
 gate AND in the expander) and scores NOT-FAITHFUL under ITT; it is never
 silently resolved through. The adjudication summary is freeze-pinned.
 
+REPILOT-v2.1 (repair mode; docs/next/design/molecule-s5-repilot-v2.1.md;
+repairs the ASM-2379 uptake failure diagnosed in docs/next/analysis/
+molecule-s5-pilot-stop-interpretation.md). ACTIVE iff FREEZE-v2.1.json
+exists; it supersedes FREEZE-v2.json for stage 1 (and later campaign
+stages) WITHOUT touching any v2-pinned artefact (v2.1 adds new files only;
+the v2 freeze must still verify byte-for-byte). Under repilot mode:
+
+  * stage-1 verbs run in s5-run/stage1-repilot/ (the superseded v2 pilot's
+    s5-run/stage1/ stays untouched as evidence);
+  * gen --stage 1 uses s5-prompt-v2.1.md (mandatory-uptake ref-addendum-v2 +
+    the 20-id CLOSURE-SAFE listing only) and REJECT-AND-RESAMPLE: a molecule
+    record is admitted iff gate-clean AND >=1 reference AND all references
+    closure-safe (zero-ref => ERR_ZERO_REFS reject); rejected attempts are
+    preserved under resample-attempts/ and the cell is regenerated up to
+    MAX_RESAMPLE fresh attempts; exhaustion => canonical
+    ERR_REF_UPTAKE_EXHAUSTED gate, an ITT NOT-FAITHFUL cell that counts
+    AGAINST the pre-declared 80% ref-bearing floor;
+  * judge --instrument fidelity uses s5-judge-fidelity-v2.1.md (criterial-
+    feature checklist, MECHANICAL verdict rule) and F3 runs INFORMED
+    adjudication (sees both anonymized reviewer audits);
+  * score --stage 1 --v2 applies the pre-declared re-pilot kill VERBATIM:
+    "PIVOT iff, after repair, EITHER ref-bearing molecule cells < 80% OR
+    the E2 primary delta <= 0pp again." The re-pilot can PIVOT or motivate
+    a larger run; it cannot confirm at n=24 (PROXY-PROVISIONAL).
+
 Fail-closed everywhere; provenance (prompt hashes + lexiconSetHash) embedded
 in every gen manifest. Costs are whatever define_concept.py reports.
 """
@@ -181,6 +206,23 @@ VERIFIED_PINS = ("lexiconSetHash", "encoderContentHash", "s5_prompt_sha256",
                  "s5_judge_fidelity_sha256", "s5_judge_conditional_sha256",
                  "bridge_rubric_sha256", "expander_sha256", "fresh_sample_sha256",
                  "adjudication_summary_sha256")
+# ---- v2.1 RE-PILOT repair constants (REPILOT-v2.1; ASM-2379 repair path) -----
+# Pre-registration: docs/next/design/molecule-s5-repilot-v2.1.md; STOP diagnosis:
+# docs/next/analysis/molecule-s5-pilot-stop-interpretation.md (fork line §4).
+MAX_RESAMPLE = 4               # STIPULATED (ASM-2401): fresh gen attempts per mol cell
+REF_BEARING_FLOOR = 0.8        # pre-declared uptake floor over ALL 2n mol cells (ITT)
+REPILOT_KILL = ("PIVOT iff, after repair, EITHER ref-bearing molecule cells < 80% "
+                "OR the E2 primary delta <= 0pp again.")  # VERBATIM, binding
+S5_PROMPT_V21 = "s5-prompt-v2.1.md"
+S5_JUDGE_FID_V21 = "s5-judge-fidelity-v2.1.md"
+FREEZE_V21 = "FREEZE-v2.1.json"
+
+
+def repilot_active():
+    """REPILOT-v2.1 supersedes v2 for the campaign iff its freeze exists."""
+    return (HERE / FREEZE_V21).exists()
+
+
 # Single-candidate note appended to the composed CONDITIONAL prompt
 # (DESIGN-v2 §3.2: v1 gloss-credit protocol, single-candidate delivery).
 SINGLE_CAND_NOTE = """
@@ -223,7 +265,12 @@ def lexicon_glosses(manifest):
 
 
 def stage_dir(stage):
-    d = RUN / STAGE_DIR_NAMES.get(stage, "stage%d" % stage)
+    name = STAGE_DIR_NAMES.get(stage, "stage%d" % stage)
+    if stage == 1 and repilot_active():
+        # REPILOT-v2.1: fresh working dir; the superseded v2 pilot's
+        # s5-run/stage1/ is untouched evidence (STOP record).
+        name = "stage1-repilot"
+    d = RUN / name
     d.mkdir(parents=True, exist_ok=True)
     return d
 
@@ -256,12 +303,44 @@ def cmd_compose(_args):
                 die("FREEZE-v2.json exists and recomposing would CHANGE %s -- "
                     "post-freeze prompt change makes the run exploratory "
                     "(DESIGN-v2 §7); refusing to overwrite" % k)
+    # v2.1 REPILOT instruments (repair of the ASM-2379 uptake failure):
+    # generation prompt = base + MANDATORY-uptake addendum + the CLOSURE-SAFE
+    # 20-id listing ONLY (the v1 85-id listing delivered 65 reject-bait ids;
+    # all 11 pilot gate failures were ERR_REF_NOT_CLOSURE_SAFE picks and the
+    # attempted-ref histogram was dominated by non-referenceable ids).
+    ref2p, jadd21p = HERE / "ref-addendum-v2.md", HERE / "judge-addendum-fidelity-v2.1.md"
+    s5v21 = jfid21 = None
+    if ref2p.exists() and jadd21p.exists():
+        safe = closure_safe_ids()
+        safe_lines = [l for l in listing.strip().splitlines()
+                      if l.split(" — ")[0] in safe]
+        if len(safe_lines) != len(safe):
+            die("closure-safe listing filter: %d lines != %d closure-safe ids "
+                "(listing.txt/adjudication drift)" % (len(safe_lines), len(safe)))
+        s5v21 = (base + "\n" + ref2p.read_text()
+                 + "\n### REFERENCEABLE LEXICON LISTING (closure-safe inventory; "
+                 "the ONLY legal reference targets)\n\n" + "\n".join(safe_lines) + "\n")
+        jfid21 = jbase + "\n" + jadd21p.read_text()
+    fzp21 = HERE / FREEZE_V21
+    if fzp21.exists():  # post-repilot-freeze recompose must be a no-op too
+        pins21 = json.load(open(fzp21)).get("pins", {})
+        for k, v in (("s5_prompt_v21_sha256", s5v21),
+                     ("s5_judge_fidelity_v21_sha256", jfid21)):
+            if v is None or pins21.get(k) != sha256(v):
+                die("FREEZE-v2.1.json exists and recomposing would CHANGE %s -- "
+                    "post-freeze prompt change makes the run exploratory; "
+                    "refusing to overwrite" % k)
     (HERE / "s5-prompt.md").write_text(s5)
     (HERE / "s5-judge-prompt.md").write_text(jbase + "\n" + jadd)
     (HERE / "s5-judge-fidelity.md").write_text(jfid)
     (HERE / "s5-judge-conditional.md").write_text(jcond)
+    if s5v21 is not None:
+        (HERE / S5_PROMPT_V21).write_text(s5v21)
+        (HERE / S5_JUDGE_FID_V21).write_text(jfid21)
     out = {
         "s5_prompt_sha256": sha256(s5),
+        "s5_prompt_v21_sha256": sha256(s5v21) if s5v21 else None,
+        "s5_judge_fidelity_v21_sha256": sha256(jfid21) if jfid21 else None,
         "s5_judge_prompt_sha256": sha256(jbase + "\n" + jadd),
         "s5_judge_fidelity_sha256": sha256(jfid),
         "s5_judge_conditional_sha256": sha256(jcond),
@@ -454,10 +533,14 @@ def closure_safe_ids():
 # ---------------------------------------------------------------------------
 # gen -- S5 arm (+ fresh flat arms for held-out); post-gated by the variant gate
 # ---------------------------------------------------------------------------
-def s5_gate(record_path, row):
+def s5_gate(record_path, row, require_refs=False):
     """validate-record-ref.mjs + pinned mechanical checks minus the flat-only
     'references must be []' rule (DESIGN §5.1-5.2), PLUS the closure-safe
-    reference gate (sol path decision 2026-07-15). Returns the s5gate dict."""
+    reference gate (sol path decision 2026-07-15), PLUS -- under REPILOT-v2.1
+    (require_refs=True) -- the mandatory-uptake rule: a molecule record with
+    zero references is REJECTED (ERR_ZERO_REFS), never silently admitted
+    (ASM-2401; repairs the 68.1%-zero-ref pilot failure). Returns the s5gate
+    dict."""
     p = subprocess.run(["node", str(HERE / "validate-record-ref.mjs"), str(record_path)],
                        capture_output=True, text=True)
     try:
@@ -474,6 +557,10 @@ def s5_gate(record_path, row):
     if viol and gate.get("ok"):
         gate = dict(gate, ok=False, code="ERR_REF_NOT_CLOSURE_SAFE",
                     error="non-closure-safe reference(s): %s" % ", ".join(viol))
+    if require_refs and not refs and gate.get("ok"):
+        gate = dict(gate, ok=False, code="ERR_ZERO_REFS",
+                    error="zero references: REPILOT-v2.1 molecule records MUST "
+                          "import >=1 closure-safe reference (reject-and-resample)")
     return {"gate": gate, "mechanical_check_errors": errs, "warnings": warns,
             "ast_adequacy_self_flag": adequacy,
             "references": obj.get("references"),
@@ -496,6 +583,92 @@ def gen_arm(rows, prompt_path, outdir, models, arm):
                          gate_code=g["gate"].get("code"),
                          n_refs=len(g.get("references") or []))
             results["%s|%s" % (row["concept"], m)] = r
+    return results
+
+
+def repilot_policy():
+    """The pinned REPILOT-v2.1 reject-and-resample policy (ASM-2401)."""
+    return {"rule": ("REJECT-AND-RESAMPLE (REPILOT-v2.1): a generated molecule "
+                     "record is admitted iff it passes validate-record-ref.mjs + "
+                     "the pinned mechanical checks AND carries >=1 reference AND "
+                     "every reference is closure-safe; a rejected attempt is "
+                     "preserved under resample-attempts/ and the cell is "
+                     "regenerated, up to MAX_RESAMPLE=%d fresh attempts; "
+                     "exhaustion => canonical gate ERR_REF_UPTAKE_EXHAUSTED, an "
+                     "ITT NOT-FAITHFUL cell that counts AGAINST the %.0f%% "
+                     "ref-bearing floor" % (MAX_RESAMPLE, 100 * REF_BEARING_FLOOR)),
+            "max_resample": MAX_RESAMPLE, "ref_bearing_floor": REF_BEARING_FLOOR,
+            "reject_codes_resampled": ["ERR_ZERO_REFS", "ERR_REF_NOT_CLOSURE_SAFE",
+                                       "any other gate/mechanical failure"]}
+
+
+def gen_arm_resample(rows, prompt_path, base, models, define_fn=None):
+    """REPILOT-v2.1 mol-arm generation (repair 1 of ASM-2379): reject-and-
+    resample against s5_gate(require_refs=True). Attempt artefacts live under
+    resample-attempts/ (NOT gen-s5*, so score's gate scan sees exactly ONE
+    canonical s5gate per cell); the admitted record is copied byte-identically
+    to the canonical gen-s5/ path used by expand/prep/score. Resumable: a cell
+    with a canonical s5gate is never re-run; an interrupted cell resumes at its
+    first report-less attempt (run_define's own transport-retry rule applies
+    within each attempt). define_fn is injectable ONLY for the offline selftest
+    mock; the campaign path is rp.run_define (pinned runner)."""
+    import shutil
+    define_fn = define_fn or rp.run_define
+    outdir = base / "gen-s5"
+    outdir.mkdir(parents=True, exist_ok=True)
+    results = {}
+    for row in rows:
+        slug = dc.slugify(row["concept"])
+        for m in models:
+            keyname = "%s|%s" % (row["concept"], m)
+            canon_rec = outdir / ("%s.%s.json" % (slug, dc.MODEL_SHORT[m]))
+            canon_gate = outdir / ("%s.%s.s5gate.json" % (slug, dc.MODEL_SHORT[m]))
+            if canon_gate.exists():
+                g = json.load(open(canon_gate))
+                results[keyname] = {"skipped": True, "s5_ok": g.get("s5_ok"),
+                                    "gate_code": (g.get("gate") or {}).get("code"),
+                                    "n_refs": len(g.get("references") or [])}
+                continue
+            attempts, admitted = [], None
+            for k in range(1, MAX_RESAMPLE + 1):
+                adir = (base / "resample-attempts"
+                        / ("%s.%s" % (slug, dc.MODEL_SHORT[m])) / ("attempt-%d" % k))
+                r = define_fn(row, m, prompt_path, adir)
+                rec = adir / ("%s.%s.json" % (slug, dc.MODEL_SHORT[m]))
+                if not rec.exists():
+                    attempts.append({"attempt": k, "outcome": "NO_RECORD", "run": r})
+                    continue
+                g = s5_gate(rec, row, require_refs=True)
+                # NOT named *.s5gate.json: attempt gates must stay invisible to
+                # the score gate-scan (one canonical gate per cell).
+                (adir / "attempt-gate.json").write_text(
+                    json.dumps(g, indent=2, ensure_ascii=False) + "\n")
+                attempts.append({"attempt": k,
+                                 "outcome": "ADMIT" if g["s5_ok"] else
+                                 ((g.get("gate") or {}).get("code") or "MECHANICAL"),
+                                 "n_refs": len(g.get("references") or [])})
+                if g["s5_ok"]:
+                    admitted = (rec, g, k)
+                    break
+            if admitted:
+                rec, g, k = admitted
+                shutil.copyfile(rec, canon_rec)
+                gdoc = dict(g, resample=dict(repilot_policy(), attempts=attempts,
+                                             admitted_attempt=k))
+            else:
+                gdoc = {"gate": {"ok": False, "code": "ERR_REF_UPTAKE_EXHAUSTED",
+                                 "error": "no admissible ref-bearing closure-safe "
+                                          "record in %d attempts" % MAX_RESAMPLE},
+                        "mechanical_check_errors": [], "warnings": [],
+                        "ast_adequacy_self_flag": None, "references": [],
+                        "closure_violations": [], "s5_ok": False,
+                        "resample": dict(repilot_policy(), attempts=attempts,
+                                         admitted_attempt=None)}
+            canon_gate.write_text(json.dumps(gdoc, indent=2, ensure_ascii=False) + "\n")
+            results[keyname] = {"skipped": False, "s5_ok": gdoc["s5_ok"],
+                                "gate_code": (gdoc.get("gate") or {}).get("code"),
+                                "n_refs": len(gdoc.get("references") or []),
+                                "n_attempts": len(attempts)}
     return results
 
 
@@ -528,11 +701,13 @@ def gen_cells_interleaved(rows, base, sp):
 
 def cmd_gen(args):
     manifest = load_manifest()
-    sp = HERE / "s5-prompt.md"
+    repilot = repilot_active()
+    sp = HERE / (S5_PROMPT_V21 if repilot else "s5-prompt.md")
     if not sp.exists():
-        die("s5-prompt.md missing (run: run_s5.py compose)")
+        die("%s missing (run: run_s5.py compose)" % sp.name)
     base = stage_dir(args.stage)
     man = {"stage": args.stage, "lexiconSetHash": manifest["lexiconSetHash"],
+           "s5_prompt_file": sp.name,
            "s5_prompt_sha256": sha256(sp.read_text()),
            "base_prompt_sha256": sha256((CDA / "concept-def-prompt.md").read_text()),
            "attempt_budget": {"MAX_CONTENT": dc.MAX_CONTENT,
@@ -540,13 +715,24 @@ def cmd_gen(args):
     if args.stage in (1, 3):  # v2 campaign stages run post-freeze only (§10)
         fz = verify_freeze()
         man["freeze_sha256"] = sha256(json.dumps(fz, sort_keys=True))
+    if repilot:
+        man["repilot"] = dict(repilot_policy(), kill_verbatim=REPILOT_KILL)
     if args.stage == 1:
-        # v2 pilot (DESIGN-v2 §5): mol cells fresh (48 calls); flat cells reuse
-        # the existing consensus-100 records (0 calls; budget mismatch DISCLOSED,
-        # Sol-permitted for the exploratory pilot).
         rows = stage1_rows()
-        man["s5"] = gen_arm(rows, sp, base / "gen-s5", GEN_MODELS, "s5")
+        if repilot:
+            # REPILOT-v2.1: same fitted n=24; mol cells fresh under reject-and-
+            # resample; flat cells reuse consensus-100 (unchanged, disclosed).
+            man["s5"] = gen_arm_resample(rows, sp, base, GEN_MODELS)
+        else:
+            # v2 pilot (DESIGN-v2 §5): mol cells fresh (48 calls); flat cells reuse
+            # the existing consensus-100 records (0 calls; budget mismatch DISCLOSED,
+            # Sol-permitted for the exploratory pilot).
+            man["s5"] = gen_arm(rows, sp, base / "gen-s5", GEN_MODELS, "s5")
     elif args.stage == 3:
+        if repilot:
+            die("REPILOT-v2.1 covers stage 1 only: the stage-3 interleaved runner "
+                "must be upgraded to reject-and-resample (and re-pinned) before a "
+                "main run -- refusing to run the superseded no-resample policy")
         rows = stage3_rows()
         man["cells"] = gen_cells_interleaved(rows, base, sp)
     else:
@@ -1132,10 +1318,37 @@ def v2_disagreements(jroot):
     return out
 
 
+def adjudication_msg_v21(jroot, bid, user_msg):
+    """REPILOT-v2.1 INFORMED adjudication (repair 2 of ASM-2379): F3 sees the
+    blind input PLUS both reviewers' anonymized checklist audits and resolves
+    each disputed criterial feature (judge-addendum-fidelity-v2.1.md
+    §ADJUDICATOR). Candidate identity stays blind; only verdict JSONs are
+    appended (no judge names, no arm/provenance)."""
+    blocks = [user_msg, "", "=== ADJUDICATION: REVIEWER VERDICTS (anonymized) ==="]
+    for i, j in enumerate(("F1", "F2"), 1):
+        p = jroot / j / (bid + ".json")
+        v = {}
+        if p.exists():
+            d = json.load(open(p))
+            v = (d.get("verdicts") or {}).get("A") or {}
+        blocks.append("REVIEWER %d: %s" % (i, json.dumps(
+            {k: v.get(k) for k in ("verdict", "missing", "quality", "reason")},
+            ensure_ascii=False)))
+    blocks += ["", "You are the ADJUDICATOR for this request (rubric "
+                   "§ADJUDICATOR): run the criterial-feature audit yourself from "
+                   "scratch, resolve each feature the reviewers dispute citing "
+                   "the deciding clause(s), and output the same STRICT-JSON "
+                   "single-\"A\" verdict format."]
+    return "\n".join(blocks)
+
+
 def judge_v2(base, stage, instrument, judge):
-    prompt = HERE / ("s5-judge-%s.md" % instrument)
+    if instrument == "fidelity" and repilot_active():
+        prompt = HERE / S5_JUDGE_FID_V21  # v2.1 checklist instrument (repair 2)
+    else:
+        prompt = HERE / ("s5-judge-%s.md" % instrument)
     if not prompt.exists():
-        die("s5-judge-%s.md missing (run: run_s5.py compose --v2)" % instrument)
+        die("%s missing (run: run_s5.py compose --v2)" % prompt.name)
     qp = base / ("queue-order-%s.json" % instrument)
     if not qp.exists():
         die("queue order missing (run: run_s5.py prep --stage %s --instrument %s)"
@@ -1155,6 +1368,8 @@ def judge_v2(base, stage, instrument, judge):
             skipped += 1
             continue
         user_msg = (base / ("judge-inputs-%s" % instrument) / (bid + ".txt")).read_text()
+        if judge == "F3" and instrument == "fidelity" and repilot_active():
+            user_msg = adjudication_msg_v21(jroot, bid, user_msg)
         print("judge %s [%s] <- %s/%s" % (judge, model, instrument, bid), flush=True)
         r = rp.judge_one(judge, model, bid, sys_prompt, user_msg, jdir)
         done += 1
@@ -1288,6 +1503,14 @@ def paired_counts(pairs):
     b = sum(1 for f, m in pairs if f and not m)
     c = sum(1 for f, m in pairs if m and not f)
     return b, c, len(pairs)
+
+
+def repilot_gate_eval(delta_pp, ref_bearing, mol_cells):
+    """Pure evaluation of the pre-declared RE-PILOT kill (REPILOT_KILL,
+    verbatim, binding): (share, PIVOT?). Denominator = ALL 2n mol cells (ITT);
+    a GATE-FAIL/exhausted/zero-ref cell counts AGAINST the floor."""
+    share = ref_bearing / mol_cells if mol_cells else 0.0
+    return share, bool(share < REF_BEARING_FLOOR or delta_pp <= 0.0)
 
 
 def cascade_pick(cells, arm):
@@ -1462,7 +1685,31 @@ def cmd_score_v2(args):
               % (credit["credit_gap"], credit["n_conditional_judged"], credit["reverse_gap"]),
               "F1/F2 agreement overall: %s" % agreement["overall"]]
 
-    if args.stage == 1:
+    if args.stage == 1 and repilot_active():
+        # RE-PILOT pre-declared kill (REPILOT-v2.1, frozen, VERBATIM & binding).
+        # ref-bearing mol cell := expanded status ok AND n_refs >= 1 (belt-and-
+        # braces; under require_refs every admitted cell is ref-bearing).
+        n_mol_cells = 2 * len(per)
+        n_ref_bearing = sum(
+            1 for s in per for c in ("mol-luna", "mol-fable")
+            if per[s][c]["verdict"] != "GATE-FAIL" and (per[s][c]["n_refs"] or 0) > 0)
+        share, pivot = repilot_gate_eval(primary["delta_pp"], n_ref_bearing, n_mol_cells)
+        res["repilot_gate"] = {
+            "rule_verbatim": REPILOT_KILL,
+            "ref_bearing_mol_cells": n_ref_bearing, "mol_cells_itt": n_mol_cells,
+            "ref_bearing_share": round(share, 3),
+            "ref_bearing_floor": REF_BEARING_FLOOR,
+            "delta_pp": primary["delta_pp"],
+            "PIVOT": pivot,
+            "verdict": ("PIVOT (kill the molecule-S5 instrument)" if pivot else
+                        "NO-KILL: motivates a larger run; CANNOT confirm at n=24 "
+                        "(PROXY-PROVISIONAL, DESIGN-v2 §6)")}
+        lines += ["", "**RE-PILOT PRE-DECLARED KILL: %s** (ref-bearing mol cells "
+                  "%d/%d = %.1f%%, floor %.0f%%; E2 delta %+.1fpp; rule verbatim: "
+                  "\"%s\")" % (res["repilot_gate"]["verdict"], n_ref_bearing,
+                               n_mol_cells, 100 * share, 100 * REF_BEARING_FLOOR,
+                               primary["delta_pp"], REPILOT_KILL)]
+    elif args.stage == 1:
         # Pilot futility gate (DESIGN-v2 §5, frozen): direction-only kill.
         zr = gate_stats["zero_ref_share"]
         stop_dir = primary["delta_pp"] <= 0.0
@@ -1866,16 +2113,43 @@ def current_pins():
     return pins
 
 
-def freeze_mismatches(fz):
-    """Names of VERIFIED_PINS that are missing or differ from the live tree."""
+def resample_code_sha256():
+    """Pins the REPILOT-v2.1 repaired-generator semantics: the resample loop,
+    the gate (incl. ERR_ZERO_REFS), the pre-declared kill evaluation, and the
+    informed-adjudication message builder. Any edit => pin mismatch => the run
+    is exploratory (fail closed, same rule as the expander pin)."""
+    import inspect
+    return sha256(inspect.getsource(gen_arm_resample) + inspect.getsource(s5_gate)
+                  + inspect.getsource(repilot_gate_eval)
+                  + inspect.getsource(adjudication_msg_v21) + REPILOT_KILL
+                  + "|MAX_RESAMPLE=%d|FLOOR=%s" % (MAX_RESAMPLE, REF_BEARING_FLOOR))
+
+
+VERIFIED_PINS_V21 = VERIFIED_PINS + (
+    "s5_prompt_v21_sha256", "s5_judge_fidelity_v21_sha256",
+    "pilot_sample_sha256", "resample_code_sha256")
+
+
+def current_pins_v21():
     pins = current_pins()
+    for k, p in (("s5_prompt_v21_sha256", HERE / S5_PROMPT_V21),
+                 ("s5_judge_fidelity_v21_sha256", HERE / S5_JUDGE_FID_V21),
+                 ("pilot_sample_sha256", AST / "sample.json")):
+        pins[k] = sha256(p.read_bytes()) if p.exists() else None
+    pins["resample_code_sha256"] = resample_code_sha256()
+    return pins
+
+
+def freeze_mismatches(fz, pin_names=VERIFIED_PINS, pins_fn=current_pins):
+    """Names of pinned inputs that are missing or differ from the live tree."""
+    pins = pins_fn()
     fzp = fz.get("pins", {})
-    return [k for k in VERIFIED_PINS
+    return [k for k in pin_names
             if fzp.get(k) is None or pins.get(k) is None or fzp[k] != pins[k]]
 
 
-def verify_freeze_dict(fz):
-    mism = freeze_mismatches(fz)
+def verify_freeze_dict(fz, pin_names=VERIFIED_PINS, pins_fn=current_pins):
+    mism = freeze_mismatches(fz, pin_names, pins_fn)
     if mism:
         die("freeze-pin MISMATCH on %s -- a pinned input changed post-freeze; "
             "the run is exploratory, full stop (DESIGN-v2 §7)" % mism)
@@ -1887,7 +2161,14 @@ def verify_freeze():
     if not p.exists():
         die("FREEZE-v2.json missing -- the v2 campaign stages run POST-freeze "
             "only (run: run_s5.py freeze; DESIGN-v2 §7/§10)")
-    return verify_freeze_dict(json.load(open(p)))
+    fz2 = verify_freeze_dict(json.load(open(p)))
+    p21 = HERE / FREEZE_V21
+    if p21.exists():
+        # REPILOT-v2.1 supersedes v2 for post-repair stages; it ADDS files only,
+        # so the v2 freeze (verified above) must ALSO still hold byte-for-byte.
+        return verify_freeze_dict(json.load(open(p21)),
+                                  VERIFIED_PINS_V21, current_pins_v21)
+    return fz2
 
 
 def cmd_freeze(_args):
@@ -1981,6 +2262,86 @@ def cmd_freeze(_args):
     }
     (HERE / "FREEZE-v2.json").write_text(json.dumps(fz, indent=2, ensure_ascii=False) + "\n")
     print("FROZEN -> FREEZE-v2.json")
+    print(json.dumps(pins, indent=2))
+
+
+def cmd_freeze_repilot(_args):
+    """REPILOT-v2.1 repair freeze (pre-registration of the re-pilot). Requires
+    the v2 freeze to exist AND verify byte-for-byte (v2.1 adds new files only;
+    no v2-pinned artefact may have changed), then pins the repaired generator,
+    the upgraded panel, and the inputs. After this, gen/expand/prep/judge/score
+    --stage 1 run in repilot mode and verify BOTH freezes."""
+    if (HERE / FREEZE_V21).exists():
+        die("%s already exists -- refusing to re-freeze (delete it ONLY if you "
+            "accept the re-pilot becomes exploratory)" % FREEZE_V21)
+    p2 = HERE / "FREEZE-v2.json"
+    if not p2.exists():
+        die("FREEZE-v2.json missing -- the repair freeze SUPERSEDES v2 and "
+            "cannot exist without it")
+    fz2 = verify_freeze_dict(json.load(open(p2)))  # v2 must still hold
+    pins = current_pins_v21()
+    missing = [k for k in VERIFIED_PINS_V21 if pins.get(k) is None]
+    if missing:
+        die("cannot freeze repilot -- missing pinned artefacts: %s (run: "
+            "run_s5.py compose)" % missing)
+    sample = json.load(open(AST / "sample.json"))
+    fz = {
+        "design": ("REPILOT-v2.1 repair freeze (docs/next/design/"
+                   "molecule-s5-repilot-v2.1.md; repairs ASM-2379). Supersedes "
+                   "FREEZE-v2.json for stage 1 and later campaign stages; every "
+                   "v2-pinned artefact is UNCHANGED and still verified."),
+        "pins": pins,
+        "run_s5_sha256_informational": sha256(pathlib.Path(__file__).read_bytes()),
+        "carried_from_v2_verified": {k: fz2["pins"][k] for k in VERIFIED_PINS},
+        "repairs": {
+            "1_uptake": ("reject-and-resample generation (gen_arm_resample + "
+                         "s5_gate require_refs=True: ERR_ZERO_REFS / "
+                         "ERR_REF_NOT_CLOSURE_SAFE / mechanical failures are "
+                         "rejected and the cell regenerated, MAX_RESAMPLE=%d; "
+                         "exhaustion => ERR_REF_UPTAKE_EXHAUSTED, ITT NOT-"
+                         "FAITHFUL) + generation listing restricted to the 20 "
+                         "closure-safe ids (s5-prompt-v2.1.md; the v1 85-id "
+                         "listing delivered 65 reject-bait ids)" % MAX_RESAMPLE),
+            "2_panel": ("s5-judge-fidelity-v2.1.md: criterial-feature checklist "
+                        "with MECHANICAL verdict rule (replaces the holistic "
+                        "threshold that produced F1/F2 kappa 0.204) + F3 "
+                        "INFORMED adjudication on F1/F2 disagreement (sees both "
+                        "anonymized reviewer audits). Judge MODELS unchanged "
+                        "(F1 gpt-5.6-sol, F2 claude-opus-4-8, F3 gpt-5.6-terra): "
+                        "the only stronger same-vendor alternative, "
+                        "claude-fable-5, is a generator in this design and "
+                        "would contaminate judge independence.")},
+        "resample_policy": repilot_policy(),
+        "panel": {"judges": V2_JUDGES,
+                  "rubric": "judge-addendum-fidelity-v2.1.md (composed into s5-judge-fidelity-v2.1.md)",
+                  "adjudication": "F3 informed adjudication on F1/F2 disagreement only; final = F1==F2 verdict, else F3 resolves",
+                  "expected_agreement_STIPULATED": (
+                      "F1/F2 raw >= 0.75, kappa >= 0.45 expected under the "
+                      "checklist rubric (ASM-2402); UNMEASURED until the "
+                      "re-pilot -- score reports measured raw/kappa/AC1 + "
+                      "seeded boot95 overall, by arm, and by ref status; a "
+                      "measured kappa < 0.40 marks the readout "
+                      "instrument-unreliable (disclosure, NOT a kill clause; "
+                      "the binding kill is repilot_kill_verbatim alone)")},
+        "repilot_kill_verbatim": REPILOT_KILL,
+        "kill_operationalization": {
+            "ref_bearing_mol_cell": ("mol cell whose ADMITTED record is gate-clean "
+                                     "(s5_ok) with n_refs >= 1 AND expands clean "
+                                     "(expanded-manifest status ok)"),
+            "denominator": "ALL 2n = 48 mol cells (ITT; GATE-FAIL/exhausted cells count against the floor)",
+            "delta": "E2 primary Mol-E2 - Flat-E2 in pp (unchanged v2 scoring)"},
+        "scoring": ("unchanged DESIGN-v2 §2 v2 scoring: E2 primary, ITT, exact "
+                    "McNemar + Tango95, PROXY-PROVISIONAL; the re-pilot can PIVOT "
+                    "or motivate a larger run; it CANNOT confirm at n=24"),
+        "pilot_sample": {"file": "../ast-pipeline/sample.json",
+                         "n": len(sample.get("concepts", [])),
+                         "sha256": pins["pilot_sample_sha256"],
+                         "note": "same fitted n=24 (no fresh-sample burn); flat cells reuse consensus-100 (disclosed)"},
+        "stage_dir": "s5-run/stage1-repilot (the superseded v2 pilot's s5-run/stage1 is untouched evidence)",
+        "note": "any post-freeze change to a pinned input => the run is exploratory, full stop",
+    }
+    (HERE / FREEZE_V21).write_text(json.dumps(fz, indent=2, ensure_ascii=False) + "\n")
+    print("FROZEN -> %s" % FREEZE_V21)
     print(json.dumps(pins, indent=2))
 
 
@@ -2097,12 +2458,13 @@ def cmd_selftest(_args):
           and "urn:kernel-v0:teacher" not in safe,    # never adjudicated
           "%d safe (%d mol + %d base)" % (len(safe), n_mol, n_base))
 
-    def s5g(refs):
+    def s5g(refs, require_refs=False):
         p = base / "records" / "closure-cand.json"
         p.write_text(json.dumps(synth(refs, refs)))
         return s5_gate(p, {"concept": "selftest-candidate",
                            "urn": "urn:lexical-wn31:n-00000001",
-                           "wn31_gloss": "a synthetic candidate used only by the offline selftest"})
+                           "wn31_gloss": "a synthetic candidate used only by the offline selftest"},
+                       require_refs=require_refs)
 
     g = s5g(["urn:molaug-v0:duty"])
     check("s5 gate: residual REPAIR ref (duty) FAILS CLOSED -> ERR_REF_NOT_CLOSURE_SAFE",
@@ -2394,6 +2756,189 @@ def cmd_selftest(_args):
         died = True
     check("freeze: pin mismatch DIES (fail closed)", died)
 
+    # =======================================================================
+    # 13. REPILOT-v2.1 checks (repair of ASM-2379; all offline, real gate)
+    # =======================================================================
+    import shutil as _sh
+    safe_ids = closure_safe_ids()
+
+    # 13a. composed v2.1 instruments
+    s5v21 = (HERE / S5_PROMPT_V21).read_text()
+    listing_ids = [l.split(" — ")[0] for l in s5v21.splitlines()
+                   if l.startswith(("urn:kernel-v0:", "urn:molaug-v0:"))]
+    check("v2.1 compose: listing restricted to the 20 closure-safe ids (no reject-bait)",
+          len(listing_ids) == 20 and set(listing_ids) == safe_ids
+          and "urn:kernel-v0:teacher" not in s5v21
+          and "urn:molaug-v0:money" not in s5v21,
+          "%d listing ids" % len(listing_ids))
+    check("v2.1 compose: mandatory-uptake rule embedded (zero-ref => reject)",
+          "MUST NOT be empty" in s5v21 and "ERR_ZERO_REFS" in s5v21)
+    jf21 = (HERE / S5_JUDGE_FID_V21).read_text()
+    check("v2.1 compose: checklist instrument + mechanical verdict + adjudicator protocol",
+          "Decision procedure (NEW" in jf21 and "MECHANICAL VERDICT" in jf21
+          and "ADJUDICATOR protocol" in jf21 and "Candidates are fully expanded" in jf21)
+
+    # 13b. gate: zero-ref molecule record REJECTED under require_refs (never
+    # silently admitted -- the pilot's 68.1%-zero-ref failure mode)
+    g = s5g([], require_refs=True)
+    check("v2.1 gate: zero-ref record -> ERR_ZERO_REFS (reject, resample)",
+          not g["s5_ok"] and g["gate"].get("code") == "ERR_ZERO_REFS", g["gate"])
+    g = s5g(["urn:molaug-v0:kill"], require_refs=True)
+    check("v2.1 gate: ref-bearing closure-safe record NOT ref-blocked under require_refs",
+          g["gate"].get("ok") and not g["closure_violations"], g["gate"])
+    g = s5g([], require_refs=False)
+    check("v2.1 gate: require_refs=False keeps v2 semantics (zero-ref not rejected)",
+          g["gate"].get("ok") and g["gate"].get("code") is None, g["gate"])
+
+    # 13c. reject-and-resample MOCK (>=80%% ref-bearing demo, real gate, stub
+    # generator): 12 concepts x 2 models = 24 mol cells; deterministic per-cell
+    # schedules exercise admit@1, zero-ref rejects, non-closure-safe rejects,
+    # and budget exhaustion. MEASURED-ON-MOCK: proves the LOOP admits only
+    # ref-bearing closure-safe records; real-model uptake is the re-pilot's own
+    # question (pre-declared floor).
+    def mock_row(i):
+        c = "mockuptake%02d" % i
+        return {"concept": c, "bucket": "selftest",
+                "urn": "urn:lexical-wn31:n-9%07d" % i, "pos": "n", "lemmas": [c],
+                "wn31_gloss": "a mock wordnet gloss used to exercise the resample loop offline",
+                "self_flags": {}}
+
+    def mock_record(row, refs):
+        clauses = [{"type": "pred", "pred": "BE-SPEC",
+                    "roles": {"undergoer": {"kind": "ref", "index": 1},
+                              "attribute": {"kind": "sp", "head": {"kind": "kindFrame",
+                                            "of": {"kind": "concept", "id": r}}}}}
+                   for r in refs] or [{"type": "pred", "pred": "LIVE",
+                                       "roles": {"undergoer": {"kind": "ref", "index": 1}}}]
+        return {"id": "urn:kernel-v1:%s" % dc.slugify(row["concept"]),
+                "label": row["concept"], "synset": row["urn"], "pattern": "selftest",
+                "gloss": "a synthetic record emitted by the offline resample stub for plumbing checks only",
+                "explication": {"schema": "kot-ast/1", "frame": "InstanceSchema",
+                                "referents": [{"index": 1, "refKind": "SomeoneRef"}],
+                                "clauses": clauses},
+                "references": sorted(refs), "status": "draft",
+                "notes": "AST adequacy: lossy — synthetic."}
+
+    SAFE_REF, UNSAFE_REF = ["urn:molaug-v0:kill"], ["urn:kernel-v0:teacher"]
+
+    def schedule_for(idx):
+        pat = idx % 12
+        if pat < 6:
+            return ["safe"]                                # admit at attempt 1
+        if pat < 9:
+            return ["zero", "safe"]                        # zero-ref reject, then admit
+        if pat == 9:
+            return ["unsafe", "zero", "safe"]              # closure reject path
+        if pat == 10:
+            return ["zero", "unsafe", "zero", "safe"]      # admit at the budget edge
+        return ["zero", "zero", "zero", "zero"]            # EXHAUST (ITT fail)
+
+    mrows = [mock_row(i) for i in range(12)]
+    cell_index, idx = {}, 0
+    for row in mrows:
+        for m in GEN_MODELS:
+            cell_index[(row["concept"], m)] = idx
+            idx += 1
+    stub_calls = {"n": 0}
+
+    def stub_define(row, model, prompt_path, outdir):
+        slug, short = dc.slugify(row["concept"]), dc.MODEL_SHORT[model]
+        rep = outdir / ("%s.%s.report.json" % (slug, short))
+        if rep.exists():  # mirror rp.run_define resume semantics
+            return {"skipped": True}
+        stub_calls["n"] += 1
+        outdir.mkdir(parents=True, exist_ok=True)
+        k = int(outdir.name.split("-")[-1])
+        kind = schedule_for(cell_index[(row["concept"], model)])[k - 1]
+        refs = SAFE_REF if kind == "safe" else (UNSAFE_REF if kind == "unsafe" else [])
+        (outdir / ("%s.%s.json" % (slug, short))).write_text(
+            json.dumps(mock_record(row, refs), indent=1, ensure_ascii=False))
+        rep.write_text(json.dumps({"ok": True, "mock": True}))
+        return {"skipped": False, "ok": True}
+
+    mbase = st / "repilot-mock"
+    _sh.rmtree(mbase, ignore_errors=True)
+    res1 = gen_arm_resample(mrows, HERE / S5_PROMPT_V21, mbase, GEN_MODELS,
+                            define_fn=stub_define)
+    gates = {p.stem: json.load(open(p)) for p in (mbase / "gen-s5").glob("*.s5gate.json")}
+    admitted = {k: g for k, g in gates.items() if g.get("s5_ok")}
+    exhausted = {k: g for k, g in gates.items()
+                 if (g.get("gate") or {}).get("code") == "ERR_REF_UPTAKE_EXHAUSTED"}
+    ref_bearing = sum(1 for g in admitted.values() if len(g.get("references") or []) > 0)
+    share, _ = repilot_gate_eval(1.0, ref_bearing, len(gates))
+    check("v2.1 resample mock: 24 cells -> 22 ref-bearing admitted, 2 exhausted, "
+          "share 91.7% >= 80% floor (MEASURED-ON-MOCK)",
+          len(gates) == 24 and len(res1) == 24 and ref_bearing == 22
+          and len(admitted) == 22 and len(exhausted) == 2
+          and share >= REF_BEARING_FLOOR,
+          "share=%.3f admitted=%d exhausted=%d" % (share, len(admitted), len(exhausted)))
+    check("v2.1 resample mock: only ref-bearing CLOSURE-SAFE records admitted "
+          "(zero-ref and non-closure-safe attempts all rejected)",
+          all(g["references"] == SAFE_REF for g in admitted.values()))
+    # admitted-attempt ledger: attempt number == position of 'safe' in schedule
+    led_ok = True
+    for row in mrows:
+        for m in GEN_MODELS:
+            slug = dc.slugify(row["concept"])
+            gp = mbase / "gen-s5" / ("%s.%s.s5gate.json" % (slug, dc.MODEL_SHORT[m]))
+            g = json.load(open(gp))
+            sched = schedule_for(cell_index[(row["concept"], m)])
+            want = (sched.index("safe") + 1) if "safe" in sched else None
+            led_ok = led_ok and g["resample"]["admitted_attempt"] == want \
+                and len(g["resample"]["attempts"]) == (want or len(sched))
+    n_attempt_gates = len(list((mbase / "resample-attempts").rglob("attempt-gate.json")))
+    check("v2.1 resample mock: attempt ledger exact (admit at scheduled attempt; "
+          "46 stub calls; every rejected attempt preserved with its gate)",
+          led_ok and stub_calls["n"] == 46 and n_attempt_gates == 46,
+          "calls=%d attempt_gates=%d" % (stub_calls["n"], n_attempt_gates))
+    ex_row, ex_m = mrows[5], FABLE  # cell index 11 -> exhaust schedule
+    check("v2.1 resample mock: exhausted cell leaves NO canonical record -> "
+          "s5_record None -> ITT GATE-FAIL",
+          s5_record(mbase, "gen-s5", ex_row, ex_m) is None
+          and not (mbase / "gen-s5" / ("%s.%s.json" % (dc.slugify(ex_row["concept"]),
+                                                       dc.MODEL_SHORT[ex_m]))).exists())
+    before = stub_calls["n"]
+    res2 = gen_arm_resample(mrows, HERE / S5_PROMPT_V21, mbase, GEN_MODELS,
+                            define_fn=stub_define)
+    check("v2.1 resample mock: resumable -- second pass skips all 24 cells, zero new calls",
+          stub_calls["n"] == before and len(res2) == 24
+          and all(v.get("skipped") for v in res2.values()))
+
+    # 13d. pre-declared kill evaluation (VERBATIM rule, unit truth table)
+    check("v2.1 kill: truth table (floor AND direction clauses, boundaries exact)",
+          repilot_gate_eval(4.2, 39, 48) == (39 / 48, False)      # 81.2%, +4.2pp -> no kill
+          and repilot_gate_eval(4.2, 38, 48)[1]                   # 79.2% -> PIVOT
+          and repilot_gate_eval(0.0, 48, 48)[1]                   # delta 0pp -> PIVOT (<= 0)
+          and repilot_gate_eval(-12.5, 48, 48)[1]                 # pilot repeat -> PIVOT
+          and not repilot_gate_eval(0.1, 32, 40)[1])              # exactly 80% & >0 -> no kill
+
+    # 13e. informed F3 adjudication message (anonymized reviewer audits)
+    jrt = st / "repilot-adj"
+    for j, v in (("F1", "FAITHFUL"), ("F2", "LOSSY")):
+        (jrt / j).mkdir(parents=True, exist_ok=True)
+        (jrt / j / "abc123.json").write_text(json.dumps(
+            {"ok": True, "verdicts": {"A": {"verdict": v, "missing": "2 spouse died: MISSING",
+                                            "quality": 2, "reason": "1 genus: PRESENT"}}}))
+    msg = adjudication_msg_v21(jrt, "abc123", "ORIGINAL-INPUT")
+    tail = msg.split("ORIGINAL-INPUT", 1)[1]
+    check("v2.1 adjudication: F3 message = blind input + both reviewer audits, "
+          "anonymized (no judge names), adjudicator instruction appended",
+          msg.startswith("ORIGINAL-INPUT") and "REVIEWER 1" in tail and "REVIEWER 2" in tail
+          and "FAITHFUL" in tail and "LOSSY" in tail and "ADJUDICATOR" in tail
+          and '"F1"' not in tail and '"F2"' not in tail)
+
+    # 13f. v2.1 freeze pins verify + tamper detection (fail closed)
+    pins21 = current_pins_v21()
+    fz21_good = {"pins": {k: v for k, v in pins21.items() if v is not None}}
+    mism = freeze_mismatches(fz21_good, VERIFIED_PINS_V21, current_pins_v21)
+    check("v2.1 freeze: live repilot pins verify (prompt+judge+sample+resample-code)",
+          mism == [], mism)
+    fz21_bad = json.loads(json.dumps(fz21_good))
+    fz21_bad["pins"]["resample_code_sha256"] = "0" * 64
+    check("v2.1 freeze: tampered resample-policy pin detected",
+          "resample_code_sha256" in freeze_mismatches(fz21_bad, VERIFIED_PINS_V21,
+                                                      current_pins_v21))
+
     ok = all(c["ok"] for c in checks)
     (st / "SELFTEST.md").write_text(
         "# S5 offline selftest\n\nNo model calls; codex not required.\n\n```json\n%s\n```\n\n**VERDICT: %s**\n"
@@ -2439,7 +2984,10 @@ def main():
     p = sub.add_parser("calibrate")
     p.add_argument("--seed", type=int, default=DEFAULT_SEED)
     p.add_argument("--i-am-the-coordinator", action="store_true")
-    sub.add_parser("freeze")
+    p = sub.add_parser("freeze")
+    p.add_argument("--repilot", action="store_true",
+                   help="write FREEZE-v2.1.json (REPILOT-v2.1 repair freeze; "
+                        "requires a byte-verified FREEZE-v2.json)")
     sub.add_parser("dryrun")
     sub.add_parser("selftest")
     args = ap.parse_args()
@@ -2455,6 +3003,8 @@ def main():
         return cmd_judge(args)
     if args.cmd == "score":
         return (cmd_score_v2 if args.v2 else cmd_score)(args)
+    if args.cmd == "freeze":
+        return (cmd_freeze_repilot if args.repilot else cmd_freeze)(args)
     {"compose": cmd_compose, "sample": cmd_sample, "gen": cmd_gen,
      "expand": cmd_expand, "adjudicate-lexicon": cmd_adjudicate_lexicon,
      "calibrate": cmd_calibrate, "freeze": cmd_freeze,

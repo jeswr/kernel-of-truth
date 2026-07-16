@@ -1,0 +1,26 @@
+# Molecule-S5 pilot futility STOP — interpretation (Fable, 2026-07-15)
+
+**Scope [STIPULATED]:** interprets `poc/scale/molecule-aug/results-incoming/20260715-pilot-s5v2-score/score-stage1-v2.txt` (PROXY-PROVISIONAL, n=24, DESIGN-v2 §5–6). The STOP stands procedurally; nothing here re-verdicts it. The record-level decomposition below only reads the pinned scorer's own output (`s5-run/stage1/results-s5-v2.json`, `per_concept`); no re-scoring, no new calls. This note is an interpretation plus a labelled subjective read; the programme feasibility conclusion stays the maintainer's.
+
+## 1. Hypothesis-kill vs instrument-artifact? Neither — it is an UPTAKE failure
+
+- [MEASURED] The ref-closure technicality contributed **0pp of the -12.5pp**. All 5 flat-only discordant concepts (appearance, apparition, dissociation, ransom, cheerfulness) contain a *judged* LOSSY mol cell; the 3 concepts where both mol cells gate-failed (builder, service, stockholder) were concordant failures (flat not faithful either) and cancel in McNemar. The diagnostic per-protocol exclusion of GATE-FAIL/UNRESOLVED cells leaves b/c at **5/2 — the sign does not change**. A fixed generator clearing ERR_REF_NOT_CLOSURE_SAFE would not, by itself, have flipped this pilot.
+- [MEASURED] But the losing cells were not doing composition. Of the 9 judged mol cells across those 5 concepts, 8 have n_refs=0 (the 9th has 1 ref). Arm-wide: judged **ref-bearing** mol cells = **4 of 48** (1 FAITHFUL / 3 LOSSY); judged zero-ref = 32 (14 F / 17 L / 1 UNRESOLVED); zero-ref share 0.681; all 11 gate failures are the single mechanical class ERR_REF_NOT_CLOSURE_SAFE.
+- [ESTIMATE] So the -12.5pp is "S5 prompt *without delivered references* vs flat", at noise-level evidence (p=0.453; Tango95 [-29.4, +11.1]). Gate clause (b) anticipated exactly this failure mode (zero-ref ≥80% ⇒ fix the prompt, don't burn the sample); uptake landed at 68.1%, just under, so the direction-only clause (a) fired instead. The gate behaved as frozen; both intuitive readings — "killed on a closure technicality" and "composition content lost" — are wrong on the record.
+
+## 2. Is the fidelity instrument trustworthy at this n?
+
+- [MEASURED] F1/F2: raw 0.5714 on n=84, kappa 0.2038 (boot95 lower 0.033), AC1 0.1472 — AC1 is low too, so this is genuinely poor agreement, not the kappa-prevalence paradox. It is *worse* than the AST-sweep's 63.2%, which the S5 readiness review had already ruled inadequate for confirmation.
+- [ESTIMATE] At this reliability the 7 individual discordant flips are individually unreliable; the pilot keeps its pre-committed authority to kill on direction, but licenses no content conclusion in either direction. Internal signals corroborate noise: mol mean quality 1.75 > flat 1.552 and mol self-flag-lossy 0.389 < flat 0.646, yet E2 goes negative. Hard faithfulness judging is expected to be noisy, but kappa 0.2 is at the floor of usable — a re-pilot under this panel would re-decide a direction-only gate roughly by coin flip.
+
+## 3. What it means for CORRECTNESS
+
+- [STIPULATED: ASM-2379] CORRECTNESS stays **INCONCLUSIVE-PENDING** (ASM-1840/1841 verdict-words unchanged; v8 §5). This pilot is one PROXY-PROVISIONAL shakedown at n=24, pre-registered as "instrument shakedown + futility only"; it cannot move a thesis verdict-word.
+- [ESTIMATE] The negative is on **the molecule-S5 instrument-as-specified** — generation uptake, closure-safe ref emission, and proxy-judge reliability — not on the molecule/grounding hypothesis broadly: the hypothesis's operative condition (compose from references, then be judged) was administered-and-judged **4 times**. Equally honestly: the pilot produced no evidence *for* molecules either (the +4.2pp fable secondary is noise), and the 1/4 ref-bearing FAITHFUL rate is too thin to read.
+
+## 4. Fork recommendation (labelled opinion, mine)
+
+- [ESTIMATE/opinion] **REPAIR, not KILL or PIVOT** — narrowly: (i) reject-and-resample generation against the frozen `validate-record-ref.mjs`, requiring ≥1 closure-safe ref wherever the inventory covers the concept (the 11 failures are one fixable class; the deeper defect is the prompt eliciting no refs at all in 68% of records); (ii) do **not** re-judge under the current panel — upgrade toward the readiness-review judge protocol first. Re-pilot on the *same* fitted n=24 (no fresh-sample burn): ~48 gen + ~100–150 judge calls, same order as Step A and well inside the priced $90–260 path. Pre-declare the kill: repaired uptake <80% ref-bearing OR repaired Mol-E2 − Flat-E2 ≤ 0pp again ⇒ kill the instrument and PIVOT to a different correctness instrument. What looks fixable: uptake and closure emission (mechanical, single error class). What may be dead: the LLM-proxy fidelity panel at this kappa — that, not the molecule idea, is the component this pilot actually indicted.
+- **Single most decisive next datum:** the judged-FAITHFUL rate of *ref-bearing, gate-clean* molecule cells at n ≥ 20 — today that cell has n=4.
+
+**Fork line for the coordinator:** REPAIR-THEN-RE-PILOT molecule-S5 — enforce closure-safe ref uptake at generation (reject-and-resample) and upgrade the fidelity panel per the readiness review, re-run on the same n=24 with the pre-declared kill above; do not kill the molecule hypothesis on this STOP and do not touch the CORRECTNESS verdict-word.

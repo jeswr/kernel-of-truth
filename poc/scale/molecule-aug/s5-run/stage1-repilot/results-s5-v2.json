@@ -1,0 +1,824 @@
+{
+  "stage": 1,
+  "design": "DESIGN-v2.md §2 (PROXY-PROVISIONAL)",
+  "n_concepts": 24,
+  "itt_cell_counts": {
+    "GATE-FAIL": 1,
+    "UNJUDGED": 2,
+    "UNRESOLVED": 0
+  },
+  "primary_e2": {
+    "n": 24,
+    "b_flat_only": 5,
+    "c_mol_only": 4,
+    "delta": -0.0417,
+    "delta_pp": -4.2,
+    "mcnemar_exact_p": 1.0,
+    "tango95_ci": [
+      -0.2803,
+      0.2151
+    ],
+    "tango95_ci_pp": [
+      -28.0,
+      21.5
+    ],
+    "flat_e2": 14,
+    "mol_e2": 13
+  },
+  "cascade_secondary": {
+    "n": 24,
+    "b_flat_only": 6,
+    "c_mol_only": 4,
+    "delta": -0.0833,
+    "delta_pp": -8.3,
+    "mcnemar_exact_p": 0.753906,
+    "tango95_ci": [
+      -0.3123,
+      0.1876
+    ],
+    "tango95_ci_pp": [
+      -31.2,
+      18.8
+    ]
+  },
+  "per_generator_secondary": {
+    "luna": {
+      "n": 24,
+      "b_flat_only": 4,
+      "c_mol_only": 0,
+      "delta": -0.1667,
+      "delta_pp": -16.7,
+      "mcnemar_exact_p": 0.125,
+      "tango95_ci": [
+        -0.219,
+        -0.0084
+      ],
+      "tango95_ci_pp": [
+        -21.9,
+        -0.8
+      ]
+    },
+    "fable": {
+      "n": 24,
+      "b_flat_only": 5,
+      "c_mol_only": 4,
+      "delta": -0.0417,
+      "delta_pp": -4.2,
+      "mcnemar_exact_p": 1.0,
+      "tango95_ci": [
+        -0.2803,
+        0.2151
+      ],
+      "tango95_ci_pp": [
+        -28.0,
+        21.5
+      ]
+    }
+  },
+  "mean_quality_by_arm": {
+    "flat": 1.688,
+    "mol": 1.644
+  },
+  "self_flag_lossy_share_by_arm": {
+    "flat": 0.646,
+    "mol": 0.596
+  },
+  "gate_and_reference_usage": {
+    "s5_ok": 47,
+    "s5_fail": 1,
+    "err_codes": {
+      "ERR_REF_UPTAKE_EXHAUSTED": 1
+    },
+    "zero_ref_share": 0.021,
+    "ref_id_histogram": {
+      "urn:kernel-v0:event": 25,
+      "urn:molaug-v0:surface": 3,
+      "urn:molaug-v0:country": 2,
+      "urn:molaug-v0:group": 7,
+      "urn:kernel-v0:wrong": 1,
+      "urn:kernel-v0:right": 3,
+      "urn:kernel-v0:death": 4,
+      "urn:molaug-v0:law": 4,
+      "urn:kernel-v0:take": 3,
+      "urn:molaug-v0:animal": 2,
+      "urn:molaug-v0:kill": 2,
+      "urn:molaug-v0:authority": 2,
+      "urn:molaug-v0:own": 3
+    },
+    "mean_refs_per_record": 1.27
+  },
+  "judge_agreement": {
+    "overall": {
+      "n": 93,
+      "raw": 0.6774,
+      "kappa": 0.3816,
+      "ac1": 0.3567,
+      "kappa_boot95": [
+        0.2144,
+        0.532
+      ],
+      "ac1_boot95": [
+        0.1628,
+        0.5313
+      ]
+    },
+    "arm_flat": {
+      "n": 48,
+      "raw": 0.7292,
+      "kappa": 0.4851,
+      "ac1": 0.4586,
+      "kappa_boot95": [
+        0.25,
+        0.7103
+      ],
+      "ac1_boot95": [
+        0.1795,
+        0.7115
+      ]
+    },
+    "arm_mol": {
+      "n": 45,
+      "raw": 0.6222,
+      "kappa": 0.2679,
+      "ac1": 0.2504,
+      "kappa_boot95": [
+        0.0096,
+        0.5161
+      ],
+      "ac1_boot95": [
+        -0.0142,
+        0.5341
+      ]
+    },
+    "ref_bearing": {
+      "n": 45,
+      "raw": 0.6222,
+      "kappa": 0.2679,
+      "ac1": 0.2504,
+      "kappa_boot95": [
+        0.0096,
+        0.5217
+      ],
+      "ac1_boot95": [
+        -0.0537,
+        0.5474
+      ]
+    },
+    "zero_ref": {
+      "n": 48,
+      "raw": 0.7292,
+      "kappa": 0.4851,
+      "ac1": 0.4586,
+      "kappa_boot95": [
+        0.2683,
+        0.7083
+      ],
+      "ac1_boot95": [
+        0.2114,
+        0.7095
+      ]
+    }
+  },
+  "conditional_credit_gap": {
+    "n_conditional_judged": 0,
+    "credit_gap": 0,
+    "reverse_gap": 0,
+    "items": []
+  },
+  "per_concept": {
+    "appearance": {
+      "flat-luna": {
+        "verdict": "FAITHFUL",
+        "quality": 2,
+        "n_refs": 0,
+        "self_flag": "faithful"
+      },
+      "flat-fable": {
+        "verdict": "FAITHFUL",
+        "quality": 2,
+        "n_refs": 0,
+        "self_flag": "faithful"
+      },
+      "mol-luna": {
+        "verdict": "LOSSY",
+        "quality": 1.5,
+        "n_refs": 1,
+        "self_flag": "faithful"
+      },
+      "mol-fable": {
+        "verdict": "FAITHFUL",
+        "quality": 2,
+        "n_refs": 1,
+        "self_flag": "faithful"
+      }
+    },
+    "exit": {
+      "flat-luna": {
+        "verdict": "FAITHFUL",
+        "quality": 2.5,
+        "n_refs": 0,
+        "self_flag": "faithful"
+      },
+      "flat-fable": {
+        "verdict": "FAITHFUL",
+        "quality": 3,
+        "n_refs": 0,
+        "self_flag": "faithful"
+      },
+      "mol-luna": {
+        "verdict": "FAITHFUL",
+        "quality": 2,
+        "n_refs": 1,
+        "self_flag": "faithful"
+      },
+      "mol-fable": {
+        "verdict": "FAITHFUL",
+        "quality": 2,
+        "n_refs": 1,
+        "self_flag": "faithful"
+      }
+    },
+    "fidelity": {
+      "flat-luna": {
+        "verdict": "LOSSY",
+        "quality": 1,
+        "n_refs": 0,
+        "self_flag": "faithful"
+      },
+      "flat-fable": {
+        "verdict": "LOSSY",
+        "quality": 1,
+        "n_refs": 0,
+        "self_flag": "faithful"
+      },
+      "mol-luna": {
+        "verdict": "LOSSY",
+        "quality": 1,
+        "n_refs": 1,
+        "self_flag": "faithful"
+      },
+      "mol-fable": {
+        "verdict": "LOSSY",
+        "quality": 1,
+        "n_refs": 1,
+        "self_flag": "faithful"
+      }
+    },
+    "repeater": {
+      "flat-luna": {
+        "verdict": "FAITHFUL",
+        "quality": 2.5,
+        "n_refs": 0,
+        "self_flag": "faithful"
+      },
+      "flat-fable": {
+        "verdict": "FAITHFUL",
+        "quality": 2.5,
+        "n_refs": 0,
+        "self_flag": "faithful"
+      },
+      "mol-luna": {
+        "verdict": "FAITHFUL",
+        "quality": 2,
+        "n_refs": 1,
+        "self_flag": "faithful"
+      },
+      "mol-fable": {
+        "verdict": "FAITHFUL",
+        "quality": 2,
+        "n_refs": 1,
+        "self_flag": "faithful"
+      }
+    },
+    "apparition": {
+      "flat-luna": {
+        "verdict": "LOSSY",
+        "quality": 2,
+        "n_refs": 0,
+        "self_flag": "lossy"
+      },
+      "flat-fable": {
+        "verdict": "FAITHFUL",
+        "quality": 2.5,
+        "n_refs": 0,
+        "self_flag": "faithful"
+      },
+      "mol-luna": {
+        "verdict": "LOSSY",
+        "quality": 2,
+        "n_refs": 1,
+        "self_flag": "lossy"
+      },
+      "mol-fable": {
+        "verdict": "FAITHFUL",
+        "quality": 3,
+        "n_refs": 1,
+        "self_flag": "faithful"
+      }
+    },
+    "fastening": {
+      "flat-luna": {
+        "verdict": "LOSSY",
+        "quality": 1,
+        "n_refs": 0,
+        "self_flag": "lossy"
+      },
+      "flat-fable": {
+        "verdict": "FAITHFUL",
+        "quality": 2.5,
+        "n_refs": 0,
+        "self_flag": "faithful"
+      },
+      "mol-luna": {
+        "verdict": "LOSSY",
+        "quality": 1,
+        "n_refs": 1,
+        "self_flag": "lossy"
+      },
+      "mol-fable": {
+        "verdict": "LOSSY",
+        "quality": 2.5,
+        "n_refs": 1,
+        "self_flag": "faithful"
+      }
+    },
+    "poisoning": {
+      "flat-luna": {
+        "verdict": "LOSSY",
+        "quality": 1,
+        "n_refs": 0,
+        "self_flag": "lossy"
+      },
+      "flat-fable": {
+        "verdict": "FAITHFUL",
+        "quality": 2,
+        "n_refs": 0,
+        "self_flag": "faithful"
+      },
+      "mol-luna": {
+        "verdict": "LOSSY",
+        "quality": 1,
+        "n_refs": 1,
+        "self_flag": "lossy"
+      },
+      "mol-fable": {
+        "verdict": "FAITHFUL",
+        "quality": 2,
+        "n_refs": 2,
+        "self_flag": "faithful"
+      }
+    },
+    "access": {
+      "flat-luna": {
+        "verdict": "LOSSY",
+        "quality": 1,
+        "n_refs": 0,
+        "self_flag": "lossy"
+      },
+      "flat-fable": {
+        "verdict": "LOSSY",
+        "quality": 2,
+        "n_refs": 0,
+        "self_flag": "lossy"
+      },
+      "mol-luna": {
+        "verdict": "LOSSY",
+        "quality": 1,
+        "n_refs": 1,
+        "self_flag": "lossy"
+      },
+      "mol-fable": {
+        "verdict": "FAITHFUL",
+        "quality": 2,
+        "n_refs": 1,
+        "self_flag": "faithful"
+      }
+    },
+    "depletion": {
+      "flat-luna": {
+        "verdict": "LOSSY",
+        "quality": 1.5,
+        "n_refs": 0,
+        "self_flag": "lossy"
+      },
+      "flat-fable": {
+        "verdict": "FAITHFUL",
+        "quality": 2.5,
+        "n_refs": 0,
+        "self_flag": "faithful"
+      },
+      "mol-luna": {
+        "verdict": "LOSSY",
+        "quality": 1.5,
+        "n_refs": 1,
+        "self_flag": "lossy"
+      },
+      "mol-fable": {
+        "verdict": "FAITHFUL",
+        "quality": 2,
+        "n_refs": 1,
+        "self_flag": "faithful"
+      }
+    },
+    "dissociation": {
+      "flat-luna": {
+        "verdict": "FAITHFUL",
+        "quality": 2,
+        "n_refs": 0,
+        "self_flag": "lossy"
+      },
+      "flat-fable": {
+        "verdict": "LOSSY",
+        "quality": 1.5,
+        "n_refs": 0,
+        "self_flag": "lossy"
+      },
+      "mol-luna": {
+        "verdict": "FAITHFUL",
+        "quality": 2,
+        "n_refs": 1,
+        "self_flag": "lossy"
+      },
+      "mol-fable": {
+        "verdict": "LOSSY",
+        "quality": 2,
+        "n_refs": 1,
+        "self_flag": "lossy"
+      }
+    },
+    "view": {
+      "flat-luna": {
+        "verdict": "FAITHFUL",
+        "quality": 2,
+        "n_refs": 0,
+        "self_flag": "lossy"
+      },
+      "flat-fable": {
+        "verdict": "FAITHFUL",
+        "quality": 2,
+        "n_refs": 0,
+        "self_flag": "faithful"
+      },
+      "mol-luna": {
+        "verdict": "LOSSY",
+        "quality": 1.5,
+        "n_refs": 1,
+        "self_flag": "faithful"
+      },
+      "mol-fable": {
+        "verdict": "LOSSY",
+        "quality": 2,
+        "n_refs": 1,
+        "self_flag": "faithful"
+      }
+    },
+    "inhabitancy": {
+      "flat-luna": {
+        "verdict": "FAITHFUL",
+        "quality": 2.5,
+        "n_refs": 0,
+        "self_flag": "lossy"
+      },
+      "flat-fable": {
+        "verdict": "FAITHFUL",
+        "quality": 2.5,
+        "n_refs": 0,
+        "self_flag": "faithful"
+      },
+      "mol-luna": {
+        "verdict": "LOSSY",
+        "quality": 2,
+        "n_refs": 1,
+        "self_flag": "lossy"
+      },
+      "mol-fable": {
+        "verdict": "FAITHFUL",
+        "quality": 2.5,
+        "n_refs": 1,
+        "self_flag": "lossy"
+      }
+    },
+    "wealth": {
+      "flat-luna": {
+        "verdict": "LOSSY",
+        "quality": 0.5,
+        "n_refs": 0,
+        "self_flag": "faithful"
+      },
+      "flat-fable": {
+        "verdict": "LOSSY",
+        "quality": 1,
+        "n_refs": 0,
+        "self_flag": "lossy"
+      },
+      "mol-luna": {
+        "verdict": "LOSSY",
+        "quality": 0,
+        "n_refs": 1,
+        "self_flag": "lossy"
+      },
+      "mol-fable": {
+        "verdict": "LOSSY",
+        "quality": 1,
+        "n_refs": 1,
+        "self_flag": "lossy"
+      }
+    },
+    "feasibility": {
+      "flat-luna": {
+        "verdict": "FAITHFUL",
+        "quality": 2,
+        "n_refs": 0,
+        "self_flag": "lossy"
+      },
+      "flat-fable": {
+        "verdict": "FAITHFUL",
+        "quality": 2,
+        "n_refs": 0,
+        "self_flag": "faithful"
+      },
+      "mol-luna": {
+        "verdict": "LOSSY",
+        "quality": 1.5,
+        "n_refs": 1,
+        "self_flag": "faithful"
+      },
+      "mol-fable": {
+        "verdict": "LOSSY",
+        "quality": 1.5,
+        "n_refs": 1,
+        "self_flag": "faithful"
+      }
+    },
+    "builder": {
+      "flat-luna": {
+        "verdict": "LOSSY",
+        "quality": 1,
+        "n_refs": 0,
+        "self_flag": "lossy"
+      },
+      "flat-fable": {
+        "verdict": "LOSSY",
+        "quality": 1.5,
+        "n_refs": 0,
+        "self_flag": "lossy"
+      },
+      "mol-luna": {
+        "verdict": "LOSSY",
+        "quality": 1,
+        "n_refs": 2,
+        "self_flag": "lossy"
+      },
+      "mol-fable": {
+        "verdict": "FAITHFUL",
+        "quality": 2,
+        "n_refs": 2,
+        "self_flag": "lossy"
+      }
+    },
+    "medium": {
+      "flat-luna": {
+        "verdict": "FAITHFUL",
+        "quality": 2.5,
+        "n_refs": 0,
+        "self_flag": "faithful"
+      },
+      "flat-fable": {
+        "verdict": "FAITHFUL",
+        "quality": 3,
+        "n_refs": 0,
+        "self_flag": "lossy"
+      },
+      "mol-luna": {
+        "verdict": "FAITHFUL",
+        "quality": 2,
+        "n_refs": 1,
+        "self_flag": "faithful"
+      },
+      "mol-fable": {
+        "verdict": "FAITHFUL",
+        "quality": 2,
+        "n_refs": 1,
+        "self_flag": "lossy"
+      }
+    },
+    "ransom": {
+      "flat-luna": {
+        "verdict": "LOSSY",
+        "quality": 1,
+        "n_refs": 0,
+        "self_flag": "lossy"
+      },
+      "flat-fable": {
+        "verdict": "FAITHFUL",
+        "quality": 2,
+        "n_refs": 0,
+        "self_flag": "lossy"
+      },
+      "mol-luna": {
+        "verdict": "LOSSY",
+        "quality": 1,
+        "n_refs": 2,
+        "self_flag": "lossy"
+      },
+      "mol-fable": {
+        "verdict": "LOSSY",
+        "quality": 1.5,
+        "n_refs": 2,
+        "self_flag": "lossy"
+      }
+    },
+    "service": {
+      "flat-luna": {
+        "verdict": "LOSSY",
+        "quality": 1,
+        "n_refs": 0,
+        "self_flag": "lossy"
+      },
+      "flat-fable": {
+        "verdict": "LOSSY",
+        "quality": 1.5,
+        "n_refs": 0,
+        "self_flag": "lossy"
+      },
+      "mol-luna": {
+        "verdict": "LOSSY",
+        "quality": 1.5,
+        "n_refs": 1,
+        "self_flag": "lossy"
+      },
+      "mol-fable": {
+        "verdict": "LOSSY",
+        "quality": 2,
+        "n_refs": 3,
+        "self_flag": "lossy"
+      }
+    },
+    "dislocation": {
+      "flat-luna": {
+        "verdict": "LOSSY",
+        "quality": 1.5,
+        "n_refs": 0,
+        "self_flag": "lossy"
+      },
+      "flat-fable": {
+        "verdict": "LOSSY",
+        "quality": 1.5,
+        "n_refs": 0,
+        "self_flag": "lossy"
+      },
+      "mol-luna": {
+        "verdict": "LOSSY",
+        "quality": 1,
+        "n_refs": 1,
+        "self_flag": "lossy"
+      },
+      "mol-fable": {
+        "verdict": "FAITHFUL",
+        "quality": 2,
+        "n_refs": 1,
+        "self_flag": "lossy"
+      }
+    },
+    "conception": {
+      "flat-luna": {
+        "verdict": "LOSSY",
+        "quality": 0,
+        "n_refs": 0,
+        "self_flag": "lossy"
+      },
+      "flat-fable": {
+        "verdict": "LOSSY",
+        "quality": 1.5,
+        "n_refs": 0,
+        "self_flag": "lossy"
+      },
+      "mol-luna": {
+        "verdict": "LOSSY",
+        "quality": 0,
+        "n_refs": 1,
+        "self_flag": "lossy"
+      },
+      "mol-fable": {
+        "verdict": "GATE-FAIL",
+        "quality": null,
+        "n_refs": null,
+        "self_flag": null
+      }
+    },
+    "cheerfulness": {
+      "flat-luna": {
+        "verdict": "LOSSY",
+        "quality": 0.5,
+        "n_refs": 0,
+        "self_flag": "lossy"
+      },
+      "flat-fable": {
+        "verdict": "FAITHFUL",
+        "quality": 2,
+        "n_refs": 0,
+        "self_flag": "lossy"
+      },
+      "mol-luna": {
+        "verdict": "LOSSY",
+        "quality": 1,
+        "n_refs": 1,
+        "self_flag": "faithful"
+      },
+      "mol-fable": {
+        "verdict": "LOSSY",
+        "quality": 1.5,
+        "n_refs": 1,
+        "self_flag": "lossy"
+      }
+    },
+    "bill-poster": {
+      "flat-luna": {
+        "verdict": "LOSSY",
+        "quality": 1,
+        "n_refs": 0,
+        "self_flag": "lossy"
+      },
+      "flat-fable": {
+        "verdict": "LOSSY",
+        "quality": 2,
+        "n_refs": 0,
+        "self_flag": "lossy"
+      },
+      "mol-luna": {
+        "verdict": "LOSSY",
+        "quality": 2,
+        "n_refs": 1,
+        "self_flag": "lossy"
+      },
+      "mol-fable": {
+        "verdict": "LOSSY",
+        "quality": 2,
+        "n_refs": 1,
+        "self_flag": "lossy"
+      }
+    },
+    "heir": {
+      "flat-luna": {
+        "verdict": "LOSSY",
+        "quality": 1,
+        "n_refs": 0,
+        "self_flag": "lossy"
+      },
+      "flat-fable": {
+        "verdict": "LOSSY",
+        "quality": 1.5,
+        "n_refs": 0,
+        "self_flag": "lossy"
+      },
+      "mol-luna": {
+        "verdict": "UNJUDGED",
+        "quality": null,
+        "n_refs": 4,
+        "self_flag": "lossy"
+      },
+      "mol-fable": {
+        "verdict": "FAITHFUL",
+        "quality": 2,
+        "n_refs": 3,
+        "self_flag": "lossy"
+      }
+    },
+    "stockholder": {
+      "flat-luna": {
+        "verdict": "LOSSY",
+        "quality": 1,
+        "n_refs": 0,
+        "self_flag": "lossy"
+      },
+      "flat-fable": {
+        "verdict": "LOSSY",
+        "quality": 1.5,
+        "n_refs": 0,
+        "self_flag": "lossy"
+      },
+      "mol-luna": {
+        "verdict": "UNJUDGED",
+        "quality": null,
+        "n_refs": 2,
+        "self_flag": "lossy"
+      },
+      "mol-fable": {
+        "verdict": "LOSSY",
+        "quality": 2,
+        "n_refs": 2,
+        "self_flag": "lossy"
+      }
+    }
+  },
+  "repilot_gate": {
+    "rule_verbatim": "PIVOT iff, after repair, EITHER ref-bearing molecule cells < 80% OR the E2 primary delta <= 0pp again.",
+    "ref_bearing_mol_cells": 47,
+    "mol_cells_itt": 48,
+    "ref_bearing_share": 0.979,
+    "ref_bearing_floor": 0.8,
+    "delta_pp": -4.2,
+    "PIVOT": true,
+    "verdict": "PIVOT (kill the molecule-S5 instrument)"
+  }
+}
