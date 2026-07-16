@@ -9,12 +9,25 @@ the three primitives the §6 idempotency design needs:
   list(after=None, limit=N)           -> newest-first page + has_more/after
                                          cursor (EXHAUSTIVE pagination is the
                                          r5 completeness rule's substrate)
-  retrieve(batch_id) / output_bytes() -> status + output file lines
+  retrieve(batch_id) / output_bytes() / error_bytes()
+                                      -> status + output/error file lines
 
 Output synthesis is delegated to a drafter callback (mock_drafter), per
 input line: {custom_id, response:{status_code, request_id, body}} or
 {custom_id, error:{...}} — requestId is recorded from response.request_id
 (§8, r5).
+
+Per-request / whole-batch failure routing (faithful to real OpenAI Batch —
+closes the adversarial-review error_file finding, ASM-2496 (h)):
+  * a COMPLETED batch carries BOTH an `output_file_id` (SUCCEEDED requests
+    only) AND an `error_file_id` (FAILED/EXPIRED requests, one JSONL line per
+    custom_id with an error object). Either id is null when its file would be
+    empty. Errored custom_ids are ABSENT from the output file — exactly what a
+    real run sees, so an orchestrator that read only the output file would
+    silently drop them (the bug this models).
+  * a whole-batch INPUT-VALIDATION failure goes to status="failed" with NO
+    output/error file and an `errors` array on the batch object (real Batch
+    validating -> failed). Injected via `fail_validation_for`.
 
 Injection hooks (P5, §10.6):
   crash_on_create        — persist the batch, then raise CrashInjected BEFORE
@@ -24,6 +37,9 @@ Injection hooks (P5, §10.6):
                            (mid-pagination failure => ERR_RECONCILE_UNVERIFIED).
   truncate_list_pages N  — after N pages, report has_more=True but make the
                            next page unavailable (unexhausted cursor case).
+  fail_validation_for    — set of metadata.idempotency_key values whose batch
+                           fails whole-batch validation (validating -> failed,
+                           no files, errors[] on the object).
 Crash window (a) — post-job-outbox / pre-create — is injected client-side
 (orchestrator LK_CRASH=pre_create), since the provider never sees that job.
 """
@@ -56,6 +72,7 @@ class MockBatchProvider(object):
         self.crash_on_create = False
         self.fail_list_on_page = None
         self.truncate_list_pages = None
+        self.fail_validation_for = set()   # idempotency_keys -> whole-batch failure
         self._list_page_calls = 0
 
     # ---------------------------------------------------------------- state
@@ -106,8 +123,10 @@ class MockBatchProvider(object):
             "seq": len(bs) + 1,               # commit ts (r5 far-edge rule)
             "status": "validating",
             "metadata": dict(metadata or {}),
-            "input_file_id": fid, "output_file_id": None,
-            "request_counts": {"total": input_file_bytes.count(b"\n")},
+            "input_file_id": fid, "output_file_id": None, "error_file_id": None,
+            "errors": None,
+            "request_counts": {"total": input_file_bytes.count(b"\n"),
+                               "completed": 0, "failed": 0},
         }
         self._append(obj)
         if self.crash_on_create:
@@ -152,37 +171,76 @@ class MockBatchProvider(object):
             return f.read()
 
     def output_bytes(self, batch_id):
+        """Bytes of the SUCCEEDED-request output file (§8). Errored custom_ids
+        are NOT here — they live in error_bytes() (real Batch semantics)."""
         b = self.retrieve(batch_id)
         if not b.get("output_file_id"):
-            raise KeyError("batch %s has no output yet" % batch_id)
+            raise KeyError("batch %s has no output file" % batch_id)
         with open(os.path.join(self.files, b["output_file_id"]), "rb") as f:
+            return f.read()
+
+    def error_bytes(self, batch_id):
+        """Bytes of the FAILED/EXPIRED-request error file (§10.4). One JSONL
+        line per failed custom_id with an error object; None-id when empty."""
+        b = self.retrieve(batch_id)
+        if not b.get("error_file_id"):
+            raise KeyError("batch %s has no error file" % batch_id)
+        with open(os.path.join(self.files, b["error_file_id"]), "rb") as f:
             return f.read()
 
     # ------------------------------------------------------------- lifecycle
 
     def tick(self, drafter):
         """Advance every non-terminal batch one lifecycle step:
-        validating -> in_progress -> completed (output synthesized via the
-        drafter callback per input line). Mirrors the 24h window at 0 cost."""
+        validating -> in_progress -> completed OR validating -> failed.
+        On completion, per-request drafter outputs are SPLIT by outcome:
+        succeeded requests -> output file, failed/expired requests -> error
+        file (real Batch semantics; ASM-2496 (h)). Mirrors the 24h window at
+        0 cost."""
         bs = self._load()
         changed = False
         for b in bs:
             if b["status"] == "validating":
+                if b["metadata"].get("idempotency_key") in self.fail_validation_for:
+                    # whole-batch INPUT-VALIDATION failure: real Batch goes
+                    # validating -> failed with NO output/error file and an
+                    # errors[] array on the batch object (§10.4, ASM-2496 (h)).
+                    b["status"] = "failed"
+                    b["errors"] = {"object": "list", "data": [{
+                        "code": "invalid_request",
+                        "message": "mock: whole-batch input validation failed (injected)",
+                        "line": None, "param": None}]}
+                    b["output_file_id"] = None
+                    b["error_file_id"] = None
+                    changed = True
+                    continue
                 b["status"] = "in_progress"
                 changed = True
             elif b["status"] == "in_progress":
                 with open(os.path.join(self.files, b["input_file_id"]), "rb") as f:
                     lines = [l for l in f.read().splitlines() if l.strip()]
-                out = []
+                succ, errs = [], []
                 for i, raw in enumerate(lines):
                     req = json.loads(raw.decode("utf-8"))
-                    out.append(common.canonical_dumps(
-                        drafter.respond(req, batch_id=b["id"], line_no=i, meta=b["metadata"])))
-                fid = "file_%s_out" % b["id"]
-                with open(os.path.join(self.files, fid), "wb") as f:
-                    f.write(("\n".join(out) + "\n").encode("utf-8"))
+                    resp = drafter.respond(req, batch_id=b["id"], line_no=i, meta=b["metadata"])
+                    # real Batch routes per-request failures (HTTP errors,
+                    # expiry) to the ERROR file, successes to the OUTPUT file.
+                    (errs if resp.get("error") else succ).append(common.canonical_dumps(resp))
+                b["output_file_id"] = None
+                b["error_file_id"] = None
+                if succ:
+                    ofid = "file_%s_out" % b["id"]
+                    with open(os.path.join(self.files, ofid), "wb") as f:
+                        f.write(("\n".join(succ) + "\n").encode("utf-8"))
+                    b["output_file_id"] = ofid
+                if errs:
+                    efid = "file_%s_err" % b["id"]
+                    with open(os.path.join(self.files, efid), "wb") as f:
+                        f.write(("\n".join(errs) + "\n").encode("utf-8"))
+                    b["error_file_id"] = efid
+                b["request_counts"] = {"total": len(lines),
+                                       "completed": len(succ), "failed": len(errs)}
                 b["status"] = "completed"
-                b["output_file_id"] = fid
                 changed = True
         if changed:
             self._rewrite(bs)

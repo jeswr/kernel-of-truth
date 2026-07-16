@@ -762,7 +762,11 @@ Per-record provenance block (extends the mandatory bulk quadruple
                       // field exists" comment conflated route elimination with field
                       // elimination. Per-call ids for EVERY call (draft + repairs)
                       // ride the usage[] entries. Batch-only (§6.0): the id comes
-                      // from the job's output file, never an online response.
+                      // from the job's OUTPUT file for a succeeded request (an
+                      // accepted/minted record is always drawn from an output line);
+                      // a failed/expired request carries no response.request_id and
+                      // is reported on the job's SEPARATE error file (error_file_id,
+                      // §10.4) — never an online response.
   "promptHash": "sha256:…", "cachePrefixHash": "sha256:…",
   "genSettings": {"max_output_tokens": 2048, "reasoning_effort": "<pinned>", "...": "..."},
   "sourceRowSha256": "…",                       // the WN worklist row

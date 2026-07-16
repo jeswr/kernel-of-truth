@@ -64,6 +64,29 @@ def run_all_waves(pilot, drafter):
         pilot.settle_and_process(jk, bid, wave)
 
 
+class _ForcedDrafter(object):
+    """Wraps the mock drafter, forcing chosen custom_ids to a PROVIDER error
+    (HTTP 5xx / batch expiry) so the error-file path is exercised DIRECTLY,
+    independent of the drafter's hash buckets. `once=True` errors only at wave
+    0 (transient → recovers on retry); otherwise every wave (permanent →
+    PROVIDER_FAILED). The job's wave arrives via batch metadata (§10.4)."""
+
+    def __init__(self, base, forced, once=False):
+        self.base = base
+        self.forced = dict(forced)          # custom_id -> error object
+        self.once = once
+
+    def respond(self, req, batch_id, line_no, meta=None):
+        cid = req["custom_id"]
+        if cid in self.forced and (not self.once or int((meta or {}).get("wave", 0)) == 0):
+            return {"custom_id": cid, "response": None, "error": dict(self.forced[cid])}
+        return self.base.respond(req, batch_id=batch_id, line_no=line_no, meta=meta)
+
+
+def _cids(raw_bytes):
+    return {json.loads(l)["custom_id"] for l in raw_bytes.decode("utf-8").splitlines() if l.strip()}
+
+
 class TestFrameAndSample(unittest.TestCase):
     def test_frame_hash_tamper_fails_closed(self):
         frame, total, _ = frame_sample.load_frame()
@@ -387,6 +410,151 @@ class TestAcceptanceStack(unittest.TestCase):
                "wnGloss": "g", "sourceRowSha256": "0" * 64}
         self.assertEqual(rb1.build_line(row, "kv1d-t"), rb2.build_line(row, "kv1d-t"))
         self.assertEqual(rb1.version_ids(row), rb2.version_ids(row))
+
+
+class TestProviderErrorFile(unittest.TestCase):
+    """Real OpenAI Batch routes per-request failures/expiry to a SEPARATE
+    error_file_id and whole-batch validation failures to status=="failed"
+    (no files, errors[]). These cases prove the mock now models that split and
+    the orchestrator accounts for every custom_id via BOTH files + the failed
+    status — the confirmed adversarial-review error_file finding. The tell
+    that the ERROR FILE is genuinely read: the errored custom_id is ABSENT
+    from the output file yet is still fully accounted (never a dangling
+    SUBMITTED row that would break §10.3 terminal accounting)."""
+
+    N = 12
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp(dir=common.OUT_DIR)
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp)
+
+    def _pilot_and_base(self):
+        p = scratch_pilot(self.tmp, self.N)
+        base = mock_drafter.MockDrafter({ik: c["row"] for ik, c in p.by_idem.items()})
+        return p, base
+
+    def _finish(self, pilot, drafter, start_wave=1):
+        for wave in range(start_wave, 3):
+            members = pilot._members_for_wave(wave)
+            if not members:
+                continue
+            jk, bid = pilot.submit_job(wave, 0, members)
+            pilot.poll_to_completion(drafter)
+            pilot.settle_and_process(jk, bid, wave)
+
+    def _row_state(self, pilot, ik):
+        return pilot.ledger.db.execute(
+            "SELECT state, outcome, providerAttempts FROM rows WHERE idempotencyKey=?", (ik,)).fetchone()
+
+    def test_per_request_500_routes_via_error_file(self):
+        """A per-request HTTP 500 lands in error_file_id (NOT output_file_id);
+        a permanent 500 exhausts the §10.4 retries -> PROVIDER_FAILED, and the
+        books still close."""
+        pilot, base = self._pilot_and_base()
+        victim = sorted(pilot.by_idem)[0]
+        drafter = _ForcedDrafter(base, {victim: {"code": "server_error", "message": "mock HTTP 500"}})
+        members = pilot._members_for_wave(0)
+        self.assertIn(victim, members)
+        jk, bid = pilot.submit_job(0, 0, members)
+        pilot.poll_to_completion(drafter)
+        # the mock split: victim in the ERROR file, ABSENT from the OUTPUT file
+        self.assertIn(victim, _cids(pilot.provider.error_bytes(bid)))
+        self.assertNotIn(victim, _cids(pilot.provider.output_bytes(bid)))
+        pilot.settle_and_process(jk, bid, 0)
+        # accounted from the error file alone -> retried (not dropped)
+        self.assertEqual(pilot.by_idem[victim]["state"], "provider_retry")
+        self.assertEqual(pilot.by_idem[victim]["providerAttempts"], 1)
+        self._finish(pilot, drafter)
+        acct = pilot.ledger.terminal_accounting(self.N)
+        self.assertTrue(acct["ok"], acct)
+        self.assertGreaterEqual(acct["counts"]["PROVIDER_FAILED"], 1)
+        state, outcome, attempts = self._row_state(pilot, victim)
+        self.assertEqual((state, outcome), ("COMPLETED", "PROVIDER_FAILED"))
+        self.assertEqual(attempts, common.PROVIDER_RETRY_LIMIT)   # 3 provider attempts
+
+    def test_expired_request_recovers_via_error_file(self):
+        """A batch-EXPIRED request lands in error_file_id; a TRANSIENT expiry
+        recovers on the §10.4 retry (bounded, provider_attempts == 1) and ends
+        terminal, books close."""
+        pilot, base = self._pilot_and_base()
+        victim = next(ik for ik in sorted(pilot.by_idem)
+                      if mock_drafter.bucket(pilot.by_idem[ik]["row"]["conceptId"]) == "valid")
+        expired = {"code": "batch_expired",
+                   "message": "request could not be executed before the completion window expired"}
+        drafter = _ForcedDrafter(base, {victim: expired}, once=True)
+        members = pilot._members_for_wave(0)
+        jk, bid = pilot.submit_job(0, 0, members)
+        pilot.poll_to_completion(drafter)
+        err = {json.loads(l)["custom_id"]: json.loads(l)
+               for l in pilot.provider.error_bytes(bid).decode("utf-8").splitlines() if l.strip()}
+        self.assertIn(victim, err)
+        self.assertEqual(err[victim]["error"]["code"], "batch_expired")
+        self.assertNotIn(victim, _cids(pilot.provider.output_bytes(bid)))
+        pilot.settle_and_process(jk, bid, 0)
+        self.assertEqual(pilot.by_idem[victim]["state"], "provider_retry")   # bounded retry
+        self.assertEqual(pilot.by_idem[victim]["providerAttempts"], 1)
+        self._finish(pilot, drafter)
+        acct = pilot.ledger.terminal_accounting(self.N)
+        self.assertTrue(acct["ok"], acct)
+        state, outcome, _ = self._row_state(pilot, victim)
+        self.assertEqual((state, outcome), ("COMPLETED", "ACCEPTED"))   # recovered on retry
+        # exactly one transient provider failure occurred (persisted on the
+        # ledger row only for terminal PROVIDER_FAILED; tracked in-flight here)
+        self.assertEqual(pilot.by_idem[victim]["providerAttempts"], 1)
+
+    def test_whole_batch_validation_failure_routes_all_members(self):
+        """A whole-batch input-validation failure => status=="failed", NO
+        output/error file, errors[] on the object; EVERY member is retried per
+        §10.4 (nothing billed, reservation released), and after the retry wave
+        the books close — the row can never be stranded SUBMITTED."""
+        pilot, base = self._pilot_and_base()
+        members = pilot._members_for_wave(0)
+        jk_expected = common.job_key(0, 0, members)
+        pilot.provider.fail_validation_for = {jk_expected}
+        jk, bid = pilot.submit_job(0, 0, members)
+        self.assertEqual(jk, jk_expected)
+        pilot.poll_to_completion(base)
+        b = pilot.provider.retrieve(bid)
+        self.assertEqual(b["status"], "failed")
+        self.assertIsNone(b["output_file_id"])
+        self.assertIsNone(b["error_file_id"])
+        self.assertTrue(b["errors"]["data"])                  # errors[] populated
+        self.assertGreater(pilot.ledger.budget()["reservedUSD"], 0)
+        pilot.settle_and_process(jk, bid, 0)
+        for ik in members:                                    # every member retried
+            self.assertEqual(pilot.by_idem[ik]["state"], "provider_retry")
+            self.assertEqual(pilot.by_idem[ik]["providerAttempts"], 1)
+        bud = pilot.ledger.budget()
+        self.assertAlmostEqual(bud["spentUSD"], 0.0)          # a failed batch bills nothing
+        self.assertAlmostEqual(bud["reservedUSD"], 0.0)       # reservation released
+        self.assertEqual(pilot.ledger.unsettled_jobs(), [])   # job settled
+        pilot.provider.fail_validation_for = set()            # retries now validate
+        self._finish(pilot, base)
+        acct = pilot.ledger.terminal_accounting(self.N)
+        self.assertTrue(acct["ok"], acct)                     # §10.3 balances
+
+    def test_unaccounted_submitted_custom_id_fails_closed(self):
+        """If a submitted custom_id is absent from BOTH the output and error
+        files (a provider/ledger gap), the settle step fails closed rather than
+        leave a SUBMITTED row that silently breaks §10.3 terminal accounting."""
+        pilot, base = self._pilot_and_base()
+        members = pilot._members_for_wave(0)
+        jk, bid = pilot.submit_job(0, 0, members)
+        pilot.poll_to_completion(base)
+        b = pilot.provider.retrieve(bid)
+        outpath = os.path.join(pilot.provider.files, b["output_file_id"])
+        with open(outpath) as f:
+            lines = [l for l in f.read().splitlines() if l.strip()]
+        self.assertGreater(len(lines), 1)
+        dropped = json.loads(lines[0])["custom_id"]           # simulate a silent drop
+        with open(outpath, "w") as f:
+            f.write("\n".join(lines[1:]) + "\n")
+        with self.assertRaises(PipelineError) as cm:
+            pilot.settle_and_process(jk, bid, 0)
+        self.assertEqual(cm.exception.code, "ERR_UNACCOUNTED_REQUEST")
+        self.assertIn(dropped, str(cm.exception))
 
 
 class TestKillLadder(unittest.TestCase):

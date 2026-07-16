@@ -13,6 +13,18 @@ prereg-freeze (spec §10.6 P7), with the store re-rooted at
 `data/kernel-v1-draft/` and the mock seams replaced (ASM-2496 lists every
 deliberate mock divergence).
 
+**Adversarial-review finding — CLOSED (2026-07-16).** The MAJOR finding that
+the mock interleaved per-request errors into a single `output_file_id` (no
+`error_file_id`), so the orchestrator's §10.4 provider-retry / PROVIDER_FAILED
+accounting would silently never fire on the real run (leaving `SUBMITTED`
+ledger rows that break §10.3 terminal accounting), is fixed: `mock_batch.py`
+now routes per-request failures/expiry to a separate `error_file_id` and
+whole-batch validation failures to `status="failed"` (no files, `errors[]`),
+and `orchestrator.py` merges both files + the `failed` status into the §10.4
+path, failing closed (`ERR_UNACCOUNTED_REQUEST`) on any un-accounted
+`custom_id`. Modelled + tested end-to-end (ASM-2496 (h)); mock-green now
+implies real-green for the error path.
+
 ## Layout / components (spec section per module)
 
 | file | spec | what |
@@ -21,13 +33,13 @@ deliberate mock divergence).
 | `pipeline/frame_sample.py` | §1, §9.3, P1 | frame recompute + `ERR_FRAME_HASH` fail-closed, denylist `ERR_FROZEN_OVERLAP`, seeded stratified 10k draw (ASM-2498), sample manifest |
 | `pipeline/prompt.py` | §2.2, §3, §5.3 | scholarly drafting prompt (4 invariant prefix blocks, `cachePrefixHash`; exemplar block = P2 placeholder), deterministic Batch request bytes, versionHash/idempotencyKey |
 | `pipeline/ledger.py` | §6.1, §10.2 | SQLite WAL ledger: atomic row claim, job outbox committed BEFORE create, `BEGIN IMMEDIATE` worst-case reservation (`ERR_BUDGET_RESERVE`), settlement release, terminal accounting, passive JSONL export |
-| `pipeline/mock_batch.py` | §6, P5 | mock Batch backend (create/list/retrieve, `after`/`has_more` pagination) + crash/pagination injection hooks |
+| `pipeline/mock_batch.py` | §6, §10.4, P5 | mock Batch backend (create/list/retrieve/`output_bytes`/`error_bytes`, `after`/`has_more` pagination); per-request failures/expiry split to a separate `error_file_id`, whole-batch validation failure → `status="failed"` + `errors[]`; crash/pagination/validation injection hooks |
 | `pipeline/mock_drafter.py` | §2.3, §10.4 | mock GPT-5.6: deterministic drafts + pinned failure mix (invalid AST, gloss lint, malformed, abstention, provider transients) |
 | `pipeline/validate_shard.mjs` | §4.1, §7.1 | REUSED encoder loop: `validateExplication` + `ERR_REF_OUTSIDE_CATALOG` closure + `encodeConceptSet(opts.concepts)` sanity, B=1,000 shards, P4a instrumented |
 | `pipeline/accept.py` | §2, §4.1, §8, §9 | gloss lints + leakage, immutable ModelDrafted minting (kernel-v1-draft/1, §8 provenance incl. `requestId`), quarantine, §9.2 consumer gate (JSONL-aware) |
-| `pipeline/orchestrator.py` | §6 r5, §7, §10 | jobKey = sha256(wave ‖ attempt ‖ sorted member keys)[:24], exhaustive-pagination sweeper (`ERR_RECONCILE_UNVERIFIED` fail-closed), repair waves ≤ R=2, kill ladder, P4a/P4b gates |
+| `pipeline/orchestrator.py` | §6 r5, §7, §10 | jobKey = sha256(wave ‖ attempt ‖ sorted member keys)[:24], exhaustive-pagination sweeper (`ERR_RECONCILE_UNVERIFIED` fail-closed), settle merges output+error files & the `failed` status into the §10.4 provider-retry/PROVIDER_FAILED path (`ERR_UNACCOUNTED_REQUEST` fail-closed), repair waves ≤ R=2, kill ladder, P4a/P4b gates |
 | `pipeline/run_e2e.py` | §10.3, P7 | the green $0 end-to-end mock incl. mid-run crash-recovery demo and endpoint computation |
-| `tests/test_pipeline.py` | P5, P8, §10.2 | 21 tests: both SIGKILL crash windows, r5 negative listing cases, jobKey collision case, budget atomicity, family/status fail paths, acceptance routing |
+| `tests/test_pipeline.py` | P5, P8, §10.2, §10.4 | 25 tests: both SIGKILL crash windows, r5 negative listing cases, jobKey collision case, budget atomicity, family/status fail paths, acceptance routing, and the error-file cases (per-request 500 → PROVIDER_FAILED, transient expiry → recovered, whole-batch `failed` → all-member retry, `ERR_UNACCOUNTED_REQUEST` guard) |
 
 Reused, not reimplemented: `poc/plainv5/{invoke_seat,check_family_disjoint,family-map.json}`
 (P8 machinery, a4f65edd), `encoder/dist` (validator/encoder loop),
@@ -39,7 +51,7 @@ Reused, not reimplemented: `poc/plainv5/{invoke_seat,check_family_disjoint,famil
 cd poc/scale/largekern-10k
 python3 pipeline/frame_sample.py                       # component 1 (frame+sample)
 python3 pipeline/prompt.py                             # component 2 (determinism probe)
-nice -n 10 python3 -m unittest tests.test_pipeline -v  # P5/P8/budget/gates (21 tests)
+nice -n 10 python3 -m unittest tests.test_pipeline -v  # P5/P8/budget/gates/error-file (25 tests)
 nice -n 10 python3 pipeline/run_e2e.py --n 10000 --fresh   # full green mock (~2.5 min)
 ```
 

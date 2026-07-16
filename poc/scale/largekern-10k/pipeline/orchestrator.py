@@ -221,33 +221,66 @@ class Pilot(object):
     # ------------------------------------------------------------ processing
 
     def poll_to_completion(self, drafter):
+        # "completed" and "failed" (whole-batch validation failure, §10.4) are
+        # both terminal provider states the settle step must be able to reach.
         for _ in range(8):
             batches = self.provider.tick(drafter)
-            if all(b["status"] == "completed" for b in batches):
+            if all(b["status"] in ("completed", "failed") for b in batches):
                 return
         raise PipelineError("ERR_PROVIDER_TIMEOUT", "mock batches did not complete")
 
     def settle_and_process(self, job_key, batch_id, wave):
-        """Download output, settle cost (§10.2 step 3), run the acceptance
-        stack (§4.1), route outcomes; kill-ladder checks at settlement."""
-        out_lines = [json.loads(l) for l in
-                     self.provider.output_bytes(batch_id).decode("utf-8").splitlines() if l.strip()]
+        """Download the batch result, settle cost (§10.2 step 3), run the
+        acceptance stack (§4.1), route outcomes; kill-ladder checks at
+        settlement.
+
+        Real OpenAI Batch splits per-request outcomes across TWO files —
+        SUCCEEDED requests in `output_file_id`, FAILED/EXPIRED requests in
+        `error_file_id` — and signals a whole-batch input-validation failure
+        via status=="failed" with NO files and an `errors` array (§10.4). Both
+        files are downloaded and merged by custom_id; error-file lines and
+        every member of a failed batch take the §10.4 provider-retry /
+        PROVIDER_FAILED path. Every submitted custom_id MUST resolve to a
+        terminal | retry state — a gap fails closed rather than silently
+        leaving a SUBMITTED ledger row that would break §10.3."""
+        batch = self.provider.retrieve(batch_id)
+        member_cids = set()
+        for raw in self.provider.input_bytes(batch_id).decode("utf-8").splitlines():
+            if raw.strip():
+                member_cids.add(json.loads(raw)["custom_id"])
+
+        # ---- whole-batch input-validation failure (§10.4): no output/error
+        # file; every request in the job is retried / PROVIDER_FAILED.
+        if batch.get("status") == "failed":
+            for ik in sorted(member_cids):
+                c = self.by_idem.get(ik)
+                if c is None:
+                    raise PipelineError("ERR_LEDGER_TX",
+                                        "failed-batch member %s matches no claimed row" % ik)
+                self._route_provider_failure(ik, c, wave)
+            self.ledger.settle_job(job_key, 0.0)     # nothing billed on a failed batch
+            self._kill_ladder_check()
+            return 0.0
+
+        # ---- completed batch: merge SUCCEEDED (output) + FAILED/EXPIRED (error)
+        out_lines = []
+        if batch.get("output_file_id"):
+            out_lines += [json.loads(l) for l in
+                          self.provider.output_bytes(batch_id).decode("utf-8").splitlines() if l.strip()]
+        if batch.get("error_file_id"):
+            out_lines += [json.loads(l) for l in
+                          self.provider.error_bytes(batch_id).decode("utf-8").splitlines() if l.strip()]
         total_cost = 0.0
         drafts, contexts = {}, {}
+        processed = set()
         for line in out_lines:
             ik = line["custom_id"]
+            processed.add(ik)
             c = self.by_idem.get(ik)
             if c is None:
                 raise PipelineError("ERR_LEDGER_TX", "output custom_id %s matches no claimed row" % ik)
             if line.get("error"):
-                c["providerAttempts"] += 1
-                if wave >= common.R_REPAIR or c["providerAttempts"] > common.PROVIDER_RETRY_LIMIT:
-                    self.ledger.complete_row(ik, "PROVIDER_FAILED",
-                                             provider_attempts=c["providerAttempts"])
-                    c["state"] = "done"
-                else:
-                    c["state"] = "provider_retry"
-                    c["wave"] = wave + 1
+                self._route_provider_failure(ik, c, wave)   # §10.4 (error-file line)
                 continue
             resp = line["response"]
             usage = resp["body"]["usage"]
@@ -283,6 +316,14 @@ class Pilot(object):
                 gloss_errs = accept_mod.lint_gloss(payload["gloss"], c["row"]["lemma"])
                 contexts[ik] = (payload, gloss_errs, output_text)
                 drafts[ik] = payload["explication"]
+        # every submitted request MUST appear across output+error (a real
+        # completed batch covers them all); an un-accounted custom_id is a
+        # provider/ledger gap — fail closed, never leave a SUBMITTED row.
+        unaccounted = member_cids - processed
+        if unaccounted:
+            raise PipelineError("ERR_UNACCOUNTED_REQUEST",
+                                "%d submitted custom_id(s) absent from output+error files: %s"
+                                % (len(unaccounted), sorted(unaccounted)[:5]))
         # ---- sharded encoder/validator leg (§4.1 items 1-3, §7.1)
         per_id, reports = ({}, [])
         if drafts:
@@ -303,6 +344,19 @@ class Pilot(object):
         self.ledger.settle_job(job_key, total_cost)          # §10.2 step 3
         self._kill_ladder_check()
         return total_cost
+
+    def _route_provider_failure(self, ik, c, wave):
+        """§10.4 provider/transport failure (error-file line or whole-batch
+        failed): ≤ PROVIDER_RETRY_LIMIT re-inclusions in a follow-up job, then
+        PROVIDER_FAILED. Distinct from the R=2 CONTENT-repair budget."""
+        c["providerAttempts"] += 1
+        if wave >= common.R_REPAIR or c["providerAttempts"] > common.PROVIDER_RETRY_LIMIT:
+            self.ledger.complete_row(ik, "PROVIDER_FAILED",
+                                     provider_attempts=c["providerAttempts"])
+            c["state"] = "done"
+        else:
+            c["state"] = "provider_retry"
+            c["wave"] = wave + 1
 
     def _route_failure(self, ik, c, errs, output_text, wave):
         if wave < common.R_REPAIR:
