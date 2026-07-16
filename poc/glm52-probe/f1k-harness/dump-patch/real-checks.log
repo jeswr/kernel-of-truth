@@ -1,0 +1,25 @@
+
+== 1/6 pin the pristine source by content ==
+pristine glm.c blob verified: 1d74f7886022baaf3fa936602f9db3a4d82f7f21
+
+== 2/6 apply the gate-0 KaE patch (sha-verified), snapshot KaE-only glm.c ==
+KaE patch applied
+
+== 3/6 apply kot-f1k-dump.patch on top; reference copies must match ==
+dump patch applied; reference copies byte-identical to the patch payload
+
+== 4/6 build the patched engine ==
+make: Circular glm <- glm dependency dropped.
+engine built: /tmp/kot-dump-realcheck/c/glm
+
+== 5/6 unit suites: KaE regression (44) + dump (43) ==
+test_kae: 44/44 (unchanged by the dump patch)
+test_kae_dump: 43/43
+
+== 6/6 inert-by-default machine-level equivalence (KAE_DUMP unset) ==
+shared functions: 79; differing: ['main', 'moe']; new symbols: ['kae_load', 'kaed_arm', 'run_score']; removed: none
+inert-by-default: every shared function outside ['main', 'moe'] is byte-identical
+
+REAL-SOURCE CHECKS OK: dump patch applies on KaE tree, builds,
+test_kae 44/44 + test_kae_dump 43/43, inertness proven at object level.
+($0 SCOPE: no model/weights — the same battery re-runs on Modal at bring-up.)

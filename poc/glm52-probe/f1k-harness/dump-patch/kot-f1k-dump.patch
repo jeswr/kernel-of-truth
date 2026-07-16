@@ -1,0 +1,617 @@
+diff --git a/c/Makefile b/c/Makefile
+index f5b1a72..be86a03 100644
+--- a/c/Makefile
++++ b/c/Makefile
+@@ -85,7 +85,7 @@ all: glm$(EXE)
+ # phony 'glm' → 'glm.exe' on Windows (so 'make glm' and 'coli build' work on every platform)
+ glm: glm$(EXE)
+ 
+-glm$(EXE): glm.c st.h json.h tok.h tok_unicode.h compat.h grammar.h kae.h $(CUDA_OBJ)
++glm$(EXE): glm.c st.h json.h tok.h tok_unicode.h compat.h grammar.h kae.h kae_dump.h $(CUDA_OBJ)
+ 	$(CC) $(CFLAGS) glm.c $(CUDA_OBJ) -o glm$(EXE) $(LDFLAGS)
+ 
+ backend_cuda.o: backend_cuda.cu backend_cuda.h
+diff --git a/c/glm.c b/c/glm.c
+index 90a4e15..d7171d2 100644
+--- a/c/glm.c
++++ b/c/glm.c
+@@ -36,6 +36,7 @@
+ #include "tier.h"
+ #include "grammar.h"                              /* metodo F: draft grammaticali (#48) */
+ #include "kae.h"                                  /* F1-K Kernel-as-Expert ADD splice — DRAFT, gate-0; inert unless KAE=1 */
++#include "kae_dump.h"                             /* kot-f1k-dump/1 construction-only moe()-input dump — inert unless KAE_DUMP set */
+ #ifdef COLI_CUDA
+ #include <omp.h>
+ #include "backend_cuda.h"
+@@ -573,6 +574,12 @@ static float g_topp=0;   /* TOPP=p (0..1) -> top-p adattivo: tieni gli expert fi
+  * output stays byte-identical to upstream. KAE=1 arms the ADD path (§2.5). */
+ static int   g_kae   = 0;    /* KAE=1 -> arm the ADD splice; 0/unset -> inert */
+ static float g_kae_g = 1.f;  /* KAE_G=<float> -> blend weight g (applied after carrier norm) */
++/* kot-f1k-dump/1 (DES §2.8 item-3) — construction-only moe()-INPUT dump.
++ * NULL unless KAE_DUMP=<manifest> is set; the scoring binary never sets it
++ * (phase separation, ASM-2487). A file-scope global, NOT a Model field, so
++ * sizeof(Model) and model_init stay byte-identical to the gate-0 KaE engine
++ * (ASM-2486). */
++static KaEDump *g_kdump = NULL;
+ static int g_spec=1;     /* metodo C: SPEC=0 disabilita il prefetch speculativo cross-layer */
+ static int g_draft=0;    /* metodo E: DRAFT=n token auto-speculati per forward via n-gram lookup
+                           * (0=off). LOSSLESS: verifica = output identico al greedy. Default OFF:
+@@ -1276,6 +1283,12 @@ static void attention(Model *m, Layer *l, int layer, float *x, int S, int pos_ba
+  * nell'ordine (routed nel loro ordine di union, poi shared). */
+ static void moe(Model *m, Layer *l, int layer, float *x, int S, int pos_base, float *out){
+     Cfg *c=&m->c; int D=c->hidden, E=c->n_experts, K=c->topk, I=c->moe_inter;
++    /* kot-f1k-dump/1: READ-ONLY capture of the moe() INPUT x (S x D, row s at
++     * x+s*D) for gated positions at dump layers [DES §2.4 "hidden states
++     * recorded at gated positions at the moe() input"]. g_kdump==NULL
++     * (KAE_DUMP unset) -> branch not taken -> forward byte-identical to the
++     * gate-0 KaE-patched engine. */
++    if(g_kdump) kaed_capture(g_kdump, layer, pos_base, S, D, x);
+     float *logit=falloc(E), *choice=falloc(E);
+     int sI=c->moe_inter*c->n_shared;
+     /* ---- FASE A: routing di tutte le S posizioni ---- */
+@@ -1978,6 +1991,70 @@ static void run_kae_score(Model *m, const char *path){
+     free(ln); free(ids); free(spans); free(x); free(lo); free(row); fclose(f);
+ }
+ 
++/* kot-f1k-dump/1 CONSTRUCTION DUMP (DES §2.4 / §2.8 item-3) — DRAFT, gate-0
++ * follow-on; construction-only, NEVER part of a scoring binary's run modes.
++ * Reached via KAE_DUMP=<manifest> (mutually exclusive with KAE_SCORE and
++ * KAE=1 — enforced in main() BEFORE model load).
++ *
++ * Manifest: one PLAIN-forward construction pass per line, whitespace ints
++ * (the run_kae_score span convention, parser mirrored from it):
++ *   T  t_0..t_{T-1}   s_0..s_{T-1}
++ *     T  = pass length (tokens); t_ = token ids;
++ *     s_ = per-position span slots (-1 = ungated), bound PER LINE via the
++ *          REUSED kae.h span binding (kae_bind_spans/kae_reset_spans).
++ * Per line: bind spans, ONE plain prefill (the splice is disarmed — the
++ * dumped states are the UNMODIFIED model's), and the moe()-head capture
++ * accumulates the moe()-input x over gated positions per dump layer; then
++ * emit i32 gated_count | f32 sum[nl*D] to KAE_DUMP_OUT (KAED format,
++ * kae_dump.h). Results NEVER travel on stdout (codex blocker-1 discipline).
++ * ANY malformed line / zero-gated line / per-slot count violation ABORTS
++ * with a nonzero exit (fail closed, ASM-2488/2483): a partial or silently
++ * skipped pass would corrupt the §2.4 mean-difference tables downstream. */
++static void run_kae_dump(Model *m, const char *path){
++    Cfg *c=&m->c; int D=c->hidden;
++    KaEDump *kd=g_kdump;
++    if(!kd){ fprintf(stderr,"[KAE-DUMP] not armed\n"); exit(1); }
++    FILE *f=fopen(path,"rb"); if(!f){perror(path);exit(1);}
++    /* pass 1: n_lines (KAED header needs it up front) + maxT for kv sizing */
++    int maxT=1, n_lines=0; { char *ln=NULL; size_t cp=0;
++        while(getline(&ln,&cp,f)>0){ long t; char *e; t=strtol(ln,&e,10);
++            if(e==ln) continue; n_lines++; if(t>maxT) maxT=(int)t; }
++        free(ln); }
++    if(n_lines<1){ fprintf(stderr,"[KAE-DUMP] empty manifest %s -> abort\n",path); exit(1); }
++    kv_alloc(m,maxT);
++    float *x=falloc((int64_t)maxT*D);
++    int *ids=malloc((size_t)maxT*sizeof(int)), *spans=malloc((size_t)maxT*sizeof(int));
++    if(!ids||!spans){ fprintf(stderr,"[KAE-DUMP] alloc failed\n"); exit(1); }
++    if(kaed_write_header(kd,n_lines)) exit(1);
++    rewind(f); char *ln=NULL; size_t cp=0; int nreq=0; double t0=now_s();
++    while(getline(&ln,&cp,f)>0){
++        char *p=ln,*e;
++        long T=strtol(p,&e,10); if(e==p) continue; p=e;      /* blank line */
++        if(T<1||T>maxT){ fprintf(stderr,"[KAE-DUMP] line %d: bad T=%ld -> abort\n",nreq,T); exit(1); }
++        for(long i=0;i<T;i++){ long v=strtol(p,&e,10);
++            if(e==p||v<0||v>=c->vocab){ fprintf(stderr,"[KAE-DUMP] line %d: bad token id -> abort\n",nreq); exit(1); }
++            p=e; ids[i]=(int)v; }
++        long gated=0;
++        for(long i=0;i<T;i++){ long v=strtol(p,&e,10);
++            if(e==p||v<-1){ fprintf(stderr,"[KAE-DUMP] line %d: bad span slot -> abort\n",nreq); exit(1); }
++            p=e; spans[i]=(v<0)?-1:(int)v; if(spans[i]>=0) gated++; }
++        if(!gated){ fprintf(stderr,"[KAE-DUMP] line %d has zero gated positions -> abort\n",nreq); exit(1); }
++        /* REUSED per-item span binding (same semantics as run_kae_score) */
++        if(kaed_bind_line(kd,spans,(int)T)){ fprintf(stderr,"[KAE-DUMP] line %d: span bind failed -> abort\n",nreq); exit(1); }
++        for(int s=0;s<T;s++) embed_row(m, ids[s], x+(int64_t)s*D);
++        layers_forward(m,x,(int)T,0);          /* ONE plain prefill (no splice) */
++        if(kaed_write_line(kd,nreq,gated)) exit(1);
++        kaed_reset_line(kd);
++        if(++nreq%16==0) fprintf(stderr,"[kae-dump %d line | %.1fs | RSS %.2f GB]\n",
++            nreq, now_s()-t0, rss_gb());
++    }
++    if(nreq!=n_lines){ fprintf(stderr,"[KAE-DUMP] processed %d lines != header %d -> abort\n",nreq,n_lines); exit(1); }
++    if(kaed_finish(kd)) exit(1);
++    fprintf(stderr,"[kae-dump done: %d lines, %d layers, D=%d | %.1fs]\n",
++            nreq, kd->nl, kd->D, now_s()-t0);
++    free(ln); free(ids); free(spans); free(x); fclose(f);
++}
++
+ static void generate(Model *m, const int *prompt, int np, int n_new, int *out){
+     kv_alloc(m,np+n_new+g_draft+2);
+     for(int i=0;i<np;i++) out[i]=prompt[i];
+@@ -2713,6 +2790,15 @@ int main(int argc, char **argv){
+     g_topp = getenv("TOPP")?atof(getenv("TOPP")):0;
+     g_kae  = getenv("KAE")?atoi(getenv("KAE")):0;          /* F1-K KaE ADD (DRAFT, gate-0); inert unless KAE=1 */
+     g_kae_g= getenv("KAE_G")?atof(getenv("KAE_G")):1.f;
++    /* kot-f1k-dump/1 PHASE SEPARATION (ASM-2487), enforced BEFORE model load:
++     * the dump records the UNMODIFIED model's moe() inputs for carrier
++     * construction — a dump with the splice armed, or mixed with scoring,
++     * would silently corrupt every carrier. Fail closed, never degrade. */
++    if(getenv("KAE_DUMP") && (getenv("KAE_SCORE") || g_kae)){
++        fprintf(stderr,"[KAE-DUMP] KAE_DUMP is construction-only and mutually exclusive "
++                       "with KAE_SCORE / KAE=1 (phase separation) -> abort\n");
++        return 1;
++    }
+     g_mlock  = getenv("MLOCK")?atoi(getenv("MLOCK")):-1;   /* -1 auto (ON macOS), 0 off, 1 force / auto (ON macOS), 0 off, 1 force */
+     g_spec = getenv("SPEC")?atoi(getenv("SPEC")):1;
+     g_draft = getenv("DRAFT")?atoi(getenv("DRAFT")):-1;   /* -1 = auto: 3 se MTP, 0 senza */
+@@ -2783,6 +2869,21 @@ int main(int argc, char **argv){
+                      m.kae->nc, m.kae->nl, g_kae_g,
+                      m.kae->span_n ? "loaded (default)" : "per-item (none at load)");
+     }
++    /* kot-f1k-dump/1 arming — construction-only; KAE=1/KAE_SCORE already
++     * excluded above. A failed arm ABORTS (fail closed): unlike the KaE
++     * splice, a construction run must never silently proceed undumped. The
++     * echo line is the REQUIRED provenance echo (carrier-HOLD fix 5):
++     * build_carriers.py parses '[KAE-DUMP] armed: ... seed=<KAE_SEED>' from
++     * stderr and fails closed unless the echoed seed equals the registered
++     * CONSTRUCTION_SEED it exported. The dump path consults no RNG. */
++    if(getenv("KAE_DUMP")){
++        g_kdump = kaed_arm(getenv("KAE_DUMP_LAYERS"), getenv("KAE_DUMP_OUT"),
++                           m.c.hidden, m.c.n_layers);
++        if(!g_kdump){ fprintf(stderr,"[KAE-DUMP] arm failed -> abort (fail closed; no partial dump)\n"); return 1; }
++        fprintf(stderr,"[KAE-DUMP] armed: %d layers, D=%d, seed=%s (provenance echo; "
++                       "dump path consults no RNG)\n",
++                g_kdump->nl, g_kdump->D, getenv("KAE_SEED")?getenv("KAE_SEED"):"-");
++    }
+     if(g_draft<0) g_draft = m.has_mtp ? 3 : 0;
+     if(getenv("DSA_TOPK")) m.c.index_topk=atoi(getenv("DSA_TOPK"));   /* override per test */
+     printf("loaded in %.2fs | resident dense: %.2f MB | layers=%d experts=%d | MTP %s (draft=%d)\n",
+@@ -2821,6 +2922,12 @@ int main(int argc, char **argv){
+     /* F1-K KaE scoring (design §R1.1) — DRAFT, gate-0: single-prefill label-logit,
+      * candidate-independent, per-item span binding. Runs for every arm (KAE=0 baseline
+      * included); takes precedence over the continuation-loglikelihood SCORE path. */
++    /* kot-f1k-dump/1 construction dump (DES §2.4/§2.8 item-3): sums of the
++     * moe()-input hidden state over gated positions, per dump layer, per
++     * manifest line -> KAE_DUMP_OUT (KAED). Construction-only; dispatched
++     * before (and mutually exclusive with) every scoring/serve mode. */
++    if(getenv("KAE_DUMP")){ run_kae_dump(&m, getenv("KAE_DUMP")); if(stats) stats_dump(&m,stats); return 0; }
++
+     if(getenv("KAE_SCORE")){ run_kae_score(&m, getenv("KAE_SCORE")); if(stats) stats_dump(&m,stats); return 0; }
+ 
+     /* modo scoring per benchmark: SCORE=<requests.txt> -> log-likelihood per riga */
+diff --git a/c/kae_dump.h b/c/kae_dump.h
+new file mode 100644
+index 0000000..8d2e87b
+--- /dev/null
++++ b/c/kae_dump.h
+@@ -0,0 +1,239 @@
++#ifndef KAE_DUMP_H
++#define KAE_DUMP_H
++/* ============================================================================
++ * kot-f1k-dump/1 — construction-only moe()-INPUT hidden-state dump (F1-K).
++ * DRAFT FOR GATE-0 REVIEW, NOT DEPLOYED.
++ *
++ * Implements the ENGINE HIDDEN-STATE DUMP CONTRACT frozen in
++ * build_carriers.py (kernel-of-truth poc/glm52-probe/f1k-harness, generator
++ * pin cda62364; DES glm52-followup-experiment.md §2.4 / §2.8 item-3):
++ * for each construction pass (one manifest line), SUM the hidden state x at
++ * the moe() INPUT over the GATED positions (span slot >= 0), per requested
++ * dump layer, and emit the KAED binary. The mean-difference arithmetic that
++ * turns these sums into carriers is HARNESS-SIDE (build_carriers.py,
++ * "REGISTERED MEAN-DIFFERENCE ARITHMETIC") — this file only records sums.
++ *
++ * PHASE SEPARATION (scoring binary stays gate-0-KaE-patch-only):
++ *   - This mode is ADDITIVE and CONSTRUCTION-ONLY. With KAE_DUMP unset the
++ *     engine forward is byte-identical to the gate-0 KaE-patched engine:
++ *     the only added executed code is NULL getenv checks in main() and one
++ *     `if(g_kdump)` false branch at the head of moe().
++ *   - KAE_DUMP is mutually exclusive with KAE_SCORE and with KAE=1 (enforced
++ *     fail-closed in main() BEFORE model load, ASM-2487): a dump of the
++ *     spliced model would silently corrupt every carrier.
++ *   - The capture is READ-ONLY (const float *x): arming the dump cannot
++ *     perturb the forward pass it observes.
++ *
++ * SPAN BINDING IS REUSED from kae.h (kae_bind_spans / kae_concept_at /
++ * kae_reset_spans on an embedded KaE struct used ONLY for its span fields):
++ * the dump gates positions with the exact same per-item, absolute-position
++ * (pos_base + s) semantics the gate-0-reviewed KAE_SCORE path uses.
++ *
++ * ARITHMETIC (ASM-2485): the summands are the engine's own f32 hidden-state
++ * components, untouched; accumulation is IEEE-754 float64 in ascending
++ * absolute-position order; sums are cast to f32 only at write. This matches
++ * mock_colibri_dump.py (Python float == C double; struct '<f' == (float)
++ * cast) cell-for-cell, so the mock and the real engine share one contract.
++ *
++ * FAIL-CLOSED invariants (any violation => nonzero process exit, no dump):
++ *   - arm: KAE_DUMP_OUT + KAE_DUMP_LAYERS required; every layer id in
++ *     [0, n_layers), no duplicates; output file must open.
++ *   - per line: zero gated positions is an ERROR (contract: the generator
++ *     never emits one); malformed tokens/spans ABORT (construction
++ *     integrity over availability, ASM-2489 — unlike KAE_SCORE's per-item
++ *     skip, a silently dropped construction pass would corrupt the §2.4
++ *     means).
++ *   - per line, per slot: the number of gated rows actually accumulated
++ *     must equal the manifest's gated count (ASM-2488). This catches a
++ *     requested layer that never reaches moe() (dense layer, layer never
++ *     executed), a chunked prefill visiting a position twice, and a
++ *     hidden-dim mismatch — each of which would otherwise corrupt sums
++ *     silently.
++ *
++ * KAED format (little-endian, same x86-64 assumption as kae.h's KAEC,
++ * ASM-2491):
++ *   [4]="KAED" | i32 n_lines | i32 nl | i32 D | i32 layer_id[nl]
++ *   then per line: i32 gated_count | f32 sum[nl*D]
++ * layer_id order == KAE_DUMP_LAYERS order (slot order; harness verifies).
++ * ==========================================================================*/
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <stdint.h>
++#include <limits.h>
++#include "kae.h"
++
++typedef struct KaEDump {
++    int    nl;          /* number of dump layers (KAE_DUMP_LAYERS)            */
++    int    D;           /* model hidden dim (validated at capture)            */
++    int   *layer;       /* [nl] dump layer ids, KAE_DUMP_LAYERS order = slots */
++    double*acc;         /* [nl*D] per-line f64 accumulators (ASM-2485)        */
++    long  *cnt;         /* [nl] gated rows accumulated this line, per slot    */
++    float *tmpf;        /* [nl*D] f32 staging buffer for the line write       */
++    KaE    gate;        /* REUSED kae.h span binding; only span/span_n/nc used*/
++    FILE  *out;         /* KAE_DUMP_OUT stream                                */
++    int    err;         /* sticky capture error -> write_line fails closed    */
++} KaEDump;
++
++/* slot of `layer` in the dump set, in KAE_DUMP_LAYERS order; -1 if absent. */
++static inline int kaed_slot_of_layer(const KaEDump *kd, int layer){
++    for(int i = 0; i < kd->nl; i++) if(kd->layer[i] == layer) return i;
++    return -1;
++}
++
++/* Arm the dump: parse KAE_DUMP_LAYERS (csv), validate against the model
++ * geometry, allocate accumulators, open KAE_DUMP_OUT. Returns NULL on ANY
++ * failure (caller must treat NULL as fatal — fail closed, never a partial
++ * dump; contrast kae_load, whose NULL degrades to "KaE disabled": a scoring
++ * run without the splice is a valid arm, a construction run without the
++ * dump is not). */
++static inline KaEDump *kaed_arm(const char *layers_csv, const char *out_path,
++                                int hidden, int n_layers){
++    if(!layers_csv || !*layers_csv){
++        fprintf(stderr, "[KAE-DUMP] KAE_DUMP requires KAE_DUMP_LAYERS=<csv>\n");
++        return NULL; }
++    if(!out_path || !*out_path){
++        fprintf(stderr, "[KAE-DUMP] KAE_DUMP requires KAE_DUMP_OUT=<path>\n");
++        return NULL; }
++    KaEDump *kd = (KaEDump*)calloc(1, sizeof(KaEDump));
++    if(!kd){ fprintf(stderr, "[KAE-DUMP] alloc failed\n"); return NULL; }
++    kd->D = hidden;
++    /* the embedded gate reuses kae_bind_spans verbatim; dump span slots are
++     * template char-span slot ids (any non-negative int gates), so the only
++     * binding-time constraint is v < nc: set nc to INT_MAX. layer/carrier
++     * stay NULL — only the span fields of the reused KaE struct are used. */
++    kd->gate.nc = INT_MAX;
++    int cap = 16;
++    kd->layer = (int*)malloc((size_t)cap * sizeof(int));
++    if(!kd->layer){ fprintf(stderr, "[KAE-DUMP] alloc layer list failed\n"); free(kd); return NULL; }
++    const char *p = layers_csv;
++    while(*p){
++        char *e; long v = strtol(p, &e, 10);
++        if(e == p || v < 0 || v >= n_layers){
++            fprintf(stderr, "[KAE-DUMP] bad dump layer id in '%s' (want ints in [0,%d))\n",
++                    layers_csv, n_layers);
++            free(kd->layer); free(kd); return NULL; }
++        for(int i = 0; i < kd->nl; i++) if(kd->layer[i] == (int)v){
++            fprintf(stderr, "[KAE-DUMP] duplicate dump layer %ld\n", v);
++            free(kd->layer); free(kd); return NULL; }
++        if(kd->nl == cap){
++            cap *= 2;
++            int *nl2 = (int*)realloc(kd->layer, (size_t)cap * sizeof(int));
++            if(!nl2){ fprintf(stderr, "[KAE-DUMP] realloc layer list failed\n");
++                      free(kd->layer); free(kd); return NULL; }
++            kd->layer = nl2; }
++        kd->layer[kd->nl++] = (int)v;
++        p = e;
++        if(*p == ','){ p++; if(!*p){ fprintf(stderr, "[KAE-DUMP] trailing comma in KAE_DUMP_LAYERS\n");
++                                     free(kd->layer); free(kd); return NULL; } }
++        else if(*p){ fprintf(stderr, "[KAE-DUMP] malformed KAE_DUMP_LAYERS '%s'\n", layers_csv);
++                     free(kd->layer); free(kd); return NULL; }
++    }
++    if(kd->nl < 1){ fprintf(stderr, "[KAE-DUMP] empty KAE_DUMP_LAYERS\n");
++                    free(kd->layer); free(kd); return NULL; }
++    size_t cells, bytes;
++    if(!kae_szmul((size_t)kd->nl, (size_t)kd->D, &cells) ||
++       !kae_szmul(cells, sizeof(double), &bytes)){
++        fprintf(stderr, "[KAE-DUMP] accumulator size overflow (%d*%d)\n", kd->nl, kd->D);
++        free(kd->layer); free(kd); return NULL; }
++    kd->acc  = (double*)calloc(cells, sizeof(double));
++    kd->tmpf = (float*) malloc(cells * sizeof(float));
++    kd->cnt  = (long*)  calloc((size_t)kd->nl, sizeof(long));
++    if(!kd->acc || !kd->tmpf || !kd->cnt){
++        fprintf(stderr, "[KAE-DUMP] accumulator alloc failed\n");
++        free(kd->acc); free(kd->tmpf); free(kd->cnt); free(kd->layer); free(kd); return NULL; }
++    kd->out = fopen(out_path, "wb");
++    if(!kd->out){ fprintf(stderr, "[KAE-DUMP] cannot open KAE_DUMP_OUT %s\n", out_path);
++                  free(kd->acc); free(kd->tmpf); free(kd->cnt); free(kd->layer); free(kd); return NULL; }
++    return kd;
++}
++
++/* Bind THIS line's spans (REUSES kae_bind_spans: per-item, replaces the
++ * previous line's) and zero the line accumulators. -1 on bind failure. */
++static inline int kaed_bind_line(KaEDump *kd, const int *spans, int n){
++    if(kae_bind_spans(&kd->gate, spans, n) != 0) return -1;
++    memset(kd->acc, 0, (size_t)kd->nl * (size_t)kd->D * sizeof(double));
++    memset(kd->cnt, 0, (size_t)kd->nl * sizeof(long));
++    kd->err = 0;
++    return 0;
++}
++
++/* THE CAPTURE — called at the HEAD of moe() on its INPUT x [S*D] (glm.c:1277;
++ * DES §2.4 "hidden states recorded at gated positions at the moe() input").
++ * READ-ONLY on x. For each row s whose absolute position (pos_base+s) is
++ * gated (reused kae_concept_at >= 0) at a dump layer, accumulate x row into
++ * the slot's f64 accumulator (ascending position order: rows in s order,
++ * chunks in pos_base order). Rows/layers outside the dump set do nothing. */
++static inline void kaed_capture(KaEDump *kd, int layer, int pos_base,
++                                int S, int D, const float *x){
++    if(!kd || kd->err) return;
++    int slot = kaed_slot_of_layer(kd, layer);
++    if(slot < 0) return;
++    if(D != kd->D){ kd->err = 1; /* surfaces at kaed_write_line, fail closed */
++        fprintf(stderr, "[KAE-DUMP] capture D=%d != armed D=%d at layer %d\n",
++                D, kd->D, layer);
++        return; }
++    double *a = kd->acc + (size_t)slot * (size_t)D;
++    for(int s = 0; s < S; s++){
++        if(kae_concept_at(&kd->gate, pos_base + s) < 0) continue;  /* reused gate */
++        const float *xs = x + (size_t)s * (size_t)D;
++        for(int d = 0; d < D; d++) a[d] += (double)xs[d];
++        kd->cnt[slot]++;
++    }
++}
++
++/* Write the KAED header. 0 on success. */
++static inline int kaed_write_header(KaEDump *kd, int n_lines){
++    int32_t hdr[3]; hdr[0] = n_lines; hdr[1] = kd->nl; hdr[2] = kd->D;
++    if(fwrite("KAED", 1, 4, kd->out) != 4 ||
++       fwrite(hdr, 4, 3, kd->out) != 3 ||
++       fwrite(kd->layer, 4, (size_t)kd->nl, kd->out) != (size_t)kd->nl){
++        fprintf(stderr, "[KAE-DUMP] header write failed\n"); return -1; }
++    return 0;
++}
++
++/* Close out the line: enforce the ASM-2488 per-slot invariant (every dump
++ * slot accumulated EXACTLY gated_expected rows), then emit
++ * i32 gated_count | f32 sum[nl*D]. 0 on success; nonzero must abort the run. */
++static inline int kaed_write_line(KaEDump *kd, int line_no, long gated_expected){
++    if(kd->err){
++        fprintf(stderr, "[KAE-DUMP] line %d: capture error (see above) -> abort\n", line_no);
++        return -1; }
++    for(int i = 0; i < kd->nl; i++) if(kd->cnt[i] != gated_expected){
++        fprintf(stderr, "[KAE-DUMP] line %d: layer %d accumulated %ld gated rows, "
++                "manifest has %ld — dump layer not reached by moe() or position "
++                "visited twice -> abort (ASM-2488)\n",
++                line_no, kd->layer[i], kd->cnt[i], gated_expected);
++        return -1; }
++    size_t cells = (size_t)kd->nl * (size_t)kd->D;
++    for(size_t z = 0; z < cells; z++) kd->tmpf[z] = (float)kd->acc[z];
++    int32_t gc = (int32_t)gated_expected;
++    if(fwrite(&gc, 4, 1, kd->out) != 1 ||
++       fwrite(kd->tmpf, sizeof(float), cells, kd->out) != cells){
++        fprintf(stderr, "[KAE-DUMP] line %d: write failed\n", line_no); return -1; }
++    return 0;
++}
++
++/* Reset between lines: clear the reused spans so nothing gates until the
++ * next bind (mirrors run_kae_score's kae_reset_spans discipline). */
++static inline void kaed_reset_line(KaEDump *kd){
++    kae_reset_spans(&kd->gate);
++}
++
++/* Flush + close; 0 iff every byte landed. */
++static inline int kaed_finish(KaEDump *kd){
++    if(fflush(kd->out) != 0 || ferror(kd->out) || fclose(kd->out) != 0){
++        fprintf(stderr, "[KAE-DUMP] output flush/close failed\n");
++        kd->out = NULL; return -1; }
++    kd->out = NULL;
++    return 0;
++}
++
++static inline void kaed_free(KaEDump *kd){
++    if(!kd) return;
++    if(kd->out) fclose(kd->out);
++    kae_reset_spans(&kd->gate);
++    free(kd->layer); free(kd->acc); free(kd->cnt); free(kd->tmpf); free(kd);
++}
++
++#endif /* KAE_DUMP_H */
+diff --git a/c/tests/test_kae_dump.c b/c/tests/test_kae_dump.c
+new file mode 100644
+index 0000000..7eedaac
+--- /dev/null
++++ b/c/tests/test_kae_dump.c
+@@ -0,0 +1,193 @@
++/* ============================================================================
++ * test_kae_dump.c — mock unit tests for the kot-f1k-dump/1 moe()-input dump.
++ * DRAFT FOR GATE-0 REVIEW, NOT DEPLOYED.  No model, no weights, no instance:
++ * a synthetic tiny setup (D=6, dump layers {5,2,9} — deliberately NON-sorted
++ * to pin slot order == KAE_DUMP_LAYERS order) that links the SAME kae_dump.h
++ * (and, through it, the SAME kae.h span binding) the engine links, and
++ * asserts the construction-dump properties:
++ *   A. arming is fail-closed (bad/duplicate/out-of-range layer ids, missing
++ *      out path, malformed csv all -> NULL; valid csv preserves order);
++ *   B. the capture sums the moe() INPUT x over EXACTLY the gated positions
++ *      (reused kae.h span binding; pos_base honoured; non-dump layers no-op;
++ *      f64 accumulation matches an independent double re-derivation);
++ *   C. the capture is READ-ONLY on x and errs closed on a hidden-dim
++ *      mismatch;
++ *   D. the ASM-2488 per-slot gated-count invariant fails closed (a dump
++ *      layer that moe() never reached aborts the line);
++ *   E. the KAED bytes are exactly the contract (magic, header, layer order,
++ *      per-line gated_count + f32-cast sums);
++ *   F. per-line bind/reset semantics (rebind replaces, reset disarms).
++ * Exit 0 = all pass; nonzero = a failure (printed).
++ * ==========================================================================*/
++#include <stdio.h>
++#include <string.h>
++#include <stdint.h>
++#include "../kae_dump.h"
++
++static int fails = 0;
++#define CHECK(cond, msg) do{ if(!(cond)){ printf("  FAIL: %s\n", msg); fails++; } \
++                             else printf("  ok:   %s\n", msg); }while(0)
++
++enum { D = 6, NLAYERS = 12, S = 5 };
++static const char *CSV = "5,2,9";              /* NON-sorted: slot order = csv order */
++static const int LAYERS[3] = { 5, 2, 9 };
++/* spans: slot per absolute position; -1 = ungated */
++static const int SPANS[S] = { -1, 7, 0, -1, 95 };
++
++/* deterministic moe()-input fixture: exact in f32 (k/8 grid) */
++static float Xval(int pos, int d){ return (float)(pos * 8 + d) / 8.0f - 2.0f; }
++static void fill_x(float *x, int pos0, int n){
++    for(int s = 0; s < n; s++) for(int d = 0; d < D; d++)
++        x[s*D + d] = Xval(pos0 + s, d);
++}
++
++int main(void){
++    const char *opath = "/tmp/kae_dump_test.kaed";
++
++    printf("== Test A: fail-closed arming ==\n");
++    printf("  (the [KAE-DUMP] arm-failure messages below are EXPECTED test output)\n");
++    CHECK(kaed_arm(NULL,  opath, D, NLAYERS) == NULL, "missing KAE_DUMP_LAYERS -> NULL");
++    CHECK(kaed_arm("",    opath, D, NLAYERS) == NULL, "empty KAE_DUMP_LAYERS -> NULL");
++    CHECK(kaed_arm(CSV,   NULL,  D, NLAYERS) == NULL, "missing KAE_DUMP_OUT -> NULL");
++    CHECK(kaed_arm("5,x", opath, D, NLAYERS) == NULL, "non-integer layer id -> NULL");
++    CHECK(kaed_arm("5,5", opath, D, NLAYERS) == NULL, "duplicate layer id -> NULL");
++    CHECK(kaed_arm("5,12",opath, D, NLAYERS) == NULL, "layer id >= n_layers -> NULL");
++    CHECK(kaed_arm("-1",  opath, D, NLAYERS) == NULL, "negative layer id -> NULL");
++    CHECK(kaed_arm("5,",  opath, D, NLAYERS) == NULL, "trailing comma -> NULL");
++    CHECK(kaed_arm("5 2", opath, D, NLAYERS) == NULL, "space-separated csv -> NULL");
++    KaEDump *kd = kaed_arm(CSV, opath, D, NLAYERS);
++    if(!kd){ printf("FATAL: valid arm returned NULL\n"); return 2; }
++    CHECK(kd->nl == 3 && kd->D == D, "valid arm: nl=3, D matches model");
++    int order_ok = 1;
++    for(int i = 0; i < 3; i++) if(kd->layer[i] != LAYERS[i]) order_ok = 0;
++    CHECK(order_ok, "slot order == KAE_DUMP_LAYERS order (5,2,9 — NOT sorted)");
++    CHECK(kaed_slot_of_layer(kd, 2) == 1, "layer 2 is slot 1 (csv order)");
++    CHECK(kaed_slot_of_layer(kd, 3) == -1, "layer 3 is not a dump layer");
++
++    printf("== Test B: capture sums exactly the gated positions (f64) ==\n");
++    CHECK(kaed_write_header(kd, 2) == 0, "KAED header written");
++    CHECK(kaed_bind_line(kd, SPANS, S) == 0, "bind line-0 spans (reused kae_bind_spans)");
++    float x[S*D];
++    fill_x(x, 0, S);
++    /* one full-S call per dump layer + a non-dump layer (must be a no-op) */
++    kaed_capture(kd, 5, 0, S, D, x);
++    kaed_capture(kd, 3, 0, S, D, x);      /* not in the dump set */
++    kaed_capture(kd, 2, 0, S, D, x);
++    kaed_capture(kd, 9, 0, S, D, x);
++    /* independent double re-derivation over gated positions {1,2,4} */
++    int b_ok = 1;
++    for(int slot = 0; slot < 3; slot++) for(int d = 0; d < D; d++){
++        double want = 0.0;
++        for(int p = 0; p < S; p++) if(SPANS[p] >= 0) want += (double)Xval(p, d);
++        if(kd->acc[slot*D + d] != want) b_ok = 0;
++    }
++    CHECK(b_ok, "every slot's f64 sum == independent double re-derivation over gated rows");
++    CHECK(kd->cnt[0] == 3 && kd->cnt[1] == 3 && kd->cnt[2] == 3,
++          "per-slot gated count == 3 (positions 1,2,4)");
++    CHECK(kaed_write_line(kd, 0, 3) == 0, "line 0 written (per-slot invariant holds)");
++
++    printf("== Test C: read-only capture + hidden-dim fail-closed ==\n");
++    kaed_reset_line(kd);
++    CHECK(kaed_bind_line(kd, SPANS, S) == 0, "bind line-1 spans");
++    float xref[S*D];
++    fill_x(x, 0, S); memcpy(xref, x, sizeof x);
++    /* CHUNKED prefill emulation: two calls with pos_base 0 and 3 must equal
++     * one full-S call (absolute-position gating via the reused kae gate). */
++    kaed_capture(kd, 5, 0, 3, D, x);
++    kaed_capture(kd, 5, 3, 2, D, x + 3*D);
++    kaed_capture(kd, 2, 0, S, D, x);
++    kaed_capture(kd, 9, 0, S, D, x);
++    CHECK(memcmp(x, xref, sizeof x) == 0, "capture left x byte-identical (read-only)");
++    int chunk_ok = 1;
++    for(int d = 0; d < D; d++){
++        double want = 0.0;
++        for(int p = 0; p < S; p++) if(SPANS[p] >= 0) want += (double)Xval(p, d);
++        if(kd->acc[0*D + d] != want) chunk_ok = 0;
++    }
++    CHECK(chunk_ok && kd->cnt[0] == 3,
++          "chunked capture (pos_base 0 then 3) == one full-S capture");
++    printf("  (the [KAE-DUMP] capture/line error messages below are EXPECTED test output)\n");
++    kaed_capture(kd, 9, 0, S, D + 1, x);   /* wrong hidden dim */
++    CHECK(kd->err == 1, "hidden-dim mismatch sets the sticky error flag");
++    CHECK(kaed_write_line(kd, 1, 3) != 0, "write_line fails closed on capture error");
++
++    printf("== Test D: ASM-2488 per-slot count invariant ==\n");
++    kaed_reset_line(kd);
++    CHECK(kaed_bind_line(kd, SPANS, S) == 0, "bind line spans again");
++    fill_x(x, 0, S);
++    kaed_capture(kd, 5, 0, S, D, x);
++    kaed_capture(kd, 2, 0, S, D, x);       /* layer 9 never reached */
++    CHECK(kaed_write_line(kd, 2, 3) != 0, "a dump layer moe() never reached -> line fails closed");
++    kaed_bind_line(kd, SPANS, S);
++    fill_x(x, 0, S);
++    kaed_capture(kd, 5, 0, S, D, x);
++    kaed_capture(kd, 5, 0, S, D, x);       /* double visit */
++    kaed_capture(kd, 2, 0, S, D, x);
++    kaed_capture(kd, 9, 0, S, D, x);
++    CHECK(kaed_write_line(kd, 3, 3) != 0, "a position visited twice -> line fails closed");
++
++    printf("== Test E: KAED bytes are exactly the contract ==\n");
++    /* re-arm cleanly and write a 2-line file, then read the bytes back */
++    kaed_free(kd);
++    kd = kaed_arm(CSV, opath, D, NLAYERS);
++    CHECK(kd != NULL, "re-arm for the byte-layout check");
++    CHECK(kaed_write_header(kd, 2) == 0, "header written");
++    for(int line = 0; line < 2; line++){
++        kaed_bind_line(kd, SPANS, S);
++        fill_x(x, line, S);                 /* line 1 shifts positions by 1 */
++        kaed_capture(kd, 5, 0, S, D, x);
++        kaed_capture(kd, 2, 0, S, D, x);
++        kaed_capture(kd, 9, 0, S, D, x);
++        if(kaed_write_line(kd, line, 3) != 0){ printf("  FAIL: line %d write\n", line); fails++; }
++        kaed_reset_line(kd);
++    }
++    CHECK(kaed_finish(kd) == 0, "finish flushed and closed the file");
++    {
++        FILE *f = fopen(opath, "rb");
++        CHECK(f != NULL, "KAED file exists");
++        char magic[4]; int32_t hdr[3], lay[3];
++        CHECK(fread(magic, 1, 4, f) == 4 && memcmp(magic, "KAED", 4) == 0, "magic == KAED");
++        CHECK(fread(hdr, 4, 3, f) == 3 && hdr[0] == 2 && hdr[1] == 3 && hdr[2] == D,
++              "header n_lines=2, nl=3, D matches");
++        CHECK(fread(lay, 4, 3, f) == 3 && lay[0] == 5 && lay[1] == 2 && lay[2] == 9,
++              "layer ids in KAE_DUMP_LAYERS order");
++        int e_ok = 1;
++        for(int line = 0; line < 2; line++){
++            int32_t gc; float sums[3*D];
++            if(fread(&gc, 4, 1, f) != 1 || gc != 3) e_ok = 0;
++            if(fread(sums, 4, 3*D, f) != 3*D) e_ok = 0;
++            for(int slot = 0; slot < 3 && e_ok; slot++) for(int d = 0; d < D; d++){
++                double want = 0.0;
++                for(int p = 0; p < S; p++) if(SPANS[p] >= 0)
++                    want += (double)Xval(line + p, d);
++                if(sums[slot*D + d] != (float)want) e_ok = 0;
++            }
++        }
++        CHECK(e_ok, "per line: i32 gated_count=3 then f32 casts of the f64 sums, cell-exact");
++        char extra;
++        CHECK(fread(&extra, 1, 1, f) == 0, "no trailing bytes");
++        fclose(f);
++    }
++
++    printf("== Test F: per-line bind/reset semantics (reused kae.h binding) ==\n");
++    kaed_free(kd);
++    kd = kaed_arm(CSV, opath, D, NLAYERS);
++    CHECK(kd != NULL, "arm for bind/reset checks");
++    int spansA[3] = { 4, -1, -1 }, spansB[2] = { -1, 2 };
++    CHECK(kaed_bind_line(kd, spansA, 3) == 0, "bind line A");
++    CHECK(kae_concept_at(&kd->gate, 0) == 4, "line A: position 0 gated (slot 4)");
++    CHECK(kaed_bind_line(kd, spansB, 2) == 0, "rebind line B replaces line A");
++    CHECK(kae_concept_at(&kd->gate, 0) == -1 && kae_concept_at(&kd->gate, 1) == 2,
++          "line B spans in force, no stale line-A tail");
++    CHECK(kae_concept_at(&kd->gate, 2) == -1, "past line B's end: ungated");
++    kaed_reset_line(kd);
++    CHECK(kae_concept_at(&kd->gate, 0) == -1, "reset disarms the gate");
++    fill_x(x, 0, S);
++    kaed_capture(kd, 5, 0, S, D, x);
++    CHECK(kd->cnt[0] == 0, "capture after reset accumulates nothing");
++    kaed_free(kd);
++
++    printf("\n%s (%d failure%s)\n", fails ? "TESTS FAILED" : "ALL TESTS PASSED",
++           fails, fails == 1 ? "" : "s");
++    return fails ? 1 : 0;
++}

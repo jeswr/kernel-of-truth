@@ -1,0 +1,41 @@
+  ok:   build_carriers.py still enforces the pinned ECHO_RE literal
+== build: reference (pre-dump) + dump-patched mock engines ==
+  ok:   gcc mock_ref: clean build, zero warnings
+  ok:   gcc mock_dump: clean build, zero warnings
+== V1: KAE_DUMP-unset byte-identity vs the pre-dump engine ==
+  ok:   [MEASURED] dump binary, KAE_DUMP unset: forward BYTE-IDENTICAL to pre-dump engine
+  ok:   [MEASURED] dump ARMED: forward STILL byte-identical (capture is read-only)
+== V2: dumped sums == independent f64 re-derivation, cell-exact ==
+  ok:   KAED header: n_lines=4 nl=3 D=16
+  ok:   KAED layer ids in KAE_DUMP_LAYERS order [5, 2, 9]
+  ok:   gated_count 4 == expected 4
+  ok:   gated_count 2 == expected 2
+  ok:   gated_count 2 == expected 2
+  ok:   gated_count 1 == expected 1
+  ok:   [MEASURED] every dumped cell (192) == f64 re-derivation cast to f32, bit-exact
+== V3: provenance echo (carrier-HOLD fix 5) ==
+  ok:   [MEASURED] '[KAE-DUMP] armed:' echo fires on stderr (pinned ECHO_RE)
+  ok:   [MEASURED] echoed seed == KAE_SEED == registered CONSTRUCTION_SEED 20260716
+  ok:   echo precedes results (parsed before any dump byte is consumed)
+  ok:   KAE_SEED absent -> echo seed '-' != registered seed (harness fails closed)
+== V4: gated-positions-only + chunked-prefill equivalence ==
+  ok:   [MEASURED] single-gated line: sum == exactly that position's hidden state
+  ok:   [MEASURED] CHUNK=3 prefill (advancing pos_base): .kaed byte-identical
+== V5: fail-closed battery (every case must exit nonzero) ==
+  ok:   KAE_DUMP + KAE_SCORE (phase separation) -> nonzero exit
+  ok:   KAE_DUMP + KAE=1 (phase separation) -> nonzero exit
+  ok:   missing KAE_DUMP_OUT -> nonzero exit
+  ok:   missing KAE_DUMP_LAYERS -> nonzero exit
+  ok:   duplicate dump layer -> nonzero exit
+  ok:   dump layer out of range -> nonzero exit
+  ok:   zero gated positions -> nonzero exit
+  ok:   malformed token id -> nonzero exit
+  ok:   dump layer never reaches moe() (dense layer 1) -> nonzero exit
+== V6: in-patch unit suite (plain + ASan/UBSan/LSan) ==
+  ok:   test_kae_dump plain build: clean, zero warnings
+  ok:   [MEASURED] test_kae_dump (plain): ALL TESTS PASSED (43 checks)
+  ok:   test_kae_dump asan build: clean, zero warnings
+  ok:   [MEASURED] test_kae_dump (asan): ALL TESTS PASSED (43 checks)
+  ok:   ASan/UBSan/LSan: no diagnostics
+
+MOCK VALIDATION PASS — kot-f1k-dump/1 mock battery green (MOCK SCOPE ONLY: mechanics, not feasibility; the real-engine objdump inertness proof re-runs on Modal at bring-up)
