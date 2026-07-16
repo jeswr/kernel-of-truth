@@ -1,4 +1,22 @@
-# kot-f1k-dump/1 — construction-only moe()-input dump patch  [REVISION-0]
+# kot-f1k-dump/1 — construction-only moe()-input dump patch  [REVISION-2]
+
+> **REVISION-2 (2026-07-16, engineer-1)** — clears the two NEEDS-WORK items
+> from the gate-0 correctness review of r1 (commit `8fcf7e6a`, in-file
+> "REVISION-0"): **(review item 5)** the `run_kae_dump` manifest parser now
+> REJECTS a wholly non-numeric/garbage line and trailing junk after the
+> required 2T+1 integers (r1 silently `continue`d past garbage lines and
+> ignored trailing fields) — engine + mock hardened identically, two new
+> [MEASURED] negatives added (V5 is now 11 cases; battery 34/34);
+> **(review item 7)** every reference to this patch's LOCKED assumption
+> range corrected to **ASM-2485..2491** (the seven ASM rows themselves are
+> unchanged); the real bring-up gate is now an explicit runner checklist
+> (see "Real bring-up gate" below). The patch file changed, so its sha256
+> changed (r1 `066565d5…` → r2 `fb5d2f35…`; the r2 patch was regenerated
+> from a fresh `git diff --cached` on the pinned KaE tree so its `index`
+> post-image hashes match the real applied blobs — payload hunks unchanged,
+> superseding the interim r2 file `4ac48e90…` whose index metadata was
+> stale); glm.c line anchors below are
+> r2 numbering (+10 in `main()` vs r1).
 
 > **DRAFT — AUTHORED + MOCK-VALIDATED ONLY, NOT DEPLOYED.**
 > This model-engine C patch MUST pass a **gate-0 Codex review** before any
@@ -31,14 +49,14 @@ load-bearing and were **measured**, not asserted.
 
 | File | What it is |
 |---|---|
-| `kot-f1k-dump.patch` | Unified diff **vs the KaE-patched tree** (apply order: colibri@a78a06fc → `kae-add-path.patch` → this). Adds `c/kae_dump.h` + `c/tests/test_kae_dump.c`; edits `c/glm.c` (+107) and `c/Makefile` (1 dep line). sha256 `066565d5…` (registered in `f1k.json` pins at deploy as an ops amendment, like the KaE patch). |
+| `kot-f1k-dump.patch` | Unified diff **vs the KaE-patched tree** (apply order: colibri@a78a06fc → `kae-add-path.patch` → this). Adds `c/kae_dump.h` + `c/tests/test_kae_dump.c`; edits `c/glm.c` (+117) and `c/Makefile` (1 dep line). sha256 `fb5d2f35…` (registered in `f1k.json` pins at deploy as an ops amendment, like the KaE patch). |
 | `kae_dump.h` | Reference copy of the dump core (accumulator + capture + KAED writer; reuses `kae.h` span binding). `real-checks.sh` asserts it is byte-identical to the patch payload. |
 | `test_kae_dump.c` | Reference copy of the in-patch unit suite (43 checks). |
 | `mock_glm_dump.c` | MOCK-ONLY tiny engine linking the SAME `kae_dump.h`, with an exact-in-f32, causal, independently re-derivable toy hidden state. |
 | `validate.py` | The $0 mock validation battery (V1–V6 below). |
 | `real-checks.sh` | The $0 real-source battery: patch applies on the pinned KaE tree, engine builds, unit suites green, objdump per-function inertness. Re-run on Modal at bring-up before any real dump. |
 | `validate.log`, `real-checks.log`, `tok-selftest.log` | Measured outputs of the three batteries (2026-07-16, all PASS). |
-| `asm-f1k-dump-2485-2491.json` | Companion assumption block ASM-2485..2485 (owner engineer-1), for the coordinator to register with the landing commit. |
+| `asm-f1k-dump-2485-2491.json` | Companion assumption block ASM-2485..2491 (owner engineer-1), for the coordinator to register with the landing commit. |
 
 The kot-f1k-tok/1 tokenizer wrapper is `../tok_glm52.py` (see below).
 
@@ -54,23 +72,26 @@ The kot-f1k-tok/1 tokenizer wrapper is `../tok_glm52.py` (see below).
    `if(g_kdump) kaed_capture(g_kdump, layer, pos_base, S, D, x);`
    READ-ONLY (`const float *x` in `kaed_capture`). `moe()`'s signature is
    unchanged, so `layer_forward` is untouched (unlike the KaE patch).
-4. **glm.c:1994–2056** — `run_kae_dump(Model*, const char*)`, placed after
-   `run_kae_score` and mirroring its manifest parser (`T t_0..t_{T-1}
+4. **glm.c:1994–2066** — `run_kae_dump(Model*, const char*)`, placed after
+   `run_kae_score` and using its manifest format (`T t_0..t_{T-1}
    s_0..s_{T-1}`, the KAE_SCORE span convention) and its
    one-`layers_forward`-prefill-per-line / `kv_alloc(maxT)` pattern — the
-   pattern gate-0 already reviewed. Differences from the scorer: parse
-   errors and zero-gated lines **abort with nonzero exit** instead of
-   skipping the item (ASM-2489 — a silently dropped pass would corrupt the
-   §2.4 means), and nothing is printed to stdout (results go only to
-   `KAE_DUMP_OUT`; codex blocker-1 discipline).
-5. **glm.c:2793–2801** — phase-separation guard in `main()` BEFORE model
+   pattern gate-0 already reviewed. Differences from the scorer: the parse
+   is STRICT — every line must be EXACTLY the 2T+1 whitespace-separated
+   integers, and a wholly non-numeric/garbage line, a bad T / token id /
+   span slot, trailing junk after the last span, and a zero-gated line ALL
+   **abort with nonzero exit** instead of being skipped (ASM-2489 — a
+   silently dropped or partially-parsed pass would corrupt the §2.4 means),
+   and nothing is printed to stdout (results go only to `KAE_DUMP_OUT`;
+   codex blocker-1 discipline).
+5. **glm.c:2803–2811** — phase-separation guard in `main()` BEFORE model
    load (ASM-2487): `KAE_DUMP` + (`KAE_SCORE` or `KAE=1`) → abort.
-6. **glm.c:2872–2886** — arming after `model_init` (geometry known):
+6. **glm.c:2882–2896** — arming after `model_init` (geometry known):
    `kaed_arm(KAE_DUMP_LAYERS, KAE_DUMP_OUT, hidden, n_layers)`; NULL →
    **abort** (a construction run must never silently proceed undumped —
    contrast `kae_load`, whose NULL lawfully degrades for scoring); then the
    REQUIRED stderr provenance echo.
-7. **glm.c:2923–2929** — dispatch `if(getenv("KAE_DUMP")) run_kae_dump(...)`
+7. **glm.c:2933–2939** — dispatch `if(getenv("KAE_DUMP")) run_kae_dump(...)`
    ahead of (and mutually exclusive with) `KAE_SCORE`/`SCORE`/`SERVE`.
 8. **Makefile:88** — `kae_dump.h` added to the `glm` dependency line.
 
@@ -106,7 +127,7 @@ The kot-f1k-tok/1 tokenizer wrapper is `../tok_glm52.py` (see below).
 
 | Var | Required | Meaning |
 |---|---|---|
-| `KAE_DUMP` | arms | manifest path; one pass per line `T t_0..t_{T-1} s_0..s_{T-1}` (-1 = ungated) |
+| `KAE_DUMP` | arms | manifest path; one pass per line `T t_0..t_{T-1} s_0..s_{T-1}` (-1 = ungated); EXACTLY 2T+1 integers per line — garbage lines and trailing junk abort (ASM-2489) |
 | `KAE_DUMP_OUT` | yes (when armed) | KAED output: `"KAED" i32 n_lines, nl, D, layer_id[nl]`, then per line `i32 gated_count, f32 sum[nl*D]` (little-endian, ASM-2491) |
 | `KAE_DUMP_LAYERS` | yes (when armed) | csv of dump layer ids = the A(iv) candidate splice-layer union (real runs: 3..78); **csv order = slot order** in the file |
 | `KAE_SEED` | echo only | echoed verbatim in the arm line; the dump path consults **no RNG**; `run_dump` exports the registered `CONSTRUCTION_SEED=20260716` and fails closed on mismatch |
@@ -137,7 +158,7 @@ and the real engine share one contract.
 
 ## Mock validation — MEASURED results (2026-07-16, this box, $0)
 
-`python3 validate.py` → **MOCK VALIDATION PASS, 32/32 checks** (`validate.log`):
+`python3 validate.py` → **MOCK VALIDATION PASS, 34/34 checks** (`validate.log`):
 
 - **V1 byte-identity** [MEASURED]: pre-dump reference engine vs dump engine
   with `KAE_DUMP` unset: forward outputs **byte-identical**; armed dump run:
@@ -152,10 +173,13 @@ and the real engine share one contract.
 - **V4 gating semantics** [MEASURED]: single-gated line == exactly that
   position's hidden vector; `CHUNK=3` prefill (advancing `pos_base`) gives a
   **byte-identical** `.kaed` (absolute-position gating).
-- **V5 fail-closed battery**: 9/9 abort cases exit nonzero (both
-  phase-separation cases, missing OUT/LAYERS, duplicate/out-of-range layer,
-  zero-gated line, malformed token, dump layer that never reaches `moe()` —
-  the ASM-2488 per-slot count invariant).
+- **V5 fail-closed battery** [MEASURED]: 11/11 abort cases exit nonzero
+  (both phase-separation cases, missing OUT/LAYERS, duplicate/out-of-range
+  layer, zero-gated line, malformed token, dump layer that never reaches
+  `moe()` — the ASM-2488 per-slot count invariant — plus the two r2
+  negatives: a wholly non-numeric GARBAGE manifest line and TRAILING JUNK
+  after the required 2T+1 integers, both rejected with a clear stderr error,
+  never silently skipped).
 - **V6 unit suite**: `test_kae_dump.c` **43/43** plain and under
   **ASan+UBSan+LSan** (clean, zero diagnostics, zero warnings).
 
@@ -172,10 +196,39 @@ JSONL round-trip, multibyte **char** offsets (é/CJK), template-spec
 intersection rule, sha-pin + malformed-input fail-closed.
 
 **[STIPULATED] scope limit:** no check above touched GLM-5.2, its weights,
-or the real 6144-dim geometry. Modal bring-up MUST re-run: `real-checks.sh`
-battery on the build box, `test_kae` 44/44 + `test_kae_dump` 43/43, the
-objdump proof on the production binary, tokenizer-vs-engine id consistency,
-and a tiny real dump sanity pass — all BEFORE `construct --mode real`.
+or the real 6144-dim geometry. See the explicit runner checklist below.
+
+## Real bring-up gate (pre-full-generation preconditions — RUNNER steps, not authored here)
+
+**[STIPULATED]** The gate-0-confirmed additive structure and the toy
+re-derivation authorize a **controlled real BRING-UP only — NOT full table
+generation**. Before `construct --mode real` at full scale, the RUNNER must
+satisfy ALL of the following **on the REAL binary** (each one MEASURED on
+Modal, not asserted; any failure stops the run — fail closed, no
+retry-to-green):
+
+- [ ] **(a) Tiny real dump + tokenizer-vs-engine token-ID consistency:** a
+  small real dump (a few manifest lines, a small layer subset) completes,
+  AND the kot-f1k-tok/1 wrapper's token ids for the same texts are
+  IDENTICAL to the ids the real engine actually prefills (the open half of
+  ASM-2490; a byte- or normalizer-shifted tokenization would gate the wrong
+  positions silently).
+- [ ] **(b) Real unarmed byte-identity vs the pre-patch engine:** with
+  `KAE_DUMP` unset, the dump-patched production binary's output is
+  byte-identical to the pre-patch (KaE-only) engine's on the real box —
+  re-run the `real-checks.sh` battery there (`test_kae` 44/44 +
+  `test_kae_dump` 43/43 + the objdump per-function inertness proof on the
+  production build flags).
+- [ ] **(c) Independent MoE-input sum cross-check on MIXED positions:** an
+  INDEPENDENTLY captured moe()-input sum (separate instrumentation path,
+  not `kae_dump.h`) over at least one construction line with MIXED
+  gated/ungated positions matches the engine's dumped sums cell-for-cell.
+
+These are runner bring-up obligations (experiment-runner role, per the
+frozen-run discipline); they are deliberately NOT executed in this $0
+authoring pass. Also carried over from r1: the objdump proof re-runs on the
+production binary, and the `bringup.sh` §5 parser fix (open question 2)
+must be ported before step (b).
 
 ## kot-f1k-tok/1 (`../tok_glm52.py`)
 

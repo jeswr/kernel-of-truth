@@ -31,6 +31,8 @@
   ok:   zero gated positions -> nonzero exit
   ok:   malformed token id -> nonzero exit
   ok:   dump layer never reaches moe() (dense layer 1) -> nonzero exit
+  ok:   [MEASURED] garbage manifest line (wholly non-numeric, not skipped) -> nonzero exit
+  ok:   [MEASURED] trailing junk after the required 2T+1 integers -> nonzero exit
 == V6: in-patch unit suite (plain + ASan/UBSan/LSan) ==
   ok:   test_kae_dump plain build: clean, zero warnings
   ok:   [MEASURED] test_kae_dump (plain): ALL TESTS PASSED (43 checks)

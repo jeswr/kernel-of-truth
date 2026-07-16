@@ -1,11 +1,11 @@
 {
-  "range": "ASM-2485..2485",
-  "purpose": "Companion assumption block for the kot-f1k-dump/1 construction-only moe()-input dump patch, AUTHORED + MOCK-VALIDATED (engineer-1, 2026-07-16) per handoff bead kernel-of-truth-xq0h item 2 against the FROZEN F1-K experiment (frozen_sha256 505165ee, commit b332edb6). EMITTED for central registration by the coordinator in registry/assumptions.jsonl with the landing commit; this pass writes NO registry entry. The patch is a DRAFT: it applies on top of the gate-0 KaE patch (11f8b458) at colibri base a78a06fc, is inert unless KAE_DUMP is set, MUST pass a gate-0 Codex review before any real Modal run, and nothing here touched a governed model, weights, Modal, or any frozen record. Ids 2479..2485 are the next-free integers after ASM-2484 (repo-wide grep incl. the concurrent asm-s4speed-2479-2484.json block, 2026-07-16).",
+  "range": "ASM-2485..2491",
+  "purpose": "Companion assumption block for the kot-f1k-dump/1 construction-only moe()-input dump patch, AUTHORED + MOCK-VALIDATED (engineer-1, 2026-07-16) per handoff bead kernel-of-truth-xq0h item 2 against the FROZEN F1-K experiment (frozen_sha256 505165ee, commit b332edb6). EMITTED for central registration by the coordinator in registry/assumptions.jsonl with the landing commit; this pass writes NO registry entry. The patch is a DRAFT: it applies on top of the gate-0 KaE patch (11f8b458) at colibri base a78a06fc, is inert unless KAE_DUMP is set, MUST pass a gate-0 Codex review before any real Modal run, and nothing here touched a governed model, weights, Modal, or any frozen record. Ids 2485..2491 are the next-free integers after ASM-2484 (repo-wide grep incl. the concurrent asm-s4speed block ending at 2484, 2026-07-16). REVISION-2 (2026-07-16): manifest parser hardened per gate-0 review item 5 (garbage lines + trailing junk now abort; 2 new measured negatives) and locked-range references corrected per item 7 — the seven assumption rows below are unchanged from r1.",
   "owner": "engineer-1",
   "backing_artifacts": [
-    "poc/glm52-probe/f1k-harness/dump-patch/kot-f1k-dump.patch (unified diff vs the KaE-patched tree; sha256 066565d504541434ec020bce5d1a2d62a5f9397319521ef0b835011228530684)",
+    "poc/glm52-probe/f1k-harness/dump-patch/kot-f1k-dump.patch (unified diff vs the KaE-patched tree; REVISION-2 sha256 fb5d2f3558351f608afccb29ab974aac2a62182ad67f27ec5c3c5f3e9eab0097; regenerated via git diff --cached on the pinned KaE tree so the index post-image hashes match the applied blobs — payload hunks unchanged from the reviewed r2)",
     "poc/glm52-probe/f1k-harness/dump-patch/PATCH-NOTES.md (exact glm.c span, phase-separation argument, env contract, consumer path, open gate-0 questions)",
-    "poc/glm52-probe/f1k-harness/dump-patch/validate.log (MOCK VALIDATION PASS 32/32: byte-identity, 192-cell bit-exact f64 re-derivation, echo, gating, 9-case fail-closed battery, 43-check unit suite plain+ASan/UBSan/LSan)",
+    "poc/glm52-probe/f1k-harness/dump-patch/validate.log (MOCK VALIDATION PASS 34/34: byte-identity, 192-cell bit-exact f64 re-derivation, echo, gating, 11-case fail-closed battery incl. garbage-line + trailing-junk rejection, 43-check unit suite plain+ASan/UBSan/LSan)",
     "poc/glm52-probe/f1k-harness/dump-patch/real-checks.log (REAL-SOURCE CHECKS OK: applies on pinned KaE tree, builds, test_kae 44/44 regression, test_kae_dump 43/43, objdump per-function inertness: only moe+main differ of 79 shared)",
     "poc/glm52-probe/f1k-harness/dump-patch/tok-selftest.log (kot-f1k-tok/1 wrapper selftest PASS 8/8)",
     "poc/glm52-probe/f1k-harness/build_carriers.py (the FROZEN dump + tokenizer contracts this patch implements; generator pin cda62364)",
@@ -18,7 +18,7 @@
       "tag": "STIPULATED",
       "rationale": "The mock is the pinned $0 emission-surface oracle for the construction pipeline; diverging from its arithmetic (e.g. pure-f32 accumulation) would make mock and real engines disagree at the bit level and lose precision at D=6144 scale.",
       "backing_ref": "kae_dump.h header comment + kaed_capture/kaed_write_line; validate.py V2 (192 cells bit-exact) [MEASURED at mock scale]",
-      "owner": "engineer-1",
+      "owner": "designer-20",
       "load_bearing": true,
       "status": "open"
     },
@@ -27,8 +27,8 @@
       "claim": "The dump state g_kdump is a file-scope global in glm.c, deliberately NOT a Model field, so sizeof(Model), model_init and layer_forward stay byte-identical to the gate-0 KaE engine. Consequently the machine-level inertness gate for THIS patch is: of all shared functions between the KaE-only and KaE+dump objects, only {moe, main} may differ (clone symbols like moe.constprop.0 count as their base function; newly-outlined symbols such as kae_load/run_score/kaed_arm are acceptable inlining artifacts). MEASURED on gcc 11.5 -O2 -march=x86-64-v3: 79 shared functions, exactly {moe, main} differ, none removed.",
       "tag": "MEASURED",
       "rationale": "Bounds what the additive patch can touch at machine level; a smaller allowed-diff set than the KaE patch's {moe, layer_forward, main, model_init} because moe()'s signature is unchanged and no struct grows.",
-      "backing_ref": "real-checks.sh step 6; real-checks.log; PATCH-NOTES.md open question 3",
-      "owner": "engineer-1",
+      "backing_ref": "real-checks.sh step 6; real-checks.log; PATCH-NOTES.md open question 3; kot-f1k-dump.patch sha256=fb5d2f3558351f608afccb29ab974aac2a62182ad67f27ec5c3c5f3e9eab0097",
+      "owner": "designer-20",
       "load_bearing": true,
       "status": "open"
     },
@@ -37,8 +37,8 @@
       "claim": "Engine-side PHASE SEPARATION: KAE_DUMP is mutually exclusive with KAE_SCORE and with KAE=1, enforced fail-closed in main() BEFORE model load (nonzero exit, never degrade). A dump with the splice armed would record the spliced (not plain) model and silently corrupt every carrier; a dump mixed with scoring would violate the frozen contract's mutual exclusion. The dumped states are therefore always the UNMODIFIED model's, as §2.4 requires (mean difference between plain WITH/WITHOUT prefills).",
       "tag": "MEASURED",
       "rationale": "Harness-side exclusion (run_dump pops KAE_SCORE) is not sufficient defense in depth for a paid construction run; the engine refuses the contaminated configuration itself.",
-      "backing_ref": "glm.c phase-separation guard (patched lines 2793-2801); validate.py V5 cases 1-2 [MEASURED nonzero exits]",
-      "owner": "engineer-1",
+      "backing_ref": "glm.c phase-separation guard (patched lines 2793-2801); validate.py V5 cases 1-2 [MEASURED nonzero exits]; kot-f1k-dump.patch sha256=fb5d2f3558351f608afccb29ab974aac2a62182ad67f27ec5c3c5f3e9eab0097",
+      "owner": "designer-20",
       "load_bearing": true,
       "status": "open"
     },
@@ -47,18 +47,18 @@
       "claim": "PER-SLOT GATED-COUNT INVARIANT: after each manifest line's prefill, every dump slot must have accumulated EXACTLY gated_count rows (the manifest's span>=0 count), else the engine aborts nonzero before writing the line. This fail-closes three silent-corruption modes: a requested dump layer that never reaches moe() (dense layer / never-executed layer id), a prefill that visits a position more than once, and (via the sticky capture-error flag) a hidden-dim mismatch. For the real A(iv) union 3..78 this doubles as the check that every requested layer is a genuine MoE layer on the real model.",
       "tag": "MEASURED",
       "rationale": "Without this, a dump layer outside the sparse set would emit all-zero sums that still parse downstream; the round-8/round-10 hardening history shows all-zero bodies previously satisfied naive verifies.",
-      "backing_ref": "kae_dump.h kaed_write_line; test_kae_dump.c Test D; validate.py V5 case 9 [MEASURED]",
-      "owner": "engineer-1",
+      "backing_ref": "kae_dump.h kaed_write_line; test_kae_dump.c Test D; validate.py V5 case 9 [MEASURED]; kot-f1k-dump.patch sha256=fb5d2f3558351f608afccb29ab974aac2a62182ad67f27ec5c3c5f3e9eab0097",
+      "owner": "designer-20",
       "load_bearing": true,
       "status": "open"
     },
     {
       "id": "ASM-2489",
-      "claim": "run_kae_dump treats EVERY malformed manifest line (bad T, bad token id, bad span slot, zero gated positions, line-count mismatch) as a fatal nonzero-exit error, deliberately DIVERGING from run_kae_score's per-item skip-and-continue: construction integrity over availability. A silently dropped or partially-parsed construction pass would shift the 16-context §2.4 means without any downstream detector, whereas a scoring item skip is visible in the per-item output stream.",
+      "claim": "run_kae_dump treats EVERY malformed manifest line (bad T, bad token id, bad span slot, zero gated positions, a wholly non-numeric/garbage line, trailing junk after the required 2T+1 integers, line-count mismatch) as a fatal nonzero-exit error, deliberately DIVERGING from run_kae_score's per-item skip-and-continue: construction integrity over availability. A silently dropped or partially-parsed construction pass would shift the 16-context §2.4 means without any downstream detector, whereas a scoring item skip is visible in the per-item output stream.",
       "tag": "MEASURED",
       "rationale": "build_carriers fails closed on nonzero engine exit, so engine-side abort converts silent corruption into loud failure at $0 cost.",
-      "backing_ref": "glm.c run_kae_dump; validate.py V5 cases 7-8 [MEASURED nonzero exits]; PATCH-NOTES.md hunk 4",
-      "owner": "engineer-1",
+      "backing_ref": "validate.log (recorded MOCK VALIDATION 34/34, nonzero-exit negatives); glm.c run_kae_dump; validate.py V5 cases 7-8 (zero-gated line, malformed token id) and 10-11 (garbage line, trailing junk — the r2 negatives) [MEASURED nonzero exits]; PATCH-NOTES.md hunk 4; kot-f1k-dump.patch sha256=fb5d2f3558351f608afccb29ab974aac2a62182ad67f27ec5c3c5f3e9eab0097",
+      "owner": "designer-20",
       "load_bearing": true,
       "status": "open"
     },
@@ -68,7 +68,7 @@
       "tag": "STIPULATED",
       "rationale": "The frozen tokenizer contract demands Python-str char offsets and the template-spec intersection rule; the wrapper cannot be validated against the real tokenizer at $0 because tokenizer.json ships with the 384GB weights snapshot.",
       "backing_ref": "tok_glm52.py; tok-selftest.log [MEASURED, mock scope]; build_carriers.py TOKENIZER CONTRACT",
-      "owner": "engineer-1",
+      "owner": "designer-20",
       "load_bearing": true,
       "status": "open"
     },
@@ -78,7 +78,7 @@
       "tag": "STIPULATED",
       "rationale": "Consistency with the registered KAEC assumption; all registered compute paths (Modal CPU boxes, this box) are x86-64.",
       "backing_ref": "kae_dump.h header comment; kae.h 'File formats (host-endian; little-endian x86-64 assumed)'",
-      "owner": "engineer-1",
+      "owner": "designer-20",
       "load_bearing": false,
       "status": "open"
     }

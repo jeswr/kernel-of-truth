@@ -12,7 +12,7 @@ index f5b1a72..be86a03 100644
  
  backend_cuda.o: backend_cuda.cu backend_cuda.h
 diff --git a/c/glm.c b/c/glm.c
-index 90a4e15..d7171d2 100644
+index 90a4e15..b543472 100644
 --- a/c/glm.c
 +++ b/c/glm.c
 @@ -36,6 +36,7 @@
@@ -49,7 +49,7 @@ index 90a4e15..d7171d2 100644
      float *logit=falloc(E), *choice=falloc(E);
      int sI=c->moe_inter*c->n_shared;
      /* ---- FASE A: routing di tutte le S posizioni ---- */
-@@ -1978,6 +1991,70 @@ static void run_kae_score(Model *m, const char *path){
+@@ -1978,6 +1991,80 @@ static void run_kae_score(Model *m, const char *path){
      free(ln); free(ids); free(spans); free(x); free(lo); free(row); fclose(f);
  }
  
@@ -59,7 +59,7 @@ index 90a4e15..d7171d2 100644
 + * KAE=1 — enforced in main() BEFORE model load).
 + *
 + * Manifest: one PLAIN-forward construction pass per line, whitespace ints
-+ * (the run_kae_score span convention, parser mirrored from it):
++ * (the run_kae_score span convention; parse STRICTER than the scorer's):
 + *   T  t_0..t_{T-1}   s_0..s_{T-1}
 + *     T  = pass length (tokens); t_ = token ids;
 + *     s_ = per-position span slots (-1 = ungated), bound PER LINE via the
@@ -69,9 +69,12 @@ index 90a4e15..d7171d2 100644
 + * accumulates the moe()-input x over gated positions per dump layer; then
 + * emit i32 gated_count | f32 sum[nl*D] to KAE_DUMP_OUT (KAED format,
 + * kae_dump.h). Results NEVER travel on stdout (codex blocker-1 discipline).
-+ * ANY malformed line / zero-gated line / per-slot count violation ABORTS
-+ * with a nonzero exit (fail closed, ASM-2488/2483): a partial or silently
-+ * skipped pass would corrupt the §2.4 mean-difference tables downstream. */
++ * EVERY malformed manifest line fails closed: a wholly non-numeric/garbage
++ * line, a bad T / token id / span slot, trailing junk after the required
++ * 2T+1 integers, a zero-gated line and a per-slot count violation ALL
++ * ABORT with a nonzero exit (fail closed, ASM-2488/2489): a partial or
++ * silently skipped pass would corrupt the §2.4 mean-difference tables
++ * downstream. */
 +static void run_kae_dump(Model *m, const char *path){
 +    Cfg *c=&m->c; int D=c->hidden;
 +    KaEDump *kd=g_kdump;
@@ -80,7 +83,8 @@ index 90a4e15..d7171d2 100644
 +    /* pass 1: n_lines (KAED header needs it up front) + maxT for kv sizing */
 +    int maxT=1, n_lines=0; { char *ln=NULL; size_t cp=0;
 +        while(getline(&ln,&cp,f)>0){ long t; char *e; t=strtol(ln,&e,10);
-+            if(e==ln) continue; n_lines++; if(t>maxT) maxT=(int)t; }
++            if(e==ln){ fprintf(stderr,"[KAE-DUMP] manifest line %d: no leading integer (garbage/blank line) -> abort\n",n_lines); exit(1); }
++            n_lines++; if(t>maxT) maxT=(int)t; }
 +        free(ln); }
 +    if(n_lines<1){ fprintf(stderr,"[KAE-DUMP] empty manifest %s -> abort\n",path); exit(1); }
 +    kv_alloc(m,maxT);
@@ -91,7 +95,9 @@ index 90a4e15..d7171d2 100644
 +    rewind(f); char *ln=NULL; size_t cp=0; int nreq=0; double t0=now_s();
 +    while(getline(&ln,&cp,f)>0){
 +        char *p=ln,*e;
-+        long T=strtol(p,&e,10); if(e==p) continue; p=e;      /* blank line */
++        long T=strtol(p,&e,10);
++        if(e==p){ fprintf(stderr,"[KAE-DUMP] line %d: no leading integer (garbage/blank line) -> abort\n",nreq); exit(1); }
++        p=e;
 +        if(T<1||T>maxT){ fprintf(stderr,"[KAE-DUMP] line %d: bad T=%ld -> abort\n",nreq,T); exit(1); }
 +        for(long i=0;i<T;i++){ long v=strtol(p,&e,10);
 +            if(e==p||v<0||v>=c->vocab){ fprintf(stderr,"[KAE-DUMP] line %d: bad token id -> abort\n",nreq); exit(1); }
@@ -100,6 +106,10 @@ index 90a4e15..d7171d2 100644
 +        for(long i=0;i<T;i++){ long v=strtol(p,&e,10);
 +            if(e==p||v<-1){ fprintf(stderr,"[KAE-DUMP] line %d: bad span slot -> abort\n",nreq); exit(1); }
 +            p=e; spans[i]=(v<0)?-1:(int)v; if(spans[i]>=0) gated++; }
++        /* the line must be EXACTLY the 2T+1 integers: only whitespace may
++         * follow the last span; anything else is trailing junk (ASM-2489) */
++        while(*p==' '||*p=='\t'||*p=='\r'||*p=='\n') p++;
++        if(*p){ fprintf(stderr,"[KAE-DUMP] line %d: trailing junk after the required 2T+1 integers -> abort\n",nreq); exit(1); }
 +        if(!gated){ fprintf(stderr,"[KAE-DUMP] line %d has zero gated positions -> abort\n",nreq); exit(1); }
 +        /* REUSED per-item span binding (same semantics as run_kae_score) */
 +        if(kaed_bind_line(kd,spans,(int)T)){ fprintf(stderr,"[KAE-DUMP] line %d: span bind failed -> abort\n",nreq); exit(1); }
@@ -120,7 +130,7 @@ index 90a4e15..d7171d2 100644
  static void generate(Model *m, const int *prompt, int np, int n_new, int *out){
      kv_alloc(m,np+n_new+g_draft+2);
      for(int i=0;i<np;i++) out[i]=prompt[i];
-@@ -2713,6 +2790,15 @@ int main(int argc, char **argv){
+@@ -2713,6 +2800,15 @@ int main(int argc, char **argv){
      g_topp = getenv("TOPP")?atof(getenv("TOPP")):0;
      g_kae  = getenv("KAE")?atoi(getenv("KAE")):0;          /* F1-K KaE ADD (DRAFT, gate-0); inert unless KAE=1 */
      g_kae_g= getenv("KAE_G")?atof(getenv("KAE_G")):1.f;
@@ -136,7 +146,7 @@ index 90a4e15..d7171d2 100644
      g_mlock  = getenv("MLOCK")?atoi(getenv("MLOCK")):-1;   /* -1 auto (ON macOS), 0 off, 1 force / auto (ON macOS), 0 off, 1 force */
      g_spec = getenv("SPEC")?atoi(getenv("SPEC")):1;
      g_draft = getenv("DRAFT")?atoi(getenv("DRAFT")):-1;   /* -1 = auto: 3 se MTP, 0 senza */
-@@ -2783,6 +2869,21 @@ int main(int argc, char **argv){
+@@ -2783,6 +2879,21 @@ int main(int argc, char **argv){
                       m.kae->nc, m.kae->nl, g_kae_g,
                       m.kae->span_n ? "loaded (default)" : "per-item (none at load)");
      }
@@ -158,7 +168,7 @@ index 90a4e15..d7171d2 100644
      if(g_draft<0) g_draft = m.has_mtp ? 3 : 0;
      if(getenv("DSA_TOPK")) m.c.index_topk=atoi(getenv("DSA_TOPK"));   /* override per test */
      printf("loaded in %.2fs | resident dense: %.2f MB | layers=%d experts=%d | MTP %s (draft=%d)\n",
-@@ -2821,6 +2922,12 @@ int main(int argc, char **argv){
+@@ -2821,6 +2932,12 @@ int main(int argc, char **argv){
      /* F1-K KaE scoring (design §R1.1) — DRAFT, gate-0: single-prefill label-logit,
       * candidate-independent, per-item span binding. Runs for every arm (KAE=0 baseline
       * included); takes precedence over the continuation-loglikelihood SCORE path. */
@@ -173,7 +183,7 @@ index 90a4e15..d7171d2 100644
      /* modo scoring per benchmark: SCORE=<requests.txt> -> log-likelihood per riga */
 diff --git a/c/kae_dump.h b/c/kae_dump.h
 new file mode 100644
-index 0000000..8d2e87b
+index 0000000..1a21a24
 --- /dev/null
 +++ b/c/kae_dump.h
 @@ -0,0 +1,239 @@
@@ -218,10 +228,10 @@ index 0000000..8d2e87b
 + *   - arm: KAE_DUMP_OUT + KAE_DUMP_LAYERS required; every layer id in
 + *     [0, n_layers), no duplicates; output file must open.
 + *   - per line: zero gated positions is an ERROR (contract: the generator
-+ *     never emits one); malformed tokens/spans ABORT (construction
++ *     never emits one); ANY malformed line (garbage line, bad T/token/span,
++ *     trailing junk after the required 2T+1 ints) ABORTS (construction
 + *     integrity over availability, ASM-2489 — unlike KAE_SCORE's per-item
-+ *     skip, a silently dropped construction pass would corrupt the §2.4
-+ *     means).
++ *     skip, a silently dropped construction pass would corrupt §2.4 means).
 + *   - per line, per slot: the number of gated rows actually accumulated
 + *     must equal the manifest's gated count (ASM-2488). This catches a
 + *     requested layer that never reaches moe() (dense layer, layer never

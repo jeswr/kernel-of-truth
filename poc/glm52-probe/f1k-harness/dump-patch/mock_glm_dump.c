@@ -155,7 +155,8 @@ int main(int argc, char **argv){
     /* pass 1: n_lines + maxT (mirrors run_kae_dump) */
     int maxT = 1, n_lines = 0; { char *ln = NULL; size_t cp = 0;
         while(getline(&ln, &cp, f) > 0){ long t; char *e; t = strtol(ln, &e, 10);
-            if(e == ln) continue; n_lines++; if(t > maxT) maxT = (int)t; }
+            if(e == ln){ fprintf(stderr, "[KAE-DUMP] manifest line %d: no leading integer (garbage/blank line) -> abort\n", n_lines); return 1; }
+            n_lines++; if(t > maxT) maxT = (int)t; }
         free(ln); }
     if(dump_mode && n_lines < 1){ fprintf(stderr, "[KAE-DUMP] empty manifest %s -> abort\n", argv[1]); return 1; }
     if(maxT > MAXT){ fprintf(stderr, "mock: T too large\n"); return 1; }
@@ -171,7 +172,9 @@ int main(int argc, char **argv){
     rewind(f); char *ln = NULL; size_t cp = 0; int nreq = 0;
     while(getline(&ln, &cp, f) > 0){
         char *p = ln, *e;
-        long T = strtol(p, &e, 10); if(e == p) continue; p = e;
+        long T = strtol(p, &e, 10);
+        if(e == p){ fprintf(stderr, "[KAE-DUMP] line %d: no leading integer (garbage/blank line) -> abort\n", nreq); return 1; }
+        p = e;
         if(T < 1 || T > maxT){ fprintf(stderr, "[KAE-DUMP] line %d: bad T=%ld -> abort\n", nreq, T); return 1; }
         for(long i = 0; i < T; i++){ long v = strtol(p, &e, 10);
             if(e == p || v < 0 || v >= VOCAB){ fprintf(stderr, "[KAE-DUMP] line %d: bad token id -> abort\n", nreq); return 1; }
@@ -180,6 +183,10 @@ int main(int argc, char **argv){
         for(long i = 0; i < T; i++){ long v = strtol(p, &e, 10);
             if(e == p || v < -1){ fprintf(stderr, "[KAE-DUMP] line %d: bad span slot -> abort\n", nreq); return 1; }
             p = e; spans[i] = (v < 0) ? -1 : (int)v; if(spans[i] >= 0) gated++; }
+        /* the line must be EXACTLY the 2T+1 integers: only whitespace may
+         * follow the last span; anything else is trailing junk (ASM-2489) */
+        while(*p == ' ' || *p == '\t' || *p == '\r' || *p == '\n') p++;
+        if(*p){ fprintf(stderr, "[KAE-DUMP] line %d: trailing junk after the required 2T+1 integers -> abort\n", nreq); return 1; }
 #ifdef KOT_DUMP_PATCH
         if(dump_mode){
             if(!gated){ fprintf(stderr, "[KAE-DUMP] line %d has zero gated positions -> abort\n", nreq); return 1; }

@@ -23,8 +23,10 @@ checks that MUST be measured green before any real construction run):
       byte-identical .kaed (absolute-position gating).
   V5  FAIL-CLOSED battery: phase-separation (KAE_DUMP+KAE_SCORE,
       KAE_DUMP+KAE=1), missing KAE_DUMP_OUT/LAYERS, duplicate layer,
-      out-of-range layer, zero-gated line, malformed token, and a dump
-      layer moe() never reaches (dense layer) ALL exit nonzero.
+      out-of-range layer, zero-gated line, malformed token, a dump
+      layer moe() never reaches (dense layer), a wholly non-numeric
+      GARBAGE manifest line (must NOT be silently skipped), and TRAILING
+      JUNK after the required 2T+1 integers ALL exit nonzero.
   V6  UNIT SUITE: tests/test_kae_dump.c (the copy that rides IN the patch)
       builds and passes, plain and under ASan+UBSan+LSan.
 
@@ -224,6 +226,12 @@ def main():
     man_zero.write_text("3 5 6 7 -1 -1 -1\n")
     man_badtok = OUT / "man_badtok.txt"
     man_badtok.write_text("3 5 xx 7 0 -1 -1\n")
+    # gate-0 item-5 negatives: a wholly non-numeric line and trailing junk
+    # after the 2T+1 required integers must ABORT, never be silently skipped
+    man_garbage = OUT / "man_garbage.txt"
+    man_garbage.write_text("2 5 6 -1 3\nthis line is garbage not integers\n")
+    man_trail = OUT / "man_trail.txt"
+    man_trail.write_text("2 5 6 -1 3 99\n")
     cases = [
         ("KAE_DUMP + KAE_SCORE (phase separation)", man, dict(denv, KAE_SCORE="x")),
         ("KAE_DUMP + KAE=1 (phase separation)",     man, dict(denv, KAE=1)),
@@ -235,6 +243,10 @@ def main():
         ("malformed token id",    man_badtok, dict(denv, KAE_DUMP=man_badtok)),
         ("dump layer never reaches moe() (dense layer 1)", man,
          dict(denv, KAE_DUMP_LAYERS="5,1")),
+        ("[MEASURED] garbage manifest line (wholly non-numeric, not skipped)",
+         man_garbage, dict(denv, KAE_DUMP=man_garbage)),
+        ("[MEASURED] trailing junk after the required 2T+1 integers",
+         man_trail, dict(denv, KAE_DUMP=man_trail)),
     ]
     for label, mpath, env in cases:
         pr = run(eng, mpath, OUT / "fwd_probe.bin", env, expect_rc=1, label=label)

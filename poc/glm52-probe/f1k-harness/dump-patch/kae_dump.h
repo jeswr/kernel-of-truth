@@ -39,10 +39,10 @@
  *   - arm: KAE_DUMP_OUT + KAE_DUMP_LAYERS required; every layer id in
  *     [0, n_layers), no duplicates; output file must open.
  *   - per line: zero gated positions is an ERROR (contract: the generator
- *     never emits one); malformed tokens/spans ABORT (construction
+ *     never emits one); ANY malformed line (garbage line, bad T/token/span,
+ *     trailing junk after the required 2T+1 ints) ABORTS (construction
  *     integrity over availability, ASM-2489 — unlike KAE_SCORE's per-item
- *     skip, a silently dropped construction pass would corrupt the §2.4
- *     means).
+ *     skip, a silently dropped construction pass would corrupt §2.4 means).
  *   - per line, per slot: the number of gated rows actually accumulated
  *     must equal the manifest's gated count (ASM-2488). This catches a
  *     requested layer that never reaches moe() (dense layer, layer never

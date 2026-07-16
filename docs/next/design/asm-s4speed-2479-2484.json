@@ -1,0 +1,71 @@
+{
+  "_about": "Companion assumption block for glm-s4speed-0, the GLM-5.2 Stage-4 SPEED-validation cohort design (docs/next/design/glm52-stage4-speed-cohort.md). Emitted by designer-1, 2026-07-16; _about amended in place at revision r2 (designer-1, 2026-07-16, per the design-integrity review): corrected the range text to ASM-2479..2484 and re-verified the free-space basis — central register tail in registry/assumptions.jsonl is ASM-2478 (ASM-2473..2478 registered with the gpt56 draft-pipeline landing); the adjacent working-tree block ASM-2485..2491 belongs to poc/glm52-probe/f1k-harness/dump-patch/asm-f1k-dump-2485-2491.json and does not overlap; repo-wide grep for ASM-24[7-9][0-9] and ASM-25[0-9][0-9] over docs/poc/registry/notes/reports shows no other claimant of 2479..2484. The six assumption rows below were UNCHANGED at r2 (ids LOCKED); at revision r3 (designer-1, 2026-07-16, round-2 review residual closure) EXACTLY ONE row was amended in place with this provenance note — ASM-2480's claim and backing_ref were brought to the design doc's section 8 gate G6 EXACT paired prompt x layer parity wording (the stale within-1%-mean description is demoted to cross-check inside the row), id unchanged, a lawful pre-registration amend-in-place; the other five rows are untouched at r3 and no id is created, renumbered, or altered. The three r2 wording supersessions — ASM-2479 exact DRAFT/MTP pins, ASM-2482 paired-pilot parenthetical, ASM-2484 cost-band parenthetical — live in the design doc sections 4.1/5/10 as its ONLY three actionable coordinator markers (exactly three exist in the doc; its section 11 self-description is prose, not a marker) and are applied to rows only by the coordinator at registration; ASM-2480 requires NO coordinator amendment (already applied here at r3). Central registration into registry/assumptions.jsonl is the COORDINATOR's action with the landing commit, after the standing GPT-5.6 review gate. Until central registration this file may be amended in place with inline provenance; afterwards supersede-by-citation only. This pass writes no registry line, takes no git action, runs no model, spends $0, and states no feasibility conclusion.",
+  "assumptions": [
+    {
+      "id": "ASM-2479",
+      "tag": "STIPULATED",
+      "load_bearing": true,
+      "claim": "MOVING-BASELINE CONSTRAINT for glm-s4speed-0: the colibri baseline is a moving target (#301 PIN=auto and #294 SPEC_PIN already MERGED; #223 cloxcache and #168 int3-g64 in flight), so the cohort pins ONE specific merged colibri commit (40-hex recorded by ops amendment before any spend; the pinned tree MUST contain the #232 PROF, #294 SPEC_PIN, and #301 PIN=auto merges, verified fail-closed at bring-up). All arms run the same pinned commit; anything merged upstream after the pin is OUT of the cohort. Knobs held FIXED across arms: PIN=auto shipped default, cache config/RAM_GB=55, TOPK=8, DRAFT/MTP shipped default, PROF=1 on, CACHE_ROUTE off except arm (d)'s remap table. Knobs VARIED: EXPERT_BUDGET (off in (a); cap 4 in (b)/(c)/(d)) and the exclusion/remap table ((c)/(d) only). Consequence: a claimed skiplist speedup cannot silently double-count an eviction/cache/pin win that already landed upstream, and PR #232 PROF=1 is the measurement instrument of record (no hand-rolled duplication; required fields bring-up-verified fail-closed).",
+      "backing_ref": "colibri PR #301 (PIN=auto, MERGED) + colibri PR #294 (SPEC_PIN, MERGED); colibri PR #232 (PROF=1); docs/next/design/glm52-stage4-speed-cohort.md sections 3-4",
+      "rationale": "Without a commit pin and a pre-declared fixed-vs-varied knob table, any measured tok/s delta is confounded with whichever upstream systems win landed between arm runs or between this cohort and its planning figures; pinning + identical-knobs-across-arms makes the paired (c)-vs-(b) contrast attributable to the exclusion table alone.",
+      "status": "open",
+      "owner": "designer-1",
+      "date": "2026-07-16"
+    },
+    {
+      "id": "ASM-2480",
+      "tag": "STIPULATED",
+      "load_bearing": true,
+      "claim": "ARM MECHANISM + CAP for glm-s4speed-0: arm (c) removes the 16 stage-3 skiplist cells from the EXPERT_BUDGET candidate set BEFORE the keep-set fill (route-around renormalise semantics, identical to stage-3 mode-2), so both arms fill to the same cap N and differ only in WHICH cells drop, with EXACT paired parity mechanically verified from PROF at every (prompt x layer) site (design doc section 8 gate G6): keep-set size <= N in both arms; wherever (b)'s effective distinct-expert count equals N (the budget binds), (c)'s count equals N EXACTLY; a count discrepancy is lawful ONLY where the budget is slack AND equals exactly the number of routed-but-excluded skiplist cells at that site; any other discrepancy fires INSTRUMENT-INVALID (the r1 within-1% per-layer-mean check is retained as a cross-check only, never the gate); the contrast isolates the marginal value of causal information inside the shipped mechanism. Cap N=4 (the colibri #254 reported operating point: +75% decode tok/s, 253 GB I/O saved, acceptance 38%->21%), where the budget binds hard. PRE-SPEND VACUITY STOP: if bring-up counts ZERO skiplist-cell keep-events under arm (b) config on the pilot prompts, then (b)==(c) on this workload and the campaign is a verdict fixed in advance -> registered construction STOP (STOP-V), never a funded run; a nonzero-but-small divergence PROCEEDS with the measured rate disclosed (no stipulated floor pretends to be physics; the MTP-acceptance channel is nonlinear in which expert breaks).",
+      "backing_ref": "docs/next/design/glm52-stage4-speed-cohort.md section 2 and section 8 gate G6 (exact paired prompt x layer parity, r2/r3 wording); docs/next/analysis/stage3-causal-interpretation.md section 3 (EXPERT_BUDGET-exclusion consumption path); colibri #254 via docs/next/analysis/glm52-colibri-research-novelty-20260715.md A3",
+      "rationale": "The only reading of 'skiplist at the same effective cap' with a live speed channel is exclusion inside the budget mechanism; a pure 16-cell mask is ~0.06-0.1% of miss-I/O (sibling design's synthetic mock) and speed-vacuous. The vacuity stop implements the no-spurious-verdict discipline at the cheapest possible point.",
+      "status": "open",
+      "owner": "designer-1",
+      "date": "2026-07-16"
+    },
+    {
+      "id": "ASM-2481",
+      "tag": "STIPULATED",
+      "load_bearing": true,
+      "claim": "MATCHED-QUALITY BAND for glm-s4speed-0 (quality is a GATE, not a headline): Q1 mean paired winsorized(+-2.0) delta-NLL((c)-(b)) one-sided 95% upper bound < +0.05 nats/target-token on the pinned 300-item suite (family-cluster bootstrap, 30 families, B=10000, seed 20260813); Q2 task accuracy acc((c))-acc((b)) point estimate >= -5pp overall AND no stratum-domain drop > 15pp on the 120-item exact-answer set (screening-grade, low power DISCLOSED, no equivalence claim licensed); Q3 no-post backstop: mean delta-NLL((c)-(a)) point estimate < +0.15 nats/tok (scopes the PUBLIC POST, not the science: if both budget arms degrade the model that far vs baseline, the matched-cap regime is unshippable and nothing is posted). The 0.05 line is the programme's stipulated stage-3 LOW threshold, not derived from a perplexity budget.",
+      "backing_ref": "docs/next/design/glm52-stage4-speed-cohort.md sections 1, 5, 6; stage3_analysis.json thresholds_stipulated.LOW; glm-s4drop-0 Q-estimator precedent (winsorized family-cluster bootstrap, ASM-2396/2398 lineage)",
+      "rationale": "A speedup at degraded quality is a kill, not a win; the band must be pre-registered or 'matched quality' is unfalsifiable. Reusing the programme's 0.05 nats/tok line keeps Stage-3, glm-s4drop-0 and this cohort commensurable.",
+      "status": "open",
+      "owner": "designer-1",
+      "date": "2026-07-16"
+    },
+    {
+      "id": "ASM-2482",
+      "tag": "STIPULATED",
+      "load_bearing": true,
+      "claim": "PRIMARY ENDPOINT + POWER PLAN for glm-s4speed-0: exactly one primary, Delta_spd = pooled mean over 24 decode prompts of per-prompt paired relative decode-tok/s delta ((c)-(b))/(b), passes pooled per prompt first; seeded SHA-256-DRBG percentile bootstrap over prompts, B=10000, seed 20260812; decision quantity = one-sided 95% lower bound. SESOI = +3% (a smaller delta is not postable). Planning noise prior: per-prompt paired sd 2-3% (STIPULATED-not-MEASURED) -> MDE_80 ~1.0-1.5%; RESOLUTION PATH = the bring-up variance pilot (6 repeated identical baseline blocks), gate G7: implied MDE_80 <= 3% at registered n, ONE lawful pre-scored-pass resize 24->48 prompts, else STOP. Verdict split: K-P (post-gate kill) fires on lb <= 0 or any quality-band violation (one-shot, no retry-until-significant); K-DIR (direction kill, affirmed null) fires only when the one-sided 95% UPPER bound < +3%; lb <= 0 with ub >= +3% is INCONCLUSIVE for the direction while still K-P for posting -- the no-spurious-kill split imported from the glm-s4drop-0 review (finding D1).",
+      "backing_ref": "docs/next/design/glm52-stage4-speed-cohort.md sections 5, 9; docs/next/design/glm52-stage4-drop-efficiency.md section 11 finding D1 (kill-boundary lesson)",
+      "rationale": "The task's stipulated kill (lower bound <= 0) is honest for the POSTING decision but would be a ~coin-flip spurious kill for the scientific direction at true-SESOI effects; splitting post-gate from affirmed-null keeps both disciplines.",
+      "status": "open",
+      "owner": "designer-1",
+      "date": "2026-07-16"
+    },
+    {
+      "id": "ASM-2483",
+      "tag": "STIPULATED",
+      "load_bearing": true,
+      "claim": "MTP ACCEPTANCE is a FIRST-CLASS DV in glm-s4speed-0 with band H-M: acceptance((c)) >= acceptance((b)) - 5pp (one-sided 95% lower bound of the paired per-prompt difference, bootstrap seed 20260814). Composition: H-M failure alone with H-S and H-Q passing resolves INCONCLUSIVE-scope-limited (never VALIDATE: the speedup rides on degraded speculative behaviour, workload transfer unestablished); H-M failure AND (H-S lb <= 0 OR any H-Q failure) composes to kill K-M (a skiplist that speeds raw forwards but tanks acceptance with net decode slower or quality worse is dead). Premise carried: draft & verify must compute the same function (colibri #294 SPEC_PIN); EXPERT_BUDGET alone already degrades acceptance 38%->21% (colibri #254, upstream figure, not re-measured locally; arm (a)/(b) re-measure it on the pinned commit).",
+      "backing_ref": "colibri #294 (SPEC_PIN, MERGED) + colibri #254 acceptance figure via docs/next/analysis/glm52-colibri-research-novelty-20260715.md A3; docs/next/design/glm52-stage4-speed-cohort.md sections 3, 6, 9",
+      "rationale": "With MTP on, end-to-end tok/s already internalises acceptance, but acceptance must additionally be bounded and reported in its own right or a fragile speedup (net win on this workload, acceptance collapse generalising badly) would be indistinguishable from a robust one.",
+      "status": "open",
+      "owner": "designer-1",
+      "date": "2026-07-16"
+    },
+    {
+      "id": "ASM-2484",
+      "tag": "STIPULATED",
+      "load_bearing": true,
+      "claim": "COST ENVELOPE + SEQUENCING for glm-s4speed-0: planning point ~$14, band $10-25 (ESTIMATE, stage-3 measured basis ~$1.15/h and ~11.0 s/prefill; decode rate unknown until the pilot; the ESTIMATE is never a decision premise -- decisions route through the ledger and caps); HARD CAPS usd_cap=$30 AND wall=24h, whichever binds first; Modal (OCI-class 4-core/64GiB/900GiB, RAM_GB=55), no AWS GPU, Modal/OCI/GCP only. Live phase-boundary checkpoint ledger; on any instrument-gate failure or cap hit the runner SALVAGES (partial rows + PROF dumps + ledger to the output volume) and STOPS, never retries. Degradation ladder: (1) drop arm (d); (2) drop arm (a) quality+accuracy (keep (a) throughput); (3) decode 256->160 tokens (all arms, one common budget); (4) STOP. The (b)/(c) decode, quality, and accuracy pairs are never cut. Sequencing preference: run after the glm-s4drop-0 readout; if its H-J (joint-16 safety) KILLS, this cohort proceeds at most through bring-up+construction and STOPs for a coordinator decision (not a hard dependency; H-SD stands on its own).",
+      "backing_ref": "poc/glm52-probe/stage3/results/full_run.log cost basis via docs/next/analysis/stage3-causal-interpretation.md header; docs/next/design/glm52-stage4-speed-cohort.md sections 7, 10",
+      "rationale": "The Stage-3 interp's $10-25 figure is an estimate and must stay one; a hard cap + salvage-and-stop + a primary-preserving ladder is what makes the envelope enforceable rather than aspirational.",
+      "status": "open",
+      "owner": "designer-1",
+      "date": "2026-07-16"
+    }
+  ]
+}
