@@ -1,0 +1,190 @@
+--- a/c/glm.c	2026-07-15 23:31:35.358116892 +0000
++++ b/c/glm.c	2026-07-15 23:52:54.652947958 +0000
+@@ -36,6 +36,7 @@
+ #include "tier.h"
+ #include "grammar.h"                              /* metodo F: draft grammaticali (#48) */
+ #include "rtrace.h"                               /* GLM-5.2 backend-smoke per-token router TRACE — READ-ONLY, inert unless RTRACE=<file> */
++#include "abl.h"                                   /* GLM-5.2 Stage-3 per-item EXPERT ABLATION — inert unless g_abl.mode set (ABLATE_SCORE=<manifest>) */
+ #ifdef COLI_CUDA
+ #include <omp.h>
+ #include "backend_cuda.h"
+@@ -568,6 +569,7 @@
+ static int g_topk=0;     /* TOPK=n -> usa n expert/token invece di config (ricerca: meno disco) */
+ static float g_topp=0;   /* TOPP=p (0..1) -> top-p adattivo: tieni gli expert fino a peso cumulato p */
+ static RTrace *g_rt=NULL; /* GLM-5.2 backend-smoke router TRACE (READ-ONLY); NULL unless RTRACE=<file> -> every rtrace_*() call is a no-op and output stays byte-identical to upstream */
++static Abl g_abl = {0};   /* GLM-5.2 Stage-3 EXPERT ABLATION config (per-item). mode==0 -> all three moe() hooks below are inert and output stays byte-identical to the rtrace build. Set only on the ABLATE_SCORE path. */
+ static int g_spec=1;     /* metodo C: SPEC=0 disabilita il prefetch speculativo cross-layer */
+ static int g_draft=0;    /* metodo E: DRAFT=n token auto-speculati per forward via n-gram lookup
+                           * (0=off). LOSSLESS: verifica = output identico al greedy. Default OFF:
+@@ -1296,6 +1298,24 @@
+             float tot=1e-20f; for(int kk=0;kk<Ksel;kk++) tot+=w[kk];
+             float cum=0; for(int kk=0;kk<Ksel;kk++){ cum+=w[kk]; if(cum>=g_topp*tot){ Ke=kk+1; break; } }
+         }
++        /* ===== Stage-3 ABLATION (FASE A) — inert unless g_abl.mode set this item.
++         * Both hooks act on the token's SELECTED set BEFORE eusage/norm_topk/rtrace,
++         * so the load counters, renormalised weights, and router trace all reflect the
++         * post-ablation routing (route-around: the ablated cell truly did not fire;
++         * module-swap: the substitute fired at the original routed weight). */
++        if(g_abl.mode==2){                 /* route-around: drop ablated cells, survivors renormalise below */
++            int wr=0;
++            for(int kk=0;kk<Ke;kk++){
++                if(abl_route_around(&g_abl, layer, idx[kk])) continue;
++                idx[wr]=idx[kk]; w[wr]=w[kk]; wr++;
++            }
++            Ke=wr;
++        } else if(g_abl.mode==3){          /* module-swap: remap the slot's expert id, keep its weight */
++            for(int kk=0;kk<Ke;kk++){
++                int to=abl_swap_target(&g_abl, layer, idx[kk]);
++                if(to>=0) idx[kk]=to;
++            }
++        }
+         keff[s]=Ke; m->ereq+=Ke;
+         for(int kk=0;kk<Ke;kk++){
+             m->eusage[layer][idx[kk]]++;
+@@ -1386,6 +1406,10 @@
+             for(int s=0;s<S;s++) for(int kk=0;kk<keff[s];kk++)
+                 if(idxs[(int64_t)s*K+kk]==eid){ rows[nr]=s; rw[nr]=ws[(int64_t)s*K+kk]; nr++; break; }
+             if(!nr) continue;
++            /* Stage-3 ABLATION (FASE C) — contribution mode: this expert's routing,
++             * counters, and router trace are already recorded (FASE A), but its
++             * weighted output is replaced by ZERO -> skip its matmul+accumulate. */
++            if(g_abl.mode==1 && abl_zero_contrib(&g_abl, layer, eid)) continue;
+ #ifdef COLI_CUDA
+             if(g_cuda_enabled && e->g.cuda_eligible) m->gpu_expert_calls++;
+ #endif
+@@ -1970,6 +1994,111 @@
+     free(ln); free(ids); free(x); fclose(f);
+ }
+ 
++/* ===========================================================================
++ * GLM-5.2 Stage-3 CAUSAL-ABLATION teacher-forced path.
++ * Reached via ABLATE_SCORE=<manifest>; writes per-target-position final-logit
++ * summaries to ABLATE_OUT=<file> (JSONL) and, if RTRACE=<file> is also set, the
++ * post-ablation router trace.  Per item it configures g_abl (mode + ablated
++ * cells), runs ONE teacher-forced prefill (moe() applies the ablation), then
++ * reads out the FINAL logits at every target position — the endpoint the plan
++ * requires ("measure at final logits, not a logit lens").
++ *
++ * Manifest, one item per line, whitespace ints:
++ *     item  T  n_prompt  mode  ncells  (L E A){ncells}  t_0 .. t_{T-1}
++ *   item    = manifest item id (host joins to (corpus_item, condition, cell))
++ *   T       = seq length (prompt + teacher-forced target)
++ *   n_prompt= # prompt tokens; targets are positions [n_prompt, T)
++ *   mode    = 0 baseline · 1 contribution · 2 route-around · 3 module-swap
++ *   ncells  = # ablated cells (0 for baseline)
++ *   L E A   = layer, expert, swap-target (A=-1 unless mode 3), one triple per cell
++ *   t_*     = token ids (host pre-tokenised)
++ * Per item: abl_reset -> abl_set_item -> (rtrace_begin) -> prefill -> emit
++ * logits -> (rtrace_end).  abl_reset makes the ablation PER-ITEM (no leak). */
++#define ABL_LOGIT_TOPK 32
++static void run_ablate_score(Model *m, const char *path){
++    Cfg *c=&m->c; int D=c->hidden, V=c->vocab;
++    FILE *f=fopen(path,"rb"); if(!f){perror(path);exit(1);}
++    const char *outp=getenv("ABLATE_OUT");
++    FILE *of = outp ? fopen(outp,"wb") : NULL;
++    if(outp && !of){ fprintf(stderr,"[ablate] cannot open ABLATE_OUT=%s\n",outp); }
++    if(of) fprintf(of,"{\"t\":\"hdr\",\"schema\":\"kot-ablate/1\",\"vocab\":%d,\"topk\":%d}\n",V,ABL_LOGIT_TOPK);
++    int maxT=1; { char *ln=NULL; size_t cp=0;
++        while(getline(&ln,&cp,f)>0){ long id,T; char *e;
++            id=strtol(ln,&e,10); if(e==ln) continue; T=strtol(e,&e,10);
++            if(T>maxT) maxT=(int)T; (void)id; }
++        free(ln); }
++    kv_alloc(m,maxT);
++    float *x=falloc((int64_t)maxT*D), *lo=falloc(V), *row=falloc(D);
++    int *ids=malloc((size_t)maxT*sizeof(int));
++    int tk_id[ABL_LOGIT_TOPK]; float tk_val[ABL_LOGIT_TOPK];
++    int topk_rec = g_topk>0 ? (g_topk<c->topk?g_topk:c->topk) : c->topk;
++    rewind(f); char *ln=NULL; size_t cp=0; int nreq=0; double t0=now_s();
++    while(getline(&ln,&cp,f)>0){
++        char *p=ln, *e;
++        long item=strtol(p,&e,10); if(e==p) continue; p=e;                 /* blank line */
++        long T=strtol(p,&e,10);  if(e==p){ fprintf(stderr,"[ablate] bad T\n"); continue; } p=e;
++        long np=strtol(p,&e,10); if(e==p){ fprintf(stderr,"[ablate] bad n_prompt\n"); continue; } p=e;
++        long mode=strtol(p,&e,10); if(e==p){ fprintf(stderr,"[ablate] bad mode\n"); continue; } p=e;
++        long nc=strtol(p,&e,10);  if(e==p){ fprintf(stderr,"[ablate] bad ncells\n"); continue; } p=e;
++        int Ls[ABL_MAX_CELLS], Es[ABL_MAX_CELLS], As[ABL_MAX_CELLS];
++        int bad=0; long ncc = nc<0?0:(nc>ABL_MAX_CELLS?ABL_MAX_CELLS:nc);
++        for(long i=0;i<nc;i++){                                            /* read every triple; keep first ABL_MAX_CELLS */
++            long L=strtol(p,&e,10); if(e==p){bad=1;break;} p=e;
++            long E=strtol(p,&e,10); if(e==p){bad=1;break;} p=e;
++            long A=strtol(p,&e,10); if(e==p){bad=1;break;} p=e;
++            if(i<ncc){ Ls[i]=(int)L; Es[i]=(int)E; As[i]=(int)A; }
++        }
++        bad = bad || (T<1 || T>maxT || np<0 || np>T || mode<0 || mode>3);
++        for(long i=0;i<T && !bad;i++){ long v=strtol(p,&e,10); if(e==p){bad=1;break;} p=e;
++            if(v<0 || v>=V) bad=1; else ids[i]=(int)v; }
++        if(bad){ fprintf(stderr,"[ablate] ERR item %ld (bad field/token)\n",item); continue; }
++        /* PER-ITEM RESET then configure this item's ablation (no cross-item leak). */
++        abl_reset(&g_abl);
++        abl_set_item(&g_abl, (int)mode, Ls, Es, (mode==3?As:NULL), (int)ncc);
++        if(of){
++            fprintf(of,"{\"t\":\"ah\",\"item\":%ld,\"mode\":%ld,\"ncells\":%ld,\"T\":%ld,\"n_prompt\":%ld,\"cells\":[",
++                    item, mode, ncc, T, np);
++            for(int i=0;i<(int)ncc;i++) fprintf(of,"%s[%d,%d,%d]", i?",":"", Ls[i],Es[i],As[i]);
++            fprintf(of,"]}\n");
++        }
++        rtrace_begin_item(g_rt, item, (int)T, (int)np, topk_rec, (int)mode);   /* draft field carries mode here */
++        for(int s=0;s<T;s++) embed_row(m, ids[s], x+(int64_t)s*D);
++        layers_forward(m,x,(int)T,0);                                      /* ONE prefill; moe() applies g_abl */
++        rtrace_end_item(g_rt);
++        /* FINAL-logit read-out at every target position pos in [np-1, T-1). */
++        if(of) for(long pos=(np>0?np-1:0); pos<T-1; pos++){
++            rmsnorm(row, x+(int64_t)pos*D, m->final_norm, D, c->eps);
++            matmul_qt(lo, row, &m->lm_head, 1);
++            int gold=ids[pos+1];
++            float mx=lo[0]; int am=0;
++            for(int i=1;i<V;i++){ if(lo[i]>mx){mx=lo[i];am=i;} }
++            double se=0; for(int i=0;i<V;i++) se+=exp((double)lo[i]-mx);
++            double logZ=(double)mx+log(se);
++            double gnll=logZ-(double)lo[gold];                             /* -log p(gold) */
++            float molo=-1e30f; for(int i=0;i<V;i++){ if(i!=gold && lo[i]>molo) molo=lo[i]; }
++            float mgn=lo[gold]-molo;                                       /* gold-vs-best-competitor logit margin */
++            /* top-ABL_LOGIT_TOPK logits (for a paired approximate next-token KL). */
++            for(int k=0;k<ABL_LOGIT_TOPK;k++){ tk_id[k]=-1; tk_val[k]=-1e30f; }
++            for(int i=0;i<V;i++){ float v=lo[i];
++                int mn=0; for(int k=1;k<ABL_LOGIT_TOPK;k++) if(tk_val[k]<tk_val[mn]) mn=k;
++                if(v>tk_val[mn]){ tk_val[mn]=v; tk_id[mn]=i; } }
++            fprintf(of,"{\"t\":\"lg\",\"item\":%ld,\"pos\":%ld,\"gold\":%d,\"nll\":%.6f,"
++                       "\"glogit\":%.6g,\"molo\":%.6g,\"mgn\":%.6g,\"am\":%d,\"amlogit\":%.6g,"
++                       "\"logZ\":%.6f,\"corr\":%d,\"tk\":[",
++                    item, pos, gold, gnll, (double)lo[gold], (double)molo, (double)mgn,
++                    am, (double)mx, logZ, (am==gold)?1:0);
++            for(int k=0;k<ABL_LOGIT_TOPK;k++) fprintf(of,"%s[%d,%.5g]", k?",":"", tk_id[k], (double)tk_val[k]);
++            fprintf(of,"]}\n");
++        }
++        if(of) fflush(of);
++        if(++nreq%8==0) fprintf(stderr,"[ablate %d item | %.1fs | RSS %.2f GB | hit %.0f%%]\n",
++            nreq, now_s()-t0, rss_gb(), (m->hits+m->miss)?100.0*m->hits/(m->hits+m->miss):0.0);
++    }
++    abl_reset(&g_abl);                                                     /* leave the engine in the OFF state */
++    if(of){ fflush(of); fclose(of); }
++    free(ln); free(ids); free(x); free(lo); free(row); fclose(f);
++}
++
+ static void generate(Model *m, const int *prompt, int np, int n_new, int *out){
+     kv_alloc(m,np+n_new+g_draft+2);
+     for(int i=0;i<np;i++) out[i]=prompt[i];
+@@ -2797,6 +2926,12 @@
+       cap_for_ram(&m, ram_env, ebits, est_ctx); }
+     const char *stats=getenv("STATS");   /* STATS=<file> -> istogramma uso expert a fine run */
+ 
++    /* GLM-5.2 Stage-3: ABLATE_SCORE=<manifest> -> teacher-forced causal-ablation
++     * sweep with per-target-position final-logit read-out (ABLATE_OUT=<file>).
++     * Optional RTRACE=<file> records the post-ablation router trace. */
++    if(getenv("ABLATE_SCORE")){ run_ablate_score(&m, getenv("ABLATE_SCORE"));
++        if(stats) stats_dump(&m,stats); rtrace_close(g_rt); g_rt=NULL; return 0; }
++
+     /* GLM-5.2 backend-smoke: TRACE_SCORE=<manifest> -> teacher-forced per-token
+      * router trace (READ-ONLY). Precedes SCORE/TF; needs RTRACE=<file> to record. */
+     if(getenv("TRACE_SCORE")){ run_trace_score(&m, getenv("TRACE_SCORE"));
+--- a/c/Makefile	2026-07-15 23:31:35.358116892 +0000
++++ b/c/Makefile	2026-07-15 23:33:43.699597774 +0000
+@@ -85,7 +85,7 @@
+ # phony 'glm' → 'glm.exe' on Windows (so 'make glm' and 'coli build' work on every platform)
+ glm: glm$(EXE)
+ 
+-glm$(EXE): glm.c st.h json.h tok.h tok_unicode.h compat.h grammar.h rtrace.h $(CUDA_OBJ)
++glm$(EXE): glm.c st.h json.h tok.h tok_unicode.h compat.h grammar.h rtrace.h abl.h $(CUDA_OBJ)
+ 	$(CC) $(CFLAGS) glm.c $(CUDA_OBJ) -o glm$(EXE) $(LDFLAGS)
+ 
+ backend_cuda.o: backend_cuda.cu backend_cuda.h
