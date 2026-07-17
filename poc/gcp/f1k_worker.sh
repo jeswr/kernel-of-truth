@@ -127,10 +127,12 @@ cat "$GATE/glm52-weights-hash.json"
 gsutil -q cp "$GATE/glm52-weights-hash.json" "$BUCKET/f1k/bringup/" || true
 hb "staged"
 
-step "2+3/5 build SCORING engine (KaE-only) + KaE bring-up gate"
-KAE_PATCH_DIR="$HERE/kae-patch-draft" COLIBRI_WORK="$HOME_DIR/colibri-score" \
+step "2+3/5 build SCORING engine (KaE-only) + PRISTINE engine + KaE bring-up gate"
+KAE_PATCH_DIR="$HERE/kae-patch-draft" COLIBRI_WORK="$HOME_DIR/colibri-score" GATE="$GATE" \
   COLIBRI_GIT_URL="$COLIBRI_GIT_URL" bash "$HERE/bringup_gcp.sh" 2>&1 | tee "$GATE/kae-bringup.log"
 grep -q "BRING-UP OK (KaE)" "$GATE/kae-bringup.log" || die "KaE bring-up gate FAILED"
+[ -x "$HOME_DIR/colibri-score/c/glm" ]          || die "scoring engine glm not built by bringup_gcp.sh"
+[ -x "$HOME_DIR/colibri-score/c/glm_pristine" ] || die "pristine engine glm_pristine not built by bringup_gcp.sh (functional-gate reference)"
 hb "kae-bringup-ok"
 
 step "4/5 build CONSTRUCTION engine (KaE + dump patch) + DUMP bring-up gate (b)"
@@ -167,22 +169,138 @@ echo "SCAFFOLD: capture the engine's dumped moe()-input sum over >=1 MIXED" \
      > "$GATE/moe-sum-crosscheck.log"
 hb "dump-precond-c-scaffolded"
 
+# =============================================================================
+# FUNCTIONAL inert-by-default gate (KAE unset) — AUTHORITATIVE, FAIL-CLOSED.
+# (bead kernel-of-truth-nf5n / docs/next/design/f1k-inertness-gate-resolution.md
+#  §3.2). With KAE/KAE_SCORE/KAE_DUMP UNSET and OMP_NUM_THREADS pinned, the
+#  KaE-patched PRODUCTION binary's teacher-forced scoring output MUST be
+#  byte-identical to the pristine (pre-patch) engine's on real weights + identical
+#  inputs, preceded by a same-binary determinism pre-check. This is the direct
+#  measurement of the property the demoted objdump proxy only bounds; it is the
+#  registered SS2.5/SS7.4 guard byte-identity instrument exercised at bring-up.
+#  The shared path is run_score (SCORE=<manifest>, teacher-forced, present in BOTH
+#  binaries); inertness is INPUT-INDEPENDENT, so a deterministic arbitrary-token
+#  sample at short+long prefill shapes both PROVES inertness and (via the engine's
+#  own scoring timer, load excluded) yields the affordability s/prefill sample.
+#  Any mismatch -> ERR_F1K_BRINGUP_FUNC, die (EXIT trap preserves $GATE).
+# =============================================================================
+step "FUNCTIONAL inert-by-default gate (KAE unset) — AUTHORITATIVE"
+SCORE_ENGINE="$HOME_DIR/colibri-score/c/glm"
+PRISTINE_ENGINE="$HOME_DIR/colibri-score/c/glm_pristine"
+[ -x "$SCORE_ENGINE" ]    || die "ERR_F1K_BRINGUP_FUNC: scoring engine missing: $SCORE_ENGINE"
+[ -x "$PRISTINE_ENGINE" ] || die "ERR_F1K_BRINGUP_FUNC: pristine engine missing: $PRISTINE_ENGINE"
+[ -d "$ESTATE_DIR" ]      || die "ERR_F1K_BRINGUP_FUNC: estate dir missing: $ESTATE_DIR"
+FUNC_OMP="${KOT_F1K_OMP:-$(nproc)}"                       # pinned thread count (both binaries, all runs)
+FUNC_N_SHORT="${KOT_F1K_FUNC_N_SHORT:-10}"; FUNC_T_SHORT="${KOT_F1K_FUNC_T_SHORT:-96}"
+FUNC_N_LONG="${KOT_F1K_FUNC_N_LONG:-10}";  FUNC_T_LONG="${KOT_F1K_FUNC_T_LONG:-384}"
+N_ITEMS=$((FUNC_N_SHORT + FUNC_N_LONG))
+[ "$N_ITEMS" -ge 20 ] || die "ERR_F1K_BRINGUP_FUNC: functional sample $N_ITEMS < 20 required"
+SAMPLE="$GATE/func-score-sample.txt"
+python3 - "$SAMPLE" "$FUNC_N_SHORT" "$FUNC_T_SHORT" "$FUNC_N_LONG" "$FUNC_T_LONG" <<'PY'
+import sys
+out = sys.argv[1]; N_S, T_S, N_L, T_L = map(int, sys.argv[2:6])
+# run_score manifest line: "ctxlen contlen id_0 ... id_{ctxlen+contlen-1}"
+# deterministic ids in a safe in-vocab range [10,190); contlen=8 scored positions.
+def ids(seed, T):
+    xs = []; s = seed & 0xffffffff
+    for _ in range(T):
+        s = (1103515245 * s + 12345) & 0x7fffffff
+        xs.append(10 + s % 180)
+    return xs
+lines = []
+for i in range(N_S):
+    ctx = T_S - 8; lines.append("%d %d %s" % (ctx, 8, " ".join(map(str, ids(1000 + i, T_S)))))
+for i in range(N_L):
+    ctx = T_L - 8; lines.append("%d %d %s" % (ctx, 8, " ".join(map(str, ids(9000 + i, T_L)))))
+open(out, "w").write("\n".join(lines) + "\n")
+print("functional sample: %d items (%d short T=%d + %d long T=%d) -> %s"
+      % (N_S + N_L, N_S, T_S, N_L, T_L, out))
+PY
+
+# run the shared teacher-forced scorer with KAE FULLY UNSET, OMP pinned + tuned
+# deterministically, and the engine's self-re-exec skipped (COLI_OMP_TUNED=1).
+run_score_engine() {   # $1=binary  $2=stdout  $3=stderr
+  env -u KAE -u KAE_G -u KAE_SCORE -u KAE_DUMP -u KAE_CARRIER -u KAE_SPANS \
+      -u KAE_MODE -u KAE_SEED -u KAE_DUMP_LAYERS \
+      SNAP="$ESTATE_DIR" SCORE="$SAMPLE" \
+      OMP_NUM_THREADS="$FUNC_OMP" OMP_DYNAMIC=FALSE OMP_PROC_BIND=close \
+      OMP_WAIT_POLICY=active COLI_OMP_TUNED=1 \
+      "$1" 64 4 8 >"$2" 2>"$3"
+}
+RES='^-?[0-9]+\.[0-9]{6} [0-9]+ [01]$'    # run_score result line: "<logprob> <contlen> <greedy>"
+
+echo "-- (i) determinism pre-check: patched binary, 2 runs, byte-identical --"
+run_score_engine "$SCORE_ENGINE" "$GATE/func-patched-1.out" "$GATE/func-patched-1.err" \
+  || die "ERR_F1K_BRINGUP_FUNC: patched scoring run #1 failed (see func-patched-1.err)"
+run_score_engine "$SCORE_ENGINE" "$GATE/func-patched-2.out" "$GATE/func-patched-2.err" \
+  || die "ERR_F1K_BRINGUP_FUNC: patched scoring run #2 failed (see func-patched-2.err)"
+grep -E "$RES" "$GATE/func-patched-1.out" > "$GATE/func-patched-1.res" || true
+grep -E "$RES" "$GATE/func-patched-2.out" > "$GATE/func-patched-2.res" || true
+NRES=$(wc -l < "$GATE/func-patched-1.res")
+[ "$NRES" -eq "$N_ITEMS" ] \
+  || die "ERR_F1K_BRINGUP_FUNC: patched run #1 emitted $NRES result lines != $N_ITEMS items (engine/model-load failure — see func-patched-1.err)"
+cmp -s "$GATE/func-patched-1.res" "$GATE/func-patched-2.res" \
+  || die "ERR_F1K_BRINGUP_FUNC: determinism pre-check FAILED — patched binary not byte-identical across 2 runs at OMP_NUM_THREADS=$FUNC_OMP (the registered guard byte-identity instrument would be void; STOP before spend)"
+echo "  determinism PASS: $N_ITEMS items byte-identical across 2 patched runs"
+
+echo "-- (ii) pristine vs KaE-patched (KAE unset), byte-identical --"
+run_score_engine "$PRISTINE_ENGINE" "$GATE/func-pristine.out" "$GATE/func-pristine.err" \
+  || die "ERR_F1K_BRINGUP_FUNC: pristine scoring run failed (see func-pristine.err)"
+grep -E "$RES" "$GATE/func-pristine.out" > "$GATE/func-pristine.res" || true
+NRESP=$(wc -l < "$GATE/func-pristine.res")
+[ "$NRESP" -eq "$N_ITEMS" ] \
+  || die "ERR_F1K_BRINGUP_FUNC: pristine run emitted $NRESP result lines != $N_ITEMS items (see func-pristine.err)"
+if cmp -s "$GATE/func-pristine.res" "$GATE/func-patched-1.res"; then
+  echo "  FUNCTIONAL INERTNESS PASS: pristine == KaE-patched (KAE unset), $N_ITEMS items byte-identical"
+  echo "{\"gate\":\"functional_inertness\",\"verdict\":\"PASS\",\"n_items\":$N_ITEMS,\"omp_num_threads\":$FUNC_OMP,\"determinism\":\"byte-identical\",\"pristine_vs_patched\":\"byte-identical\"}" > "$GATE/functional-inertness.json"
+else
+  diff "$GATE/func-pristine.res" "$GATE/func-patched-1.res" > "$GATE/func-byte-diff.txt" 2>&1 || true
+  echo "{\"gate\":\"functional_inertness\",\"verdict\":\"FAIL\",\"n_items\":$N_ITEMS}" > "$GATE/functional-inertness.json"
+  die "ERR_F1K_BRINGUP_FUNC: pristine vs KaE-patched forward/scoring output DIFFERS with KAE unset (see func-byte-diff.txt) — patch is NOT inert-by-default on this box"
+fi
+
+# affordability timing side-benefit: parse the engine's OWN scoring timer from
+# run #1 stderr ("[score N req | Xs |"), which EXCLUDES model-load time.
+TIMER=$(grep -oE '\[score [0-9]+ req \| [0-9.]+s' "$GATE/func-patched-1.err" | tail -1 || true)
+SCORED_N=$(echo "$TIMER" | grep -oE '[0-9]+ req' | grep -oE '[0-9]+' || true)
+SCORED_S=$(echo "$TIMER" | grep -oE '\| [0-9.]+s' | grep -oE '[0-9.]+' || true)
+python3 - "$GATE/affordability-measured.json" "${SCORED_N:-0}" "${SCORED_S:-0}" \
+         "$N_ITEMS" "$SPOT_RATE" "$FUNC_OMP" "$FUNC_T_SHORT" "$FUNC_T_LONG" <<'PY'
+import sys, json
+p = sys.argv[1]; sn = int(sys.argv[2]); ss = float(sys.argv[3])
+n, rate, omp, ts, tl = int(sys.argv[4]), sys.argv[5], int(sys.argv[6]), int(sys.argv[7]), int(sys.argv[8])
+spp = round(ss / sn, 4) if sn > 0 else None
+json.dump({"blended_s_per_prefill_measured": spp,
+           "scored_items_timed": sn, "scoring_wall_seconds": round(ss, 2),
+           "sample_n_items": n, "spot_rate_usd_per_hour": rate,
+           "omp_num_threads": omp, "sample_shapes": {"short_T": ts, "long_T": tl},
+           "note": "run_score teacher-forced prefill timing on the PATCHED scoring binary, model-load EXCLUDED (engine scoring timer). Blended over short+long shapes. Feeds f1k_gcp.py affordability --rate <rate> --s-per-prefill <this>; the runner refines per-arm on-box. NULL blended => engine emitted no timer line; runner measures on-box."},
+          open(p, "w"), indent=2)
+print("affordability: measured blended s/prefill = %s over %s timed items -> %s" % (spp, sn, p))
+PY
+cat "$GATE/affordability-measured.json"
+hb "functional-inertness-PASS"
+
 step "5/5 affordability micro-benchmark (blended s/prefill) -> frozen-window gate"
-# Time a small batch of REAL scoring prefills (KAE_SCORE path) on representative
-# items; blended s/prefill feeds the frozen-window projection.  SCAFFOLD: the
-# runner points this at the scoring binary + a representative eval sample.
+# The blended s/prefill is now MEASURED as a side-benefit of the functional gate
+# above (func-patched-1 run_score timer, model-load excluded) -> affordability-
+# measured.json.  The frozen-window PROJECTION + GO/STOP is the runner's on-box
+# call via the control-box driver (fail-closed on both the $73 floor and $155
+# cap); construction is NOT spent autonomously.
+MEAS_SPP=$(python3 -c "import json;v=json.load(open('$GATE/affordability-measured.json')).get('blended_s_per_prefill_measured');print(v if v is not None else '')" 2>/dev/null || echo "")
 echo "RUNNER-RUN-REQUIRED" > "$GATE/affordability.status"
 cat > "$GATE/affordability-README.txt" <<EOF
-Measure blended s/prefill: run N (>=20) real KAE_SCORE prefills spanning the
-short (b0) and long (d3-text prepend) arms on the scoring binary, take the mean
-wall-seconds/prefill.  Then:
-  python3 poc/gcp/f1k_gcp.py affordability --rate $SPOT_RATE --s-per-prefill <MEAN>
-which projects the 19964-prefill ledger and FAILS CLOSED if the projection
-lands outside instance_hours [260.6,900] h or usd_total [\$73,\$155] (the FLOOR
-binds below \$0.28/h).  A GO here (and ONLY a GO) licenses construction spend.
+MEASURED blended s/prefill (functional-gate side-benefit, model-load excluded):
+  ${MEAS_SPP:-<none: engine emitted no scoring timer; re-measure on-box>}
+  (full record: $GATE/affordability-measured.json)
+Project the frozen 19964-prefill ledger + decide GO/STOP on the control box:
+  python3 poc/gcp/f1k_gcp.py affordability --rate $SPOT_RATE --s-per-prefill ${MEAS_SPP:-<MEAN>}
+which FAILS CLOSED if the projection lands outside instance_hours [260.6,900] h
+or usd_total [\$73,\$155] (the FLOOR binds below \$0.28/h).  A GO here (and ONLY
+a GO) licenses construction spend — the coordinator's supervised call.
 EOF
 cat "$GATE/affordability-README.txt"
-hb "affordability-pending-runner"
+hb "affordability-measured-runner-projects"
 
 step "DONE (bring-up scaffolded; STOP before construction spend)"
 echo "Bring-up artifacts in $GATE/ (mirrored to $BUCKET/f1k/bringup/)."
