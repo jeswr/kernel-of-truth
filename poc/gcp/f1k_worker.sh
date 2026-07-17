@@ -54,6 +54,30 @@ hb() { # heartbeat to GCS
   gsutil -q cp "$GATE/heartbeat.json" "$BUCKET/f1k/bringup/heartbeat.json" 2>/dev/null || true
 }
 
+# --- DIAGNOSTIC PRESERVATION (runner-7) ------------------------------------
+# Under `set -euo pipefail`, a build failure inside step 2+3 (the tee'd
+# bringup_gcp.sh pipe) trips pipefail and exits BEFORE the `|| die` and BEFORE
+# the DONE-step mirror (line ~167) ever run — so on the failing path the on-VM
+# build logs ($GATE/kae-bringup.log, dump-realchecks.log, etc.) were NEVER
+# mirrored to GCS, and the watchdog then deleted the VM, LOSING the diagnostic.
+# This EXIT trap fires on EVERY exit path (normal, `set -e`/pipefail, signal,
+# die()) and best-effort mirrors the WHOLE $GATE dir to $BUCKET/f1k/bringup/ so
+# any failure is diagnosable off-box. Best-effort only: it never changes the
+# exit code (re-exits with the original rc) and never hangs teardown.
+_mirror_gate_on_exit() {
+  local rc=$?
+  trap - EXIT   # disarm so this runs at most once
+  if [ -d "$GATE" ]; then
+    echo "{\"ts\":\"$(date -u +%FT%TZ)\",\"stage\":\"EXIT rc=$rc (gate mirrored)\",\"rc\":$rc}" \
+      > "$GATE/exit-status.json" 2>/dev/null || true
+    gsutil -q -m cp -r "$GATE" "$BUCKET/f1k/bringup/" 2>/dev/null || true
+    gsutil -q cp "$GATE/exit-status.json" "$BUCKET/f1k/bringup/exit-status.json" 2>/dev/null || true
+  fi
+  exit "$rc"
+}
+trap _mirror_gate_on_exit EXIT
+# ---------------------------------------------------------------------------
+
 step "0/5 preflight: non-AWS + tools + NVMe"
 # non-AWS gate (this box must be the GCP VM, never AWS)
 if curl -s --max-time 1 http://169.254.169.254/latest/meta-data/instance-id >/dev/null 2>&1 \
