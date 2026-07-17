@@ -115,6 +115,23 @@ PROJECT = os.environ.get("KOT_GCP_PROJECT", "")
 ZONE = os.environ.get("KOT_GCP_ZONE", "us-central1-a")
 REGION = os.environ.get("KOT_GCP_REGION", "us-central1")
 
+# ---------------------------------------------------------------------------
+# BRING-UP provisioning override (OPS ONLY — NOT the frozen construction ledger)
+# ---------------------------------------------------------------------------
+# The bring-up (functional inert-by-default gate + dump preconditions a/b/c +
+# affordability micro-bench) is a ONE-TIME VALIDATION on a SEPARATE, throwaway
+# VM. It is NOT written to results-log/f1k.jsonl and does NOT enter the frozen
+# construction cost model (analysis/f1k.py window). The SPOT mandate exists to
+# fit that CONSTRUCTION ledger; it does not bind the disposable bring-up VM.
+# Spot PREEMPTION repeatedly reclaimed the VM mid-run before the ~2h functional
+# gate finished (runner-9: VM STOPPING at ~75min, no verdict). So the bring-up
+# VM MAY be provisioned ON-DEMAND for reliability; this touches NOTHING frozen
+# and CONSTRUCTION stays SPOT (module default, unchanged). Enable per-run with
+# KOT_F1K_ONDEMAND=1; `plan` still asserts SPOT (it validates the CONSTRUCTION
+# ledger admissibility, which is unaffected by a throwaway bring-up VM).
+BRINGUP_ONDEMAND = os.environ.get("KOT_F1K_ONDEMAND", "").lower() in (
+    "1", "true", "yes", "on")
+
 
 def die(code: str, msg: str) -> None:
     print("ERR_%s: %s" % (code, msg), file=sys.stderr)
@@ -318,7 +335,11 @@ def cmd_plan() -> None:
 
 
 def cmd_provision() -> None:
-    """Create the Spot VM + 3 local SSD. Records the launch. SPOT only."""
+    """Create the VM + local SSD. Records the launch. SPOT by default (the
+    frozen construction target); ON-DEMAND (KOT_F1K_ONDEMAND=1) is permitted
+    ONLY for the throwaway BRING-UP VM — a separate validation phase that never
+    enters the frozen ledger. On-demand drops --instance-termination-action
+    (a SPOT-only flag) and uses --provisioning-model STANDARD."""
     verify_pins()
     _gate()
     if vm_exists():
@@ -327,19 +348,33 @@ def cmd_provision() -> None:
     ssd = []
     for _ in range(LOCAL_SSD_COUNT):
         ssd += ["--local-ssd", "interface=NVME"]
+    if BRINGUP_ONDEMAND:
+        # ON-DEMAND bring-up VM (ops; NOT the frozen SPOT construction ledger).
+        # --instance-termination-action is SPOT-only, so it is DROPPED here; the
+        # control-box watchdog + guest max-life backstops still bound billing.
+        prov_model = "STANDARD"
+        sched_args = []
+        mode = ("ON-DEMAND (bring-up VALIDATION only — NOT the frozen SPOT "
+                "construction ledger; separate phase, not in results-log)")
+    else:
+        # SPOT construction target (frozen cost model). Unchanged.
+        prov_model = PROVISIONING_MODEL
+        sched_args = ["--instance-termination-action", "STOP"]
+        mode = "SPOT"
     gcloud("compute", "instances", "create", INSTANCE_NAME,
            "--zone", ZONE, "--machine-type", MACHINE_TYPE,
-           "--provisioning-model", PROVISIONING_MODEL,
-           "--instance-termination-action", "STOP",
+           "--provisioning-model", prov_model,
+           *sched_args,
            "--image-family", IMAGE_FAMILY, "--image-project", IMAGE_PROJECT,
            "--boot-disk-size", "%dGB" % BOOT_GB, "--boot-disk-type", "pd-ssd",
            *ssd,
            "--scopes", "storage-rw",
            "--metadata", "kot-experiment=f1k,kot-frozen=%s" % FROZEN_SHA256[:12])
-    print("provisioned SPOT %s (%s, %d local SSD) in %s"
-          % (INSTANCE_NAME, MACHINE_TYPE, LOCAL_SSD_COUNT, ZONE))
-    print("NOTE: record the assigned spot price now; it is a load-bearing "
-          "input to the affordability gate.")
+    print("provisioned %s %s (%s, %d local SSD) in %s"
+          % (mode, INSTANCE_NAME, MACHINE_TYPE, LOCAL_SSD_COUNT, ZONE))
+    print("NOTE: record the assigned price now; the construction SPOT rate "
+          "(not the on-demand bring-up rate) is the load-bearing input to the "
+          "affordability gate.")
 
 
 def cmd_status() -> None:
