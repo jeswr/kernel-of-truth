@@ -168,6 +168,63 @@ Checked against the frozen record `registry/experiments/f1k.json`
    CPU-bound 384 GB model — bounded, and step (ii) doubles as the affordability
    timing sample.
 
+## 5. Addendum (2026-07-17, runner-8 datum) — reference-flags objdump moved off-box-only
+
+**New measured datum** (runner-8 run-log `poc/glm52-probe/f1k-harness/opus-runs/20260717T015601Z/`,
+`gate-pull/bringup/f1k-gate/kae-bringup.log`): step 5 objdump FAILS **even at the
+reference flags** `-O2 -march=x86-64-v3` on the GCP VM's Ubuntu gcc —
+`functions differ OUTSIDE allowed [layer_forward,main,model_init,moe]:
+[attention, run_serve, tok_load]` (shared 78; patch-added `kae_free.part.0`,
+`kae_load`). This is exactly residual-risk §4.3 above, and the outcome that risk
+pre-committed to: the equivalence is **gcc-VERSION-brittle**, not merely
+-march-brittle — the allowed set reproduces fail-closed only on the toolchain
+that measured it (control-box gcc 11.5). Worse, step 5 ran BEFORE the
+authoritative functional gate in `f1k_worker.sh`, so the proxy was blocking the
+real measurement (bring-up died at ~$0.05 without the functional gate ever
+executing).
+
+**Decision (option A, per §4.3's pre-registration and ASM-2503's
+resolution_path):**
+
+- `poc/gcp/bringup_gcp.sh` step 5 is now **ADVISORY-ONLY on the run box at BOTH
+  flag sets** (reference `-O2 -march=x86-64-v3` AND production-equivalent
+  `-O2 -march=native`): the clone-aware parser logs the full
+  differing/OUTSIDE-allowed/added/removed lists to
+  `$GATE/objdump-{reference,native}-advisory.log` and never exits nonzero.
+- The **fail-closed reference-flags objdump pass moves OFF-BOX-ONLY**: the
+  frozen `bringup.sh` and `dump-patch/real-checks.sh` stay untouched and remain
+  the fail-closed patch-shape regression gates on the gate-0 gcc-11.5
+  measurement basis (where they PASS).
+- The **sole fail-closed inertness gate on the run box** is the functional
+  KAE-unset pristine-vs-patched byte-identity gate in `f1k_worker.sh`
+  (`ERR_F1K_BRINGUP_FUNC`) — toolchain-independent, real binary, real weights.
+- The allowed set is **never widened** (§1 "why not option 2" stands: the next
+  gcc point-release would just spill a different function).
+- **Same principle applied downstream before it masks again:**
+  `dump-patch/real-checks.sh` step 6/6 is the identical proxy class (objdump at
+  `-O2 -march=x86-64-v3`, allowed `{moe, main}` per ASM-2486) and runs on-box
+  at worker step 4/5 — BEFORE the functional gate. `real-checks.sh` itself
+  stays untouched (gate-0-reviewed; its step-6 proof stands fail-closed
+  off-box at gcc 11.5). Instead, `f1k_worker.sh` now tolerates exactly ONE
+  failure signature from it: steps 1–5 provably passed (`test_kae: 44/44` +
+  `test_kae_dump: 43/43` lines present) AND the sole `ERR_F1K_DUMP_CHECK` is
+  the step-6 "functions differ OUTSIDE the allowed set" spill (never
+  "functions REMOVED") → logged to `$GATE/objdump-dump-advisory.log`, bring-up
+  continues. Any other failure stays fail-closed. (Dump-unarmed inertness is
+  not campaign-load-bearing: the construction engine is only ever used ARMED;
+  the scoring engine carries no dump patch and has the functional gate.)
+- Rejected: pinning the exact gcc (§1 "why not option 3" stands — and the
+  measurement gcc may not exist in the VM's apt universe); re-measuring a
+  VM-local allowed baseline (still not fail-closed across environments, and the
+  advisory logs already capture exactly that information for audit without
+  inventing a new pinned artifact).
+
+**Ops vs re-freeze: still OPS. No re-freeze.** §2's check is unchanged by this
+edit — the frozen `registry/experiments/f1k.json` (505165ee) carries no objdump
+obligation, no allowed-diff set, and no hash pin of `bringup_gcp.sh`. ASM-2503
+amended in place (its resolution_path pre-registered this exact outcome and
+response); bead kernel-of-truth-f2uk.
+
 *Unrelated observation left for the coordinator (out of scope here): the
 run-log `provenance-note` about the GCS-restore path folding the `COMPLETE`
 sentinel into the ASM-1971 weights manifest hash (19f1a3d0… / 454 files vs

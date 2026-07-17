@@ -13,8 +13,11 @@
 #   2. BUILD   the SCORING engine (colibri + KaE patch ONLY, phase separation)
 #      via bringup_gcp.sh, and the CONSTRUCTION engine (colibri + KaE + the
 #      kot-f1k-dump patch) via the dump-patch real-checks.sh battery.
-#   3. BRING-UP GATE (KaE): bringup_gcp.sh — 44/44 test_kae + clone-aware
-#      inert-by-default proof.
+#   3. BRING-UP GATE (KaE): bringup_gcp.sh — 44/44 test_kae; objdump
+#      inert-by-default checks are ADVISORY-ONLY on this box (bead f2uk /
+#      ASM-2503: gcc-version-brittle even at reference flags; fail-closed
+#      objdump lives off-box on the gcc-11.5 measurement basis). The
+#      AUTHORITATIVE inertness proof is the FUNCTIONAL gate below.
 #   4. DUMP BRING-UP GATE — the 3 PATCH-NOTES preconditions on the REAL binary:
 #        (b) unarmed byte-identity vs the KaE-only engine + test_kae 44/44 +
 #            test_kae_dump 43/43 + objdump per-function inertness on PRODUCTION
@@ -138,11 +141,42 @@ hb "kae-bringup-ok"
 step "4/5 build CONSTRUCTION engine (KaE + dump patch) + DUMP bring-up gate (b)"
 # real-checks.sh applies KaE THEN the dump patch on a pristine tree, builds,
 # test_kae 44/44 + test_kae_dump 43/43, objdump per-function inertness.
+# OPS (bead kernel-of-truth-f2uk / ASM-2503 amendment / resolution memo §5):
+# real-checks.sh's FINAL step (6/6 objdump per-function equivalence at
+# -O2 -march=x86-64-v3) is gcc-VERSION-brittle — MEASURED for the KaE patch
+# (runner-8, 20260717T015601Z): the VM's Ubuntu gcc spills neighbouring
+# functions outside the allowed set EVEN AT the reference flags. On this box
+# that ONE failure signature is demoted to ADVISORY (logged to
+# $GATE/objdump-dump-advisory.log, bring-up continues): rc!=0 is tolerated
+# ONLY IF steps 1-5 provably passed (patch shas + build + test_kae 44/44 +
+# test_kae_dump 43/43 lines present) AND the only ERR is the step-6
+# "functions differ OUTSIDE the allowed set" spill (NOT "functions REMOVED").
+# real-checks.sh itself is UNTOUCHED (gate-0-reviewed); its step-6 proof
+# stands fail-closed OFF-BOX on the gcc-11.5 measurement basis. ANY other
+# failure stays fail-closed here.
+set +e
 ( cd "$HERE/dump-patch" && COLIBRI_GIT_URL="$COLIBRI_GIT_URL" \
-    COLIBRI_WORK="$HOME_DIR/colibri-construct" bash real-checks.sh ) 2>&1 \
-  | tee "$GATE/dump-realchecks.log"
-grep -qiE "REAL-SOURCE CHECKS OK|CHECKS OK" "$GATE/dump-realchecks.log" \
-  || die "dump bring-up precondition (b) FAILED (real-checks.sh)"
+    COLIBRI_WORK="$HOME_DIR/colibri-construct" bash real-checks.sh ) \
+  > "$GATE/dump-realchecks.log" 2>&1
+RC_B=$?
+set -e
+cat "$GATE/dump-realchecks.log"
+if [ "$RC_B" -eq 0 ]; then
+  grep -qiE "REAL-SOURCE CHECKS OK|CHECKS OK" "$GATE/dump-realchecks.log" \
+    || die "dump bring-up precondition (b): rc=0 but no OK banner (real-checks.sh)"
+elif grep -q "test_kae: 44/44" "$GATE/dump-realchecks.log" \
+  && grep -q "test_kae_dump: 43/43" "$GATE/dump-realchecks.log" \
+  && grep -q "functions differ OUTSIDE the allowed set" "$GATE/dump-realchecks.log" \
+  && ! grep -q "functions REMOVED by the patch" "$GATE/dump-realchecks.log" \
+  && [ "$(grep -c 'ERR_F1K_DUMP_CHECK' "$GATE/dump-realchecks.log")" -eq 1 ]; then
+  grep -E "shared functions:|functions differ OUTSIDE" "$GATE/dump-realchecks.log" \
+    > "$GATE/objdump-dump-advisory.log" || true
+  echo "ADVISORY (bead f2uk): real-checks.sh steps 1-5 PASSED; step-6 objdump spill" \
+       "on this box's gcc demoted per ASM-2503 (fail-closed proof stands off-box @ gcc 11.5)." \
+    | tee -a "$GATE/objdump-dump-advisory.log"
+else
+  die "dump bring-up precondition (b) FAILED (real-checks.sh rc=$RC_B, not the demoted objdump-spill signature)"
+fi
 hb "dump-precond-b-ok"
 
 step "4/5 DUMP bring-up gate (a): tiny real dump + token-id consistency"

@@ -55,7 +55,7 @@ maintainer), **NOT a retry** — the pzb6 class discovered at bring-up.
 | File | What it is |
 |---|---|
 | `f1k_gcp.py` | Orchestrator (runs on the control box): `plan` ($0 dry-plan: pins + reuse-gate + SPOT/disk/window asserts), `provision` (Spot VM + 3 local SSD), `status`, `teardown`, `affordability` (measured rate + s/prefill → frozen-window GO/SALVAGE-STOP). |
-| `bringup_gcp.sh` | KaE bring-up on the VM: colibri@`a78a06fc` + KaE patch (`11f8b458`), build, 44/44 `test_kae`, clone-aware inert-by-default proof (the PATCH-NOTES OQ2 `<([\w.]+)>` fix, ported; the frozen `bringup.sh` is untouched). |
+| `bringup_gcp.sh` | KaE bring-up on the VM: colibri@`a78a06fc` + KaE patch (`11f8b458`), build, 44/44 `test_kae`; objdump patch-shape checks (clone-aware, reference + native flags) are **ADVISORY-ONLY on the VM** (bead f2uk / ASM-2503: gcc-version-brittle even at `-O2 -march=x86-64-v3`; fail-closed objdump lives off-box on the gcc-11.5 basis; the frozen `bringup.sh` is untouched). The AUTHORITATIVE inertness proof is the functional KAE-unset byte-identity gate in `f1k_worker.sh`. |
 | `f1k_worker.sh` | On-VM autonomous worker: STAGE (GCS mirror → else HF → NVMe, weight-hash pin) → BUILD scoring + construction engines → KaE bring-up → dump bring-up gate (b) → scaffolds (a)+(c) + the affordability micro-benchmark → **STOP before construction spend**. Heartbeat + artifacts to GCS; idempotent (spot preemption re-runs, restages from GCS). |
 
 ## Run sequence (frozen §R-REV4.2 ordering; each paid step gated)

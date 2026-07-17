@@ -12,9 +12,12 @@
 # variant carries the documented fix for the AMD/gcc toolchain on the VM.
 #
 # Fail-closed throughout: clone+pin colibri, verify+apply the gate-0 KaE patch,
-# build, assert 44/44 test_kae, prove inert-by-default per-function. Any failed
-# check aborts bring-up (ERR_F1K_BRINGUP). The GLM-5.2 weight fetch is the
-# separate staging step (f1k_worker.sh); this script only proves the ENGINE.
+# build, assert 44/44 test_kae. Any failed check aborts bring-up
+# (ERR_F1K_BRINGUP). The objdump inert-by-default check is ADVISORY-ONLY on this
+# box (step 5; see the ops note below) — the AUTHORITATIVE inertness gate is the
+# functional KAE-unset byte-identity gate in f1k_worker.sh. The GLM-5.2 weight
+# fetch is the separate staging step (f1k_worker.sh); this script only proves
+# the ENGINE builds and its unit suite passes.
 # =============================================================================
 set -euo pipefail
 
@@ -23,17 +26,26 @@ PATCH_SHA256="11f8b45884878111480192ee086c92b22acaa1aaf3238b2d46c47f952e9dd9cb"
 EXPECTED_UNIT_CHECKS=44
 ALLOWED_DIFF_FUNCS="moe layer_forward main model_init"
 ARCH="${ARCH:-native}"                    # AMD EPYC Milan on n2d — native tune
-# OPS (bead kernel-of-truth-nf5n / docs/next/design/f1k-inertness-gate-resolution.md
-# §3.1): the objdump machine-equivalence check is DEMOTED to a patch-shape check.
-# It is FAIL-CLOSED ONLY at the pinned REFERENCE flags -O2 -march=x86-64-v3 (the
-# exact basis the allowed sets were MEASURED on: ASM-2486 {moe,main}; the gate-0
-# 88/92 proof {moe,layer_forward,main,model_init}; also real-checks.sh's default),
-# and ADVISORY (never fatal) at the production-equivalent -O2 -march=native. This
-# touches NOTHING frozen (registry/experiments/f1k.json 505165ee carries no
-# objdump/allowed-diff obligation); the AUTHORITATIVE inertness gate is now the
-# functional KAE-unset byte-identity gate in f1k_worker.sh.
-CFLAGS_EQ="${BRINGUP_CFLAGS:--O2 -march=x86-64-v3}"   # fail-closed REFERENCE flags
-CFLAGS_EQ_NATIVE="-O2 -march=native"                  # advisory-only, production-equivalent
+# OPS (beads kernel-of-truth-nf5n + kernel-of-truth-f2uk /
+# docs/next/design/f1k-inertness-gate-resolution.md §3.1 + §5 addendum): the
+# objdump machine-equivalence check is ADVISORY-ONLY ON THIS BOX at BOTH flag
+# sets — reference -O2 -march=x86-64-v3 AND production-equivalent -O2
+# -march=native. Runner-8 MEASURED (run 20260717T015601Z, kae-bringup.log) that
+# the VM's Ubuntu gcc spills [attention, run_serve, tok_load] outside the
+# allowed set EVEN AT the reference flags: the allowed set (measured on the
+# gate-0 gcc 11.5 — ASM-2486 {moe,main}; gate-0 88/92
+# {moe,layer_forward,main,model_init}) is gcc-VERSION-brittle, not merely
+# -march-brittle, so it only reproduces fail-closed on the toolchain that
+# measured it. Per ASM-2503's pre-registered resolution_path, the FAIL-CLOSED
+# reference-flags objdump pass moves OFF-BOX-ONLY (frozen bringup.sh +
+# dump-patch/real-checks.sh on the gcc-11.5 basis — untouched); here the full
+# diff lists are logged to $GATE for audit and NEVER fatal. This touches
+# NOTHING frozen (registry/experiments/f1k.json 505165ee carries no
+# objdump/allowed-diff obligation); the AUTHORITATIVE fail-closed inertness
+# gate is the functional KAE-unset byte-identity gate in f1k_worker.sh
+# (toolchain-independent, real binary, real weights).
+CFLAGS_EQ="${BRINGUP_CFLAGS:--O2 -march=x86-64-v3}"   # reference flags — ADVISORY on this box
+CFLAGS_EQ_NATIVE="-O2 -march=native"                  # production-equivalent — ADVISORY
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PATCH_DIR="${KAE_PATCH_DIR:-$HERE/kae-patch-draft}"
@@ -89,67 +101,34 @@ N_OK="$(echo "$TEST_OUT" | grep -c '^  ok:' || true)"
 [ "$N_OK" -eq "$EXPECTED_UNIT_CHECKS" ] || die "test_kae $N_OK != $EXPECTED_UNIT_CHECKS"
 echo "test_kae: $N_OK/$EXPECTED_UNIT_CHECKS"
 
-step "5/5 inert-by-default machine equivalence (KAE unset) — FAIL-CLOSED @ REFERENCE flags $CFLAGS_EQ (CLONE-AWARE parser)"
+# --- Step 5: ADVISORY objdump patch-shape check (bead f2uk) — clone-aware
+#     parser run at BOTH the reference flags AND production-equivalent native,
+#     NEVER fatal on this box. Full differing/OUTSIDE-allowed/added/removed
+#     lists go to $GATE/objdump-<tag>-advisory.log for audit. On this toolchain
+#     it is EXPECTED to list extra functions at BOTH flag sets
+#     (attention/run_serve/tok_load + outlined kae_load/kae_free.part.0 —
+#     MEASURED, runner-8 20260717T015601Z); that is gcc-version codegen spill.
+#     The AUTHORITATIVE inertness proof is the functional KAE-unset
+#     byte-identity gate in f1k_worker.sh — NOT these advisories. The
+#     fail-closed reference-flags objdump lives OFF-BOX ONLY (frozen bringup.sh
+#     + dump-patch/real-checks.sh on the gate-0 gcc-11.5 measurement basis). ---
+step "5/5 ADVISORY objdump patch-shape check (KAE unset) — reference + native flags, never fatal on this box"
 cd c
 cp /tmp/glm_pristine.c /tmp/eq_pristine.c
 cp glm.c /tmp/eq_patched.c
-gcc $CFLAGS_EQ -I. -c /tmp/eq_pristine.c -o /tmp/eq_pristine.o || die "pristine compile failed"
-gcc $CFLAGS_EQ -I. -c /tmp/eq_patched.c  -o /tmp/eq_patched.o  || die "patched compile failed"
-objdump -d --no-show-raw-insn /tmp/eq_pristine.o > /tmp/eq_pristine.dis
-objdump -d --no-show-raw-insn /tmp/eq_patched.o  > /tmp/eq_patched.dis
-python3 - "$ALLOWED_DIFF_FUNCS" <<'PYEOF'
+objdump_advisory() {  # $1 = tag; remaining args = cflags. NEVER returns nonzero.
+  local tag="$1"; shift
+  local adv="$GATE/objdump-$tag-advisory.log"
+  : > "$adv"
+  if gcc "$@" -I. -c /tmp/eq_pristine.c -o "/tmp/eq_${tag}_pristine.o" 2>>"$adv" \
+     && gcc "$@" -I. -c /tmp/eq_patched.c -o "/tmp/eq_${tag}_patched.o" 2>>"$adv"; then
+    objdump -d --no-show-raw-insn "/tmp/eq_${tag}_pristine.o" > "/tmp/eq_${tag}_pristine.dis" 2>>"$adv" || true
+    objdump -d --no-show-raw-insn "/tmp/eq_${tag}_patched.o"  > "/tmp/eq_${tag}_patched.dis"  2>>"$adv" || true
+    python3 - "$ALLOWED_DIFF_FUNCS" "$*" "/tmp/eq_${tag}_pristine.dis" "/tmp/eq_${tag}_patched.dis" >>"$adv" 2>&1 <<'PYADV' || true
 import re, sys
 # clone-suffix-aware allowed set: `moe` also matches `moe.constprop.0` etc.
-allowed_bases = set(sys.argv[1].split())
-def base(name): return name.split('.', 1)[0]
-def funcs(path):
-    out, name = {}, None
-    for line in open(path):
-        # PATCH-NOTES OQ2 fix: <([\w.]+)> captures gcc clone symbols too
-        m = re.match(r'^[0-9a-f]+ <([\w.]+)>:$', line)
-        if m:
-            name = m.group(1); out[name] = []
-            continue
-        if name is not None and line.strip():
-            s = re.sub(r'^\s*[0-9a-f]+:\s*', '', line.rstrip())
-            s = re.sub(r'\b[0-9a-f]{2,}\b', 'ADDR', s)
-            s = re.sub(r'<[^>]*>', '<SYM>', s)
-            out[name].append(s)
-    return out
-a = funcs('/tmp/eq_pristine.dis'); b = funcs('/tmp/eq_patched.dis')
-shared = sorted(set(a) & set(b))
-diff = [f for f in shared if a[f] != b[f]]
-extra = sorted(set(b) - set(a))
-print("shared: %d; differing: %s; patch-added: %s"
-      % (len(shared), diff or "none", extra or "none"))
-bad = [f for f in diff if base(f) not in allowed_bases]
-if bad:
-    print("ERR_F1K_BRINGUP: functions differ OUTSIDE allowed %s: %s"
-          % (sorted(allowed_bases), bad), file=sys.stderr); sys.exit(1)
-missing = [f for f in sorted(set(a) - set(b)) if base(f) not in allowed_bases]
-if missing:
-    print("ERR_F1K_BRINGUP: functions REMOVED by the patch: %s" % missing,
-          file=sys.stderr); sys.exit(1)
-print("inert-by-default: every shared function outside %s (clone-aware) is "
-      "byte-identical" % sorted(allowed_bases))
-PYEOF
-
-# --- ADVISORY native-flags objdump pass (bead nf5n) — production-equivalent
-#     -O2 -march=native, NEVER fatal. Logs the full differing/added/removed list
-#     to $GATE for audit. On this toolchain (EPYC 7B13) it is EXPECTED to list
-#     extra functions (attention/run_serve/tok_load + outlined kae_load); that is
-#     codegen spill, and the AUTHORITATIVE inertness proof is the functional
-#     KAE-unset byte-identity gate in f1k_worker.sh — NOT this advisory. ---
-step "5a/5 ADVISORY objdump @ production flags $CFLAGS_EQ_NATIVE — never fatal"
-ADV="$GATE/objdump-native-advisory.log"
-: > "$ADV"
-if gcc $CFLAGS_EQ_NATIVE -I. -c /tmp/eq_pristine.c -o /tmp/eqn_pristine.o 2>>"$ADV" \
-   && gcc $CFLAGS_EQ_NATIVE -I. -c /tmp/eq_patched.c -o /tmp/eqn_patched.o 2>>"$ADV"; then
-  objdump -d --no-show-raw-insn /tmp/eqn_pristine.o > /tmp/eqn_pristine.dis 2>>"$ADV" || true
-  objdump -d --no-show-raw-insn /tmp/eqn_patched.o  > /tmp/eqn_patched.dis 2>>"$ADV" || true
-  python3 - "$ALLOWED_DIFF_FUNCS" /tmp/eqn_pristine.dis /tmp/eqn_patched.dis >>"$ADV" 2>&1 <<'PYADV' || true
-import re, sys
-allowed = set(sys.argv[1].split())
+# (PATCH-NOTES OQ2 fix: <([\w.]+)> captures gcc clone symbols too)
+allowed = set(sys.argv[1].split()); flags = sys.argv[2]
 def base(n): return n.split('.', 1)[0]
 def funcs(path):
     out, name = {}, None
@@ -163,21 +142,25 @@ def funcs(path):
             s = re.sub(r'<[^>]*>', '<SYM>', s)
             out[name].append(s)
     return out
-a = funcs(sys.argv[2]); b = funcs(sys.argv[3])
+a = funcs(sys.argv[3]); b = funcs(sys.argv[4])
 shared = sorted(set(a) & set(b))
 diff = [f for f in shared if a[f] != b[f]]
 added = sorted(set(b) - set(a)); removed = sorted(set(a) - set(b))
 outside = [f for f in diff if base(f) not in allowed]
-print("ADVISORY (-O2 -march=native): shared %d; differing %s; OUTSIDE-allowed %s; "
+print("ADVISORY (%s): shared %d; differing %s; OUTSIDE-allowed %s; "
       "patch-added %s; removed %s"
-      % (len(shared), diff or "none", outside or "none", added or "none",
-         removed or "none"))
-sys.exit(0)   # advisory: NEVER fatal
+      % (flags, len(shared), diff or "none", outside or "none",
+         added or "none", removed or "none"))
+sys.exit(0)   # advisory: NEVER fatal on this box (bead f2uk / ASM-2503 resolution_path)
 PYADV
-else
-  echo "advisory native compile failed (non-fatal; toolchain-specific)" >> "$ADV"
-fi
-echo "advisory objdump @ native ($CFLAGS_EQ_NATIVE):"; cat "$ADV" || true
+  else
+    echo "advisory compile failed at ($*) (non-fatal; toolchain-specific)" >> "$adv"
+  fi
+  echo "advisory objdump [$tag] ($*):"; cat "$adv" || true
+  return 0
+}
+objdump_advisory reference $CFLAGS_EQ
+objdump_advisory native    $CFLAGS_EQ_NATIVE
 cd "$WORK"
 
 # --- build the PRISTINE (pre-patch) engine at the SAME production flags for the
@@ -190,7 +173,8 @@ echo "pristine engine (KaE-free, production flags): $WORK/c/glm_pristine"
 
 echo
 echo "BRING-UP OK (KaE): colibri@$COLIBRI_COMMIT + KaE patch (sha verified),"
-echo "build OK, test_kae $N_OK/$EXPECTED_UNIT_CHECKS, inert-by-default proven"
-echo "(objdump fail-closed @ REFERENCE $CFLAGS_EQ; native pass advisory-only)."
+echo "build OK, test_kae $N_OK/$EXPECTED_UNIT_CHECKS."
+echo "(objdump patch-shape checks ADVISORY-ONLY on this box — logs in $GATE/objdump-*-advisory.log;"
+echo " AUTHORITATIVE inert-by-default gate = functional KAE-unset byte-identity in f1k_worker.sh.)"
 echo "Scoring engine binary:  $WORK/c/glm"
 echo "Pristine engine binary: $WORK/c/glm_pristine (functional-gate reference)"
