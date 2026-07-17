@@ -14,7 +14,7 @@ torch==2.6.0
 # and requires a code migration + full frozen-experiment re-validation (tracked
 # in the maintainer security issue; the RCE vector is trust_remote_code / hostile
 # model repos, not triggered by the pinned SmolLM2 load in this pipeline).
-transformers==4.53.0
+transformers==5.5.0
 # F2 int4-quantized arm (HFLM int4 path): 4-bit loading needs both of these;
 # without them the real F2 run fails closed mid-run at the int4 arm
 # (ERR_INT4_DEP). Pinned 2026-07-08 (torch-2.6/CUDA-12.4-compatible).
