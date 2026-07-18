@@ -54,182 +54,141 @@ maintainer), **NOT a retry** — the pzb6 class discovered at bring-up.
 
 | File | What it is |
 |---|---|
-| `f1k_gcp.py` | Orchestrator (runs on the control box): `plan` ($0 dry-plan: pins + reuse-gate + SPOT/disk/window asserts), `provision` (Spot VM + 2 local SSD), `status`, `teardown`, `bringup-deploy` (RAID+mount NVMe, push the worker bundle + frozen gate corpora, launch the worker detached, arm the guest max-life), `watchdog --max-hours H` (box-side teardown loop; nohup it, verify `pgrep -f 'f1k_gcp.py watchdog'`), `gate` (**the bring-up gate verdict — kot-f1k-bringup-gate/2; GREEN is the ONLY construction license**; `--selftest` = $0 mock oracle), `pin-fetch` (fetch + byte-verify the licensed campaign pin → eval-safe explicit `PIN`/`PIN_GB` exports; `/2`+GREEN required [REV-B/C]), `affordability` (one-blended-s/prefill projection — **SECONDARY diagnostic ONLY, licenses nothing**). |
+| `f1k_gcp.py` | Control-box orchestrator: `plan` is the $0 pin/reuse/SPOT/disk/window check; `provision` creates the **single SPOT VM only** (explicitly refuses `KOT_F1K_ONDEMAND`), grants the `cloud-platform` OAuth scope, and arms the guest max-life from the startup script; `bringup-deploy` RAID0-mounts `/mnt/nvme`, stages the worker files flat in `~/f1k` (including `f1k_ops.py`) plus the reviewed construction payload under `~/f1k/poc/...`, launches the worker, and re-arms max-life. Also provides `status`, `teardown`, box-side `watchdog --max-hours H`, the mechanical `gate`, `pin-fetch`, and the non-licensing `affordability` diagnostic. There is no landed `construction-continue` entrypoint yet. |
 | `f1k_bringup_gate.py` | The FIXED bring-up gate machinery (`F1K-BRINGUP-GATE-FIX.md` v1+REV-B+REV-C, GAP-1/2/3): frozen deterministic stratified real-corpus sampling rule, full-corpus tokenization (measured f, per-item T), per-item-manifest bring-up pin derivation (fail-closed merge + provenance), per-item token-aware ledger projection + GREEN/STOP **`/2` model-bundle-bound** artifact (engagement-verified, unpinned refused), `checkpoint` = frozen-schedule construction early-abort re-projection, `guard` = **construction wrapper** (explicit pin env + dump-mode engagement probe + in-process checkpoints + kill-on-breach; the sha-pinned builder stays untouched), `config-affordability`/`config-cost` = executable gate→campaign-config seams; `selftest` = $0 mock oracle of the LOGIC seams only (no real engine/tokenizer/GCS/VM — honest scope printed). |
 | `bringup_gcp.sh` | KaE bring-up on the VM: colibri@`a78a06fc` + KaE patch (`11f8b458`), build, 44/44 `test_kae`; objdump patch-shape checks (clone-aware, reference + native flags) are **ADVISORY-ONLY on the VM** (bead f2uk / ASM-2503: gcc-version-brittle even at `-O2 -march=x86-64-v3`; fail-closed objdump lives off-box on the gcc-11.5 basis; the frozen `bringup.sh` is untouched). The AUTHORITATIVE inertness proof is the functional KAE-unset byte-identity gate in `f1k_worker.sh`. |
-| `f1k_worker.sh` | On-VM autonomous worker: STAGE (GCS mirror → else HF → NVMe, weight-hash pin) → BUILD scoring + construction engines → KaE bring-up → dump bring-up gate (b) → scaffolds (a)+(c) → **REAL-CORPUS gate inputs** (tokenize → measured f + per-item T; frozen stratified per-item timing, T1 unpinned → bring-up pin → T2 pinned; `gate-inputs.json`) → **STOP before construction spend**. Heartbeat + artifacts to GCS; idempotent (spot preemption re-runs, restages from GCS). |
+| `f1k_worker.sh` | On-VM autonomous worker: STAGE estate → BUILD scoring + construction engines → KaE + automated dump gate (b) → scaffold dump (a)/(c) → real-corpus tokenization and **preemption-safe per-sample timing** (temp+fsync+atomic rename; complete/same-boot validation; T1 unpinned → bring-up pin → T2 pinned) → `~/f1k-gate/gate-inputs.json` → **STOP before construction spend**. After the runner records literal `PASS` for dump (a)/(c) and re-runs `collect` without re-timing, `bash f1k_worker.sh --finalize-ready` emits `~/f1k-gate/construction-ready.json`, binding the live SPOT instance/boot, complete timing set, pin, payload, pinned builder `a92be3e4`, engine/tokenizer/artifact hashes and argv, and the real `~/f1k`/`/mnt/nvme`/`~/f1k-gate` launch paths with no undefined placeholders. |
 
-## Run sequence (frozen §R-REV4.2 ordering; each paid step gated)
+## Run sequence — LANDED Single-VM-Spot "B" bring-up
 
-0. `source ~/.config/kot/gcp.env`; `python3 poc/gcp/f1k_gcp.py plan` ($0).
-1. `provision` → **record the ACTUAL assigned spot $/h** (load-bearing for the
-   affordability gate). Set `KOT_F1K_BUCKET=gs://…` (same-region estate mirror),
-   `COLIBRI_GIT_URL` (coordinator-supplied), `KOT_F1K_SPOT_RATE=<measured>`.
-2. `python3 poc/gcp/f1k_gcp.py bringup-deploy` — remote prep **verifies the
-   fresh-worker dependencies** (`google-cloud-cli`/gsutil + `python3-pip`
-   installed when the image lacks them, fail-closed) and RAID0+mounts the 2
-   local SSD **by state** (`mountpoint -q`; reboot re-assembles `/dev/md0` and
-   re-mounts, `mkfs` only on first creation — a bare `/mnt/nvme` dir never
-   silently stages ~384 GB onto the boot disk); assembles + pushes the worker
-   bundle (worker, `bringup_gcp.sh`, `f1k_bringup_gate.py`, `tok_glm52.py`,
-   `kae-patch-draft/`, `dump-patch/`, `f1k_launch.sh` launcher, and
-   `gate-corpus/` = the four frozen corpora `construction-manifest.jsonl` +
-   `f1k-eval-v1/items/{test,dev,guard}.jsonl`, sha-manifested); launches the
-   worker detached **via `f1k_launch.sh`** (ANY nonzero worker exit — `set -e`
-   deaths included — writes a `FAILED` heartbeat the watchdog acts on
-   promptly, never waiting out max-life); arms the guest max-life (verify
-   on-VM: `sudo shutdown --show`). Then start the box-side watchdog:
-   `nohup python3 poc/gcp/f1k_gcp.py watchdog --max-hours 8 &` — verify
-   `pgrep -f 'f1k_gcp.py watchdog'` (plan §9: never agent-held).
-3. Worker STAGE + BUILD + KaE bring-up + **dump bring-up gate**:
-   - (b) unarmed byte-identity + `test_kae` 44/44 + `test_kae_dump` 43/43 +
-     objdump inertness — automated via `dump-patch/real-checks.sh`.
-   - (a) tiny real dump + `kot-f1k-tok/1` token-id consistency — **runner
-     confirms ON-BOX** (echo `seed=20260716`; tok ids == engine-prefilled ids).
-   - (c) independent MoE-input sum cross-check on MIXED positions — **runner
-     confirms ON-BOX** (a separate capture path, not `kae_dump.h`, cell-for-cell
-     equal to the engine dump). Its correctness cannot be validated blind, so
-     it is a runner-confirmed PASS. ANY precondition failure → SALVAGE+STOP.
-     **The recorded PASS of (a)/(b)/(c) + the functional gate is a HARD
-     conjunct of the construction license** (v3-review): the runner writes
-     the literal `PASS` into `tiny-dump.status`/`moe-sum-crosscheck.status`
-     and re-runs the worker's collect command (no re-timing) — a
-     `RUNNER-CONFIRM-REQUIRED` scaffold status makes `gate` STOP.
-4. **Bring-up affordability gate** (`F1K-BRINGUP-GATE-FIX.md` v1+REV-B): the
-   worker tokenizes the frozen corpora (measured **f** + per-item T), times
-   the frozen stratified REAL-corpus sample per-item (T1 unpinned with
-   **one `STATS=<file>` per run**, merged fail-closed over an explicit
-   manifest → bring-up pin at measured PIN_GB → T2 pinned, per-run
-   engagement banner recorded), and writes `gate-inputs.json`; then on the
-   control box `f1k_gcp.py gate --inputs <pulled gate-inputs.json>` — **GREEN
-   (exit 0) is the ONLY license for construction spend**; STOP = mandatory
-   maintainer surface (plan §7). Caps are tested **reserve-inclusive**
-   (+$8 / +$8÷rate hours [STIPULATED plan §8 reserve]; floors compute-only);
-   dump (a)/(b)/(c) + functional PASS are hard conjuncts; **per-T2-run
-   pin-ENGAGEMENT evidence for the bound sha/PIN_GB is a hard conjunct**
-   (landed ASM-2513 banner grammar) and **regime `unpinned` is REFUSED**
-   (shape (ii) rejected); `--replace` tests the 21,537 envelope and ANY
-   tested STOP exits nonzero. The synthetic blend + `f1k_gcp.py
-   affordability` remain a SECONDARY diagnostic, licensing nothing (exit 3
-   even when clean).
-5. **Construction** (gated on 3+4) **[REV-C: guard-wrapped; the sha-pinned
-   builder is byte-untouched]**:
-   a. Fetch + byte-verify the licensed pin:
-      `python3 poc/gcp/f1k_gcp.py pin-fetch --gate bringup-gate.json --out
-      <rundir>` (fail-closed: schema `/2` + GREEN only; fetched bytes must
-      sha-match `pin.pin_file_sha256`; stdout = the exact `export PIN=` /
-      `export PIN_GB=` lines, eval-safe — but step 5b consumes `--pin`
-      directly, no ambient env needed).
-   b. Launch construction THROUGH the guard (ONE command; the guard binds
-      `PIN`/`PIN_GB` into the child env itself — never ambient; pops
-      `STATS` and the mode knobs; probes engagement; runs the frozen
-      checkpoints; kills on breach):
-      `python3 poc/gcp/f1k_bringup_gate.py guard --gate bringup-gate.json
-      --pin <rundir>/campaign-pin.stats --engine-cmd '<json argv>'
-      --tokenizer-cmd '<json argv>'
-      --layers 3,…,77 --tokens <gate-tokens/tokens-full.jsonl>
-      --rundir <rundir>/guard --workdir <workdir> --
-      python3 poc/glm52-probe/f1k-harness/build_carriers.py construct
-      --mode real --layers 3,…,77 <provenance shas AND artifacts:
-      --tokenizer-sha/-artifact --engine-weights-sha/-artifact
-      --dump-patch-sha/-artifact> --out <out> --workdir <workdir>`
-      (4,608 passes EXACT; ASM-2504 DRAFT=0 geometry, 75 layers).
-      **ENGINE-ARGV UNITY [REV-D]: the guard OWNS `--engine-cmd`/
-      `--tokenizer-cmd` — it probes the engine argv and INJECTS both
-      values into the builder argv itself (construct-don't-compare), so
-      the builder argv above is complete AS PRINTED (oracle-verified
-      against the builder's real argparse surface) and deliberately
-      carries NO engine/tokenizer flags; supplying them there is
-      REFUSED before any engine start — including every
-      argparse-resolvable ABBREVIATION (`--engine-c`, `--engine-cm`,
-      `--tokenizer-c`, `--tokenizer-cm`, space and `=` forms): the
-      guard's refusal floors equal the pinned builder's own
-      prefix-resolution, oracle-proven against its real parser
-      [REV-E].** The guard FIRST runs a
-      **dump-mode pin-engagement probe** (one minimal `KAE_DUMP`
-      invocation of that same engine argv/env; armed banner per the
-      landed ASM-2513 grammar, sha/budget/source coherent — REFUSED ⇒
-      no launch, exposure ≈ one engine start), then launches the builder
-      (which passes its ambient env into every engine batch —
-      `build_carriers.py:634`, verified bytes), and runs the
-      **early-abort checkpoints** IN-PROCESS at n_done **240/1056/2304**
-      (frozen concept-aligned schedule [REV-C/ASM-2517]; off-schedule
-      n_done is refused; STOP exit 2 = builder process-group killed +
-      `construction-abort.json` with the breach values; first exposure
-      ≈ 9.1 h ≈ **$1.59**). **A checkpoint STOP is TERMINAL for the
-      rundir [REV-D]: the guard refuses to start while
-      `construction-abort.json` exists — resume needs a maintainer-
-      authored `construction-reset.json` (schema
-      `kot-f1k-bringup-gate/2:construction-reset`, `authorized_by`,
-      `decision: "resume-construction"`, `abort_sha256` = sha256 of the
-      abort file bytes). The STOP is DURABLE [REV-E]: it is also
-      recorded as an append-only terminal event in
-      `construction-events.jsonl` (fsynced, spend-start-sentinel
-      mechanics) that every guard start reads — deleting the abort
-      file never lifts stop authority. An authorized resume re-derives
-      the FULL remaining schedule from the abort point (a raced-past
-      frozen checkpoint refuses rather than being dropped) and
-      CONSUMES the reset: reset and abort are archived
-      (`construction-reset.consumed-<ordinal>-<abort-sha16>.json`)
-      BEFORE any engine start, so a second use finds nothing —
-      single-use by construction. (Editing the guard's event state
-      itself is outside the threat boundary, as for the landed
-      sentinel.)**
-      Evidence: `construction-pin-probe.json`,
-      `construction-checkpoint-<n>.json`, `construction-guard-final.json`
-      (records the launched `builder_argv`).
-   c. `verify --expect-mode real` (full cell-by-cell re-derivation, the
-      #46 guarantee); commit the realized tables + `norms.json` +
-      `construction-report.json` = **B0**, completing `f1k-carriers-v1`.
-      Pin `glm52-weights` (ASM-1971 ops amendment).
-   d. Transfer the realized cost basis + the licensed model bundle into
-      the campaign config (executable, no pilot stall):
-      `python3 poc/gcp/f1k_bringup_gate.py config-cost --final
-      <rundir>/guard/construction-guard-final.json --prior-usd <metered
-      pre-construction + failed-session spend> --prior-hours <the
-      instance-hours behind that spend; REQUIRED when --prior-usd > 0
-      [REV-D] — hours never vanish from the 900 h basis while their
-      dollars are counted> --rate <campaign spot rate> --config
-      run-config.json` (every numeric on this surface must be FINITE —
-      `nan`/`inf` are refused at the parse, and the driver Ledger
-      re-asserts finiteness at init: a NaN basis would fail OPEN
-      through the 900 h cap comparisons [REV-E]) and
-      `python3 poc/gcp/f1k_bringup_gate.py config-affordability --gate
-      bringup-gate.json --tokens <gate-tokens/tokens-full.jsonl> --config
-      run-config.json` (both refuse a conflicting existing block; the
-      driver re-verifies EVERYTHING at consumption — schema `/2`, GREEN,
-      shared-model sha, sidecar bytes vs the ARTIFACT-recorded sha,
-      corpus item-universe, rate equality, pin identity).
-   **Campaign pin [REV-C]: the LICENSED bring-up pin runs the WHOLE
-   campaign.** Full-corpus re-derivation at the construction→pilot
-   boundary is **DEFERRED** (it needs per-batch `STATS` hooks the
-   sha-pinned builder does not have — a seq-4 builder re-freeze, tracked
-   as a bead, NOT on this critical path); there is NO rebind record and
-   NO rebind path — the driver REFUSES a campaign pin whose sha differs
-   from the gate artifact's, and the landed ASM-2513 machinery (Ledger
-   cross-phase basis + `check_addendum_pinning` + spend-start sentinel)
-   enforces constancy across pilot/guard/test. Under-coverage of the
-   bring-up pin shows up as throughput loss and is bounded by the
-   checkpoints (≤ ≈$1.6/$7/$15 at 240/1056/2304) and the addendum-(7)
-   pre-main gate. Never mid-phase, never silent.
-6. **Pilot** (`f1k_driver.py --phase pilot`): produces `addendum-5-frozen-lg`,
-   `addendum-7-affordability`, `addendum-6-inputs` (dev δ̂, the dev
-   sign-symmetry check). **HANDOFF**: the addendum-(6) inference method
-   (`signflip` vs `bca`) and the REPLACE run/defer are **Fable/coordinator**
-   commits — the driver reports the dev data verbatim and **never decides**.
-   Do not proceed to the test phase until those blocks are committed into
-   `run-config.json`.
-7. **Guard** (`--phase guard`): 60-item off-concept byte-identity (cache off).
-8. **Test** (`--phase test`): 8 passes × 1,573 (+conditional REPLACE), one
-   label-logit prefill per unit, per-item checkpoint to GCS. Spot preemption:
-   the VM STOPs (`--instance-termination-action STOP`); re-provision +
-   re-stage from GCS + re-run the same phase (resume-safe, `[R10-4]` auth).
-9. **Verdict + audit**: assemble the `kot-log/1` D10-paired record →
-   `log-append` (`phase:"final"`) → `verdict-gen` (mechanical) →
-   `analysis/f1k.py` → PASS-PENDING-AUDIT → **Codex Gate-A cross-vendor audit**
-   → update `registry/audit-status.jsonl`
-   (`executed_by:"opus"`, `fable_interpretive_assessed:"pending"`). NEVER
-   conclude — interpretation is Fable's.
+Bring-up runs on Spot, and the same instance is retained through the mechanical
+GREEN verdict and the forthcoming handoff to the guard. Do not tear it down and
+do not provision a fresh construction VM.
+
+0. On the control box, load GCP configuration, set the same-region estate bucket,
+   coordinator clone URL, and the **current full construction Spot rate** for
+   `n2d-highmem-8` plus 2 local SSDs in `us-central1`, then run the $0 plan:
+
+   ```bash
+   source ~/.config/kot/gcp.env
+   export KOT_F1K_BUCKET=gs://kot-f1k-estate-85e2ca29
+   export COLIBRI_GIT_URL=<coordinator>
+   export KOT_F1K_SPOT_RATE=<current-construction-Spot-USD-per-hour>
+   python3 poc/gcp/f1k_gcp.py plan
+   ```
+
+1. Provision the one B instance:
+
+   ```bash
+   python3 poc/gcp/f1k_gcp.py provision
+   ```
+
+   This path is SPOT-only: `KOT_F1K_ONDEMAND` is refused. Provision uses
+   `--scopes cloud-platform` (an OAuth ceiling, not an IAM grant) and installs a
+   startup script that arms `KOT_F1K_GUEST_MAXLIFE_MIN` (default 900 minutes).
+   The VM remains the construction VM after GREEN.
+
+2. Stage and launch bring-up, then arm the independent control-box watchdog:
+
+   ```bash
+   python3 poc/gcp/f1k_gcp.py bringup-deploy
+   nohup python3 poc/gcp/f1k_gcp.py watchdog --max-hours <H> \
+     > watchdog.log 2>&1 &
+   pgrep -f 'f1k_gcp.py watchdog'
+   ```
+
+   `bringup-deploy` mounts the two local SSDs as `/mnt/nvme`; puts the worker
+   bundle flat in `~/f1k` (including `f1k_ops.py`); adds the full reviewed
+   construction/campaign subset under `~/f1k/poc/...` and its repo-relative
+   dependency paths (`build_carriers.py` sha `a92be3e4`, `f1k_driver.py`, data,
+   registry, and tooling); then launches `f1k_launch.sh`. Verify the guest timer
+   with `sudo shutdown --show` on the VM. Keep the box-side watchdog detached;
+   it tears down on deadline or a worker FAILED marker.
+
+3. The autonomous worker performs STAGE from the bucket (or populates the mirror),
+   BUILD of both engines, KaE, automated dump precondition (b), and scaffolding of
+   dump (a)/(c). It then tokenizes the real corpora and writes each timing result
+   atomically under `~/f1k-gate/{t1,t2}-results/`: T1 is unpinned, the bring-up
+   pin is derived, and T2 is pinned with per-run engagement evidence. Complete-set
+   and same-boot checks make preemption fail closed. The worker writes the initial
+   `~/f1k-gate/gate-inputs.json` and **stops before construction spend**.
+
+4. On the retained VM, the runner validates dump (a) and (c), writes literal
+   `PASS`, re-runs only `collect`, and finalizes the launch manifest:
+
+   ```bash
+   export KOT_F1K_SPOT_RATE=<same-decimal-used-in-step-0>
+   GATE="$HOME/f1k-gate"
+   PIN_FILE="$GATE/pin_bringup.stats"
+   PIN_SHA="$(sha256sum "$PIN_FILE" | awk '{print $1}')"
+   PIN_GB="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["pin"]["pin_gb"])' "$GATE/gate-inputs.json")"
+
+   printf 'PASS\n' > "$GATE/tiny-dump.status"
+   printf 'PASS\n' > "$GATE/moe-sum-crosscheck.status"
+
+   python3 "$HOME/f1k/f1k_bringup_gate.py" collect \
+     --sample "$GATE/gate-sample/timing-sample.json" \
+     --tokens "$GATE/gate-tokens" \
+     --t2 "$GATE/t2-results" --t1 "$GATE/t1-results" \
+     --rate "$KOT_F1K_SPOT_RATE" \
+     --pin-sha "$PIN_SHA" --pin-gb "$PIN_GB" \
+     --pin-regime pinned-bringup --pin-path "$PIN_FILE" \
+     --pin-derivation "$PIN_FILE.derivation.json" \
+     --dump-a "$(cat "$GATE/tiny-dump.status")" \
+     --dump-b "$(cat "$GATE/dump-b.status")" \
+     --dump-c "$(cat "$GATE/moe-sum-crosscheck.status")" \
+     --functional "$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["verdict"])' "$GATE/functional-inertness.json")" \
+     --out "$GATE/gate-inputs.json"
+
+   cd "$HOME/f1k"
+   bash f1k_worker.sh --finalize-ready
+   test -s "$HOME/f1k-gate/construction-ready.json"
+   ```
+
+   `collect` consumes the existing atomic T1/T2 files; it does not re-time. The
+   finalizer refuses incomplete, cross-boot, stale, non-PASS, drifted, symlinked,
+   or placeholder-bearing launch state. Pull the whole gate directory only after
+   `construction-ready.json` exists:
+
+   ```bash
+   # control box
+   mkdir -p ./gate-pull
+   gcloud compute scp --recurse \
+     "${KOT_F1K_VM:-kot-f1k-run}:~/f1k-gate" ./gate-pull/ \
+     --zone "${KOT_GCP_ZONE:-us-central1-a}" --project "$KOT_GCP_PROJECT"
+   ```
+
+5. On the control box, emit the mechanical verdict from the final pulled inputs:
+
+   ```bash
+   python3 poc/gcp/f1k_gcp.py gate \
+     --inputs ./gate-pull/f1k-gate/gate-inputs.json \
+     --out ./gate-pull/bringup-gate.json
+   ```
+
+   **GREEN** is the standing authorization to continue on this same instance,
+   without re-surfacing, within the controlling $155 campaign-compute cap and
+   the $300 total-GCP envelope. Keep the VM alive; GREEN does not bypass the
+   construction-side readiness gate below. **STOP** exits nonzero: surface
+   `bringup-gate.json` with its breach values and spend no construction dollars.
+
+6. **FORTHCOMING — CONSTRUCTION-SIDE, NOT LANDED:** `construction-continue` will
+   bind the same-instance GREEN handoff to the already-landed guard under
+   `systemd`; add guard-side live-license/identity/rate re-verification; install
+   a provider-side 900-hour wall-clock hard-delete; and enforce live-rate
+   checkpoints. The guard remains the sole construction launcher. This unit
+   must be built, reviewed, and Fable-cross-reviewed before the first
+   construction dollar; there is no runnable `construction-continue` command in
+   the current `f1k_gcp.py` entry map.
+
+The landed $0 oracle baseline for this B bring-up side is:
+
+```bash
+python3 poc/gcp/f1k_gcp.py bringup-deploy --selftest  # 11/11
+bash poc/gcp/f1k_worker.sh --selftest                 # 14/14
+python3 poc/gcp/f1k_gcp.py gate --selftest            # 69/69
+python3 poc/gcp/f1k_ops.py selftest                    # 23/23
+```
 
 ## Honest scope (preserve — do not "fix")
 
