@@ -585,7 +585,7 @@ def main():
     layers = list(range(3, 78))
     layers_csv = ",".join(str(layer) for layer in layers)
     builder_argv = [
-        "python3",
+        os.fspath(file_paths["python"]),
         os.fspath(file_paths["builder"]),
         "construct",
         "--mode",
@@ -1125,8 +1125,9 @@ ok = (
     )
     and record["builder"]["sha256"]
         == "a92be3e4fe535c1dfefc41e2a422e010d25e8e40cf8e4cc123e7d829d63e9e61"
-    and record["builder"]["argv_base"][:3]
-        == ["python3", record["builder"]["path"], "construct"]
+    and record["builder"]["argv_base"][0].startswith("/")
+    and record["builder"]["argv_base"][1:3]
+        == [record["builder"]["path"], "construct"]
     and not any(
         value.startswith(("--engine-c", "--tokenizer-c"))
         for value in record["builder"]["argv_base"]
