@@ -47,6 +47,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import f1k_ops
+
 SCHEMA = "kot-f1k-bringup-gate/2"
 #   [REV-C F5ii] /2 adds REQUIRED model-bundle binding fields to the gate
 #   artifact (model_bundle.add7_src_sha256 + model_bundle.tokens_full_
@@ -525,6 +527,13 @@ def cmd_collect(args):
     # compact per-prefill inventory for the control-box projection
     inv_t = [[e["pop"], e["m"], e["T"] + CONT_TOKENS] for e in
              (json.loads(l) for l in open(tokdir / "tokens-full.jsonl"))]
+    try:
+        rate_decimal = f1k_ops.canonical_decimal(args.rate, field="--rate")
+    except (TypeError, ValueError) as exc:
+        die("F1K_GATE_COLLECT", str(exc))
+    # The float remains the compatibility/projection value, derived only
+    # after the exact operator spelling has been canonicalized and retained.
+    rate = _fin(rate_decimal, "--rate", "F1K_GATE_COLLECT", lo_open=True)
     gate_inputs = {
         "schema": SCHEMA + ":gate-inputs",
         "token_counts": counts,
@@ -540,12 +549,14 @@ def cmd_collect(args):
         "t1_unpinned_runs": sorted(t1.values(),
                                    key=lambda r: r["sample_id"]),
         "inventory_t": inv_t,
-        "rate_usd_per_hour": _fin(args.rate, "--rate",
-                                  "F1K_GATE_COLLECT",
-                                  lo_open=True),       # [REV-E 3]
+        "rate_usd_per_hour": rate,             # derived float [REV-E 3]
+        "rate_usd_per_hour_decimal": rate_decimal,
         "rate_source": "coordinator-recorded assigned SPOT rate "
                        "(KOT_F1K_SPOT_RATE) — the construction rate, NOT "
-                       "the on-demand bring-up VM's rate",
+                       "the on-demand bring-up VM's rate; rate.usd_per_hour_"
+                       "decimal is authoritative for licensing comparison, "
+                       "and rate.usd_per_hour is its derived compatibility/"
+                       "projection float",
         "pin": {"pin_file_sha256": args.pin_sha or None,
                 "pin_gb": _fin(args.pin_gb, "--pin-gb",
                                "F1K_GATE_COLLECT", lo_open=True)
@@ -784,6 +795,23 @@ def project(inputs, frozen, replace=False, out_path=None):
             "(re-run the REV-C collect); fail closed")
     raw_knots, knots, repaired = build_knots(inputs)
     rate = inputs["rate_usd_per_hour"]
+    raw_rate_decimal = inputs.get("rate_usd_per_hour_decimal")
+    if raw_rate_decimal is None:
+        # Resume compatibility for pre-finding-1 gate inputs. Source digits
+        # already lost to their JSON float cannot be recovered, but the
+        # artifact still gets a canonical, exponent-free comparison field.
+        raw_rate_decimal = str(rate)
+    try:
+        rate_decimal = f1k_ops.canonical_decimal(
+            raw_rate_decimal, field="rate_usd_per_hour_decimal")
+    except (TypeError, ValueError) as exc:
+        die("F1K_GATE_MODEL", "invalid rate_usd_per_hour_decimal: %s" % exc)
+    derived_rate = _fin(rate_decimal, "rate_usd_per_hour_decimal",
+                        "F1K_GATE_MODEL", lo_open=True)
+    if rate != derived_rate:
+        die("F1K_GATE_MODEL", "rate_usd_per_hour %r is not the float "
+            "derived from rate_usd_per_hour_decimal %r"
+            % (rate, rate_decimal))
     reserve_h = RESERVE_USD / rate
     dg = inputs.get("dump_gate") or {}
     inv = list(inputs["inventory_t"])
@@ -939,8 +967,11 @@ def project(inputs, frozen, replace=False, out_path=None):
                     "driver shared-block sha == add7_src_sha256, sidecar "
                     "bytes sha == tokens_full_sha256, corpus shas == "
                     "corpus_sha256 (driver-side files), config pin sha == "
-                    "pin.pin_file_sha256, config rate == "
-                    "rate.usd_per_hour [REV-C F5ii]" % SCHEMA},
+                    "pin.pin_file_sha256, config rate decimal == "
+                    "rate.usd_per_hour_decimal (the authoritative "
+                    "licensing comparison; rate.usd_per_hour is its "
+                    "derived compatibility/projection float) "
+                    "[REV-C F5ii]" % SCHEMA},
         "pin_engagement": {
             "pass": eng_ok, "problems": eng_problems,
             "rule": "per-T2-run armed-banner evidence parsed with the "
@@ -949,7 +980,9 @@ def project(inputs, frozen, replace=False, out_path=None):
                     "consumers): pinned>=1, used GiB>0, used<=budget*1.01, "
                     "budget==bound PIN_GB (1%), source==bound pin path; "
                     "regime unpinned REFUSED outright [REV-B F3]"},
-        "rate": {"usd_per_hour": rate, "source": inputs["rate_source"]},
+        "rate": {"usd_per_hour": rate,
+                 "usd_per_hour_decimal": rate_decimal,
+                 "source": inputs["rate_source"]},
         "projection": {
             "prefills": prefills,
             "replace_included": replace,
@@ -1788,8 +1821,11 @@ def selftest():
     frozen = {"instance_hours": [260.6, 900.0], "usd_total": [73.0, 155.0],
               "rate_window": [0.0811, 0.5948], "prefills_min": 11011}
     fails = []
+    n_checks = 0
 
     def check(cond, msg):
+        nonlocal n_checks
+        n_checks += 1
         print("  %s %s" % ("ok:  " if cond else "FAIL:", msg))
         if not cond:
             fails.append(msg)
@@ -1837,7 +1873,11 @@ def selftest():
                     "timing_sample": sample,
                     "t2_pinned_runs": [json.loads(l) for l in open(t2path)],
                     "t1_unpinned_runs": [], "inventory_t": inv_t,
-                    "rate_usd_per_hour": rate, "rate_source": "selftest",
+                    "rate_usd_per_hour": rate,
+                    "rate_usd_per_hour_decimal":
+                        f1k_ops.canonical_decimal(str(rate),
+                                                  field="selftest rate"),
+                    "rate_source": "selftest",
                     "pin": {"pin_file_sha256": "f" * 64, "pin_gb": 40.0,
                             "pin_file_path": MOCK_PIN_PATH,
                             "regime": "pinned-bringup", "note": "mock"},
@@ -1931,6 +1971,64 @@ def selftest():
             check(False, "case 6 must refuse partial T2 results")
         except SystemExit:
             check(True, "case 6 fail-closed: partial T2 timing refused")
+        # case 6b-f [finding 1]: collect retains the exact canonical decimal
+        # spelling; project carries it as the authoritative licensing field.
+        collected_rates = {}
+        for i6, raw6 in enumerate(
+                ("0.190", "1.90e-1", "0.10000000000000001")):
+            out6 = td / ("gi-rate-%d.json" % i6)
+            cmd_collect(argparse.Namespace(
+                sample=str(td / "samp/timing-sample.json"),
+                tokens=str(td / "tok"), t2=str(td / "t2-green.jsonl"),
+                t1=None, rate=raw6, pin_sha="", pin_gb="",
+                pin_path="", pin_derivation="",
+                pin_regime="pinned-bringup", dump_a="PASS", dump_b="PASS",
+                dump_c="PASS", functional="PASS", out=str(out6)))
+            collected_rates[raw6] = json.loads(out6.read_text())
+        check(collected_rates["0.190"]["rate_usd_per_hour_decimal"]
+              == collected_rates["1.90e-1"]["rate_usd_per_hour_decimal"]
+              == "0.19",
+              "case 6b collect canonical decimal: 0.190 and 1.90e-1 "
+              "both record as 0.19")
+        lossy6 = collected_rates["0.10000000000000001"]
+        check(lossy6["rate_usd_per_hour_decimal"]
+              == "0.10000000000000001"
+              and lossy6["rate_usd_per_hour"] == 0.1
+              and lossy6["rate_usd_per_hour_decimal"]
+              != f1k_ops.canonical_decimal(
+                  str(lossy6["rate_usd_per_hour"]), field="lossy float"),
+              "case 6c collect preserves 0.10000000000000001 exactly "
+              "while its derived float is visibly lossy (0.1)")
+        in6d = mk_inputs(td / "t2-green.jsonl", rate=0.19)
+        in6d["rate_usd_per_hour_decimal"] = (
+            collected_rates["0.190"]["rate_usd_per_hour_decimal"])
+        art6d = project(in6d, frozen)
+        check(art6d["verdict"] == "GREEN"
+              and art6d["rate"]["usd_per_hour"] == 0.19
+              and art6d["rate"]["usd_per_hour_decimal"] == "0.19",
+              "case 6d GREEN artifact carries derived float 0.19 AND "
+              "authoritative canonical decimal '0.19'")
+        in6e = mk_inputs(td / "t2-green.jsonl", rate=0.1)
+        in6e["rate_usd_per_hour_decimal"] = (
+            lossy6["rate_usd_per_hour_decimal"])
+        in6e["rate_source"] = lossy6["rate_source"]
+        art6e = project(in6e, frozen)
+        rule6e = art6e["model_bundle"]["rule"]
+        check(art6e["rate"]["usd_per_hour"] == 0.1
+              and art6e["rate"]["usd_per_hour_decimal"]
+              == "0.10000000000000001"
+              and "config rate decimal == rate.usd_per_hour_decimal"
+              in rule6e
+              and "config rate == rate.usd_per_hour" not in rule6e
+              and "authoritative" in art6e["rate"]["source"],
+              "case 6e lossy float remains projection-only; licensing "
+              "equality names the exact decimal field exclusively")
+        in6f = mk_inputs(td / "t2-green.jsonl", rate=0.19)
+        del in6f["rate_usd_per_hour_decimal"]
+        art6f = project(in6f, frozen)
+        check(art6f["rate"]["usd_per_hour_decimal"] == "0.19",
+              "case 6f older inputs resume through canonical decimal "
+              "reconstruction from the stored float")
         # case 7 (+REPLACE fail-closed, v3-review :417/:423 lineage): the
         # SAME timing gives mandatory GREEN but +REPLACE STOP — a tested
         # replace projection must never be advisory.
@@ -2688,6 +2786,9 @@ def selftest():
               "engine start (no probe evidence — time.sleep(nan) would "
               "otherwise ValueError MID-construction [MEASURED])")
     print()
+    print("SELFTEST: %d/%d %s"
+          % (n_checks - len(fails), n_checks,
+             "PASS" if not fails else "FAILED"))
     if fails:
         print("BRINGUP-GATE SELFTEST FAILED (%d)" % len(fails))
         return 1
@@ -2703,7 +2804,8 @@ def selftest():
           "terminal-abort/consumed-reset stop authority, evidence "
           "artifacts — on STUB engine/builder), the REAL builder argparse "
           "surface (dry parse + abbreviation floors), operator-numeric "
-          "finiteness, the gate->config seams (incl. "
+          "finiteness, canonical decimal-rate collection/artifact carry, "
+          "the gate->config seams (incl. "
           "prior-hours), and the shared-model identity — ALL on synthetic "
           "corpora, planted timings, and a mock banner grammar. It "
           "CANNOT exercise: the real engine (timer, STATS/PIN semantics, "
