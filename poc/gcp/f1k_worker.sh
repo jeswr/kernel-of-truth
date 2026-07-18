@@ -134,46 +134,45 @@ PY
 
 emit_construction_ready() {
   local fixture_root="${KOT_F1K_READY_FIXTURE_ROOT:-}"
-  local payload_root gate_dir estate_dir control_dir scratch_dir build_dir
-  local ready_path epoch_path identity_fixture now_utc
+  local home_dir nvme_root payload_root gate_dir estate_dir scratch_dir build_dir
+  local ready_path identity_fixture now_utc rundir workdir out
   if [ -n "$fixture_root" ]; then
-    payload_root="$fixture_root/payload"
-    gate_dir="$fixture_root/gate"
-    estate_dir="$fixture_root/estate"
-    control_dir="$fixture_root/control"
-    scratch_dir="$fixture_root/scratch"
-    build_dir="$fixture_root/build"
+    home_dir="$fixture_root/home"
+    nvme_root="$fixture_root/mnt/nvme"
     identity_fixture="$fixture_root/identity.json"
     now_utc="${KOT_F1K_READY_TEST_NOW:-2026-07-18T12:00:00Z}"
   else
-    payload_root="/opt/kot-f1k/repo"
-    gate_dir="${HOME:-/home/ubuntu}/f1k-gate"
-    estate_dir="/mnt/nvme/glm52_i4"
-    control_dir="/var/lib/kot-f1k"
-    scratch_dir="/mnt/nvme/kot-f1k"
-    build_dir="${HOME:-/home/ubuntu}"
+    home_dir="${HOME:-/home/ubuntu}"
+    nvme_root="/mnt/nvme"
     identity_fixture=""
     now_utc=""
   fi
-  ready_path="$control_dir/construction-ready.json"
-  epoch_path="$control_dir/timing-epoch.json"
+  payload_root="$home_dir/f1k"
+  gate_dir="$home_dir/f1k-gate"
+  estate_dir="$nvme_root/glm52_i4"
+  scratch_dir="$nvme_root/kot-f1k/construction"
+  build_dir="$home_dir"
+  ready_path="$gate_dir/construction-ready.json"
+  rundir="$gate_dir/guard"
+  workdir="$scratch_dir/work"
+  out="$scratch_dir/out"
+  mkdir -p "$rundir" "$workdir" "$out"
   local python_bin
   python_bin=$(readlink -f -- "$(command -v python3)") || return 1
 
-  python3 - "$HERE" "$ready_path" "$epoch_path" "$payload_root" \
+  python3 - "$HERE" "$ready_path" "$payload_root" \
     "$payload_root/bundle-manifest.json" \
     "$payload_root/data/f1k-carriers-v1/generator/construction-manifest.jsonl" \
     "$payload_root/poc/glm52-probe/f1k-harness/build_carriers.py" \
     "$build_dir/colibri-construct/c/glm" "$estate_dir" \
-    "$payload_root/poc/glm52-probe/f1k-harness/tok_glm52.py" \
+    "$payload_root/tok_glm52.py" \
     "$estate_dir/tokenizer.json" \
-    "$payload_root/poc/glm52-probe/f1k-harness/dump-patch/kot-f1k-dump.patch" \
+    "$payload_root/dump-patch/kot-f1k-dump.patch" \
     "$gate_dir/glm52-weights-hash.json" \
     "$gate_dir/gate-tokens/tokens-full.jsonl" \
-    "$gate_dir/pin_bringup.stats" "$gate_dir/pin_bringup.stats.derivation.json" \
+    "$gate_dir/pin_bringup.stats" \
     "$gate_dir/gate-inputs.json" "$gate_dir/gate-sample/timing-sample.json" \
-    "$gate_dir" "$python_bin" "$control_dir/run/guard" \
-    "$scratch_dir/construction-work" "$scratch_dir/carriers" \
+    "$gate_dir" "$python_bin" "$rundir" "$workdir" "$out" \
     "$identity_fixture" "$now_utc" <<'PY'
 import datetime
 import hashlib
@@ -185,13 +184,13 @@ import stat
 import sys
 from pathlib import Path
 
-(here, ready_s, epoch_s, payload_s, bundle_s, source_s, builder_s,
- engine_s, estate_s, tok_wrapper_s, tok_artifact_s, dump_patch_s,
- weights_s, tokens_s, pin_s, pin_derivation_s, gate_inputs_s, sample_s,
- gate_dir_s, python_s, rundir_s, workdir_s, out_s, identity_fixture_s,
- now_s) = sys.argv[1:]
+(here, ready_s, payload_s, bundle_s, source_s, builder_s, engine_s,
+ estate_s, tok_wrapper_s, tok_artifact_s, dump_patch_s, weights_s, tokens_s,
+ pin_s, gate_inputs_s, sample_s, gate_dir_s, python_s, rundir_s, workdir_s,
+ out_s, identity_fixture_s, now_s) = sys.argv[1:]
 sys.path.insert(0, here)
 import f1k_ops
+from f1k_bringup_gate import _read_sample_results
 
 BUILDER_PIN = "a92be3e4fe535c1dfefc41e2a422e010d25e8e40cf8e4cc123e7d829d63e9e61"
 SOURCE_PIN = "a8cb3a8aee9730107bf04749988cb7d3438132a39ad19095cecd5283109f906c"
@@ -305,42 +304,22 @@ def validate_argv(value, field):
     return value
 
 
-def read_results(directory, phase, expected, boot_id, epoch_id):
+def read_results(directory, phase, expected, boot_id):
     strict_path(os.fspath(directory), kind="directory")
-    expected_names = {"%s-%s.json" % (phase, sid) for sid in expected}
-    actual_names = {path.name for path in directory.glob("*.json")}
-    if actual_names != expected_names:
-        refuse(
-            "%s timing set mismatch: expected %s, found %s"
-            % (phase.upper(), sorted(expected_names), sorted(actual_names))
-        )
+    by_id = _read_sample_results(
+        os.fspath(directory), phase=phase, expected_ids=expected
+    )
     records = []
     for sid in expected:
-        path = strict_path(
+        strict_path(
             os.fspath(directory / ("%s-%s.json" % (phase, sid))),
             kind="file",
         )
-        record = load_json(path, "%s result" % phase)
-        if record.get("phase") != phase or record.get("sample_id") != sid:
-            refuse(
-                "%s timing filename/record disagreement for %s"
-                % (phase, sid)
-            )
-        finite_positive(record.get("s"), "%s/%s s" % (phase, sid))
-        timer_n = record.get("timer_n")
-        if isinstance(timer_n, bool) or not isinstance(timer_n, int) \
-                or timer_n < 1:
-            refuse("%s/%s timer_n is invalid" % (phase, sid))
+        record = by_id[sid]
         if record.get("boot_id") != boot_id:
             refuse(
                 "%s/%s boot_id does not match live identity" % (phase, sid)
             )
-        if record.get("epoch_id") != epoch_id:
-            refuse(
-                "%s/%s epoch_id does not match COMPLETE epoch" % (phase, sid)
-            )
-        if phase == "t2" and not isinstance(record.get("pin_evidence"), str):
-            refuse("T2/%s pin evidence is missing" % sid)
         records.append(record)
     return records
 
@@ -365,10 +344,8 @@ def main():
         "weights": strict_path(weights_s, kind="file"),
         "tokens": strict_path(tokens_s, kind="file"),
         "pin": strict_path(pin_s, kind="file"),
-        "pin_derivation": strict_path(pin_derivation_s, kind="file"),
         "gate_inputs": strict_path(gate_inputs_s, kind="file"),
         "sample": strict_path(sample_s, kind="file"),
-        "epoch": strict_path(epoch_s, kind="file"),
         "python": strict_path(python_s, kind="file"),
     }
     for key in ("engine", "python"):
@@ -442,6 +419,17 @@ def main():
     functional = load_json(functional_path, "functional inertness")
     if functional.get("verdict") != "PASS":
         refuse("functional inertness is not PASS")
+    omp_num_threads = functional.get("omp_num_threads")
+    if isinstance(omp_num_threads, bool) \
+            or not isinstance(omp_num_threads, int) or omp_num_threads < 1:
+        refuse("functional inertness has invalid omp_num_threads")
+    omp = {
+        "num_threads": omp_num_threads,
+        "dynamic": "FALSE",
+        "proc_bind": "close",
+        "wait_policy": "active",
+        "coli_omp_tuned": "1",
+    }
 
     if identity_fixture_s:
         fixture_path = strict_path(identity_fixture_s, kind="file")
@@ -469,7 +457,6 @@ def main():
         identity = f1k_ops.resolve_live_instance_identity()
 
     pin_sha = shas["pin"]
-    pin_derivation_sha = shas["pin_derivation"]
     tokens_sha = shas["tokens"]
     tok_sha = shas["tok_artifact"]
     weights_sha = shas["weights"]
@@ -514,117 +501,70 @@ def main():
             or not all(isinstance(sid, str) and sid for sid in t2_ids):
         refuse("timing sample has invalid T2 IDs")
 
-    epoch = load_json(file_paths["epoch"], "timing epoch")
-    if epoch.get("schema") != "kot-f1k-timing-epoch/1" \
-            or epoch.get("state") != "COMPLETE":
-        refuse("timing epoch is not COMPLETE kot-f1k-timing-epoch/1")
-    binding = epoch.get("binding")
-    if not isinstance(binding, dict):
-        refuse("timing epoch binding is missing")
-    epoch_id = hashlib.sha256(
-        f1k_ops.canonical_json_bytes(binding)
-    ).hexdigest()
-    if epoch.get("epoch_id") != epoch_id:
-        refuse("timing epoch_id does not hash its binding")
-    if binding.get("instance") != identity:
-        refuse("timing epoch identity does not match live instance")
-    sample_binding = binding.get("sample_manifest") or {}
-    if sample_binding.get("path") != os.fspath(file_paths["sample"]) \
-            or sample_binding.get("sha256") != shas["sample"]:
-        refuse("timing epoch sample binding mismatch")
-    if binding.get("sample_seed") != sample.get("seed"):
-        refuse("timing epoch sample seed mismatch")
-    if epoch.get("expected") != {
-        "t1_sample_ids": t1_ids,
-        "t2_sample_ids": t2_ids,
+    t1_records = read_results(
+        gate_dir / "t1-results", "t1", t1_ids, identity["boot_id"]
+    )
+    t2_records = read_results(
+        gate_dir / "t2-results", "t2", t2_ids, identity["boot_id"]
+    )
+
+    gate_inputs = load_json(file_paths["gate_inputs"], "gate inputs")
+    if gate_inputs.get("schema") != \
+            "kot-f1k-bringup-gate/2:gate-inputs":
+        refuse("gate inputs schema mismatch; runner must re-run collect")
+    token_counts = gate_inputs.get("token_counts") or {}
+    if token_counts.get("schema") != \
+            "kot-f1k-bringup-gate/2:token-counts":
+        refuse("gate token-counts schema mismatch")
+    if token_counts.get("tokenizer") != {
+        "mode": "REAL",
+        "mock_f": None,
+        "sha256": tok_sha,
     }:
-        refuse("timing epoch expected sets mismatch")
-    corpus_shas = binding.get("corpus_sha256")
+        refuse("gate tokenizer binding mismatch")
+    corpus_shas = token_counts.get("corpus_sha256")
     if not isinstance(corpus_shas, dict) or set(corpus_shas) != {
         "construction-manifest.jsonl",
         "test.jsonl",
         "dev.jsonl",
         "guard.jsonl",
     }:
-        refuse("timing epoch corpus binding is incomplete")
+        refuse("gate corpus binding is incomplete")
     for name, value in corpus_shas.items():
         strict_sha(value, "timing corpus %s" % name)
+        if bundle.get("gate-corpus/%s" % name) != value:
+            refuse("gate corpus bytes do not match bundle: %s" % name)
     if corpus_shas["construction-manifest.jsonl"] != SOURCE_PIN:
-        refuse("timing epoch construction corpus drift")
-    timing_tok = binding.get("tokenizer") or {}
-    if timing_tok != {
-        "path": os.fspath(file_paths["tok_artifact"]),
-        "sha256": tok_sha,
-        "argv": tok_argv,
-    }:
-        refuse("timing epoch tokenizer binding mismatch")
-    timing_weights = binding.get("weights_artifact") or {}
-    if timing_weights != {
-        "path": os.fspath(file_paths["weights"]),
-        "sha256": weights_sha,
-    }:
-        refuse("timing epoch weights binding mismatch")
-    timing_engine = binding.get("engine") or {}
-    timing_engine_path = strict_path(
-        timing_engine.get("path"), kind="file"
-    )
-    if timing_engine.get("sha256") != sha256_file(timing_engine_path):
-        refuse("timing epoch engine SHA mismatch")
-    validate_argv(timing_engine.get("argv"), "timing engine argv")
-    omp = binding.get("omp")
-    if not isinstance(omp, dict):
-        refuse("timing epoch OMP binding is missing")
-    omp_required = (
-        "num_threads",
-        "dynamic",
-        "proc_bind",
-        "wait_policy",
-        "coli_omp_tuned",
-    )
-    if any(key not in omp for key in omp_required):
-        refuse("timing epoch OMP binding is incomplete")
+        refuse("gate construction corpus drift")
+    expected_timing_sample = {
+        key: sample[key]
+        for key in (
+            "seed",
+            "rule",
+            "realized_bin_edges_Tp",
+            "n",
+            "t1_sample_ids",
+            "entries",
+        )
+    }
+    if gate_inputs.get("timing_sample") != expected_timing_sample:
+        refuse("gate inputs timing sample is stale")
 
-    t1_records = read_results(
-        gate_dir / "t1-results",
-        "t1",
-        t1_ids,
-        identity["boot_id"],
-        epoch_id,
-    )
-    t2_records = read_results(
-        gate_dir / "t2-results",
-        "t2",
-        t2_ids,
-        identity["boot_id"],
-        epoch_id,
-    )
-    completed = epoch.get("completed") or {}
-    if completed.get("pin_sha256") != pin_sha \
-            or completed.get("pin_derivation_sha256") != pin_derivation_sha \
-            or strict_sha(
-                completed.get("result_set_sha256"),
-                "timing result set",
-            ) is None \
-            or not RFC3339_RE.fullmatch(completed.get("at_utc") or ""):
-        refuse("timing epoch completion binding is invalid")
-
-    gate_inputs = load_json(file_paths["gate_inputs"], "gate inputs")
-    if gate_inputs.get("schema") != \
-            "kot-f1k-bringup-gate/2:gate-inputs":
-        refuse("gate inputs schema mismatch; runner must re-run collect")
     dump_gate = gate_inputs.get("dump_gate") or {}
     if any(
         dump_gate.get(key) != "PASS"
         for key in ("a", "b", "c", "functional_inertness")
     ):
         refuse("re-collected gate inputs do not carry all PASS dump gates")
-    claims = [gate_inputs.get("tokens_full_sha256")]
-    if isinstance(gate_inputs.get("model_bundle"), dict):
-        claims.append(
-            gate_inputs["model_bundle"].get("tokens_full_sha256")
-        )
-    if not claims or any(claim != tokens_sha for claim in claims):
-        refuse("token sidecar SHA does not equal the gate model bundle")
+    gate_tokens_sha = strict_sha(
+        gate_inputs.get("tokens_full_sha256"),
+        "gate inputs tokens_full_sha256",
+    )
+    if gate_tokens_sha != tokens_sha:
+        refuse("token sidecar SHA does not equal collected gate inputs")
+    # collect owns this top-level SHA.  construction-continue/guard will later
+    # cross-check it against the GREEN artifact's
+    # model_bundle.tokens_full_sha256.
     gate_pin = gate_inputs.get("pin") or {}
     if gate_pin.get("pin_file_path") != os.fspath(file_paths["pin"]) \
             or gate_pin.get("pin_file_sha256") != pin_sha \
@@ -634,10 +574,18 @@ def main():
     if gate_inputs.get("t1_unpinned_runs") != t1_records \
             or gate_inputs.get("t2_pinned_runs") != t2_records:
         refuse("gate inputs are stale relative to the complete timing set")
+    completed_result_set = {
+        "t1_unpinned_runs": t1_records,
+        "t2_pinned_runs": t2_records,
+    }
+    result_set_sha = hashlib.sha256(
+        f1k_ops.canonical_json_bytes(completed_result_set)
+    ).hexdigest()
 
     layers = list(range(3, 78))
     layers_csv = ",".join(str(layer) for layer in layers)
     builder_argv = [
+        "python3",
         os.fspath(file_paths["builder"]),
         "construct",
         "--mode",
@@ -696,10 +644,12 @@ def main():
         "status": "READY",
         "created_at_utc": created,
         "instance": identity,
-        "timing_epoch": {
-            "path": os.fspath(file_paths["epoch"]),
-            "epoch_id": epoch_id,
-            "file_sha256": shas["epoch"],
+        "timing_results": {
+            "boot_id": identity["boot_id"],
+            "result_set_sha256": result_set_sha,
+            "pin_sha256": pin_sha,
+            "t1_sample_ids": t1_ids,
+            "t2_sample_ids": t2_ids,
         },
         "payload": {
             "root": os.fspath(payload),
@@ -885,7 +835,7 @@ PY
   echo
   echo "== selftest: construction-ready manifest (mock files only) =="
   fixture="$td/ready-fixture"
-  ready_file="$fixture/control/construction-ready.json"
+  ready_file="$fixture/home/f1k-gate/construction-ready.json"
   export KOT_F1K_READY_FIXTURE_ROOT="$fixture"
   export KOT_F1K_READY_TEST_NOW="2026-07-18T12:00:00Z"
 
@@ -904,21 +854,21 @@ import f1k_ops
 
 fixture = Path(fixture_s)
 repo = Path(here).parents[1]
-payload = fixture / "payload"
-gate = fixture / "gate"
-control = fixture / "control"
-scratch = fixture / "scratch"
-build = fixture / "build"
-estate = fixture / "estate"
+home = fixture / "home"
+payload = home / "f1k"
+gate = home / "f1k-gate"
+scratch = fixture / "mnt/nvme/kot-f1k/construction"
+build = home
+estate = fixture / "mnt/nvme/glm52_i4"
 for directory in (
     payload,
     gate / "gate-tokens",
     gate / "gate-sample",
     gate / "t1-results",
     gate / "t2-results",
-    control / "run/guard",
-    scratch / "construction-work",
-    scratch / "carriers",
+    gate / "guard",
+    scratch / "work",
+    scratch / "out",
     build / "colibri-construct/c",
     estate,
 ):
@@ -945,11 +895,11 @@ builder = copy(
     repo / "poc/glm52-probe/f1k-harness/build_carriers.py",
 )
 wrapper = copy(
-    "poc/glm52-probe/f1k-harness/tok_glm52.py",
+    "tok_glm52.py",
     repo / "poc/glm52-probe/f1k-harness/tok_glm52.py",
 )
 dump_patch = copy(
-    "poc/glm52-probe/f1k-harness/dump-patch/kot-f1k-dump.patch",
+    "dump-patch/kot-f1k-dump.patch",
     repo
     / "poc/glm52-probe/f1k-harness/dump-patch/kot-f1k-dump.patch",
 )
@@ -957,10 +907,15 @@ source = copy(
     "data/f1k-carriers-v1/generator/construction-manifest.jsonl",
     repo / "data/f1k-carriers-v1/generator/construction-manifest.jsonl",
 )
-corpus = {"construction-manifest.jsonl": sha(source)}
+corpus_dir = payload / "gate-corpus"
+corpus_dir.mkdir()
+shutil.copy2(source, corpus_dir / "construction-manifest.jsonl")
+corpus = {
+    "construction-manifest.jsonl":
+        sha(corpus_dir / "construction-manifest.jsonl")
+}
 for name in ("test.jsonl", "dev.jsonl", "guard.jsonl"):
-    path = payload / "data/f1k-eval-v1/items" / name
-    path.parent.mkdir(parents=True, exist_ok=True)
+    path = corpus_dir / name
     path.write_text('{"fixture":true}\n', encoding="utf-8")
     corpus[name] = sha(path)
 bundle = {
@@ -991,8 +946,6 @@ tokens.write_text(
 )
 pin = gate / "pin_bringup.stats"
 pin.write_text("0 0\n", encoding="ascii")
-pin_derivation = gate / "pin_bringup.stats.derivation.json"
-write_json(pin_derivation, {"schema": "fixture-pin-derivation/1"})
 for name in (
     "tiny-dump.status",
     "dump-b.status",
@@ -1011,7 +964,7 @@ for name in (
 )
 write_json(
     gate / "functional-inertness.json",
-    {"verdict": "PASS"},
+    {"verdict": "PASS", "omp_num_threads": 8},
 )
 
 boot_id = "11111111-1111-4111-8111-111111111111"
@@ -1063,53 +1016,17 @@ identity = {
     "boot_id": boot_id,
 }
 sample = {
+    "schema": "kot-f1k-bringup-gate/2:timing-sample",
     "seed": 20260718,
+    "rule": {"fixture": True},
+    "realized_bin_edges_Tp": [1, 1],
+    "n": 1,
     "t1_sample_ids": ["s000"],
     "entries": [{"sample_id": "s000"}],
 }
 write_json(gate / "gate-sample/timing-sample.json", sample)
-python_bin = str(Path(sys.executable).resolve())
-tok_argv = [python_bin, str(wrapper), str(tokenizer)]
-engine_argv = [str(engine), "64", "4", "8"]
-binding = {
-    "instance": identity,
-    "sample_manifest": {
-        "path": str(gate / "gate-sample/timing-sample.json"),
-        "sha256": sha(gate / "gate-sample/timing-sample.json"),
-    },
-    "sample_seed": sample["seed"],
-    "corpus_sha256": corpus,
-    "tokenizer": {
-        "path": str(tokenizer),
-        "sha256": sha(tokenizer),
-        "argv": tok_argv,
-    },
-    "engine": {
-        "path": str(engine),
-        "sha256": sha(engine),
-        "argv": engine_argv,
-    },
-    "weights_artifact": {
-        "path": str(weights),
-        "sha256": sha(weights),
-    },
-    "omp": {
-        "num_threads": 8,
-        "dynamic": "FALSE",
-        "proc_bind": "close",
-        "wait_policy": "active",
-        "coli_omp_tuned": "1",
-    },
-}
-epoch_id = hashlib.sha256(
-    f1k_ops.canonical_json_bytes(binding)
-).hexdigest()
-
-
 def result(phase):
     return {
-        "schema": "kot-f1k-timing-result/1",
-        "epoch_id": epoch_id,
         "phase": phase,
         "sample_id": "s000",
         "s": 1.25,
@@ -1123,37 +1040,29 @@ t1 = result("t1")
 t2 = result("t2")
 write_json(gate / "t1-results/t1-s000.json", t1)
 write_json(gate / "t2-results/t2-s000.json", t2)
-result_set_sha = hashlib.sha256(
-    f1k_ops.canonical_json_bytes({"t1": [t1], "t2": [t2]})
-).hexdigest()
-epoch = {
-    "schema": "kot-f1k-timing-epoch/1",
-    "epoch_id": epoch_id,
-    "generation": 1,
-    "state": "COMPLETE",
-    "created_at_utc": "2026-07-18T11:00:00Z",
-    "retry_index": 0,
-    "binding": binding,
-    "expected": {
-        "t1_sample_ids": ["s000"],
-        "t2_sample_ids": ["s000"],
-    },
-    "completed": {
-        "result_set_sha256": result_set_sha,
-        "pin_sha256": sha(pin),
-        "pin_derivation_sha256": sha(pin_derivation),
-        "at_utc": "2026-07-18T11:30:00Z",
-    },
-    "invalidation": {
-        "reason": None,
-        "at_utc": None,
-    },
-}
-write_json(control / "timing-epoch.json", epoch)
 gate_inputs = {
     "schema": "kot-f1k-bringup-gate/2:gate-inputs",
+    "token_counts": {
+        "schema": "kot-f1k-bringup-gate/2:token-counts",
+        "tokenizer": {
+            "mode": "REAL",
+            "mock_f": None,
+            "sha256": sha(tokenizer),
+        },
+        "corpus_sha256": corpus,
+    },
     "tokens_full_sha256": sha(tokens),
-    "model_bundle": {"tokens_full_sha256": sha(tokens)},
+    "timing_sample": {
+        key: sample[key]
+        for key in (
+            "seed",
+            "rule",
+            "realized_bin_edges_Tp",
+            "n",
+            "t1_sample_ids",
+            "entries",
+        )
+    },
     "t1_unpinned_runs": [t1],
     "t2_pinned_runs": [t2],
     "pin": {
@@ -1184,28 +1093,61 @@ PY
     emit_construction_ready >/dev/null 2>&1 || return 1
     local sha1 sha2
     sha1=$(sha256sum "$ready_file" | awk '{print $1}') || return 1
-    python3 - "$HERE" "$ready_file" <<'PY'
+    python3 - "$HERE" "$ready_file" "$fixture" <<'PY'
+import hashlib
 import json
 import sys
+from pathlib import Path
 
 sys.path.insert(0, sys.argv[1])
 import f1k_ops
 
 raw = open(sys.argv[2], "rb").read()
 record = json.loads(raw)
+fixture = Path(sys.argv[3])
+gate_inputs = json.loads(
+    (fixture / "home/f1k-gate/gate-inputs.json").read_text()
+)
+completed = {
+    "t1_unpinned_runs": gate_inputs["t1_unpinned_runs"],
+    "t2_pinned_runs": gate_inputs["t2_pinned_runs"],
+}
+expected_result_sha = hashlib.sha256(
+    f1k_ops.canonical_json_bytes(completed)
+).hexdigest()
 ok = (
     raw == f1k_ops.canonical_json_bytes(record)
     and record["schema"] == "kot-f1k-construction-ready/1"
     and record["status"] == "READY"
+    and record["payload"]["root"] == str(fixture / "home/f1k")
+    and record["builder"]["path"] == str(
+        fixture / "home/f1k/poc/glm52-probe/f1k-harness/build_carriers.py"
+    )
     and record["builder"]["sha256"]
         == "a92be3e4fe535c1dfefc41e2a422e010d25e8e40cf8e4cc123e7d829d63e9e61"
-    and record["builder"]["argv_base"][:2]
-        == [record["builder"]["path"], "construct"]
+    and record["builder"]["argv_base"][:3]
+        == ["python3", record["builder"]["path"], "construct"]
     and not any(
         value.startswith(("--engine-c", "--tokenizer-c"))
         for value in record["builder"]["argv_base"]
     )
+    and record["dump_patch"]["artifact_path"] == str(
+        fixture / "home/f1k/dump-patch/kot-f1k-dump.patch"
+    )
+    and record["token_sidecar"]["sha256"]
+        == gate_inputs["tokens_full_sha256"]
+    and record["timing_results"]["boot_id"]
+        == record["instance"]["boot_id"]
+    and record["timing_results"]["result_set_sha256"]
+        == expected_result_sha
+    and record["timing_results"]["pin_sha256"] == record["pin"]["sha256"]
+    and record["paths"] == {
+        "rundir": str(fixture / "home/f1k-gate/guard"),
+        "workdir": str(fixture / "mnt/nvme/kot-f1k/construction/work"),
+        "out": str(fixture / "mnt/nvme/kot-f1k/construction/out"),
+    }
     and record["launch"]["layers"] == list(range(3, 78))
+    and "epoch_id" not in raw.decode()
     and "KOT_F1K_" not in raw.decode()
     and "${" not in raw.decode()
 )
@@ -1217,16 +1159,16 @@ PY
   }
 
   ready_fixture_reset
-  WORKER_CHECK_MSG="complete PASS fixture emits deterministic schema-valid READY with pinned builder, layers 3..77, and no placeholder"
+  WORKER_CHECK_MSG="actual-layout PASS fixture emits deterministic READY with python3 argv, boot/result/pin timing binding, required token SHA, and no epoch"
   worker_check ready_happy
 
   ready_fixture_reset
-  echo "FAIL" > "$fixture/gate/tiny-dump.status"
+  echo "FAIL" > "$fixture/home/f1k-gate/tiny-dump.status"
   WORKER_CHECK_MSG="non-PASS dump status leaves no READY file"
   worker_check expect_ready_refusal
 
   ready_fixture_reset
-  python3 - "$HERE" "$fixture/gate/gate-inputs.json" <<'PY'
+  python3 - "$HERE" "$fixture/home/f1k-gate/gate-inputs.json" <<'PY'
 import json
 import sys
 
@@ -1235,25 +1177,24 @@ import f1k_ops
 
 path = sys.argv[2]
 record = json.load(open(path))
-record["model_bundle"]["tokens_full_sha256"] = "0" * 64
+record["tokens_full_sha256"] = "0" * 64
 f1k_ops.atomic_write_json(path, record)
 PY
   WORKER_CHECK_MSG="required SHA mismatch leaves no READY file"
   worker_check expect_ready_refusal
 
   ready_fixture_reset
-  rm -f "$fixture/gate/t2-results/t2-s000.json"
+  rm -f "$fixture/home/f1k-gate/t2-results/t2-s000.json"
   WORKER_CHECK_MSG="missing completed timing result leaves no READY file"
   worker_check expect_ready_refusal
 
   ready_fixture_reset
-  rm -f "$fixture/gate/pin_bringup.stats"
+  rm -f "$fixture/home/f1k-gate/pin_bringup.stats"
   WORKER_CHECK_MSG="missing campaign pin leaves no READY file"
   worker_check expect_ready_refusal
 
   ready_fixture_reset
-  python3 - "$HERE" "$fixture/control/timing-epoch.json" <<'PY'
-import hashlib
+  python3 - "$HERE" "$fixture/home/f1k-gate/gate-inputs.json" <<'PY'
 import json
 import sys
 
@@ -1262,10 +1203,7 @@ import f1k_ops
 
 path = sys.argv[2]
 record = json.load(open(path))
-record["binding"]["tokenizer"]["path"] = "relative/tokenizer.json"
-record["epoch_id"] = hashlib.sha256(
-    f1k_ops.canonical_json_bytes(record["binding"])
-).hexdigest()
+record["pin"]["pin_file_path"] = "relative/pin_bringup.stats"
 f1k_ops.atomic_write_json(path, record)
 PY
   WORKER_CHECK_MSG="relative required path leaves no READY file"
@@ -1273,15 +1211,15 @@ PY
 
   ready_fixture_reset
   mv -f \
-    "$fixture/estate/tokenizer.json" \
-    "$fixture/estate/tokenizer.real.json"
-  ln -s "tokenizer.real.json" "$fixture/estate/tokenizer.json"
+    "$fixture/mnt/nvme/glm52_i4/tokenizer.json" \
+    "$fixture/mnt/nvme/glm52_i4/tokenizer.real.json"
+  ln -s "tokenizer.real.json" "$fixture/mnt/nvme/glm52_i4/tokenizer.json"
   WORKER_CHECK_MSG="symlinked required path leaves no READY file"
   worker_check expect_ready_refusal
 
   ready_fixture_reset
   echo "# drift" >> \
-    "$fixture/payload/poc/glm52-probe/f1k-harness/build_carriers.py"
+    "$fixture/home/f1k/poc/glm52-probe/f1k-harness/build_carriers.py"
   WORKER_CHECK_MSG="mutated build_carriers.py leaves no READY file"
   worker_check expect_ready_refusal
 

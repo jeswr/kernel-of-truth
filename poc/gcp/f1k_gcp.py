@@ -57,6 +57,9 @@ REPO = HERE.parents[1]
 HARNESS = REPO / "poc" / "glm52-probe" / "f1k-harness"
 KAE_PATCH_DIR = REPO / "poc" / "glm52-probe" / "kae-patch-draft"
 DUMP_PATCH_DIR = HARNESS / "dump-patch"
+WORKER_FLAT_FILES = (
+    "f1k_worker.sh", "bringup_gcp.sh", "f1k_bringup_gate.py", "f1k_ops.py",
+)
 
 # ---------------------------------------------------------------------------
 # FROZEN PINS (registry/experiments/f1k.json 35372275…; verified at launch)
@@ -123,25 +126,16 @@ GCS_BUCKET = os.environ.get("KOT_F1K_BUCKET", "")   # coordinator-supplied mirro
 IMAGE_FAMILY = "ubuntu-2204-lts"
 IMAGE_PROJECT = "ubuntu-os-cloud"
 BOOT_GB = 60
+GCE_ACCESS_SCOPE = "cloud-platform"
+DEFAULT_GUEST_MAXLIFE_MIN = 900
 
 PROJECT = os.environ.get("KOT_GCP_PROJECT", "")
 ZONE = os.environ.get("KOT_GCP_ZONE", "us-central1-a")
 REGION = os.environ.get("KOT_GCP_REGION", "us-central1")
 
-# ---------------------------------------------------------------------------
-# BRING-UP provisioning override (OPS ONLY — NOT the frozen construction ledger)
-# ---------------------------------------------------------------------------
-# The bring-up (functional inert-by-default gate + dump preconditions a/b/c +
-# affordability micro-bench) is a ONE-TIME VALIDATION on a SEPARATE, throwaway
-# VM. It is NOT written to results-log/f1k.jsonl and does NOT enter the frozen
-# construction cost model (analysis/f1k.py window). The SPOT mandate exists to
-# fit that CONSTRUCTION ledger; it does not bind the disposable bring-up VM.
-# Spot PREEMPTION repeatedly reclaimed the VM mid-run before the ~2h functional
-# gate finished (runner-9: VM STOPPING at ~75min, no verdict). So the bring-up
-# VM MAY be provisioned ON-DEMAND for reliability; this touches NOTHING frozen
-# and CONSTRUCTION stays SPOT (module default, unchanged). Enable per-run with
-# KOT_F1K_ONDEMAND=1; `plan` still asserts SPOT (it validates the CONSTRUCTION
-# ledger admissibility, which is unaffected by a throwaway bring-up VM).
+# The environment spelling is retained only so provision can reject the old
+# override explicitly.  B is a single-VM-SPOT flow; a STANDARD VM can never
+# satisfy construction-ready's live SPOT identity check.
 BRINGUP_ONDEMAND = os.environ.get("KOT_F1K_ONDEMAND", "").lower() in (
     "1", "true", "yes", "on")
 
@@ -252,6 +246,28 @@ def _construction_payload_files() -> list[Path]:
     return [REPO / rel for rel in rels]
 
 
+def _provision_plan(*, on_demand: bool, max_life_min: int) -> dict:
+    """Pure executable provisioning contract, shared with the local oracle."""
+    if on_demand:
+        raise ValueError(
+            "KOT_F1K_ONDEMAND is forbidden: B requires one SPOT VM and "
+            "construction-ready refuses every non-SPOT instance"
+        )
+    if isinstance(max_life_min, bool) or not isinstance(max_life_min, int) \
+            or max_life_min < 1:
+        raise ValueError("KOT_F1K_GUEST_MAXLIFE_MIN must be a positive integer")
+    return {
+        "provisioning_model": PROVISIONING_MODEL,
+        "scope": GCE_ACCESS_SCOPE,
+        "guest_max_life_min": max_life_min,
+        "startup_script": (
+            "#!/usr/bin/env bash\n"
+            "shutdown -P +%d 'kot-f1k guest max-life backstop'\n"
+            % max_life_min
+        ),
+    }
+
+
 def _bringup_deploy_selftest() -> int:
     """$0 staging-plan oracle: local files + git only, never GCP."""
     payload = _construction_payload_files()
@@ -260,7 +276,7 @@ def _bringup_deploy_selftest() -> int:
     builder = Path("poc/glm52-probe/f1k-harness/build_carriers.py")
     builder_sha = sha256_file(REPO / builder)
     worker_layout = (
-        "f1k_worker.sh", "bringup_gcp.sh", "f1k_bringup_gate.py",
+        *WORKER_FLAT_FILES,
         "f1k_launch.sh (generated)", "tok_glm52.py",
         "kae-patch-draft/", "dump-patch/",
         "gate-corpus/construction-manifest.jsonl",
@@ -276,7 +292,14 @@ def _bringup_deploy_selftest() -> int:
           % len(rels))
     print("  construction-plan-sha256: %s"
           % hashlib.sha256(plan_bytes).hexdigest())
+    provision_plan = _provision_plan(
+        on_demand=False, max_life_min=DEFAULT_GUEST_MAXLIFE_MIN
+    )
     print("  build_carriers.py-sha256: %s" % builder_sha)
+    print("  provision: model=%s, scope=%s, guest-max-life=%d min "
+          "(startup-script armed)"
+          % (provision_plan["provisioning_model"], provision_plan["scope"],
+             provision_plan["guest_max_life_min"]))
     for rel in (
             "poc/glm52-probe/f1k-harness/build_carriers.py",
             "poc/glm52-probe/f1k-harness/f1k_driver.py",
@@ -310,15 +333,27 @@ def _bringup_deploy_selftest() -> int:
     check(not any(_is_construction_run_output(rel) for rel in rels),
           "run outputs excluded from construction payload")
     items = REPO / "data" / "f1k-eval-v1" / "items"
-    worker_sources = (
-        HERE / "f1k_worker.sh", HERE / "bringup_gcp.sh",
-        HERE / "f1k_bringup_gate.py", HARNESS / "tok_glm52.py",
-        PIN_PATHS["construction-manifest.jsonl"],
+    worker_sources = tuple(HERE / name for name in WORKER_FLAT_FILES) + (
+        HARNESS / "tok_glm52.py", PIN_PATHS["construction-manifest.jsonl"],
         items / "test.jsonl", items / "dev.jsonl", items / "guard.jsonl",
     )
     check(all(p.is_file() for p in worker_sources)
+          and "f1k_ops.py" in WORKER_FLAT_FILES
           and KAE_PATCH_DIR.is_dir() and DUMP_PATCH_DIR.is_dir(),
-          "existing worker-layout sources remain present")
+          "flat worker-layout sources, including f1k_ops.py, remain present")
+    try:
+        _provision_plan(on_demand=True,
+                        max_life_min=DEFAULT_GUEST_MAXLIFE_MIN)
+    except ValueError:
+        on_demand_refused = True
+    else:
+        on_demand_refused = False
+    check(on_demand_refused, "KOT_F1K_ONDEMAND is refused by provision")
+    check(provision_plan["provisioning_model"] == "SPOT"
+          and provision_plan["scope"] == "cloud-platform"
+          and provision_plan["guest_max_life_min"] > 0
+          and "shutdown -P +" in provision_plan["startup_script"],
+          "provision plan is cloud-platform SPOT with a guest max-life bound")
     print("SELFTEST: %d/%d %s"
           % (passed, total, "PASS" if passed == total else "FAILED"))
     return 0 if passed == total else 2
@@ -513,11 +548,17 @@ def cmd_plan() -> None:
 
 
 def cmd_provision() -> None:
-    """Create the VM + local SSD. Records the launch. SPOT by default (the
-    frozen construction target); ON-DEMAND (KOT_F1K_ONDEMAND=1) is permitted
-    ONLY for the throwaway BRING-UP VM — a separate validation phase that never
-    enters the frozen ledger. On-demand drops --instance-termination-action
-    (a SPOT-only flag) and uses --provisioning-model STANDARD."""
+    """Create the single B SPOT VM + local SSDs and arm its max-life at boot."""
+    try:
+        provision = _provision_plan(
+            on_demand=BRINGUP_ONDEMAND,
+            max_life_min=int(os.environ.get(
+                "KOT_F1K_GUEST_MAXLIFE_MIN",
+                str(DEFAULT_GUEST_MAXLIFE_MIN),
+            )),
+        )
+    except ValueError as exc:
+        die("F1K_SINGLE_VM_SPOT", str(exc))
     verify_pins()
     _gate()
     if vm_exists():
@@ -526,36 +567,27 @@ def cmd_provision() -> None:
     ssd = []
     for _ in range(LOCAL_SSD_COUNT):
         ssd += ["--local-ssd", "interface=NVME"]
-    if BRINGUP_ONDEMAND:
-        # ON-DEMAND bring-up VM (ops; NOT the frozen SPOT construction ledger).
-        # --instance-termination-action is SPOT-only, so it is DROPPED here;
-        # billing is bounded by REAL backstops this orchestrator provides
-        # (v3-review: they were comments, not code): `bringup-deploy` arms the
-        # guest max-life self-halt, and `watchdog` is the box-side deleter
-        # (launch under nohup; verify: pgrep -f 'f1k_gcp.py watchdog').
-        prov_model = "STANDARD"
-        sched_args = []
-        mode = ("ON-DEMAND (bring-up VALIDATION only — NOT the frozen SPOT "
-                "construction ledger; separate phase, not in results-log)")
-    else:
-        # SPOT construction target (frozen cost model). Unchanged.
-        prov_model = PROVISIONING_MODEL
-        sched_args = ["--instance-termination-action", "STOP"]
-        mode = "SPOT"
+    metadata = (
+        "kot-experiment=f1k,kot-frozen=%s,startup-script=%s"
+        % (FROZEN_SHA256[:12], provision["startup_script"])
+    )
+    # cloud-platform is the OAuth ceiling only: the service account still needs
+    # compute.instances.get and Billing Catalog read via least-privilege IAM.
     gcloud("compute", "instances", "create", INSTANCE_NAME,
            "--zone", ZONE, "--machine-type", MACHINE_TYPE,
-           "--provisioning-model", prov_model,
-           *sched_args,
+           "--provisioning-model", provision["provisioning_model"],
+           "--instance-termination-action", "STOP",
            "--image-family", IMAGE_FAMILY, "--image-project", IMAGE_PROJECT,
            "--boot-disk-size", "%dGB" % BOOT_GB, "--boot-disk-type", "pd-ssd",
            *ssd,
-           "--scopes", "storage-rw",
-           "--metadata", "kot-experiment=f1k,kot-frozen=%s" % FROZEN_SHA256[:12])
-    print("provisioned %s %s (%s, %d local SSD) in %s"
-          % (mode, INSTANCE_NAME, MACHINE_TYPE, LOCAL_SSD_COUNT, ZONE))
-    print("NOTE: record the assigned price now; the construction SPOT rate "
-          "(not the on-demand bring-up rate) is the load-bearing input to the "
-          "affordability gate.")
+           "--scopes", provision["scope"],
+           "--metadata", metadata)
+    print("provisioned SPOT %s (%s, %d local SSD) in %s; guest max-life "
+          "%d min armed by startup script"
+          % (INSTANCE_NAME, MACHINE_TYPE, LOCAL_SSD_COUNT, ZONE,
+             provision["guest_max_life_min"]))
+    print("NOTE: record the assigned SPOT price now; it is the load-bearing "
+          "input to the affordability gate.")
 
 
 def cmd_status() -> None:
@@ -714,7 +746,9 @@ def cmd_bringup_deploy() -> None:
     for var in ("KOT_F1K_BUCKET", "COLIBRI_GIT_URL", "KOT_F1K_SPOT_RATE"):
         if not os.environ.get(var):
             die("F1K_DEPLOY", "%s unset (f1k_worker.sh env contract)" % var)
-    max_life_min = int(os.environ.get("KOT_F1K_GUEST_MAXLIFE_MIN", "900"))
+    max_life_min = int(os.environ.get(
+        "KOT_F1K_GUEST_MAXLIFE_MIN", str(DEFAULT_GUEST_MAXLIFE_MIN)
+    ))
     # 1. remote prep [REV-B F4, gate-fix review #5]:
     #    - DEPENDENCIES the worker actually needs, VERIFIED on a fresh
     #      image: google-cloud-cli (gsutil — chosen over curl+signed URLs
@@ -756,6 +790,7 @@ def cmd_bringup_deploy() -> None:
         "  mountpoint -q /mnt/nvme"
         " || { echo 'ERR: /mnt/nvme still not a mountpoint'; exit 2; }\n"
         "fi\n"
+        "sudo shutdown -c 'kot-f1k deploy max-life re-arm' 2>/dev/null || true\n"
         "sudo shutdown -P +%d 'kot-f1k guest max-life backstop'\n"
         % (LOCAL_SSD_COUNT, LOCAL_SSD_COUNT, LOCAL_SSD_COUNT, max_life_min))
     gcloud("compute", "ssh", INSTANCE_NAME, "--zone", ZONE,
@@ -764,7 +799,7 @@ def cmd_bringup_deploy() -> None:
     stage = Path(tempfile.mkdtemp(prefix="kot-f1k-bundle-"))
     bundle = stage / "f1k"
     bundle.mkdir()
-    for f in ("f1k_worker.sh", "bringup_gcp.sh", "f1k_bringup_gate.py"):
+    for f in WORKER_FLAT_FILES:
         shutil.copy2(HERE / f, bundle / f)
     # [REV-B F4] failure-visible launcher: ANY worker exit != 0 — incl.
     # `set -e` deaths that bypass die() and its heartbeat — writes a
