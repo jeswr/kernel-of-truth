@@ -29,9 +29,13 @@
 #            finalizes the independent comparison ON-BOX (its correctness can
 #            not be validated blind, so it is a runner-confirmed PASS, not an
 #            autonomous one — see README "Dump bring-up gate").
-#   5. AFFORDABILITY MICRO-BENCHMARK — time real scoring prefills -> blended
-#      s/prefill; combined with the RECORDED spot rate -> the frozen-window
-#      projection gate (f1k_gcp.py affordability). Writes addendum-7 inputs.
+#   5. REAL-CORPUS BRING-UP GATE INPUTS (F1K-BRINGUP-GATE-FIX.md v1, closing
+#      GAP-1/2/3): tokenize the frozen corpora with the staged GLM-5.2
+#      tokenizer (measured f + per-item T), realize the frozen stratified
+#      timing sample, time it per-item (unpinned T1 -> bring-up pin file;
+#      pinned T2), and write gate-inputs.json. The GREEN/STOP verdict is the
+#      control box's `f1k_gcp.py gate` (kot-f1k-bringup-gate/2); the
+#      synthetic functional-gate blend stays a SECONDARY diagnostic ONLY.
 #      Then STOP + heartbeat DONE.
 #
 # Heartbeat + all artifacts are mirrored to GCS ($BUCKET/f1k/bringup) so a spot
@@ -88,10 +92,26 @@ if curl -s --max-time 1 http://169.254.169.254/latest/meta-data/instance-id >/de
         http://metadata.google.internal/computeMetadata/v1/instance/zone >/dev/null 2>&1; then
   die "worker looks like AWS — refuse (frozen target is the GCP Spot VM)"
 fi
-for t in git gcc make objdump python3 sha256sum gsutil curl; do
+for t in git gcc make objdump python3 sha256sum curl; do
   command -v "$t" >/dev/null 2>&1 || { sudo apt-get update -qq && sudo apt-get install -y -qq git build-essential binutils python3 curl; break; }
 done
-[ -d "$SSD" ] || die "local NVMe mount $SSD missing (provision must RAID+mount the 3 local SSD)"
+# [REV-B F4] fresh-worker dependency VERIFICATION (gate-fix review #5): the
+# GCS mirror/heartbeat path is load-bearing throughout (staging, resume,
+# diagnostics), so gsutil is REQUIRED — bringup-deploy's remote prep
+# installs google-cloud-cli when the image lacks it; refuse to run blind.
+# pip3 likewise (tokenizers + HF staging below).
+command -v gsutil >/dev/null 2>&1 \
+  || sudo apt-get install -y -qq google-cloud-cli 2>/dev/null || true
+command -v gsutil >/dev/null 2>&1 \
+  || die "gsutil MISSING and google-cloud-cli install failed — every GCS seam (estate mirror, heartbeat, campaign-pin persistence) is dead; fix the image/deploy (bringup-deploy remote prep)"
+command -v pip3 >/dev/null 2>&1 \
+  || sudo apt-get install -y -qq python3-pip 2>/dev/null || true
+command -v pip3 >/dev/null 2>&1 || die "pip3 MISSING (python3-pip)"
+# [REV-B F4] MOUNTPOINT guard, not directory existence (review #5): after a
+# reboot /mnt/nvme exists as a bare dir on the BOOT DISK — staging ~384 GB
+# there would silently fill it. Require a real mount.
+mountpoint -q "$SSD" \
+  || die "local NVMe $SSD is NOT a mountpoint (bare dir = boot disk!) — bringup-deploy must RAID0 (/dev/md0) + mount the local SSDs first"
 hb "preflight-ok"
 
 step "1/5 stage estate (GCS mirror -> else HF -> local NVMe, then mirror to GCS)"
@@ -154,8 +174,30 @@ step "4/5 build CONSTRUCTION engine (KaE + dump patch) + DUMP bring-up gate (b)"
 # real-checks.sh itself is UNTOUCHED (gate-0-reviewed); its step-6 proof
 # stands fail-closed OFF-BOX on the gcc-11.5 measurement basis. ANY other
 # failure stays fail-closed here.
+# [REV-B F4, gate-fix review #5] real-checks.sh's ACTUAL contract, met
+# explicitly (it was invoked dead-on-arrival before):
+#   - COLIBRI_TREE (real-checks.sh:43) = a PRISTINE checkout whose c/glm.c
+#     is at the pinned base blob (:47 verifies fail-closed) — the
+#     bringup_gcp.sh tree is PATCHED, so clone a fresh one at the same
+#     pinned commit (bringup_gcp.sh:24 a78a06fc);
+#   - the KaE patch at dump-patch/../../kae-patch-draft (real-checks.sh:37)
+#     — with the bundle at ~/f1k that resolves to ~/kae-patch-draft, so
+#     provide it there (symlink) and verify before invoking.
+COLIBRI_PRISTINE="$HOME_DIR/colibri-pristine"
+if [ ! -d "$COLIBRI_PRISTINE/.git" ]; then
+  git clone "$COLIBRI_GIT_URL" "$COLIBRI_PRISTINE"
+fi
+( cd "$COLIBRI_PRISTINE" \
+  && { git fetch --all --quiet || true; } \
+  && git checkout --quiet a78a06fc5acc4b0dc0f9ef03987c66b0559d1250 \
+  && git diff --quiet ) \
+  || die "pristine colibri checkout for COLIBRI_TREE failed (real-checks.sh:43 contract)"
+ln -sfn "$HERE/kae-patch-draft" "$(dirname "$HERE")/kae-patch-draft"
+[ -f "$(dirname "$HERE")/kae-patch-draft/kae-add-path.patch" ] \
+  || die "kae-add-path.patch not reachable at real-checks.sh's expected ../../kae-patch-draft location"
 set +e
 ( cd "$HERE/dump-patch" && COLIBRI_GIT_URL="$COLIBRI_GIT_URL" \
+    COLIBRI_TREE="$COLIBRI_PRISTINE" \
     COLIBRI_WORK="$HOME_DIR/colibri-construct" bash real-checks.sh ) \
   > "$GATE/dump-realchecks.log" 2>&1
 RC_B=$?
@@ -177,6 +219,7 @@ elif grep -q "test_kae: 44/44" "$GATE/dump-realchecks.log" \
 else
   die "dump bring-up precondition (b) FAILED (real-checks.sh rc=$RC_B, not the demoted objdump-spill signature)"
 fi
+echo "PASS" > "$GATE/dump-b.status"    # (b) is fail-closed above; reaching here proves it
 hb "dump-precond-b-ok"
 
 step "4/5 DUMP bring-up gate (a): tiny real dump + token-id consistency"
@@ -315,30 +358,161 @@ PY
 cat "$GATE/affordability-measured.json"
 hb "functional-inertness-PASS"
 
-step "5/5 affordability micro-benchmark (blended s/prefill) -> frozen-window gate"
-# The blended s/prefill is now MEASURED as a side-benefit of the functional gate
-# above (func-patched-1 run_score timer, model-load excluded) -> affordability-
-# measured.json.  The frozen-window PROJECTION + GO/STOP is the runner's on-box
-# call via the control-box driver (fail-closed on both the $73 floor and $155
-# cap); construction is NOT spent autonomously.
-MEAS_SPP=$(python3 -c "import json;v=json.load(open('$GATE/affordability-measured.json')).get('blended_s_per_prefill_measured');print(v if v is not None else '')" 2>/dev/null || echo "")
-echo "RUNNER-RUN-REQUIRED" > "$GATE/affordability.status"
-cat > "$GATE/affordability-README.txt" <<EOF
-MEASURED blended s/prefill (functional-gate side-benefit, model-load excluded):
-  ${MEAS_SPP:-<none: engine emitted no scoring timer; re-measure on-box>}
-  (full record: $GATE/affordability-measured.json)
-Project the frozen 19964-prefill ledger + decide GO/STOP on the control box:
-  python3 poc/gcp/f1k_gcp.py affordability --rate $SPOT_RATE --s-per-prefill ${MEAS_SPP:-<MEAN>}
-which FAILS CLOSED if the projection lands outside instance_hours [260.6,900] h
-or usd_total [\$73,\$155] (the FLOOR binds below \$0.28/h).  A GO here (and ONLY
-a GO) licenses construction spend — the coordinator's supervised call.
+step "5/5 REAL-CORPUS bring-up gate inputs (GAP-1/2/3 fix) -> gate-inputs.json"
+# The synthetic functional-gate blend above (affordability-measured.json) is a
+# SECONDARY diagnostic ONLY (v2 review finding 4: it mis-prices the gate in
+# both directions). The construction-LICENSE inputs below are REAL-corpus:
+# measured f (GAP-2), the frozen deterministic stratified per-item timing
+# sample (GAP-1), per-item token counts for the token-aware projection
+# (GAP-3). Rule + estimator: poc/gcp/F1K-BRINGUP-GATE-FIX.md v1 (frozen).
+GATEPY="$HERE/f1k_bringup_gate.py"
+[ -f "$GATEPY" ] || die "f1k_bringup_gate.py missing from the pushed poc/gcp dir"
+CORPUS="$HERE/gate-corpus"     # pushed by the coordinator (poc/gcp/README.md step 2)
+for f in construction-manifest.jsonl test.jsonl dev.jsonl guard.jsonl; do
+  [ -f "$CORPUS/$f" ] || die "gate corpus file missing: $CORPUS/$f (push step)"
+done
+TOK_WRAPPER="${KOT_F1K_TOK_WRAPPER:-$(find "$HOME_DIR" -maxdepth 4 -name tok_glm52.py 2>/dev/null | head -1)}"
+[ -n "$TOK_WRAPPER" ] || die "tok_glm52.py not found (push f1k-harness or set KOT_F1K_TOK_WRAPPER)"
+TOKJSON="$(find "$ESTATE_DIR" -maxdepth 2 -name tokenizer.json | head -1)"
+[ -n "$TOKJSON" ] || die "tokenizer.json not found in estate $ESTATE_DIR (ASM-1971 bring-up pin)"
+pip3 -q install tokenizers 2>/dev/null || true
+python3 "$GATEPY" fcount --corpus-dir "$CORPUS" --tok-wrapper "$TOK_WRAPPER" \
+  --tokenizer "$TOKJSON" --out "$GATE/gate-tokens" || die "gate fcount FAILED"
+python3 "$GATEPY" realize --tokens "$GATE/gate-tokens" --out "$GATE/gate-sample" \
+  || die "gate realize FAILED"
+hb "gate-tokenized"
+
+# PIN_GB fixed at bring-up from MEASURED free-RAM headroom (plan §5 semantics;
+# recording + truthful-attestation mechanics: F1K-PIN-FILE-FIX.md v5 — this
+# step only FIXES the number and derives the BRING-UP pin; it never fakes one).
+MEM_AVAIL_GB=$(awk '/MemAvailable/ {printf "%d", $2/1048576}' /proc/meminfo)
+PIN_GB="${KOT_F1K_PIN_GB:-$(( MEM_AVAIL_GB - 8 ))}"
+[ "$PIN_GB" -gt 50 ] && PIN_GB=50
+[ "$PIN_GB" -ge 24 ] || die "PIN_GB headroom $PIN_GB GB < 24 (MemAvailable ${MEM_AVAIL_GB} GB) — outside the M4-measured 40-50 GB band's floor; STOP"
+
+GATE_MAX_S="${KOT_F1K_GATE_MAX_S:-10800}"   # fail-closed timing budget (3 h)
+GATE_T0=$(date +%s)
+run_gate_sample() {   # $1=sample_id  $2=results.jsonl  $3.. = extra env pairs
+  local sid="$1"; local res="$2"; shift 2
+  local man="$GATE/gate-sample/sample-$sid.score"
+  [ $(( $(date +%s) - GATE_T0 )) -lt "$GATE_MAX_S" ] \
+    || die "gate timing exceeded KOT_F1K_GATE_MAX_S=$GATE_MAX_S s (fail-closed: no silent truncation — raise the budget or STOP)"
+  env -u KAE -u KAE_G -u KAE_SCORE -u KAE_DUMP -u KAE_CARRIER -u KAE_SPANS \
+      -u KAE_MODE -u KAE_SEED -u KAE_DUMP_LAYERS \
+      SNAP="$ESTATE_DIR" SCORE="$man" \
+      OMP_NUM_THREADS="$FUNC_OMP" OMP_DYNAMIC=FALSE OMP_PROC_BIND=close \
+      OMP_WAIT_POLICY=active COLI_OMP_TUNED=1 "$@" \
+      "$SCORE_ENGINE" 64 4 8 > "$GATE/gate-run-$sid.out" 2> "$GATE/gate-run-$sid.err" \
+    || die "gate timing run $sid FAILED (see gate-run-$sid.err)"
+  local timer n s pin_ev
+  timer=$(grep -oE '\[score [0-9]+ req \| [0-9.]+s' "$GATE/gate-run-$sid.err" | tail -1 || true)
+  n=$(echo "$timer" | grep -oE '[0-9]+ req' | grep -oE '[0-9]+' || true)
+  s=$(echo "$timer" | grep -oE '\| [0-9.]+s' | grep -oE '[0-9.]+' || true)
+  { [ -n "$s" ] && [ "${n:-0}" -ge 1 ]; } || die "gate run $sid: engine emitted no scoring timer (see gate-run-$sid.err)"
+  # [REV-B F3] engagement evidence VERBATIM: the [PIN] banner/marker lines
+  # (armed banner grammar = the LANDED driver's PIN_ARMED_RE, ASM-2513;
+  # wording fetch-grade ASM-1971 — a real-engine divergence is aligned in
+  # the DRIVER regex once, and the control-box check follows). The gate
+  # verdict REQUIRES a coherent armed banner per pinned T2 run.
+  pin_ev=$(grep -E '\[PIN\]|pinning DISABLED' "$GATE/gate-run-$sid.err" | head -5 | tr -d '"' | tr '\n' ';' || true)
+  echo "{\"sample_id\":\"$sid\",\"s\":$s,\"timer_n\":$n,\"pin_evidence\":\"$pin_ev\"}" >> "$res"
+}
+
+# T1: UNPINNED runs over the t1 subset with engine usage stats ON.
+# [REV-B F1, gate-fix review #2] the engine interface is STATS=<file>
+# (kae-add-path.patch:175/:180/:183: `stats=getenv("STATS")` ->
+# `stats_dump(&m, stats)` writes THE named file) — the old `STATS=1` made
+# every run overwrite one file named `1`, deriving the pin from the LAST
+# item, not the T1 union. Now: ONE stats file PER RUN (rm'd first —
+# correct whether stats_dump truncates or appends, which stays
+# fetch-grade [ASM-1971]), asserted non-empty after the run, listed in an
+# EXPLICIT manifest; the merge (`pinfile`) is fail-closed on any
+# missing/empty/malformed file and records per-file sha provenance.
+T1_IDS=$(python3 -c "import json;print(' '.join(json.load(open('$GATE/gate-sample/timing-sample.json'))['t1_sample_ids']))")
+T1_CWD="$GATE/t1-cwd"; mkdir -p "$T1_CWD"
+T1_STATS_DIR="${KOT_F1K_STATS_DIR:-$GATE/t1-stats}"; mkdir -p "$T1_STATS_DIR"
+: > "$GATE/t1-results.jsonl"
+: > "$GATE/t1-stats.manifest"
+for sid in $T1_IDS; do
+  SFILE="$T1_STATS_DIR/stats-$sid.txt"
+  rm -f "$SFILE"
+  ( cd "$T1_CWD" && run_gate_sample "$sid" "$GATE/t1-results.jsonl" STATS="$SFILE" )
+  [ -s "$SFILE" ] || die "T1 run $sid wrote NO usage stats at $SFILE (STATS=<file>, kae-add-path.patch:175) — the pin never derives from a partial T1 union; STOP (maintainer surface; re-verify the STATS knob at the (7) semantic gate)"
+  echo "$SFILE" >> "$GATE/t1-stats.manifest"
+done
+hb "gate-t1-done"
+
+# bring-up pin file at PIN_GB from the EXPLICIT T1 stats manifest.
+# [REV-B F3] an underivable pin is a fail-closed STOP: shape (ii)
+# (unpinned) was REJECTED (SSA3.5) and the gate REFUSES regime "unpinned"
+# — running 30 unlicensable T2 timings would only burn budget.
+PIN_REGIME="pinned-bringup"; PIN_FILE="$GATE/pin_bringup.stats"; PIN_SHA=""
+python3 "$GATEPY" pinfile --stats-manifest "$GATE/t1-stats.manifest" \
+     --pin-gb "$PIN_GB" --out "$PIN_FILE" > "$GATE/pinfile.json" 2>&1 \
+  || die "bring-up pin underivable (see pinfile.json) — shape (i) is the ONLY licensable regime (unpinned was REJECTED, fix memo SSA3.5/SSB); mandatory maintainer surface"
+PIN_SHA=$(sha256sum "$PIN_FILE" | awk '{print $1}')
+
+# T2: the LICENSE timing — every sample text, per-item engine timer (model
+# load excluded), ALWAYS pinned (evidence per run; the control-box verdict
+# verifies an armed banner per run against the bound sha/PIN_GB).
+: > "$GATE/t2-results.jsonl"
+ALL_IDS=$(python3 -c "import json;print(' '.join(e['sample_id'] for e in json.load(open('$GATE/gate-sample/timing-sample.json'))['entries']))")
+for sid in $ALL_IDS; do
+  run_gate_sample "$sid" "$GATE/t2-results.jsonl" PIN="$PIN_FILE" PIN_GB="$PIN_GB"
+done
+hb "gate-t2-done"
+
+python3 "$GATEPY" collect --sample "$GATE/gate-sample/timing-sample.json" \
+  --tokens "$GATE/gate-tokens" --t2 "$GATE/t2-results.jsonl" \
+  --t1 "$GATE/t1-results.jsonl" --rate "$SPOT_RATE" \
+  --pin-sha "$PIN_SHA" --pin-gb "$PIN_GB" --pin-regime "$PIN_REGIME" \
+  --pin-path "$PIN_FILE" \
+  --pin-derivation "$PIN_FILE.derivation.json" \
+  --dump-a "$(cat "$GATE/tiny-dump.status" 2>/dev/null || echo MISSING)" \
+  --dump-b "$(cat "$GATE/dump-b.status" 2>/dev/null || echo MISSING)" \
+  --dump-c "$(cat "$GATE/moe-sum-crosscheck.status" 2>/dev/null || echo MISSING)" \
+  --functional "$(python3 -c "import json;print(json.load(open('$GATE/functional-inertness.json')).get('verdict','MISSING'))" 2>/dev/null || echo MISSING)" \
+  --out "$GATE/gate-inputs.json" || die "gate collect FAILED"
+# The bring-up pin IS the construction-phase CAMPAIGN pin (fix memo SSA3
+# C-decision): persist it VERIFIED — [REV-B F3, gate-fix review #4] no
+# `|| true`: upload, RE-READ from GCS, and require the byte-exact sha; a
+# licensed pin that failed to persist is a dead campaign, fail closed.
+gsutil -q cp "$PIN_FILE" "$BUCKET/f1k/bringup/campaign-pin.stats" \
+  || die "campaign-pin upload FAILED (gsutil cp)"
+gsutil -q cp "$PIN_FILE.derivation.json" "$BUCKET/f1k/bringup/campaign-pin.stats.derivation.json" \
+  || die "campaign-pin derivation upload FAILED"
+REMOTE_PIN_SHA=$(gsutil -q cat "$BUCKET/f1k/bringup/campaign-pin.stats" | sha256sum | awk '{print $1}')
+[ "$REMOTE_PIN_SHA" = "$PIN_SHA" ] \
+  || die "campaign-pin GCS re-read sha $REMOTE_PIN_SHA != local $PIN_SHA — persisted bytes differ from the licensed pin; fail closed"
+echo "CONTROL-BOX-VERDICT-REQUIRED" > "$GATE/bringup-gate.status"
+cat > "$GATE/bringup-gate-README.txt" <<EOF
+REAL-CORPUS gate inputs ready: $GATE/gate-inputs.json (mirrored to GCS).
+Pull it and run the MECHANICAL verdict on the control box:
+  python3 poc/gcp/f1k_gcp.py gate --inputs <pulled gate-inputs.json>
+GREEN -> construction proceeds without re-surfacing (plan §7 standing
+authorization). STOP (exit 2 ERR_F1K_BRINGUP_GATE) -> MANDATORY maintainer
+surface. The synthetic blend (affordability-measured.json) is a SECONDARY
+diagnostic; \`f1k_gcp.py affordability\` licenses NOTHING (exit 3 even on GO).
+HARD CONJUNCTS (v3-review): dump preconditions (a)/(b)/(c) + the functional
+gate must be recorded PASS in gate-inputs.json or the verdict STOPs. After
+the on-box confirmations, the RUNNER overwrites tiny-dump.status and
+moe-sum-crosscheck.status with the literal PASS and RE-RUNS the collect
+command above (cheap; no re-timing) before pulling gate-inputs.json.
+The caps are tested RESERVE-INCLUSIVE (+\$8 / +8/rate hours) on the control
+box; the verdict also REQUIRES per-run pin-ENGAGEMENT evidence for the bound
+pin sha/PIN_GB and REFUSES regime "unpinned" [REV-B]. The campaign pin for
+construction is campaign-pin.stats (sha-verified persisted, derivation
+sidecar alongside); construction fetches it via \`f1k_gcp.py pin-fetch\`
+(byte-verified export of PIN/PIN_GB — never ambient env), bound per
+F1K-PIN-FILE-FIX.md v5.
 EOF
-cat "$GATE/affordability-README.txt"
-hb "affordability-measured-runner-projects"
+cat "$GATE/bringup-gate-README.txt"
+hb "gate-inputs-ready"
 
 step "DONE (bring-up scaffolded; STOP before construction spend)"
 echo "Bring-up artifacts in $GATE/ (mirrored to $BUCKET/f1k/bringup/)."
-echo "NEXT (gated): finalize dump preconditions (a)+(c) + the affordability"
-echo "micro-benchmark on-box; a GO affordability verdict licenses construction."
+echo "NEXT (gated): finalize dump preconditions (a)+(c) on-box; pull"
+echo "gate-inputs.json and run \`f1k_gcp.py gate\` on the control box — a"
+echo "GREEN bringup-gate.json verdict (and ONLY that) licenses construction."
 gsutil -q -m cp -r "$GATE" "$BUCKET/f1k/bringup/" || true
 hb "DONE-bringup-scaffold"

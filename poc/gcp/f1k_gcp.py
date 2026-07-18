@@ -4,7 +4,7 @@
 OPUS EXECUTION-role harness (kern/opus-runner-<N>). It RUNS the already-frozen
 F1-K experiment (registry/experiments/f1k.json, frozen_sha256 35372275…) on the
 coordinator-resolved compute target (bead pzb6): a GCP **Spot** n2d-highmem-8
-(8 vCPU / 64 GB) + 3×375 GiB local SSD (1,125 GiB NVMe), zone us-central1-a.
+(8 vCPU / 64 GB) + 2×375 GiB local SSD (750 GiB NVMe), zone us-central1-a.
 It designs NOTHING and concludes NOTHING: the science (kernel, model, engine,
 carriers, protocol, analysis) is frozen upstream; this file only provisions,
 stages, builds, drives the pinned generator/driver, checkpoints, monitors, and
@@ -24,14 +24,27 @@ is MEASURED + gated at bring-up (never silently overspent OR under-run).
 
 Entrypoints (source ~/.config/kot/gcp.env first):
   python3 poc/gcp/f1k_gcp.py plan          # $0 dry-plan: pins + SPOT + window
-  python3 poc/gcp/f1k_gcp.py provision     # create the Spot VM + 3 local SSD
-  python3 poc/gcp/f1k_gcp.py push          # scp the harness + patches to the VM
-  python3 poc/gcp/f1k_gcp.py stage         # HF -> local SSD (+ GCS mirror)
-  python3 poc/gcp/f1k_gcp.py build         # clone+patch+build (KaE + dump)
-  python3 poc/gcp/f1k_gcp.py bringup       # KaE inertness + dump 3-precond gate
-  python3 poc/gcp/f1k_gcp.py affordability # measure rate+s/prefill -> gate
+  python3 poc/gcp/f1k_gcp.py provision     # create the Spot VM + 2 local SSD
+  python3 poc/gcp/f1k_gcp.py gate          # bring-up gate VERDICT (GREEN is
+                                           #   the ONLY construction license;
+                                           #   --selftest = $0 mock oracle)
+  python3 poc/gcp/f1k_gcp.py affordability # SECONDARY synthetic diagnostic
+                                           #   ONLY — licenses NOTHING
+  python3 poc/gcp/f1k_gcp.py bringup-deploy# RAID+mount NVMe, push the worker
+                                           #   bundle + frozen gate corpora,
+                                           #   launch f1k_worker.sh detached,
+                                           #   arm the GUEST max-life backstop
+  python3 poc/gcp/f1k_gcp.py watchdog --max-hours H
+                                           # box-side teardown watchdog loop
+                                           #   (nohup it; verify with pgrep)
+  python3 poc/gcp/f1k_gcp.py pin-fetch     # fetch + BYTE-VERIFY the licensed
+                                           #   campaign pin; prints the exact
+                                           #   PIN/PIN_GB exports [REV-B]
   python3 poc/gcp/f1k_gcp.py status        # poll VM state + GCS heartbeat
   python3 poc/gcp/f1k_gcp.py teardown      # delete VM + disks (nothing bills idle)
+(stage/build/KaE+dump bring-up run ON the VM via f1k_worker.sh — they were
+never control-box entrypoints; the retired push/stage/build/bringup docstring
+advertisement was CONSTRUCTION-PLAN v3 GAP-4.)
 Nothing spends until an explicit provisioning entrypoint is invoked; `plan` is
 $0 and asserts the frozen ledger admissibility.
 """
@@ -350,8 +363,11 @@ def cmd_provision() -> None:
         ssd += ["--local-ssd", "interface=NVME"]
     if BRINGUP_ONDEMAND:
         # ON-DEMAND bring-up VM (ops; NOT the frozen SPOT construction ledger).
-        # --instance-termination-action is SPOT-only, so it is DROPPED here; the
-        # control-box watchdog + guest max-life backstops still bound billing.
+        # --instance-termination-action is SPOT-only, so it is DROPPED here;
+        # billing is bounded by REAL backstops this orchestrator provides
+        # (v3-review: they were comments, not code): `bringup-deploy` arms the
+        # guest max-life self-halt, and `watchdog` is the box-side deleter
+        # (launch under nohup; verify: pgrep -f 'f1k_gcp.py watchdog').
         prov_model = "STANDARD"
         sched_args = []
         mode = ("ON-DEMAND (bring-up VALIDATION only — NOT the frozen SPOT "
@@ -398,11 +414,13 @@ def cmd_teardown() -> None:
 
 
 def cmd_affordability() -> None:
-    """The addendum-(7) bring-up affordability gate, made executable. Consumes
-    the MEASURED spot rate and MEASURED blended s/prefill, projects the frozen
-    ledger for the mandatory (and +REPLACE) campaign, and returns GO only if it
-    lands inside the frozen window (fail-closed on both the FLOOR and the CAP).
-    A GO — and ONLY a GO — licenses construction spend.
+    """SECONDARY DIAGNOSTIC ONLY (F1K-BRINGUP-GATE-FIX.md v1, GAP-1): projects
+    the frozen ledger from ONE blended s/prefill (historically the synthetic
+    functional-gate mix). It LICENSES NOTHING — the v2 review (finding 4)
+    showed the synthetic blend mis-prices the gate in both directions. The
+    construction license is `f1k_gcp.py gate` (kot-f1k-bringup-gate/2:
+    real-corpus stratified sample + measured f + PER-ITEM token-aware
+    projection) and ONLY that.
 
     usage: f1k_gcp.py affordability --rate <usd/h> --s-per-prefill <sec> [--replace]"""
     import argparse
@@ -420,20 +438,346 @@ def cmd_affordability() -> None:
         out["with_replace"] = project_ledger(args.rate, args.s_per_prefill,
                                               PREFILLS_WITH_REPLACE)
     print(json.dumps(out, indent=2))
-    if proj["verdict"] != "GO":
+    # v3-review fix (:417/:423 lineage): EVERY tested projection must be GO,
+    # or this exits nonzero — the +REPLACE verdict is never advisory. And a
+    # clean diagnostic still exits 3: this blended path can NEVER license.
+    bad = {name: p for name, p in out.items() if p["verdict"] != "GO"}
+    if bad:
         die("F1K_AFFORDABILITY",
-            "SALVAGE-STOP: %s. The frozen cost model at the measured rate does "
-            "NOT admit a valid ledger for this throughput; this is a "
-            "cost-model-vs-rate decision (Fable/coordinator/maintainer), NOT a "
-            "retry. Do NOT spend construction." % "; ".join(proj["reasons"]))
-    print("\nAFFORDABILITY GO: projected instance_hours %.1f h, usd_total $%.2f "
-          "inside the frozen window. Construction spend is licensed."
-          % (proj["projected_instance_hours"], proj["projected_usd_total"]))
+            "SALVAGE-STOP (%s): %s. The frozen cost model at the measured "
+            "rate does NOT admit a valid ledger for EVERY tested projection; "
+            "this is a cost-model-vs-rate decision (Fable/coordinator/"
+            "maintainer), NOT a retry. Do NOT spend construction."
+            % (", ".join(sorted(bad)),
+               " | ".join("%s: %s" % (n, "; ".join(p["reasons"]))
+                          for n, p in sorted(bad.items()))))
+    print("\nAFFORDABILITY DIAGNOSTIC: every tested projection inside the "
+          "frozen window — SECONDARY diagnostic only, NEVER a license "
+          "(exit 3); the construction license is `f1k_gcp.py gate` (GREEN, "
+          "reserve-inclusive, dump-preconditions conjoined).")
+    sys.exit(3)
+
+
+def cmd_gate() -> None:
+    """The FIXED bring-up affordability gate verdict (kot-f1k-bringup-gate/2;
+    poc/gcp/F1K-BRINGUP-GATE-FIX.md v1, closing CONSTRUCTION-PLAN v3 §4.2
+    GAP-1/2/3). Consumes the on-VM gate-inputs.json (f1k_worker.sh step 5/5:
+    real-corpus stratified per-item timing + measured f + per-item token
+    counts), re-verifies the launch pins + corpus bytes, projects the frozen
+    ledger PER-ITEM via f1k_bringup_gate.project, and emits bringup-gate.json
+    with the MECHANICAL plan-§7 verdict:
+      GREEN -> construction proceeds WITHOUT re-surfacing (standing auth);
+      STOP  -> exit 2 ERR_F1K_BRINGUP_GATE, MANDATORY maintainer surface.
+
+    usage: f1k_gcp.py gate --inputs <gate-inputs.json> [--out <path>] [--replace]
+           f1k_gcp.py gate --selftest        # $0 mock oracle, no VM"""
+    sys.path.insert(0, str(HERE))
+    import f1k_bringup_gate as bg
+    if "--selftest" in sys.argv[2:]:
+        sys.exit(bg.selftest())
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--inputs", required=True)
+    ap.add_argument("--out", default=str(HERE / "bringup-gate.json"))
+    ap.add_argument("--replace", action="store_true")
+    args = ap.parse_args(sys.argv[2:])
+    verify_pins()
+    _gate()
+    frozen = {"instance_hours": [INSTANCE_HOURS_MIN, WALL_CLOCK_CAP_HOURS],
+              "usd_total": [USD_TOTAL_MIN, USD_CAP],
+              "rate_window": [RATE_WINDOW[0], RATE_WINDOW[1]],
+              "prefills_min": PREFILLS_MANDATORY_MIN}
+    inputs = json.loads(Path(args.inputs).read_text(encoding="utf-8"))
+    # corpus-drift check: the VM must have tokenized the SAME bytes this repo
+    # pins (construction-manifest via PINS; eval items are covered by the
+    # frozen record's f1k-eval-v1 corpus digest)
+    items = REPO / "data" / "f1k-eval-v1" / "items"
+    local = {"construction-manifest.jsonl":
+             sha256_file(PIN_PATHS["construction-manifest.jsonl"]),
+             "test.jsonl": sha256_file(items / "test.jsonl"),
+             "dev.jsonl": sha256_file(items / "dev.jsonl"),
+             "guard.jsonl": sha256_file(items / "guard.jsonl")}
+    got = inputs["token_counts"]["corpus_sha256"]
+    for name, want in local.items():
+        if got.get(name) != want:
+            die("F1K_GATE_CORPUS_DRIFT", "%s sha on the VM %s != repo %s"
+                % (name, got.get(name), want))
+    art = bg.project(inputs, frozen, replace=args.replace, out_path=args.out)
+    print(json.dumps(art, indent=2))
+    if art["verdict"] != "GREEN":
+        die("F1K_BRINGUP_GATE",
+            "STOP: %s. MANDATORY maintainer surface with salvage options "
+            "(plan §7.3): (a) the <=$300 contingent re-freeze [maintainer "
+            "decision, never autonomous]; (b) SSR6 degradation within the "
+            "original windows; (c) stop-and-hold. Do NOT spend construction."
+            % "; ".join(art["reasons"]))
+    print("\nBRING-UP GATE GREEN (artifact: %s): measured f %.4f <= 1.60 AND "
+          "the PER-ITEM projected ledger (%.1f h central / $%.2f) lands "
+          "inside the frozen windows. Construction proceeds under the plan "
+          "§7 standing authorization (report-after, no re-surface)."
+          % (args.out, art["f"]["blended"],
+             art["projection"]["instance_hours"]["central"],
+             art["projection"]["usd_total"]["central"]))
+
+
+def cmd_bringup_deploy() -> None:
+    """Bind the bring-up plumbing the v3 review found UNBOUND (`provision`
+    creates only the VM; the historical run-dir wrappers vm_setup.sh
+    aa6504d6 / watchdog.sh 8efa0f65 are hard-coded and uncommitted): RAID0 +
+    mount the 2 local NVMe, push the worker bundle in the layout
+    f1k_worker.sh expects ($HERE/{kae-patch-draft,dump-patch,gate-corpus},
+    f1k_bringup_gate.py + tok_glm52.py + bringup_gcp.sh alongside), launch
+    the worker detached (setsid nohup), and arm the GUEST max-life backstop
+    (root `shutdown -P`; default 900 min via KOT_F1K_GUEST_MAXLIFE_MIN).
+
+    MANUAL PREREQS (verify, never assume):
+      gsutil ls "$KOT_F1K_BUCKET"          # bucket reachable
+      env: KOT_F1K_BUCKET, COLIBRI_GIT_URL, KOT_F1K_SPOT_RATE set
+    MANUAL FOLLOW-UP (box-side, NEVER agent-held — plan v3 SS9 rule 1):
+      nohup python3 poc/gcp/f1k_gcp.py watchdog --max-hours 8 \
+        > watchdog.log 2>&1 &
+      verify: pgrep -f 'f1k_gcp.py watchdog'
+      guest max-life verify: gcloud compute ssh ... 'sudo shutdown --show'"""
+    import shutil, tempfile
+    verify_pins()
+    if not vm_exists():
+        die("F1K_DEPLOY", "no VM %s in %s — run provision first"
+            % (INSTANCE_NAME, ZONE))
+    for var in ("KOT_F1K_BUCKET", "COLIBRI_GIT_URL", "KOT_F1K_SPOT_RATE"):
+        if not os.environ.get(var):
+            die("F1K_DEPLOY", "%s unset (f1k_worker.sh env contract)" % var)
+    max_life_min = int(os.environ.get("KOT_F1K_GUEST_MAXLIFE_MIN", "900"))
+    # 1. remote prep [REV-B F4, gate-fix review #5]:
+    #    - DEPENDENCIES the worker actually needs, VERIFIED on a fresh
+    #      image: google-cloud-cli (gsutil — chosen over curl+signed URLs
+    #      because the worker performs MANY dynamic writes: estate rsync,
+    #      heartbeats, gate mirrors; per-object URL minting is unworkable,
+    #      and the VM's service account auths gsutil natively) +
+    #      python3-pip (tokenizers/HF staging). Most GCE images ship both
+    #      — verify, never assume.
+    #    - RAID by STATE, not directory existence: `mountpoint -q` decides;
+    #      a reboot re-assembles /dev/md0 and re-MOUNTS (mkfs ONLY on
+    #      first creation) — a bare /mnt/nvme dir on the boot disk can
+    #      never silently swallow the ~384 GB estate.
+    remote = (
+        "set -euo pipefail\n"
+        "sudo apt-get update -qq\n"
+        "command -v gsutil >/dev/null 2>&1"
+        " || sudo apt-get install -y -qq google-cloud-cli\n"
+        "command -v gsutil >/dev/null 2>&1"
+        " || { echo 'ERR: gsutil unavailable (google-cloud-cli install"
+        " failed)'; exit 2; }\n"
+        "command -v pip3 >/dev/null 2>&1"
+        " || sudo apt-get install -y -qq python3-pip\n"
+        "command -v pip3 >/dev/null 2>&1"
+        " || { echo 'ERR: pip3 unavailable'; exit 2; }\n"
+        "if ! mountpoint -q /mnt/nvme; then\n"
+        "  sudo apt-get install -y -qq mdadm\n"
+        "  if [ ! -e /dev/md0 ]; then\n"
+        "    sudo mdadm --assemble /dev/md0 2>/dev/null || true\n"
+        "  fi\n"
+        "  if [ ! -e /dev/md0 ]; then\n"
+        "    DEVS=$(ls /dev/disk/by-id/google-local-nvme-ssd-* 2>/dev/null)\n"
+        "    N=$(echo \"$DEVS\" | wc -w)\n"
+        "    [ \"$N\" -eq %d ] || { echo \"ERR: $N local NVMe != %d\"; exit 2; }\n"
+        "    sudo mdadm --create /dev/md0 --level=0 --raid-devices=%d $DEVS\n"
+        "    sudo mkfs.ext4 -F /dev/md0\n"
+        "  fi\n"
+        "  sudo mkdir -p /mnt/nvme\n"
+        "  sudo mount /dev/md0 /mnt/nvme && sudo chown \"$USER\" /mnt/nvme\n"
+        "  mountpoint -q /mnt/nvme"
+        " || { echo 'ERR: /mnt/nvme still not a mountpoint'; exit 2; }\n"
+        "fi\n"
+        "sudo shutdown -P +%d 'kot-f1k guest max-life backstop'\n"
+        % (LOCAL_SSD_COUNT, LOCAL_SSD_COUNT, LOCAL_SSD_COUNT, max_life_min))
+    gcloud("compute", "ssh", INSTANCE_NAME, "--zone", ZONE,
+           "--command", remote)
+    # 2. assemble the bundle locally in the worker's expected layout
+    stage = Path(tempfile.mkdtemp(prefix="kot-f1k-bundle-"))
+    bundle = stage / "f1k"
+    bundle.mkdir()
+    for f in ("f1k_worker.sh", "bringup_gcp.sh", "f1k_bringup_gate.py"):
+        shutil.copy2(HERE / f, bundle / f)
+    # [REV-B F4] failure-visible launcher: ANY worker exit != 0 — incl.
+    # `set -e` deaths that bypass die() and its heartbeat — writes a
+    # FAILED heartbeat the watchdog acts on promptly (no max-life wait).
+    # [REV-C, rereview finding 4 residual] the GCS upload is no longer a
+    # single `|| true` shot: (1) a LOCAL on-disk FAILED marker is written
+    # FIRST (unconditional — visible to the watchdog's SSH-side probe even
+    # when GCS/auth/network is down), then (2) the upload retries 5x with
+    # exponential backoff. HONEST RESIDUAL: if GCS is unreachable AND the
+    # VM is not SSH-reachable (dead sshd/network), the failure stays
+    # invisible until the guest max-life backstop — stated, not hidden.
+    (bundle / "f1k_launch.sh").write_text(
+        "#!/usr/bin/env bash\n"
+        "# generated by f1k_gcp.py bringup-deploy [REV-B F4 + REV-C]\n"
+        "cd \"$(dirname \"$0\")\"\n"
+        "bash f1k_worker.sh > worker.log 2>&1\n"
+        "rc=$?\n"
+        "if [ \"$rc\" -ne 0 ]; then\n"
+        "  printf '{\"ts\":\"%s\",\"stage\":\"FAILED: worker exit rc=%d\","
+        "\"rc\":%d}\\n' \"$(date -u +%FT%TZ)\" \"$rc\" \"$rc\" "
+        "> failed-heartbeat.json\n"
+        "  cp failed-heartbeat.json FAILED   # local marker, ALWAYS [REV-C]\n"
+        "  for i in 1 2 3 4 5; do\n"
+        "    gsutil -q cp failed-heartbeat.json "
+        "\"$KOT_F1K_BUCKET/f1k/bringup/heartbeat.json\" && break\n"
+        "    echo \"heartbeat upload attempt $i failed; retrying\" >&2\n"
+        "    sleep $((2**i))\n"
+        "  done\n"
+        "fi\n"
+        "exit \"$rc\"\n")
+    shutil.copy2(HARNESS / "tok_glm52.py", bundle / "tok_glm52.py")
+    shutil.copytree(KAE_PATCH_DIR, bundle / "kae-patch-draft")
+    shutil.copytree(DUMP_PATCH_DIR, bundle / "dump-patch")
+    gc = bundle / "gate-corpus"
+    gc.mkdir()
+    shutil.copy2(PIN_PATHS["construction-manifest.jsonl"],
+                 gc / "construction-manifest.jsonl")
+    items = REPO / "data" / "f1k-eval-v1" / "items"
+    for f in ("test.jsonl", "dev.jsonl", "guard.jsonl"):
+        shutil.copy2(items / f, gc / f)
+    manifest = {str(p.relative_to(bundle)): sha256_file(p)
+                for p in sorted(bundle.rglob("*")) if p.is_file()}
+    (bundle / "bundle-manifest.json").write_text(json.dumps(manifest,
+                                                            indent=1))
+    print("bundle: %d files; manifest sha %s"
+          % (len(manifest),
+             hashlib.sha256(json.dumps(manifest,
+                                       sort_keys=True).encode())
+             .hexdigest()[:16]))
+    gcloud("compute", "scp", "--recurse", "--zone", ZONE,
+           str(bundle), "%s:~/" % INSTANCE_NAME)
+    # 3. launch the worker detached VIA THE LAUNCHER (FAILED-heartbeat
+    #    wrapper) with the env contract [REV-B F4]
+    launch = ("cd ~/f1k && setsid nohup env KOT_F1K_BUCKET='%s' "
+              "COLIBRI_GIT_URL='%s' KOT_F1K_SPOT_RATE='%s' "
+              "bash f1k_launch.sh > launcher.log 2>&1 & echo LAUNCHED-$!"
+              % (os.environ["KOT_F1K_BUCKET"],
+                 os.environ["COLIBRI_GIT_URL"],
+                 os.environ["KOT_F1K_SPOT_RATE"]))
+    gcloud("compute", "ssh", INSTANCE_NAME, "--zone", ZONE,
+           "--command", launch)
+    print("bringup-deploy DONE: RAID+mount, bundle pushed (manifest above), "
+          "worker launched detached, guest max-life %d min armed. NOW start "
+          "the box-side watchdog (docstring) and verify with pgrep."
+          % max_life_min)
+
+
+def cmd_watchdog() -> None:
+    """Box-side teardown watchdog (plan v3 SS9 rule 1: long runs are driven
+    by the box-side watchdog + the autonomous on-VM worker, NEVER an
+    agent-held monitor). Parameterized promotion of the proven runner-10
+    run-dir watchdog (8efa0f65). Polls every --poll-seconds; deletes the VM
+    on (a) the --max-hours deadline or (b) a FAILED GCS heartbeat when
+    KOT_F1K_BUCKET is set. Run it under nohup on the control box."""
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--max-hours", type=float, required=True)
+    ap.add_argument("--poll-seconds", type=int, default=180)
+    args = ap.parse_args(sys.argv[2:])
+    deadline = time.time() + args.max_hours * 3600.0
+    bucket = os.environ.get("KOT_F1K_BUCKET", "")
+    while True:
+        if not vm_exists():
+            print("watchdog: VM %s gone; exiting clean." % INSTANCE_NAME)
+            return
+        failed_hb = False
+        if bucket:
+            r = subprocess.run(
+                ["gsutil", "-q", "cat",
+                 bucket + "/f1k/bringup/heartbeat.json"],
+                capture_output=True, text=True)
+            failed_hb = r.returncode == 0 and '"FAILED' in r.stdout
+        if not failed_hb:
+            # [REV-C, rereview finding 4 residual] SSH-side probe for the
+            # launcher's LOCAL FAILED marker — covers the window where the
+            # worker died but the GCS heartbeat upload could not land
+            # (GCS/auth/network trouble). A probe FAILURE is INCONCLUSIVE
+            # (VM booting/ssh flake), never a teardown trigger by itself;
+            # a VM unreachable via BOTH GCS and SSH stays covered only by
+            # the max-life backstop (stated residual).
+            try:
+                pr = gcloud("compute", "ssh", INSTANCE_NAME,
+                            "--zone", ZONE, "--command",
+                            "test -f ~/f1k/FAILED "
+                            "&& echo KOT-F1K-FAILED-LOCAL; true",
+                            check=False, capture=True)
+                if pr.returncode == 0 and "KOT-F1K-FAILED-LOCAL" \
+                        in pr.stdout:
+                    failed_hb = True
+                    print("watchdog: local FAILED marker seen via SSH "
+                          "(GCS heartbeat absent/stale)")
+            except Exception as ex:                        # noqa: BLE001
+                print("watchdog: SSH probe inconclusive (%s)" % ex)
+        if time.time() >= deadline or failed_hb:
+            print("watchdog: %s -> teardown"
+                  % ("FAILED heartbeat" if failed_hb else
+                     "max-life deadline"))
+            cmd_teardown()
+            return
+        time.sleep(args.poll_seconds)
+
+
+def cmd_pin_fetch() -> None:
+    """[REV-B F3, gate-fix review #4] Fetch + BYTE-VERIFY the licensed
+    campaign pin and print the exact construction env exports — the
+    construction command NEVER inherits ambient PIN/PIN_GB (the carrier
+    builder would silently use whatever the environment happened to hold,
+    build_carriers.py:634 lineage). Fail-closed at every step:
+      - the gate artifact must be verdict GREEN, regime pinned-bringup;
+      - the fetched GCS bytes must sha256-match pin.pin_file_sha256;
+      - PIN_GB is echoed FROM THE ARTIFACT (the licensed value).
+    usage: f1k_gcp.py pin-fetch --gate <bringup-gate.json> --out <dir>"""
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--gate", required=True)
+    ap.add_argument("--out", required=True)
+    args = ap.parse_args(sys.argv[2:])
+    bucket = os.environ.get("KOT_F1K_BUCKET", "")
+    if not bucket:
+        die("F1K_PIN_FETCH", "KOT_F1K_BUCKET unset")
+    art = json.loads(Path(args.gate).read_text(encoding="utf-8"))
+    if art.get("schema") != "kot-f1k-bringup-gate/2":
+        # [REV-C F5ii] literal (no gate-module import on the control box):
+        # only the /2 model-bundle-bound artifact licenses construction.
+        die("F1K_PIN_FETCH", "gate artifact schema %r != "
+            "kot-f1k-bringup-gate/2 — refuse" % art.get("schema"))
+    if art.get("verdict") != "GREEN":
+        die("F1K_PIN_FETCH", "gate artifact verdict %r — only a GREEN "
+            "license carries a construction pin" % art.get("verdict"))
+    pin = art.get("pin") or {}
+    if pin.get("regime") != "pinned-bringup" \
+            or not pin.get("pin_file_sha256") or not pin.get("pin_gb"):
+        die("F1K_PIN_FETCH", "gate artifact pin block incomplete/unpinned "
+            "(%r) — shape (i) requires a bound sha + PIN_GB" % (pin,))
+    outdir = Path(args.out)
+    outdir.mkdir(parents=True, exist_ok=True)
+    dest = outdir / "campaign-pin.stats"
+    rc = subprocess.run(["gsutil", "-q", "cp",
+                         bucket + "/f1k/bringup/campaign-pin.stats",
+                         str(dest)])
+    if rc.returncode != 0 or not dest.is_file():
+        die("F1K_PIN_FETCH", "gsutil fetch of campaign-pin.stats failed")
+    got = sha256_file(dest)
+    if got != pin["pin_file_sha256"]:
+        die("F1K_PIN_FETCH", "fetched pin sha %s != licensed %s — the "
+            "persisted bytes are NOT the licensed pin; fail closed"
+            % (got, pin["pin_file_sha256"]))
+    # [REV-C] eval-safe split: exports alone on stdout (so
+    # `eval "$(... pin-fetch ...)"` is exact), diagnostics on stderr.
+    sys.stderr.write("campaign pin verified: %s (sha %s...)\n"
+                     % (dest, got[:16]))
+    print("export PIN=%s" % dest)
+    print("export PIN_GB=%s" % pin["pin_gb"])
 
 
 ENTRY = {
     "plan": cmd_plan, "provision": cmd_provision, "status": cmd_status,
     "teardown": cmd_teardown, "affordability": cmd_affordability,
+    "gate": cmd_gate,
+    "bringup-deploy": cmd_bringup_deploy, "watchdog": cmd_watchdog,
+    "pin-fetch": cmd_pin_fetch,
 }
 
 

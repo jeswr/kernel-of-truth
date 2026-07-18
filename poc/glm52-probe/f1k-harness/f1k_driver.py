@@ -269,6 +269,24 @@ USD_CAP = 155.0
 #   [R6-3] [REG budget.usd_cap = 155; ASM-2374 REVISION-6 ceiling,
 #    successor of the $149 ASM-2283/ASM-2205 ceiling — see WORST_CASE_*
 #    below for the recomputed 96/1573 worst-case arithmetic]
+WALL_CLOCK_CAP_HOURS = 900.0
+#   [REG budget wall-clock cap, ASM-2374 — the REV-B addendum-(7)
+#    projection tests instance-hours against this cap too]
+RESERVE_USD_ADD7 = 8.0
+#   [REV-B ASM-2516; F1K-BRINGUP-GATE-FIX.md SSA2/SSB] the plan-SS8 $8
+#   staging/overhead + ~5% preemption-rework reserve, charged AGAINST the
+#   caps in the addendum-(7) projection (usd + 8 <= 155 AND hours + 8/rate
+#   <= 900, at central AND +1SE) — the SAME reserve rule as the bring-up
+#   gate (ASM-2515): ONE projection model + ONE reserve rule at BOTH
+#   seams. The FULL $8 is kept even though part of the overhead is
+#   already inside usd_spent_prior by pilot time [STIPULATED,
+#   conservative-only].
+ADD7_KAPPA_BOUNDS = (0.5, 2.0)
+#   [REV-B ASM-2516, STIPULATED] admissible realized/model-predicted pilot
+#   throughput ratio; outside -> the frozen gate model does not transfer
+#   to the realized campaign -> ERR_F1K_AFFORD (maintainer surface).
+#   Enforced only for a REAL gate artifact (the $0 mock's stub timings
+#   carry no meaningful level; a mock artifact never licenses anything).
 SPOT_RATE_DEFAULT = 0.28
 #   [COST: $0.28/h spot i4i.2xlarge, the pessimistic corner of $0.20-0.28]
 PILOT_DEV_SUBSET_N = 48
@@ -752,8 +770,12 @@ def validate_pinning(cfg):
     pin. Engine-side arming is separately verified fail-closed from the
     pin banner/counters (check_pin_engagement). NOTE: the M4 dev-item
     pin (pin_50gb.stats, 6802cc97...) does NOT transfer — the campaign
-    pin is RE-DERIVED on the real construction corpus at bring-up
-    (F1K-CONSTRUCTION-PLAN.md §5.4); this function accepts whatever
+    pin is the LICENSED BRING-UP-DERIVED pin, run for the WHOLE
+    campaign [REV-C/REV-E: the F1K-CONSTRUCTION-PLAN.md §5.4
+    full-corpus re-derivation is WITHDRAWN — structurally impossible
+    through the sha-pinned builder; DEFERRED behind bead
+    kernel-of-truth-8cpm; this driver refuses a campaign pin whose sha
+    differs from the gate artifact's]; this function accepts whatever
     bring-up-produced stats-file the config names and pins its hash."""
     env = (cfg.get("engine") or {}).get("env") or {}
     pin = env.get("PIN")
@@ -1593,11 +1615,23 @@ class Ledger:
     ceiling resolves from the METERED spend recorded in the run's cost
     ledger]. Accumulates per-phase seconds + prefills in
     <outdir>/cost-ledger.json (atomic replace), so timing survives spot
-    interruption and spans pilot + guard + test; construction hours and
-    prior metered spend are REQUIRED config inputs, never silent zeros."""
+    interruption and spans pilot + guard + test; construction hours,
+    prior metered spend AND the prior spend's instance-hours are
+    REQUIRED config inputs, never silent zeros."""
 
     COST_KEYS = ("spot_rate_usd_per_hour", "usd_spent_prior",
-                 "construction_instance_hours")
+                 "prior_instance_hours", "construction_instance_hours")
+    #   [REV-D 1d] prior_instance_hours (gate config-cost --prior-hours:
+    #   failed construction sessions + metered pre-construction) is
+    #   REQUIRED — dollars in usd_spent_prior may never travel without
+    #   their hours, or failed-session time vanishes from the 900 h
+    #   projection basis (round-3 verdict 1d). SCOPE: it feeds the
+    #   addendum-(7) cap basis (add7_hours_basis) ONLY; the SIDECAR
+    #   surface is UNCHANGED — the FROZEN pinned analysis enforces
+    #   cost.instance_hours == construction + sum(phase_seconds)/3600
+    #   (registered identity), so instance_hours() below stays as
+    #   registered and prior hours enter the PRE-SPEND projection cap
+    #   (cap-conservative), never the frozen ledger identity.
 
     def __init__(self, outdir, cfg):
         cost = cfg.get("cost") or {}
@@ -1608,6 +1642,25 @@ class Ledger:
                      "spend / construction time — review §9; REG "
                      "budget_note meters the ledger)" % k)
         base = {k: float(cost[k]) for k in self.COST_KEYS}
+        for k in self.COST_KEYS:
+            # [REV-E 3] finiteness defense-in-depth (round-4 verdict 4;
+            # the landed PIN_GB defect class): a hand-edited NaN/inf in
+            # a required cost key (Python json.loads accepts the bare
+            # NaN literal [MEASURED]) poisons every downstream cap
+            # comparison — nan > 900 is False, so an over-hours
+            # campaign becomes GO. The gate's config-cost refuses
+            # non-finite inputs at the parse; the Ledger refuses them
+            # at init REGARDLESS of who wrote the config.
+            if not math.isfinite(base[k]) or base[k] < 0 or (
+                    k == "spot_rate_usd_per_hour" and base[k] <= 0):
+                fail("ERR_F1K_COST",
+                     "config.cost.%s = %r is not a finite %s number — "
+                     "NaN/inf/contract-violating basis values fail "
+                     "OPEN through cap comparisons; refused at Ledger "
+                     "init [REV-E]"
+                     % (k, cost[k],
+                        "positive" if k == "spot_rate_usd_per_hour"
+                        else "nonnegative"))
         base.update({"phase_seconds": {}, "prefills": {},
                      "expert_pinning": validate_pinning(cfg)})
         self.path = Path(outdir) / "cost-ledger.json"
@@ -2643,6 +2696,345 @@ def phase_test(cfg, ev, outdir, frozen, passes, ledger, mock_gold_dir=None,
     return rows_path, n_new
 
 
+# ---- KOT-ADD7-SHARED-BEGIN ------------------------------------------------
+# [REV-C F5i, F1K-BRINGUP-GATE-FIX.md SSC] ONE projection-model
+# implementation, byte-identical in poc/gcp/f1k_bringup_gate.py and
+# poc/glm52-probe/f1k-harness/f1k_driver.py. Each copy is verified at
+# runtime: block sha256 == the in-file ADD7_SRC_SHA256 constant AND (at
+# consumption) == the licensed gate artifact's model_bundle.add7_src_sha256
+# — drift in EITHER copy is a refusal, never a silent second
+# implementation. Semantics (frozen, fix memo SS2.6): piecewise-linear in T
+# over isotonic knots; below the min knot central/hi are CONSTANT
+# (cap-conservative) and the lo band extrapolates floored at
+# floor_frac*s(minknot); above the max sampled knot: Add7RangeError
+# (extrapolation above the frozen sample is FORBIDDEN — the campaign max-T
+# text is in the sample by construction).
+class Add7RangeError(ValueError):
+    """T above the max sampled knot — never extrapolated."""
+
+
+def add7_interp(knots, sfield, t, below="const", floor_frac=0.35):
+    ts = [k["T"] for k in knots]
+    ss = [k[sfield] for k in knots]
+    if t > ts[-1] + 1e-9:
+        raise Add7RangeError(
+            "T=%.0f above max sampled knot %.0f" % (t, ts[-1]))
+    if t <= ts[0]:
+        if below == "const" or len(ts) < 2:
+            return ss[0]
+        slope = (ss[1] - ss[0]) / max(1e-9, ts[1] - ts[0])
+        return max(floor_frac * ss[0], ss[0] - slope * (ts[0] - t))
+    for i in range(len(ts) - 1):
+        if t <= ts[i + 1]:
+            frac = (t - ts[i]) / max(1e-9, ts[i + 1] - ts[i])
+            return ss[i] + frac * (ss[i + 1] - ss[i])
+    return ss[-1]
+
+
+def add7_block_sha256(path):
+    """sha256 over the exact lines BETWEEN the shared-block markers
+    (marker lines excluded); None when the markers are absent/ambiguous."""
+    lines = open(path, encoding="utf-8").read().split("\n")
+    beg = [i for i, l in enumerate(lines)
+           if l.startswith("# ---- KOT-ADD7-SHARED-BEGIN")]
+    end = [i for i, l in enumerate(lines)
+           if l.startswith("# ---- KOT-ADD7-SHARED-END")]
+    if len(beg) != 1 or len(end) != 1 or end[0] <= beg[0]:
+        return None
+    body = "\n".join(lines[beg[0] + 1:end[0]])
+    return hashlib.sha256(body.encode("utf-8")).hexdigest()
+# ---- KOT-ADD7-SHARED-END --------------------------------------------------
+
+
+ADD7_SRC_SHA256 = "9d3e1bc76f8506d99a29b0465af2c063b32ba8d726e7ec2c6a65e3c596260353"
+#   [REV-C F5i] frozen sha256 of the KOT-ADD7-SHARED block body (both
+#   copies must hash to THIS value; the gate refuses to emit an artifact
+#   from a drifted copy, and this driver refuses to consume one).
+ADD7_GATE_SCHEMA = "kot-f1k-bringup-gate/2"
+#   [REV-C F5ii] the ONLY consumable gate-artifact schema: /2 adds the
+#   REQUIRED model_bundle binding (add7_src_sha256 + tokens_full_sha256).
+
+
+def add7_hours_basis(led_d, pilot_s):
+    """[REV-D 1d] the addendum-(7) 900 h projection's realized-hours
+    basis: PRIOR instance hours (failed construction sessions + metered
+    pre-construction — gate config-cost --prior-hours) + licensed
+    construction hours + realized pilot hours. Module level so the $0
+    mock exercises the SAME basis phase_pilot uses. NOT the sidecar
+    identity: the frozen analysis pins cost.instance_hours ==
+    construction + sum(phase_seconds)/3600; prior hours enter the
+    pre-spend cap projection only (cap-conservative)."""
+    return (float(led_d["prior_instance_hours"])
+            + float(led_d["construction_instance_hours"])
+            + pilot_s / 3600.0)
+
+
+def add7_cap_breach(p4, rate):
+    """[REV-C] reserve-inclusive cap test at central AND +1SE (module
+    level so the $0 mock exercises the degradation boundary with the
+    SAME predicate phase_pilot uses)."""
+    u_c, u_hi, h_c, h_hi = p4
+    reserve_h = RESERVE_USD_ADD7 / rate
+    return (u_c + RESERVE_USD_ADD7 > USD_CAP
+            or u_hi + RESERVE_USD_ADD7 > USD_CAP
+            or h_c + reserve_h > WALL_CLOCK_CAP_HOURS
+            or h_hi + reserve_h > WALL_CLOCK_CAP_HOURS)
+
+
+class Add7Model:
+    """[REV-B GAP-3b / gate-fix review #1; ASM-2516 / REV-C ASM-2517] The
+    FROZEN bring-up gate projection model (kot-f1k-bringup-gate/2,
+    model-bundle-BOUND) consumed at the
+    pilot->main seam — ONE projection model, stated once (ASM-2514/2515),
+    used by BOTH seams. Inputs (config.affordability, REQUIRED for a real
+    campaign, every path sha-verified fail-closed):
+      tokens_full_path/_sha256   the gate run's tokens-full.jsonl sidecar
+                                 (per-item T for every frozen text; its
+                                 sha is recorded in bringup-gate.json)
+      gate_artifact_path/_sha256 the GREEN bringup-gate.json (isotonic
+                                 knots + cont addend + SE rule)
+    The seam RE-LEVELS the frozen s_hat(T) SHAPE by kappa = realized pilot
+    s/prefill DIVIDED BY the model-predicted pilot blend (prefill-weighted
+    over the pilot population), then sums PER ITEM over the remaining
+    main/guard prefills at their measured token counts — never one blended
+    average times a prefill count (v3-review finding 3 lineage). kappa
+    outside ADD7_KAPPA_BOUNDS on a REAL artifact -> fail-closed (model
+    does not transfer). Below the min knot: CONSTANT (cap-conservative);
+    above the max knot: fail-closed (the campaign max-T text was sampled
+    by construction). Mirrors f1k_bringup_gate.project exactly."""
+
+    def __init__(self, cfg):
+        blk = cfg.get("affordability") or {}
+        for k in ("tokens_full_path", "tokens_full_sha256",
+                  "gate_artifact_path", "gate_artifact_sha256"):
+            if not blk.get(k):
+                fail("ERR_F1K_AFFORD",
+                     "config.affordability.%s is REQUIRED [REV-B "
+                     "ASM-2516]: the addendum-(7) projection consumes the "
+                     "FROZEN bring-up gate model + per-item token counts "
+                     "— no silent fallback to a blended average" % k)
+        for pk, sk in (("tokens_full_path", "tokens_full_sha256"),
+                       ("gate_artifact_path", "gate_artifact_sha256")):
+            got = sha256_file(blk[pk])
+            if got != blk[sk]:
+                fail("ERR_F1K_AFFORD",
+                     "affordability input %s sha %s != declared %s — the "
+                     "seam never consumes unverified model inputs"
+                     % (blk[pk], got, blk[sk]))
+        art = json.loads(Path(blk["gate_artifact_path"])
+                         .read_text(encoding="utf-8"))
+        self.mock = (art.get("tokenizer") or {}).get("mode") != "REAL"
+        if self.mock and blk.get("_allow_mock") is not True:
+            fail("ERR_F1K_AFFORD",
+                 "gate artifact tokenizer mode is not REAL and "
+                 "_allow_mock is unset — a mock gate model never enters "
+                 "a real campaign projection")
+        # ---- [REV-C F5ii] the WHOLE bundle must be the LICENSED one —
+        # a self-consistent config pointing at non-licensed bytes is
+        # refused on the ARTIFACT-recorded identities, never trusted:
+        if art.get("schema") != ADD7_GATE_SCHEMA:
+            fail("ERR_F1K_AFFORD",
+                 "gate artifact schema %r != %s — only a /2 model-bundle-"
+                 "bound artifact is consumable [REV-C]"
+                 % (art.get("schema"), ADD7_GATE_SCHEMA))
+        if art.get("verdict") != "GREEN":
+            fail("ERR_F1K_AFFORD",
+                 "gate artifact verdict %r — a non-GREEN gate never "
+                 "drives the pilot->main projection [REV-C]"
+                 % art.get("verdict"))
+        mb = art.get("model_bundle") or {}
+        if mb.get("tokens_full_sha256") != blk["tokens_full_sha256"]:
+            fail("ERR_F1K_AFFORD",
+                 "config-declared sidecar sha %r != the ARTIFACT-recorded "
+                 "model_bundle.tokens_full_sha256 %r — the config binds "
+                 "whatever the ARTIFACT licensed, not what it declares "
+                 "about itself [REV-C F5ii]"
+                 % (blk["tokens_full_sha256"][:16],
+                    (mb.get("tokens_full_sha256") or "")[:16]))
+        own = add7_block_sha256(__file__)
+        if own != ADD7_SRC_SHA256 or mb.get("add7_src_sha256") != own:
+            fail("ERR_F1K_AFFORD",
+                 "shared-model identity broken (own block %r, frozen %s, "
+                 "artifact %r) — ONE model implementation, sha-verified; "
+                 "a drifted copy never projects [REV-C F5i]"
+                 % (own and own[:16], ADD7_SRC_SHA256[:16],
+                    (mb.get("add7_src_sha256") or "")[:16]))
+        rate_cfg = float((cfg.get("cost") or {})
+                         .get("spot_rate_usd_per_hour", -1.0))
+        rate_art = float((art.get("rate") or {}).get("usd_per_hour", -2.0))
+        if rate_cfg != rate_art:
+            fail("ERR_F1K_AFFORD",
+                 "config cost rate %r != the gate artifact's licensed "
+                 "rate %r — the projection was licensed AT that rate; a "
+                 "different campaign rate is a different license "
+                 "[REV-C F5ii]" % (rate_cfg, rate_art))
+        if not self.mock:
+            cur_pin = validate_pinning(cfg)
+            if (art.get("pin") or {}).get("pin_file_sha256") \
+                    != cur_pin["pin_file_sha256"]:
+                fail("ERR_F1K_PINNING",
+                     "campaign pin sha %r != the gate artifact's licensed "
+                     "pin %r — REV-C runs the LICENSED bring-up pin for "
+                     "the whole campaign (full-corpus re-derivation is "
+                     "DEFERRED, no rebind path exists); a different pin "
+                     "is a different license"
+                     % (cur_pin["pin_file_sha256"][:16],
+                        ((art.get("pin") or {})
+                         .get("pin_file_sha256") or "")[:16]))
+        self.knots = sorted(art["model"]["knots_isotonic"],
+                            key=lambda k: k["T"])
+        if not self.knots:
+            fail("ERR_F1K_AFFORD", "gate artifact carries no knots")
+        self.cont = art["model"]["cont_tokens_addend"]
+        self.art_sha = blk["gate_artifact_sha256"]
+        self.kappa_weighting = None    # set by kappa() [REV-C F5iv]
+        # [REV-D 2] COUNT-PRESERVING sidecar load: rows are consumed as
+        # a dict, so a duplicate key (with a conflicting T) would
+        # silently overwrite and still pass a set-equality "bijection"
+        # (round-3 verdict 2). ANY duplicate key refuses — the licensed
+        # sidecar is duplicate-free by construction.
+        self.tp = {}
+        dup = set()
+        for ln in open(blk["tokens_full_path"], encoding="utf-8"):
+            if ln.strip():
+                e = json.loads(ln)
+                if e["key"] in self.tp:
+                    dup.add(e["key"])
+                self.tp[e["key"]] = e["T"] + self.cont
+        if dup:
+            fail("ERR_F1K_AFFORD",
+                 "gate tokens sidecar carries %d DUPLICATE key(s) (e.g. "
+                 "%s) — duplicate rows would silently overwrite the "
+                 "per-item T; refused, never collapsed [REV-D 2]"
+                 % (len(dup), sorted(dup)[:3]))
+
+    def verify_corpus(self, ev):
+        """[REV-C F5ii corpus identity, driver-verifiable form; REV-D 2
+        COUNT-PRESERVING] the licensed sidecar must cover EXACTLY this
+        campaign's eval items: the {pilot, main-tmpl, main-d3, guard}
+        key sets are a bijection with the loaded ev splits. STRICTNESS
+        [REV-D]: duplicates are refused on BOTH sides BEFORE the set
+        comparison — the sidecar rows at load (__init__) and the eval
+        inventory here — because sets silently collapse duplicates, so
+        set equality alone is not a bijection (byte-identity of the
+        corpora stays enforced gate-side via corpus_sha256 and
+        driver-side via the landed verify_corpus_pins; this check binds
+        the TWO records to the SAME item universe)."""
+        want_l = []
+        for it in ev["dev"]:
+            want_l.append("pilot:%s" % it["item_id"])
+        for it in ev["test"]:
+            want_l.append("main-tmpl:%s" % it["item_id"])
+            want_l.append("main-d3:%s" % it["item_id"])
+        for it in ev["guard"]:
+            want_l.append("guard:%s" % it["item_id"])
+        seen = set()
+        edup = set()
+        for k in want_l:
+            (edup if k in seen else seen).add(k)
+        if edup:
+            fail("ERR_F1K_AFFORD",
+                 "eval item inventory carries %d DUPLICATE id(s) (e.g. "
+                 "%s) — a set-equality check would silently collapse "
+                 "them; refused [REV-D 2]"
+                 % (len(edup), sorted(edup)[:3]))
+        want = set(want_l)
+        have = {k for k in self.tp
+                if k.split(":", 1)[0] in ("pilot", "main-tmpl", "main-d3",
+                                          "guard")}
+        if want != have:
+            fail("ERR_F1K_AFFORD",
+                 "gate sidecar item universe != this campaign's eval "
+                 "items (%d missing, %d foreign; e.g. %s) — the licensed "
+                 "bundle projects a DIFFERENT corpus [REV-C F5ii]"
+                 % (len(want - have), len(have - want),
+                    sorted(want.symmetric_difference(have))[:3]))
+
+    def _interp(self, t, field):
+        # [REV-C F5i] delegate to the SHARED implementation (KOT-ADD7-
+        # SHARED block) — the driver keeps only its error surface.
+        try:
+            return add7_interp(self.knots, field, t, below="const")
+        except Add7RangeError:
+            fail("ERR_F1K_AFFORD",
+                 "T=%.0f above the max sampled knot %.0f — extrapolation "
+                 "above the frozen sample is FORBIDDEN (the campaign "
+                 "max-T text is in the sample by construction)"
+                 % (t, self.knots[-1]["T"]))
+
+    def s_hat(self, t, hi=False):
+        if hi:
+            return self._interp(t, "s") + self._interp(t, "se")
+        return self._interp(t, "s")
+
+    def tp_of(self, key):
+        if key not in self.tp:
+            fail("ERR_F1K_AFFORD",
+                 "no token count for %r in the gate tokens-full sidecar "
+                 "— the per-item projection never guesses a length" % key)
+        return self.tp[key]
+
+    def kappa(self, realized_s_per_prefill, ev, pass_rows):
+        """[REV-C F5iv] kappa = realized pilot s/prefill / model-predicted
+        pilot blend, where the prediction is PREFILL-WEIGHTED over the
+        REALIZED pilot pass structure: each scored pilot row (grid passes
+        over the 48-item tuning subset, f1k_driver phase_pilot section 1,
+        + the full-dev-96 passes, section 3 — read back from the pilot
+        rows checkpoint) contributes one weight to its item. The REV-B
+        unweighted 96-item mean mislabeled the blend (grid traffic
+        weights the subset ~heavily); the realized-row weighting matches
+        the numerator's ledger basis (same scored prefills) exactly, and
+        stays exact under resume/REPLACE-support variation."""
+        dev_ids = {it["item_id"] for it in ev["dev"]}
+        w = {}
+        for r in pass_rows:
+            iid = r.get("item_id")
+            if iid in dev_ids:
+                w[iid] = w.get(iid, 0) + 1
+        if not w:
+            fail("ERR_F1K_AFFORD", "no pilot rows to calibrate kappa — "
+                 "the prefill-weighted blend needs the realized pass "
+                 "structure, never a guessed inventory [REV-C F5iv]")
+        num = sum(n * self.s_hat(self.tp_of("pilot:%s" % iid))
+                  for iid, n in w.items())
+        den = sum(w.values())
+        if den == 0 or num <= 0:
+            fail("ERR_F1K_AFFORD", "no pilot entries to calibrate kappa")
+        self.kappa_weighting = {
+            "rule": "prefill-weighted over the REALIZED pilot pass rows "
+                    "(grid passes weight the 48-item subset) [REV-C "
+                    "F5iv]",
+            "n_pass_rows": den, "distinct_items": len(w),
+            "weight_min": min(w.values()), "weight_max": max(w.values())}
+        k = realized_s_per_prefill / (num / den)
+        if not self.mock and not (ADD7_KAPPA_BOUNDS[0] <= k
+                                  <= ADD7_KAPPA_BOUNDS[1]):
+            fail("ERR_F1K_AFFORD",
+                 "kappa %.4f outside %s — the frozen gate model does not "
+                 "transfer to the realized pilot throughput; maintainer "
+                 "surface, never a silent projection [REV-B ASM-2516]"
+                 % (k, list(ADD7_KAPPA_BOUNDS)))
+        return k
+
+    def remaining_seconds(self, ev, d3_def, rep, kappa, hi=False):
+        """Per-item seconds for the REMAINING main + guard prefills."""
+        passes = main_arm_passes(d3_def, rep)
+        n_tmpl = sum(1 for a, _, _ in passes if a != "d3-text")
+        n_d3 = sum(1 for a, _, _ in passes if a == "d3-text")
+        n_guard = len(main_arm_passes(True, rep))
+        tot = 0.0
+        for it in ev["test"]:
+            tot += n_tmpl * self.s_hat(
+                self.tp_of("main-tmpl:%s" % it["item_id"]), hi)
+            if n_d3:
+                tot += n_d3 * self.s_hat(
+                    self.tp_of("main-d3:%s" % it["item_id"]), hi)
+        for it in ev["guard"]:
+            tot += n_guard * self.s_hat(
+                self.tp_of("guard:%s" % it["item_id"]), hi)
+        return tot * kappa
+
+
 def check_addendum_pinning(add7, cfg):
     """[ASM-2513 v3, re-review #3] The pilot addendum-7 is the THIRD
     cross-phase pin state (beside the cost ledger and the per-phase
@@ -3348,23 +3740,49 @@ def phase_pilot(cfg, ev, outdir, ledger, mock_gold_dir=None):
     # ---- 4. bring-up affordability gate (addendum (7)) --------------------
     # [FIX-7] resume-safe timing: the ledger's accumulated pilot seconds/
     # prefills, never a per-invocation stopwatch.
+    # [REV-B GAP-3b, F1K-BRINGUP-GATE-FIX.md SSB / ASM-2516] PER-ITEM
+    # token-aware + RESERVE-INCLUSIVE: the FROZEN bring-up gate model
+    # s_hat(T) (ASM-2514/2515), re-levelled by the realized pilot
+    # throughput (kappa), summed per item over the remaining main/guard
+    # prefills at their measured token counts, and tested against BOTH
+    # caps (+$8 / +8/rate hours) at central AND +1SE — never one blended
+    # average times a prefill count (the v3-review finding-3 failure
+    # mode), and never reserve-blind. ONE projection model at both seams.
     pilot_s = ledger.phase_seconds("pilot")
     pilot_pf = ledger.phase_prefills("pilot")
     s_per_prefill = pilot_s / max(pilot_pf, 1)
     rate = ledger.d["spot_rate_usd_per_hour"]
     prior = ledger.d["usd_spent_prior"]
+    a7m = Add7Model(cfg)
+    a7m.verify_corpus(ev)          # [REV-C F5ii] same item universe
+    _, k_rows = read_ckpt(rows_path)
+    kappa = a7m.kappa(s_per_prefill, ev, k_rows)   # [REV-C F5iv]
+    reserve_h = RESERVE_USD_ADD7 / rate
+    base_h = add7_hours_basis(ledger.d, pilot_s)   # [REV-D 1d] incl.
+    #   prior_instance_hours — failed-session hours never vanish from
+    #   the 900 h cap basis (the SAME module-level helper the mock
+    #   exercises)
     steps_taken = [DEGRADATION_ORDER[0]]
     d3_deferred = False
     replace_candidate = (decision == "RUN")
 
     def projection(d3_def, rep):
-        n_main = N_TEST * len(main_arm_passes(d3_def, rep))
-        n_guard = GUARD_N * len(main_arm_passes(True, rep))
-        return prior + pilot_s / 3600.0 * rate \
-            + (n_main + n_guard) * s_per_prefill / 3600.0 * rate
+        """(usd_c, usd_hi, hours_c, hours_hi): prior + realized pilot +
+        the PER-ITEM projected remainder (central / +1SE knots)."""
+        sec_c = a7m.remaining_seconds(ev, d3_def, rep, kappa)
+        sec_hi = a7m.remaining_seconds(ev, d3_def, rep, kappa, hi=True)
+        return (prior + (pilot_s + sec_c) / 3600.0 * rate,
+                prior + (pilot_s + sec_hi) / 3600.0 * rate,
+                base_h + sec_c / 3600.0,
+                base_h + sec_hi / 3600.0)
 
-    proj = projection(d3_deferred, replace_candidate)
-    if proj > USD_CAP and replace_candidate:
+    def cap_breach(p4):
+        # [REV-C] the module-level predicate — ONE reserve rule, also
+        # exercised at the degradation boundary by the $0 mock.
+        return add7_cap_breach(p4, rate)
+
+    proj4 = projection(d3_deferred, replace_candidate)
+    if cap_breach(proj4) and replace_candidate:
         # §R6 step 2: defer REPLACE (overrides an NI-gate RUN — recorded)
         steps_taken.append(DEGRADATION_ORDER[1])
         replace_candidate = False
@@ -3372,16 +3790,17 @@ def phase_pilot(cfg, ev, outdir, ledger, mock_gold_dir=None):
         replace_gate["decision"] = "DEFER"
         replace_gate["reason"] += (" | OVERRIDDEN to DEFER by the §R6 "
                                    "step-2 affordability degradation")
-        proj = projection(d3_deferred, replace_candidate)
+        proj4 = projection(d3_deferred, replace_candidate)
     elif not replace_candidate:
         steps_taken.append(DEGRADATION_ORDER[1] +
                            " [already deferred by the NI gate]")
-    if proj > USD_CAP:
+    if cap_breach(proj4):
         # [FIX-4] step 3: defer d3-text — recorded AND honored in execution
         steps_taken.append(DEGRADATION_ORDER[2])
         d3_deferred = True
-        proj = projection(d3_deferred, replace_candidate)
-    affordable = proj <= USD_CAP
+        proj4 = projection(d3_deferred, replace_candidate)
+    affordable = not cap_breach(proj4)
+    proj = proj4[0]      # central usd (legacy field/message basis)
     add7 = {
         "addendum": "(7) bring-up s/prefill + affordability/semantic "
                     "PRE-test gate [§R-REV4.2 step 5]",
@@ -3390,11 +3809,38 @@ def phase_pilot(cfg, ev, outdir, ledger, mock_gold_dir=None):
         "pilot_wall_hours": round(pilot_s / 3600.0, 6),
         "spot_rate_usd_per_hour": rate,
         "usd_spent_prior": prior,
+        "prior_instance_hours":                          # [REV-D 1d]
+            ledger.d["prior_instance_hours"],
         "construction_instance_hours":
             ledger.d["construction_instance_hours"],
         "expert_pinning": attested_pinning(ledger),      # [FIX-5+ASM-2513]
         "projected_total_usd": round(proj, 2),
         "usd_cap": USD_CAP,
+        "projection_rev_b": {                            # [REV-B ASM-2516]
+            "model": "kot-f1k-bringup-gate/2 frozen knots (gate artifact "
+                     "sha %s) re-levelled by kappa; per-item over "
+                     "remaining main/guard prefills; ONE model at both "
+                     "seams" % a7m.art_sha[:16],
+            "kappa_realized_over_predicted": round(kappa, 4),
+            "kappa_bounds": list(ADD7_KAPPA_BOUNDS),
+            "kappa_weighting": a7m.kappa_weighting,   # [REV-C F5iv]
+            "usd_total": {"central": round(proj4[0], 2),
+                          "hi": round(proj4[1], 2)},
+            "instance_hours": {"central": round(proj4[2], 1),
+                               "hi": round(proj4[3], 1)},
+            "reserve": {"usd": RESERVE_USD_ADD7,
+                        "hours_at_rate": round(reserve_h, 2),
+                        "rule": "caps reserve-inclusive at central AND "
+                                "+1SE; same rule as the bring-up gate "
+                                "(ASM-2515)"},
+            "wall_clock_cap_hours": WALL_CLOCK_CAP_HOURS,
+            "per_average_RETIRED_usd": round(
+                prior + pilot_s / 3600.0 * rate
+                + (N_TEST * len(main_arm_passes(d3_deferred,
+                                                replace_candidate))
+                   + GUARD_N * len(main_arm_passes(True,
+                                                   replace_candidate)))
+                * s_per_prefill / 3600.0 * rate, 2)},
         "degradation_order": list(DEGRADATION_ORDER),
         "degradation_steps_applied": steps_taken,
         "d3_text_deferred": d3_deferred,                      # [FIX-4]
@@ -3464,6 +3910,12 @@ def phase_pilot(cfg, ev, outdir, ledger, mock_gold_dir=None):
             "pass": placebo_ok},
         "affordability_gate": {"pass": affordable,
                                "projected_total_usd": round(proj, 2),
+                               "projected_total_usd_hi": round(proj4[1], 2),
+                               "projected_hours": round(proj4[2], 1),
+                               "projected_hours_hi": round(proj4[3], 1),
+                               "reserve_usd": RESERVE_USD_ADD7,
+                               "rule": "reserve-inclusive caps at central "
+                                       "AND +1SE [REV-B ASM-2516]",
                                "usd_cap": USD_CAP},
         "semantics_gate": {"pass": sem_ok,
                            "rule": "ASM-1971 colibri knob-semantics "
@@ -3489,9 +3941,13 @@ def phase_pilot(cfg, ev, outdir, ledger, mock_gold_dir=None):
              "§R-REV4.2)")
     if not affordable:
         fail("ERR_F1K_AFFORD",
-             "bring-up projection $%.2f exceeds the $%.0f ceiling after the "
-             "full degradation order — STOP and return to the maintainer "
-             "[§R6/§R-REV4.2]" % (proj, USD_CAP))
+             "addendum-(7) RESERVE-INCLUSIVE per-item projection breaches "
+             "a cap after the full degradation order (central $%.2f / +1SE "
+             "$%.2f vs $%.0f-$%.0f-reserve; %.1f / %.1f h vs %.0f h - "
+             "%.1f h reserve) — STOP and return to the maintainer "
+             "[§R6/§R-REV4.2; REV-B ASM-2516]"
+             % (proj4[0], proj4[1], USD_CAP, RESERVE_USD_ADD7,
+                proj4[2], proj4[3], WALL_CLOCK_CAP_HOURS, reserve_h))
     print("pilot: gates -> power OK, placebo OK (p=%.3f), semantics OK, "
           "affordability OK ($%.2f <= $%.0f); REPLACE %s"
           % (d0_p, proj, USD_CAP, decision))
@@ -3659,15 +4115,70 @@ def gen_mock_fixtures(outdir):
     # exercises the accept+hash+verify+record path with a SHAPED mock
     # pin (M4-measured '<layer> <expert> <count>' triples — accum20.stats
     # format), NEVER the real GCS-resident dev pin (pin_50gb.stats
-    # 6802cc97..., which in any case does NOT transfer: the campaign pin
-    # is re-derived on the real construction corpus at bring-up,
-    # F1K-CONSTRUCTION-PLAN.md §5.4). Deterministic literals — seeded by
-    # nothing, like every fixture here.
+    # 6802cc97..., which in any case does NOT transfer: the campaign
+    # pin is the licensed bring-up-derived pin, run for the WHOLE
+    # campaign [REV-C/REV-E — the §5.4 full-corpus re-derivation is
+    # WITHDRAWN/deferred, bead kernel-of-truth-8cpm]). Deterministic
+    # literals — seeded by nothing, like every fixture here.
     pin_path = fx / "mock-pin.stats"
     pin_path.write_text(
         "".join("%d %d %d\n" % (3 + (i % 12), i, 4096 - 17 * i)
                 for i in range(128)),
         encoding="utf-8")
+
+    # [REV-B ASM-2516] mock bring-up gate MODEL + tokens-full sidecar: the
+    # addendum-(7) pilot->main seam consumes the SAME frozen model as the
+    # bring-up gate — the $0 oracle exercises the sha-verify + per-item +
+    # reserve-inclusive path end-to-end. SHAPED mock (tokenizer mode MOCK,
+    # _allow_mock; NEVER a license input): knot s-level ~stub scale, kappa
+    # unbounded under mock (a real artifact enforces ADD7_KAPPA_BOUNDS).
+    tokens_path = fx / "mock-tokens-full.jsonl"
+
+    def _mock_t(key):
+        # [REV-C F5v] deterministic HETEROGENEOUS per-item T in [16, 52]
+        # (Tp = T+8 <= 60 stays under the mock max knot 64): the REV-B
+        # uniform T=24 traversed the per-item code without proving
+        # per-item projection — distinct T per item does.
+        return 16 + int(hashlib.sha256(key.encode("utf-8"))
+                        .hexdigest()[:4], 16) % 37
+
+    with open(tokens_path, "w", encoding="utf-8") as f:
+        for iid in split_ids["test"]:
+            t = _mock_t("main-tmpl:%s" % iid)
+            f.write(json.dumps({"key": "main-tmpl:%s" % iid,
+                                "pop": "main-tmpl", "m": 7, "W": t,
+                                "T": t}) + "\n")
+            f.write(json.dumps({"key": "main-d3:%s" % iid,
+                                "pop": "main-d3", "m": 1, "W": t + 3,
+                                "T": t + 3}) + "\n")
+        for iid in split_ids["dev"]:
+            t = _mock_t("pilot:%s" % iid)
+            f.write(json.dumps({"key": "pilot:%s" % iid, "pop": "pilot",
+                                "m": 22, "W": t, "T": t}) + "\n")
+        for iid in split_ids["guard"]:
+            t = _mock_t("guard:%s" % iid)
+            f.write(json.dumps({"key": "guard:%s" % iid, "pop": "guard",
+                                "m": 11, "W": t, "T": t}) + "\n")
+    gate_art_path = fx / "mock-bringup-gate.json"
+    write_json(gate_art_path, {
+        "schema": "kot-f1k-bringup-gate/2", "_mock": True,
+        "verdict": "GREEN",
+        "tokenizer": {"mode": "MOCK", "sha256": None},
+        "model": {"knots_isotonic": [
+            {"stratum": "bin0", "T": 16.0, "s": 0.02,
+             "se": 0.002, "n": 4},
+            {"stratum": "max", "T": 64.0, "s": 0.03,
+             "se": 0.003, "n": 1}],
+            "cont_tokens_addend": 8},
+        # [REV-C F5ii] the /2 model-bundle binding, mock-shaped: the
+        # sidecar sha is the REAL sha of the fixture sidecar and the
+        # shared-model sha is THE frozen constant — so the driver's
+        # binding checks run for real even on the $0 path.
+        "model_bundle": {"add7_src_sha256": ADD7_SRC_SHA256,
+                         "tokens_full_sha256": sha256_file(tokens_path)},
+        "rate": {"usd_per_hour": SPOT_RATE_DEFAULT},
+        "pin": {"pin_file_sha256": None, "pin_gb": 48.0,
+                "regime": "pinned-bringup", "note": "MOCK artifact"}})
 
     cfg = {
         "engine": {
@@ -3778,7 +4289,25 @@ def gen_mock_fixtures(outdir):
         # surface the real run uses.
         "cost": {"spot_rate_usd_per_hour": SPOT_RATE_DEFAULT,
                  "usd_spent_prior": 146.0,
+                 # [REV-D 1d] REQUIRED prior-hours key. 0.0 IS the
+                 # registered corner figure, not an invention: the
+                 # ASM-2374 corner's $146 usd_spent_prior is the PRICED
+                 # construction time (521.2 h x $0.28 = $145.94) — no
+                 # failed-session/pre-construction hours exist in the
+                 # registered planning corner. The nonzero path (prior
+                 # hours flip a 900 h STOP) is probed below against the
+                 # SAME add7_hours_basis/add7_cap_breach helpers.
+                 "prior_instance_hours": 0.0,
                  "construction_instance_hours": 521.2},
+        # [REV-B ASM-2516] the addendum-(7) seam's REQUIRED model inputs
+        # (sha-verified fail-closed; a REAL campaign points these at the
+        # landed gate run's artifacts, shas from bringup-gate.json)
+        "affordability": {
+            "tokens_full_path": str(tokens_path),
+            "tokens_full_sha256": sha256_file(tokens_path),
+            "gate_artifact_path": str(gate_art_path),
+            "gate_artifact_sha256": sha256_file(gate_art_path),
+            "_allow_mock": True},
     }
     cfg_path = fx / "mock-config.json"
     write_json(cfg_path, cfg)
@@ -4564,6 +5093,130 @@ def mock_main(args):
     def ref(n):
         return "f1k_driver.py:%s" % ",".join(map(str, refs.get(str(n), [])))
 
+    # ---- [REV-C F5] shared-model / bundle-binding / kappa / boundary ----
+    print("probe: [REV-C] Add7Model bundle tamper probes — the next "
+          "ERR_F1K_AFFORD lines are EXPECTED")
+    a7_art = json.loads((outdir / "pilot" /
+                         "addendum-7-affordability.json")
+                        .read_text(encoding="utf-8"))
+    prb = a7_art.get("projection_rev_b") or {}
+    kw = prb.get("kappa_weighting") or {}
+    t_vals = [json.loads(l)["T"] for l in
+              open(cfg["affordability"]["tokens_full_path"],
+                   encoding="utf-8") if l.strip()]
+    het_ok = len(set(t_vals)) >= 10
+    kw_ok = (kw.get("distinct_items") == DEV_N
+             and kw.get("n_pass_rows", 0) > DEV_N
+             and kw.get("weight_max", 0) > kw.get("weight_min", 0))
+    gate_copy = HERE.parents[1] / "gcp" / "f1k_bringup_gate.py"
+    own_a7 = add7_block_sha256(__file__)
+    shared_ok = (own_a7 == ADD7_SRC_SHA256
+                 and add7_block_sha256(gate_copy) == own_a7)
+    tam_tok = outdir / "fixtures" / "tokens-tampered.jsonl"
+    tam_tok.write_bytes(Path(cfg["affordability"]["tokens_full_path"])
+                        .read_bytes() + b"\n")
+    cfg_t = json.loads(json.dumps(cfg))
+    cfg_t["affordability"]["tokens_full_path"] = str(tam_tok)
+    try:
+        Add7Model(cfg_t)
+        tamper_closed = False
+    except DriverError:
+        tamper_closed = True
+    cfg_t2 = json.loads(json.dumps(cfg))
+    cfg_t2["affordability"]["tokens_full_path"] = str(tam_tok)
+    cfg_t2["affordability"]["tokens_full_sha256"] = sha256_file(tam_tok)
+    try:
+        Add7Model(cfg_t2)
+        bundle_closed = False
+    except DriverError:
+        bundle_closed = True
+    a7p = Add7Model(cfg)
+    a7p.verify_corpus(ev)
+    rate_p = float(cfg["cost"]["spot_rate_usd_per_hour"])
+
+    def _p4(d3d, rep, kap):
+        sc = a7p.remaining_seconds(ev, d3d, rep, kap)
+        sh = a7p.remaining_seconds(ev, d3d, rep, kap, hi=True)
+        return (sc / 3600.0 * rate_p, sh / 3600.0 * rate_p,
+                sc / 3600.0, sh / 3600.0)
+
+    kap_b = ((USD_CAP - RESERVE_USD_ADD7 - 1.0) * 3600.0 / rate_p
+             / a7p.remaining_seconds(ev, True, False, 1.0, hi=True))
+    boundary_ok = (add7_cap_breach(_p4(False, True, kap_b), rate_p)
+                   and not add7_cap_breach(_p4(True, False, kap_b),
+                                           rate_p))
+
+    # ---- [REV-D] strict-bijection + realized-hours probes ----
+    print("probe: [REV-D] bijection/prior-hours probes — the next "
+          "ERR_F1K_AFFORD / ERR_F1K_COST lines are EXPECTED")
+    # (2) a DUPLICATE sidecar key with a CONFLICTING T, re-pinned
+    # attacker-consistent through the whole bundle (config shas AND the
+    # artifact-recorded model_bundle sha all agree on the duplicated
+    # bytes) — only the count-preserving load refuses it; the old
+    # set-equality "bijection" passed it silently.
+    dup_lines = [l for l in
+                 open(cfg["affordability"]["tokens_full_path"],
+                      encoding="utf-8") if l.strip()]
+    dup_row = json.loads(dup_lines[0])
+    dup_row["T"] = dup_row["T"] + 7          # conflicting duplicate T
+    dup_tok = outdir / "fixtures" / "tokens-dup.jsonl"
+    dup_tok.write_text("".join(dup_lines) + json.dumps(dup_row) + "\n",
+                       encoding="utf-8")
+    art_dup = json.loads(
+        Path(cfg["affordability"]["gate_artifact_path"])
+        .read_text(encoding="utf-8"))
+    art_dup["model_bundle"]["tokens_full_sha256"] = sha256_file(dup_tok)
+    art_dup_p = outdir / "fixtures" / "gate-art-dup.json"
+    write_json(art_dup_p, art_dup)
+    cfg_dup = json.loads(json.dumps(cfg))
+    cfg_dup["affordability"].update({
+        "tokens_full_path": str(dup_tok),
+        "tokens_full_sha256": sha256_file(dup_tok),
+        "gate_artifact_path": str(art_dup_p),
+        "gate_artifact_sha256": sha256_file(art_dup_p)})
+    try:
+        Add7Model(cfg_dup)
+        dup_closed = False
+    except DriverError:
+        dup_closed = True
+    # (2b) a DUPLICATE eval item id — set equality would collapse it.
+    ev_dup = {"dev": ev["dev"], "test": list(ev["test"]) + [ev["test"][0]],
+              "guard": ev["guard"]}
+    try:
+        a7p.verify_corpus(ev_dup)
+        evdup_closed = False
+    except DriverError:
+        evdup_closed = True
+    # (1d) prior_instance_hours REQUIRED (missing key -> fail-closed) ...
+    cfg_nh = json.loads(json.dumps(cfg))
+    del cfg_nh["cost"]["prior_instance_hours"]
+    try:
+        Ledger(outdir / "fixtures" / "led-nh", cfg_nh)
+        nh_closed = False
+    except DriverError:
+        nh_closed = True
+    # (3) [REV-E] a HAND-EDITED NaN in a required cost key: the bare
+    # NaN literal round-trips through Python json [MEASURED], so a
+    # nan-poisoned ledger basis is representable on disk — the Ledger
+    # finiteness assert refuses it at init, whoever wrote it.
+    cfg_nan = json.loads(json.dumps(cfg))
+    cfg_nan["cost"]["prior_instance_hours"] = float("nan")
+    try:
+        Ledger(outdir / "fixtures" / "led-nan", cfg_nan)
+        nan_closed = False
+    except DriverError:
+        nan_closed = True
+    # ... and THREADED: prior hours alone flip the 900 h reserve-
+    # inclusive cap through the SAME add7_hours_basis + add7_cap_breach
+    # phase_pilot uses (521.2 construction + 380 prior + reserve > 900;
+    # identical projection sans prior clears).
+    led_ph = dict(led)
+    led_ph["prior_instance_hours"] = 380.0
+    bh_ph = add7_hours_basis(led_ph, 0.0)
+    bh_0 = add7_hours_basis(led, 0.0)
+    ph_flip = (add7_cap_breach((80.0, 80.0, bh_ph, bh_ph), rate_p)
+               and not add7_cap_breach((80.0, 80.0, bh_0, bh_0), rate_p))
+
     print("\n== MOCK SELF-CHECK (codex FIX-FIRST launch blockers 1-7) ==")
     checks = [
         ("[1] SCORER: robust stdout parse — %d banner line(s) skipped "
@@ -4740,6 +5393,47 @@ def mock_main(args):
          "(guard.n_items=0, sha re-pinned attacker-consistent, every "
          "hash check green) -> verdict %r" % (verdict_bad.get("verdict"),),
          seam_tamper),
+        ("[REV-C F5] ONE bound projection model: shared-block sha "
+         "verified in BOTH copies (%s...); /2 artifact + model_bundle "
+         "consumed; heterogeneous per-item T proven (%d distinct T over "
+         "%d sidecar items); kappa PREFILL-WEIGHTED over the realized "
+         "pilot pass rows (%d rows / %d items, weights %d..%d — grid "
+         "passes weight the 48-item subset); TAMPERED sidecar bytes "
+         "REFUSED; SELF-CONSISTENT-but-unlicensed bundle REFUSED "
+         "(artifact-recorded sha wins); sidecar item universe == this "
+         "campaign's eval items (verify_corpus)"
+         % (ADD7_SRC_SHA256[:12], len(set(t_vals)), len(t_vals),
+            kw.get("n_pass_rows", -1), kw.get("distinct_items", -1),
+            kw.get("weight_min", -1), kw.get("weight_max", -1)),
+         shared_ok and het_ok and kw_ok and tamper_closed
+         and bundle_closed),
+        ("[REV-C R6-BOUNDARY] degradation ladder exercised AT the "
+         "reserve-inclusive boundary (planted kappa %.4f): the full "
+         "arm-set BREACHES, REPLACE-defer + d3-defer CLEARS — the SSR6 "
+         "order recovers a GREEN through the SAME add7_cap_breach "
+         "predicate phase_pilot uses" % kap_b, boundary_ok),
+        ("[REV-D 2] STRICT corpus bijection (count-preserving): a "
+         "DUPLICATE sidecar key with a conflicting T REFUSED even when "
+         "re-pinned attacker-consistent through the whole bundle (the "
+         "old set-equality check passed it); a DUPLICATE eval item id "
+         "REFUSED before the set comparison",
+         dup_closed and evdup_closed),
+        ("[REV-D 1d] realized-hours accounting: cost.prior_instance_"
+         "hours REQUIRED (missing key fail-closed at Ledger init) and "
+         "THREADED into the SAME add7_hours_basis/add7_cap_breach the "
+         "pilot->main gate uses — 380 prior h alone flip the 900 h "
+         "reserve-inclusive cap (%.1f h breaches, %.1f h clears); "
+         "addendum-7 records prior_instance_hours=%s; SIDECAR surface "
+         "unchanged (frozen-analysis identity instance_hours == "
+         "construction + run re-validated by THIS mock's analysis pass)"
+         % (bh_ph, bh_0, a7_art.get("prior_instance_hours")),
+         nh_closed and ph_flip
+         and a7_art.get("prior_instance_hours") == 0.0),
+        ("[REV-E 3] cost-key FINITENESS: a hand-edited NaN in "
+         "cost.prior_instance_hours (bare-NaN JSON parses [MEASURED]) "
+         "REFUSED at Ledger init — nan > 900 is False at every cap, a "
+         "NaN basis was a fail-open GO (the PIN_GB defect class, "
+         "round-4 verdict 4)", nan_closed),
         ("governance: engine referred to only as 'colibri'; $0; no "
          "instance, no model download, no git, no registry write "
          "(official-seam runs are SANDBOXED repo copies — no real "
