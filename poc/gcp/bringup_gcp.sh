@@ -40,7 +40,7 @@ ARCH="${ARCH:-native}"                    # AMD EPYC Milan on n2d — native tun
 # reference-flags objdump pass moves OFF-BOX-ONLY (frozen bringup.sh +
 # dump-patch/real-checks.sh on the gcc-11.5 basis — untouched); here the full
 # diff lists are logged to $GATE for audit and NEVER fatal. This touches
-# NOTHING frozen (registry/experiments/f1k.json 01cf2b17 carries no
+# NOTHING frozen (registry/experiments/f1k.json 35372275 carries no
 # objdump/allowed-diff obligation); the AUTHORITATIVE fail-closed inertness
 # gate is the functional KAE-unset byte-identity gate in f1k_worker.sh
 # (toolchain-independent, real binary, real weights).

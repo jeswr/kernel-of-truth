@@ -143,7 +143,8 @@ storage/tax/transfer separately accounted.
 
 Spot interruption safety: per-item checkpoint (`rows.jsonl` is the resume
 state, torn-tail tolerant); re-invoking the same phase resumes. Expert
-pinning is ENFORCED (`PIN=1` + positive `PIN_GB`, recorded in ledger +
+pinning is ENFORCED (`PIN=<bring-up stats-file>` validated + content-
+hashed + engine-arming-verified [ASM-2513] + positive `PIN_GB`, recorded in ledger +
 sidecar — the 1.20× lever the ceiling prices; ASM-2205/ASM-2374). The guard
 **always** runs cache-off (ASM-2306).
 

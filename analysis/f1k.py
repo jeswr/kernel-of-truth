@@ -244,7 +244,9 @@ cost {the FULL resume-safe-ledger emission surface (round-4): usd_total,
 instance_hours, prefills (round-5: >= 1), usd_spent_prior,
 construction_instance_hours, spot_rate_usd_per_hour, phase_seconds
 (round-5: ALL of pilot+guard+test required, each positive),
-expert_pinning {PIN, PIN_GB, semantics}, resume_safe_ledger,
+expert_pinning {PIN (stats-file basename, never "1"), pin_file_sha256,
+pin_file_lines, PIN_GB, experts_pinned, pin_scope, semantics
+[ASM-2513]}, resume_safe_ledger,
 d3_text_deferred — typed, bounded, and ledger-coherent per
 SIDECAR_SCHEMA/validate_sidecar incl. the round-5 all-metered-work
 pricing floor},
@@ -645,9 +647,34 @@ SIDECAR_SCHEMA = _obj(
             # keys stay rejected.
             "phase_seconds": _obj({p: _t("number", min_ex=0)
                                    for p in RUN_PHASES}),
+            # [ASM-2513 PIN=<stats-file> conformance fix, 2026-07-18;
+            # kot-correction/1 seq 3]: the frozen design's pinning knob
+            # is PIN=<stats-file> with PIN_GB fixed at bring-up
+            # (glm52-followup-experiment.md §7.1:638-639); the prior
+            # _c("1") locked this ledger to a constant the engine
+            # cannot realize — a FALSE pinning attestation. TRUTHFUL
+            # provenance now required: the pin stats-file BASENAME
+            # (never the literal "1" — pattern-excluded), its content
+            # sha256, its line count, the bring-up PIN_GB, and the
+            # ENGINE-attested pinned-expert count (>= 1: a hot store
+            # verifiably loaded, driver check_pin_engagement). The
+            # engine banner FORMAT is deliberately NOT schema-locked
+            # (fetch-grade, ASM-1971; it lives in the unpinned driver)
+            # — only the hash + counters are. [v2, review #3] The PIN
+            # pattern below is mirrored VERBATIM by the driver's
+            # PIN_BASENAME_RE and enforced there at CONFIG LOAD
+            # (fail-closed BEFORE spend); THIS schema copy is the
+            # authoritative one — the two must stay textually
+            # identical (driver §1b cross-cite; oracle pin_badname
+            # probe exercises the agreement).
             "expert_pinning": _obj({
-                "PIN": _c("1"),
+                "PIN": _t("string",
+                          pattern=r"^(?!1\Z)[A-Za-z0-9._+-]{1,255}\Z"),
+                "pin_file_sha256": _HEX64,
+                "pin_file_lines": _t("int", min=1),
                 "PIN_GB": _t("number", min_ex=0),
+                "experts_pinned": _t("int", min=1),
+                "pin_scope": _c("shared-all-arms"),
                 "semantics": _t("string", min_len=1)}),
             "resume_safe_ledger": _t("string", min_len=1),
             "d3_text_deferred": _t("bool")}),
@@ -1956,10 +1983,19 @@ def _mock_sidecar(method="signflip"):
                  "spot_rate_usd_per_hour": 0.28,
                  "phase_seconds": {"pilot": 516600.0, "guard": 55000.0,
                                    "test": 1048760.0},
-                 "expert_pinning": {"PIN": "1", "PIN_GB": 40.0,
-                                    "semantics": "PIN=1 pins the hot "
-                                    "expert working set resident; PIN_GB "
-                                    "= pinned budget in GB."},
+                 # [ASM-2513] fixture in the M4-measured band (m4.json:
+                 # G40 -> 2157 experts pinned of a 2696-line G50 list);
+                 # sha256 is a schema-shape fixture value only
+                 "expert_pinning": {"PIN": "pin-bringup.stats",
+                                    "pin_file_sha256": "d0c5" * 16,
+                                    "pin_file_lines": 2696,
+                                    "PIN_GB": 40.0,
+                                    "experts_pinned": 2157,
+                                    "pin_scope": "shared-all-arms",
+                                    "semantics": "PIN=<stats-file> pins "
+                                    "the hot expert working set resident "
+                                    "under the bring-up PIN_GB budget "
+                                    "[ASM-2513]."},
                  "resume_safe_ledger": "out/f1k-main/cost-ledger.json",
                  "d3_text_deferred": False},
         "b0_ceiling_threshold": CEILING_B0,
@@ -2384,8 +2420,17 @@ def selftest():
                  _set(("cost", "instance_hours"), 400.0))
     probe_struct('cost.d3_text_deferred = "false" (string, not JSON bool)',
                  _set(("cost", "d3_text_deferred"), "false"))
-    probe_struct('cost.expert_pinning.PIN = "0" (!= pinned "1")',
-                 _set(("cost", "expert_pinning", "PIN"), "0"))
+    probe_struct('cost.expert_pinning.PIN = "1" (the SUPERSEDED literal '
+                 'is schema-REJECTED: a pinning attestation without a '
+                 'named stats-file — ASM-2513)',
+                 _set(("cost", "expert_pinning", "PIN"), "1"))
+    probe_struct("cost.expert_pinning.pin_file_sha256 = 'deadbeef' "
+                 "(short — not a derived content hash)",
+                 _set(("cost", "expert_pinning", "pin_file_sha256"),
+                      "deadbeef"))
+    probe_struct("cost.expert_pinning.experts_pinned = 0 (no hot store "
+                 "verifiably loaded — an unverified pin never validates)",
+                 _set(("cost", "expert_pinning", "experts_pinned"), 0))
     probe_struct("cost.resume_safe_ledger = '' (empty path)",
                  _set(("cost", "resume_safe_ledger"), ""))
     probe_struct('cost.phase_seconds.test = "7200" (string seconds)',

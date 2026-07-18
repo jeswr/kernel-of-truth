@@ -45,9 +45,18 @@ prints the realized line number of every anchor:
   [FIX-4] The affordability d3-text deferral (§R6 step 3) is honored in
           EXECUTION: addendum-7 records d3_text_deferred and the test
           schedule derives from it — never projection-only.
-  [FIX-5] Expert pinning ENFORCED + RECORDED: engine env must carry PIN=1
-          and PIN_GB>0 (glm52-f1k-cost-reduction.md lever 2); realized
-          pinning semantics enter the resume-safe ledger and the sidecar.
+  [FIX-5] Expert pinning ENFORCED + RECORDED (as corrected by the
+          ASM-2513 PIN=<stats-file> fix, 2026-07-18): engine env must
+          carry PIN=<bring-up-derived hot-expert stats-file> and
+          PIN_GB>0 (frozen semantics glm52-followup-experiment.md
+          §7.1:638-639; cost lever 2 glm52-f1k-cost-reduction.md /
+          ASM-2205); the stats-file is validated + content-hashed FROM
+          BYTES, engine arming is verified from the pin banner/counters
+          (never trusted from the flag), and hash + PIN_GB + realized
+          experts_pinned enter the resume-safe ledger, the sidecar, and
+          the [R10-4] resume-auth binding. The legacy literal PIN="1"
+          is REFUSED (it was never engine semantics and could only emit
+          a false pinning attestation).
   [FIX-6] PILOT: dev-96 is scored AFTER the (L,g) freeze and all dev
           inputs (delta-hat, sign-symmetry, placebo, delta_R) come from
           dev-96; frozen g = MULTIPLIER x MEAN NATIVE EXPERT WEIGHT
@@ -198,6 +207,7 @@ an ERR_F1K_* code and exits 2; nothing falls back silently (house rule:
 
 import argparse
 import array
+import fcntl
 import hashlib
 import json
 import math
@@ -708,37 +718,155 @@ def load_config(path):
     return cfg
 
 
+PIN_BASENAME_RE = re.compile(r"(?!1\Z)[A-Za-z0-9._+-]{1,255}")
+# [v2, review #3] VERBATIM mirror of the PINNED analysis schema's
+# expert_pinning.PIN pattern (analysis/f1k.py §2a:
+# r"^(?!1\Z)[A-Za-z0-9._+-]{1,255}\Z", applied via re.fullmatch — the
+# schema side is the AUTHORITATIVE copy; this driver-side constant must
+# stay textually identical to it, checked by the §1i pin_badname probe).
+# Enforced at CONFIG LOAD so a basename the pinned schema would reject
+# can never run first and be rejected only AFTER spend.
+
+
 def validate_pinning(cfg):
-    """[FIX-5] ENFORCE + RECORD expert pinning [COST lever 2 / ASM-2205:
-    'expert-pinning + warm page-cache, priced conservatively at 1.20x';
-    bringup.sh step 6: configured via the engine's PIN= / PIN_GB env].
-    Optional pass-through is not enough: an unpinned run silently voids the
-    $155 ceiling arithmetic [R6-3/ASM-2374]. Realized values are recorded
-    in the ledger and sidecar so the metered speedup resolves ASM-2205."""
+    """[FIX-5]+[ASM-2513] ENFORCE + RECORD expert pinning [COST lever 2 /
+    ASM-2205: 'expert-pinning + warm page-cache, priced conservatively at
+    1.20x'; bringup.sh step 6: configured via the engine's PIN= / PIN_GB
+    env]. FROZEN SEMANTICS (glm52-followup-experiment.md §7.1:638-639):
+    PIN=<stats-file> — the hot-expert pin list — with PIN_GB fixed at
+    bring-up from measured free RAM and recorded in the manifest; the
+    engine loads the pinned hot set FROM a stats file
+    (glm52-kernel-integration-northstar.md:92 "pin[layer] ... loadable
+    from a stats file PIN=stats.txt"). The pre-fix literal PIN=="1" was
+    NEVER the frozen (or engine) semantics: the engine would treat it as
+    a stats-file path named '1', pin nothing, and the ledger would still
+    attest pinning — the false pinning attestation this fix closes
+    (F1K-AFFORDABILITY-DECISION.md §3/§5.1). Optional pass-through is
+    still not enough: an unpinned run silently voids the $155 ceiling
+    arithmetic [R6-3/ASM-2374]. The stats-file is validated (exists,
+    non-empty UTF-8, M4-measured '<layer> <expert> <count>' int-triple
+    lines — poc/gcp/probe-results/accum20.stats; format re-verified at
+    bring-up per ASM-1971) and its content sha256 is DERIVED FROM BYTES
+    and recorded in ledger + sidecar + the [R10-4] resume-auth binding,
+    so the metered speedup resolves ASM-2205 against a NAMED, HASHED
+    pin. Engine-side arming is separately verified fail-closed from the
+    pin banner/counters (check_pin_engagement). NOTE: the M4 dev-item
+    pin (pin_50gb.stats, 6802cc97...) does NOT transfer — the campaign
+    pin is RE-DERIVED on the real construction corpus at bring-up
+    (F1K-CONSTRUCTION-PLAN.md §5.4); this function accepts whatever
+    bring-up-produced stats-file the config names and pins its hash."""
     env = (cfg.get("engine") or {}).get("env") or {}
     pin = env.get("PIN")
     pin_gb = env.get("PIN_GB")
-    if str(pin) != "1":
+    if pin is None or str(pin).strip() in ("", "0", "1"):
         fail("ERR_F1K_PINNING",
-             "engine.env.PIN must be \"1\" (expert pinning ENFORCED — the "
-             "$155 ceiling prices the 1.20x pinning lever; COST item 2 / "
+             "engine.env.PIN must be the PATH of the bring-up-derived "
+             "hot-expert stats-file (frozen semantics PIN=<stats-file>, "
+             "glm52-followup-experiment.md §7.1:638; the legacy literal "
+             "\"1\" is REFUSED — it was never engine semantics and could "
+             "only emit a false pinning attestation [ASM-2513]. The $155 "
+             "ceiling prices the 1.20x pinning lever; COST item 2 / "
              "ASM-2205/ASM-2374; got %r)" % (pin,))
+    ap = os.path.abspath(str(pin))
+    if not PIN_BASENAME_RE.fullmatch(os.path.basename(ap)):
+        fail("ERR_F1K_PINNING",
+             "engine.env.PIN basename %r violates the PINNED ledger "
+             "schema's rule [A-Za-z0-9._+-]{1,255} excluding \"1\" "
+             "(analysis/f1k.py cost.expert_pinning.PIN) — enforced HERE "
+             "at config load so a run can never spend first and be "
+             "schema-rejected after [ASM-2513 v2 review #3]"
+             % (os.path.basename(ap),))
+    try:
+        raw = Path(ap).read_bytes()
+    except OSError as e:
+        fail("ERR_F1K_PINNING",
+             "engine.env.PIN stats-file %s is not readable (%s) — a pin "
+             "that cannot be loaded would leave the run UNPINNED while "
+             "the ledger attests pinned [ASM-2513]" % (ap, e))
+    try:
+        text = raw.decode("utf-8")
+    except UnicodeDecodeError as e:
+        fail("ERR_F1K_PINNING",
+             "engine.env.PIN stats-file %s is not UTF-8 text (%s) — not "
+             "an engine stats file [ASM-2513]" % (ap, e))
+    lines = [ln for ln in text.splitlines() if ln.strip()]
+    if not lines:
+        fail("ERR_F1K_PINNING",
+             "engine.env.PIN stats-file %s is EMPTY — pins nothing "
+             "[ASM-2513]" % ap)
+    for i, ln in enumerate(lines):
+        parts = ln.split()
+        if len(parts) != 3 or not all(p.isascii() and p.isdigit()
+                                      for p in parts):
+            # [v2, review #2] ASCII digits ONLY: bare str.isdigit()
+            # admits Unicode digit codepoints — int() silently ACCEPTS
+            # some (Arabic-Indic '٣' -> 3) and CRASHES on others
+            # (superscript '²' -> ValueError) [MEASURED, python3
+            # 2026-07-18]; neither is the M4-measured ASCII format.
+            fail("ERR_F1K_PINNING",
+                 "engine.env.PIN stats-file %s line %d is not the "
+                 "M4-measured '<layer> <expert> <count>' non-negative "
+                 "ASCII int triple (%r) — malformed pin lists are "
+                 "refused, never silently skipped [ASM-1971 fetch-grade "
+                 "rider: format re-verified at bring-up; a semantic "
+                 "surprise halts for a protocol amendment BEFORE data "
+                 "collection]" % (ap, i + 1, ln[:80]))
     try:
         gb = float(pin_gb)
     except (TypeError, ValueError):
         gb = -1.0
-    if gb <= 0:
+    if not 0.0 < gb < float("inf"):
+        # [v2, review #2] FINITE positive only: float('nan') <= 0 is
+        # False and float('inf') > 0 is True [MEASURED, python3
+        # 2026-07-18], so the v1 `gb <= 0` check let NaN/inf through to
+        # fail only at the post-spawn banner-budget comparison — i.e.
+        # AFTER spend. NaN fails every comparison here; inf fails the
+        # upper bound; both are refused at config load.
         fail("ERR_F1K_PINNING",
-             "engine.env.PIN_GB must be a positive GB budget (got %r) — "
-             "realized pinning semantics are a recorded cost-model input "
-             "[COST item 2]" % (pin_gb,))
-    return {"PIN": "1", "PIN_GB": gb,
-            "semantics": "PIN=1 pins the hot expert working set resident; "
-                         "PIN_GB = pinned budget in GB. The 1.20x-"
-                         "pessimistic throughput lever of the $155 ceiling "
-                         "[glm52-f1k-cost-reduction.md item 2 / ASM-2205; "
-                         "REVISION-6 cap ASM-2374]; realized speedup "
-                         "resolves ASM-2205 from the metered ledger."}
+             "engine.env.PIN_GB must be a FINITE positive GB budget "
+             "(got %r; NaN/inf REFUSED — a non-finite budget can never "
+             "coherently match an engine banner and must fail BEFORE "
+             "spend) — fixed at bring-up from measured free RAM and "
+             "recorded [DES §7.1:639; COST item 2; ASM-2513 v2]"
+             % (pin_gb,))
+    env["PIN"] = ap          # engine receives the resolved absolute path
+    return {"PIN": os.path.basename(ap),
+            "pin_file_sha256": hashlib.sha256(raw).hexdigest(),
+            "pin_file_lines": len(lines),
+            "PIN_GB": gb,
+            "pin_scope": "shared-all-arms",
+            "semantics": "PIN=<stats-file> pins the hot expert working "
+                         "set resident (top experts by count under the "
+                         "PIN_GB budget); PIN_GB fixed at bring-up from "
+                         "measured free RAM [DES §7.1:638-639]. One "
+                         "shared bring-up-derived pin across all arms, "
+                         "recorded as such (matched-budget discipline; "
+                         "F1K-CONSTRUCTION-PLAN.md §5 item 6 minimum "
+                         "realization). The 1.20x-pessimistic throughput "
+                         "lever of the $155 ceiling [glm52-f1k-cost-"
+                         "reduction.md item 2 / ASM-2205; REVISION-6 cap "
+                         "ASM-2374]; realized speedup resolves ASM-2205 "
+                         "from the metered ledger; engine arming "
+                         "verified from the pin banner/counters "
+                         "[ASM-2513]."}
+
+
+def attested_pinning(ledger):
+    """[ASM-2513] The expert_pinning record is emitted ONLY once engine
+    arming was POSITIVELY verified this run (check_pin_engagement
+    recorded experts_pinned from the pin banner/counters). A sidecar
+    attesting pinning without an engine attestation would re-open the
+    false-attestation channel this fix closes — fail closed instead."""
+    ep = dict(ledger.d.get("expert_pinning") or {})
+    n = ep.get("experts_pinned")
+    if not isinstance(n, int) or isinstance(n, bool) or n < 1:
+        fail("ERR_F1K_PINNING",
+             "emission without a verified engine pin attestation "
+             "(expert_pinning.experts_pinned=%r) — the pin banner/"
+             "counters were never positively verified this run; a "
+             "pinning attestation is never emitted on trust [ASM-2513]"
+             % (n,))
+    return ep
 
 
 def validate_power(cfg):
@@ -1415,6 +1543,48 @@ def validate_dose(carriers_cfg):
             "norm_matched_within_tol": True}
 
 
+SPEND_START_NAME = "spend-start.jsonl"
+
+
+def write_spend_start(ledger, phase, arm, pass_no):
+    """[ASM-2513 v4, round-3 #2] Durable SPEND-START sentinel: appended
+    + fsynced (file AND directory entry) to the ledger's outdir BEFORE
+    every metered engine Popen. Semantics: an engine spawn was
+    ATTEMPTED under this outdir's ledger basis — so a hard interruption
+    in the spawn-to-first-checkpoint window (child spent; only
+    manifests/logs persisted) can never be followed by a silent
+    fresh-ledger re-init (§1e predicate includes this file). Presence,
+    not content, drives the predicate; the recorded line (phase/arm/
+    pass + pin/cost basis) is forensics for the recovery decision.
+    Fails closed: no spawn without a durable sentinel."""
+    sp = ledger.path.parent / SPEND_START_NAME
+    line = json.dumps({
+        "event": "engine-spawn-attempt",
+        "phase": phase, "arm": arm, "pass": pass_no,
+        "ledger_basis": dict(
+            {"pin_file_sha256":
+                 ledger.d["expert_pinning"]["pin_file_sha256"],
+             "PIN_GB": ledger.d["expert_pinning"]["PIN_GB"]},
+            **{k: ledger.d[k] for k in ledger.COST_KEYS})},
+        sort_keys=True)
+    try:
+        with open(sp, "a", encoding="utf-8") as sf:
+            sf.write(line + "\n")
+            sf.flush()
+            os.fsync(sf.fileno())
+        dfd = os.open(str(ledger.path.parent), os.O_RDONLY)
+        try:
+            os.fsync(dfd)      # the DIRENT too: a crash must not lose
+        finally:               # a freshly created sentinel [MEASURED:
+            os.close(dfd)      # file+dir fsync demo, this box
+    except OSError as e:       # 2026-07-18]
+        fail("ERR_F1K_COST",
+             "cannot durably record the SPEND-START sentinel %s (%s) — "
+             "an engine spawn without a durable spend mark would re-open "
+             "the spawn-to-checkpoint crash window; no spawn without it "
+             "[ASM-2513 v4 round-3 #2]" % (sp, e))
+
+
 # ---------------------------------------------------------------------------
 # Resume-safe cost/elapsed ledger
 # ---------------------------------------------------------------------------
@@ -1453,8 +1623,83 @@ class Ledger:
                          "resume with a CHANGED cost basis: ledger %s=%r "
                          "vs config %r — amend the ledger deliberately, "
                          "never silently" % (k, self.d.get(k), base[k]))
+            # [ASM-2513] resume: the realized engine attestation
+            # (experts_pinned) carries over ONLY under the SAME pin
+            # file AND the SAME PIN_GB; a changed pin OR budget at
+            # resume is refused here — this ledger is the ONLY state
+            # spanning pilot+guard+test, so this comparison (not the
+            # per-phase [R10-4] bindings, which carry `phase` and never
+            # compare across it) is what closes the phase-boundary
+            # swap [v2, review #5]. A campaign never silently swaps
+            # its pin or its budget mid-run.
+            prev = self.d.get("expert_pinning") or {}
+            if prev.get("pin_file_sha256") not in (
+                    None, base["expert_pinning"]["pin_file_sha256"]):
+                fail("ERR_F1K_PINNING",
+                     "resume with a CHANGED pin stats-file: ledger "
+                     "pin_file_sha256=%r vs config-derived %r — amend "
+                     "the ledger deliberately, never silently "
+                     "[ASM-2513/R10-4]"
+                     % (prev.get("pin_file_sha256"),
+                        base["expert_pinning"]["pin_file_sha256"]))
+            if prev.get("PIN_GB") is not None and \
+                    float(prev["PIN_GB"]) != \
+                    base["expert_pinning"]["PIN_GB"]:
+                fail("ERR_F1K_PINNING",
+                     "resume with a CHANGED PIN_GB: ledger %r vs "
+                     "config-derived %r — PIN_GB is fixed ONCE at "
+                     "bring-up (DES §7.1:639) and may not drift at a "
+                     "phase boundary (pilot/guard/test share THIS "
+                     "ledger; the per-phase [R10-4] bindings cannot "
+                     "see across it) [ASM-2513 v2 review #5]"
+                     % (prev.get("PIN_GB"),
+                        base["expert_pinning"]["PIN_GB"]))
             self.d["expert_pinning"] = base["expert_pinning"]
+            if isinstance(prev.get("experts_pinned"), int) \
+                    and not isinstance(prev.get("experts_pinned"), bool):
+                self.d["expert_pinning"]["experts_pinned"] = \
+                    prev["experts_pinned"]
         else:
+            # [ASM-2513 v3, re-review #3] MISSING-LEDGER fail-closed:
+            # this ledger is the ONLY state spanning pilot+guard+test
+            # (§1e first hunk), so its ABSENCE while campaign evidence
+            # exists means the cross-phase pin/budget comparison basis
+            # was lost or deleted — re-initializing would let a changed
+            # PIN_GB/pin enter guard/test uncompared. Refuse with the
+            # recovery path named; a fresh ledger is legal ONLY on a
+            # virgin outdir.
+            # [v4, round-3 #2] the SPEND-START sentinel leads the
+            # predicate: it is fsynced BEFORE every metered engine
+            # spawn (§1d2), so even a hard interruption in the
+            # spawn-to-first-checkpoint window — which persists only
+            # manifests/logs, none of the seven artifact paths below —
+            # leaves it behind; spend can never have occurred here
+            # without it. NOT "any outdir artifact":
+            # carrier-provenance.json legitimately precedes fresh-
+            # ledger construction and is excluded.
+            ev = [Path(outdir) / SPEND_START_NAME]     # [v4]
+            ev += [Path(outdir) / "pilot" / q for q in
+                   ("pilot-rows.jsonl", "pilot-gates.json",
+                    "addendum-5-frozen-lg.json", "addendum-6-inputs.json",
+                    "addendum-7-affordability.json")]
+            ev.append(Path(outdir) / "test" / "rows.jsonl")
+            found = [str(q) for q in ev if q.exists()]
+            found += [str(q) for q in
+                      sorted((Path(outdir) / "guard").glob("raw.*.jsonl"))]
+            if found:
+                fail("ERR_F1K_COST",
+                     "cost-ledger.json is MISSING but campaign evidence "
+                     "(SPEND-START sentinel and/or artifacts/"
+                     "checkpoints) exists under %s (%s%s) — a "
+                     "fresh ledger here would re-initialize the "
+                     "cross-phase pin/budget basis silently. RECOVERY: "
+                     "restore the atomic-replace-persisted "
+                     "cost-ledger.json from the interrupted run, or "
+                     "obtain a maintainer-authorized reset that "
+                     "ARCHIVES the listed evidence first "
+                     "[ASM-2513 v3 re-review #3 / v4 round-3 #2]"
+                     % (outdir, "; ".join(found[:3]),
+                        ", ..." if len(found) > 3 else ""))
             self.d = base
             self._write()
         # [R3-COST] a resumed/prior-spend ledger already over the ceiling
@@ -1679,6 +1924,152 @@ def check_kae_engagement(stderr_path, env, where):
                  "— arm contamination, fail closed" % where)
 
 
+PIN_ARMED_RE = re.compile(
+    r"\[PIN\] hot-expert store armed: pinned (\d+) experts?, "
+    r"([0-9.]+) GiB \(budget ([0-9.]+) GiB\) from (\S+)")
+#   [MOCK mock_colibri.py pin banner. The REAL colibri pin-report wording
+#    is FETCH-GRADE (ASM-1971) — re-verified from the checkout at the
+#    bring-up knob-semantics re-verification (DES §7.1: "any semantic
+#    surprise ... halts the run for a protocol amendment BEFORE data
+#    collection, never after"). This driver is NOT sha-pinned (frozen
+#    record: "f1k_driver.py, not sha-pinned here"), so aligning this
+#    regex to the verified real banner is a recorded run-log amendment,
+#    not a re-freeze; the PINNED analysis carries only the pin-file HASH
+#    + counters, never the banner format — deliberately, so bring-up
+#    format alignment cannot touch the frozen surface.]
+PIN_DISABLED_MARKERS = (
+    "[PIN] cannot open", "[PIN] malformed", "[PIN] no experts",
+    "pinning DISABLED",
+)
+PIN_CHECKS = {"n": 0}
+
+
+def check_pin_engagement(stderr_file, stderr_path, banner_text, env,
+                         where, ledger=None, *, stderr_start):
+    """[ASM-2513] POSITIVE pin-engagement verification: PIN=<stats-file>
+    in the env REQUIRES a pin-armed banner (on captured stderr or the
+    pre-result stdout banners) whose COUNTERS confirm a hot store
+    actually loaded — verify, never trust the env flag [F4/
+    F1K-AFFORDABILITY-DECISION.md §3; CONSTRUCTION-PLAN §5]. Mirrors
+    [FIX-2]: called BEFORE the first scored item is accepted. Coherence:
+    1 <= experts_pinned <= pin-file lines; the banner's used GiB is
+    strictly positive; the banner's budget equals the validated PIN_GB
+    (1% tolerance); the banner's source file is the validated pin file;
+    the file bytes still hash to the ledger's pin_file_sha256 (no
+    mid-run swap). Realized experts_pinned is recorded in the
+    resume-safe ledger (and thence the sidecar via attested_pinning).
+    [v2, review #2 — SECURITY] `stderr_start` is the BYTE OFFSET of the
+    stderr log captured by run_scoring_pass AFTER opening the log and
+    BEFORE spawning the engine: the log has a DETERMINISTIC filename
+    and is opened in APPEND mode, so after an interruption it still
+    holds a PRIOR invocation's armed banner — v1's whole-file scan let
+    that stale banner authorize a NEW process that never armed (a false
+    attestation, the exact channel this fix closes). Only the slice
+    [stderr_start:] — bytes this invocation's engine wrote — plus this
+    invocation's freshly collected stdout banners may satisfy the
+    check. A log shorter than stderr_start (truncated under us) is
+    refused outright.
+    [v3, re-review #1 — SECURITY] The evidence is DESCRIPTOR-BOUND:
+    `stderr_file` is the very file object whose descriptor the child
+    inherited (Popen(stderr=errf) dups it), and the slice is read with
+    os.fstat + os.pread ON THAT DESCRIPTOR — a rotation/replacement of
+    the PATHNAME between spawn and check cannot substitute evidence
+    (the v2 by-name Path.read_bytes() re-open could: a replacement of
+    length >= stderr_start carrying a stale banner after the offset
+    passed the short-file guard). `stderr_path` is retained for error
+    messages ONLY. `stderr_start` is a REQUIRED keyword-only argument
+    (the permissive =0 default is REMOVED): no call site can silently
+    fall back to whole-file semantics. Concurrent-ownership honesty
+    [best-effort, tagged]: §1d holds a non-blocking exclusive flock on
+    the log descriptor for the whole invocation, which REFUSES a
+    second cooperating driver instance on the same path (the realistic
+    double-resume race, incl. same-inode openers); an UNCOOPERATIVE
+    same-box writer appending a forged banner to the same inode is
+    invisible to advisory locking — that residue is outside the threat
+    model (such a writer could equally forge the pin file itself
+    before hashing) and is named here, not hidden."""
+    if not env.get("PIN"):
+        fail("ERR_F1K_PINNING",
+             "%s: engine env carries NO PIN at engagement time — "
+             "pinning is MANDATORY (validate_pinning already passed at "
+             "config load, so a missing PIN here means the env was "
+             "corrupted between load and spawn); the engagement check "
+             "is never silently skipped [ASM-2513 v2 review #2]" % where)
+    PIN_CHECKS["n"] += 1
+    # [v3, re-review #1] fstat + pread on the RETAINED descriptor —
+    # never a by-name re-open (see docstring; requires the §1d "a+"
+    # open mode: os.pread on a write-only "a" descriptor raises EBADF
+    # [MEASURED, this box 2026-07-18])
+    st = os.fstat(stderr_file.fileno())
+    if stderr_start > st.st_size:
+        fail("ERR_F1K_PINNING",
+             "%s: stderr log %s (%d bytes at the retained descriptor) "
+             "is SHORTER than the pre-spawn offset %d — the log was "
+             "truncated under this invocation; no banner in it is "
+             "attributable [ASM-2513 v2 review #2 / v3 re-review #1]"
+             % (where, stderr_path, st.st_size, stderr_start))
+    # ONLY the current invocation's slice of the SAME file object the
+    # child wrote to — never a prior run's banner, never a pathname
+    # decoy's bytes
+    raw_slice = os.pread(stderr_file.fileno(),
+                         st.st_size - stderr_start, stderr_start)
+    text = raw_slice.decode("utf-8", errors="replace")
+    text = text + "\n" + (banner_text or "")
+    disabled = [m for m in PIN_DISABLED_MARKERS if m in text]
+    if disabled:
+        fail("ERR_F1K_PINNING",
+             "%s: engine reported pinning DISABLED (%s) with PIN=%s — "
+             "the run would stream UNPINNED while the ledger attests "
+             "pinned (voids the ASM-2205/ASM-2374 $155 lever); fail "
+             "closed [ASM-2513]" % (where, disabled, env.get("PIN")))
+    m = PIN_ARMED_RE.search(text)
+    if not m:
+        fail("ERR_F1K_PINNING",
+             "%s: no positive pin-armed banner for PIN=%s (stderr: %s) "
+             "— a hot store was never verifiably loaded; a pinning "
+             "attestation is never emitted on trust [ASM-2513]"
+             % (where, env.get("PIN"), stderr_path))
+    n_pinned, gb_used = int(m.group(1)), float(m.group(2))
+    gb_budget, src = float(m.group(3)), m.group(4)
+    if not gb_used > 0.0:
+        # [v2, review #2] a banner attesting 0.000 GiB resident pinned
+        # NOTHING regardless of its expert count — refuse (NaN also
+        # fails this comparison)
+        fail("ERR_F1K_PINNING",
+             "%s: engine pin banner reports %.3f GiB used — a hot "
+             "store holding zero bytes resident is not a pinned store; "
+             "a pinning attestation is never emitted for it "
+             "[ASM-2513 v2]" % (where, gb_used))
+    rec = validate_pinning({"engine": {"env": dict(env)}})
+    if src != rec["PIN"]:
+        fail("ERR_F1K_PINNING",
+             "%s: engine pinned from %r != the validated stats-file %r "
+             "— wrong pin loaded [ASM-2513]" % (where, src, rec["PIN"]))
+    if not 1 <= n_pinned <= rec["pin_file_lines"]:
+        fail("ERR_F1K_PINNING",
+             "%s: engine reports %d pinned experts vs a stats-file "
+             "listing %d — incoherent counters (a zero or over-listed "
+             "pin is not a verified hot store) [ASM-2513]"
+             % (where, n_pinned, rec["pin_file_lines"]))
+    if abs(gb_budget - rec["PIN_GB"]) > 0.01 * max(1.0, rec["PIN_GB"]) \
+            or gb_used > gb_budget * 1.01:
+        fail("ERR_F1K_PINNING",
+             "%s: engine pin budget %.3f GiB / used %.3f GiB vs the "
+             "validated PIN_GB=%.3f — budget mismatch (matched-budget "
+             "discipline DES §7.1) [ASM-2513]"
+             % (where, gb_budget, gb_used, rec["PIN_GB"]))
+    if ledger is not None:
+        lp = ledger.d["expert_pinning"].get("pin_file_sha256")
+        if lp != rec["pin_file_sha256"]:
+            fail("ERR_F1K_PINNING",
+                 "%s: pin stats-file content hash %s != the ledger's "
+                 "%s — the pin file changed MID-RUN; a campaign never "
+                 "silently swaps its pin [ASM-2513/R10-4]"
+                 % (where, rec["pin_file_sha256"], lp))
+        ledger.d["expert_pinning"]["experts_pinned"] = n_pinned
+        ledger._write()
+
+
 def run_scoring_pass(cfg, items, arm, pass_no, seed, env, out_rows_path,
                      done_keys, ledger=None, mock_gold_dir=None,
                      phase="test", interrupt_state=None, store_raw=False,
@@ -1730,16 +2121,62 @@ def run_scoring_pass(cfg, items, arm, pass_no, seed, env, out_rows_path,
     sdir = workdir / "stderr"
     sdir.mkdir(parents=True, exist_ok=True)
     stderr_path = sdir / ("%s.%s.pass%d.log" % (phase, arm, pass_no))
-    errf = open(stderr_path, "a", encoding="utf-8")
+    errf = open(stderr_path, "a+", encoding="utf-8")
+    # [ASM-2513 v3, re-review #1] "a+" (O_RDWR|O_APPEND), not "a":
+    # check_pin_engagement reads its evidence back through THIS
+    # descriptor (os.pread — which raises EBADF on a write-only "a"
+    # fd [MEASURED, this box 2026-07-18]); append semantics for the
+    # child are unchanged.
+    try:
+        fcntl.flock(errf.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError:
+        fail("ERR_F1K_PINNING",
+             "%s/%s pass %d: stderr log %s is flock-held by ANOTHER "
+             "LIVE invocation — concurrent ownership of the evidence "
+             "log is REFUSED (the double-resume race); wait for or "
+             "stop the other driver [ASM-2513 v3 re-review #1; "
+             "advisory lock = cooperating-writer guarantee ONLY — "
+             "honesty note in §1c docstring]"
+             % (phase, arm, pass_no, stderr_path))
+    # [ASM-2513 v2, review #2 / v3 re-review #1] pre-spawn BYTE
+    # offset: the log filename is DETERMINISTIC and the file is opened
+    # in APPEND mode, so after an interruption a PRIOR invocation's
+    # armed banner is still in the file. Captured after open (which
+    # creates the file) and BEFORE Popen — the engine's first byte
+    # lands at exactly this offset — so check_pin_engagement can only
+    # be satisfied by evidence THIS invocation's engine produced.
+    # (v3: os.fstat on the DESCRIPTOR, not os.path.getsize(name) —
+    # getsize re-binds to the pathname, the exact channel re-review #1
+    # closes; not errf.tell(): text-mode tell() is an opaque cookie,
+    # not a byte offset. The driver itself never writes to errf; the
+    # flock above spans the child's lifetime because Popen dups this
+    # fd — child and driver share ONE open file description.)
+    err_start = os.fstat(errf.fileno()).st_size
     # [FIX-1] per-item label-logit + frozen-tie log (design DV: "tie-break
     # lowest label index, ties logged" [REG dependent_vars item_correct]).
     llog = open(workdir / ("label-logits.%s.jsonl" % phase), "a",
                 encoding="utf-8")
+    if ledger is not None:
+        # [ASM-2513 v4, round-3 #2] durable SPEND-START sentinel,
+        # fsynced BEFORE Popen: from the spawn onward the child can
+        # SPEND before ANY of the seven §1e artifact/checkpoint paths
+        # exists (the selected-rows checkpoint opens only at :1755) —
+        # a hard interruption in that window previously left only
+        # manifests (:1702) and logs (:1733/:1736), none of them
+        # predicate sentinels, so a subsequently missing
+        # cost-ledger.json fresh-inited silently. Now every METERED
+        # spawn (ledger is not None — every campaign pass call site
+        # carries ledger=ledger: :2123/:2180/:2676/:2741/:2745/
+        # :2749/:2755; only unmetered mock/probe spawns pass None and
+        # have no ledger basis to protect) is preceded by a durable
+        # mark the §1e missing-ledger predicate includes. The helper
+        # fails closed on OSError: no spawn without a durable sentinel.
+        write_spend_start(ledger, phase, arm, pass_no)
     proc = subprocess.Popen(argv, env=env, stdout=subprocess.PIPE,
                             stderr=errf, text=True)
     n = 0
     first_seen = False
-    banners_here = 0
+    banners_here, banners_txt = 0, []
     t_last = time.monotonic()
     pend_prefills = 0
 
@@ -1780,6 +2217,8 @@ def run_scoring_pass(cfg, items, arm, pass_no, seed, env, out_rows_path,
                              "%s: unexpected non-result stdout line AFTER "
                              "scoring began: %r" % (where, line[:160]))
                     banners_here += 1
+                    banners_txt.append(line)     # [ASM-2513] pin banner
+                    #   may legally ride the pre-result stdout banners
                     BANNERS_SKIPPED["n"] += 1
                     if banners_here > MAX_BANNER_LINES:
                         fail("ERR_F1K_ENGINE",
@@ -1790,6 +2229,10 @@ def run_scoring_pass(cfg, items, arm, pass_no, seed, env, out_rows_path,
                     first_seen = True
                     errf.flush()
                     check_kae_engagement(stderr_path, env, where)  # [FIX-2]
+                    check_pin_engagement(errf, stderr_path,        # [ASM-
+                                         "\n".join(banners_txt),   #  2513]
+                                         env, where, ledger=ledger,
+                                         stderr_start=err_start)   # [v3 #1]
                 pred_idx, pred_tok, logits = parsed
                 # [FIX-1] frozen tie information: re-assert the engine's
                 # deterministic lowest-index tie-break [PATCH
@@ -1939,6 +2382,15 @@ def campaign_resume_binding(cfg, phase):
     b["engine_argv"] = argv
     b["engine_file_sha256"] = {a: sha256_file(a) for a in argv
                                if Path(a).is_file()}
+    # [ASM-2513 / R10-4 extension; F1K-CONSTRUCTION-PLAN.md §5 item 5]:
+    # the pin identity is a pinned input of the run — every resume (and
+    # any future multi-VM shard) re-derives the pin-file hash FROM BYTES
+    # via validate_pinning and must MATCH the auth state, so a swapped
+    # pin can never silently resume; mismatch fails closed exactly like
+    # a foreign engine (ERR_F1K_RESUME binding mismatch).
+    ep = validate_pinning(cfg)
+    b["pin_file_sha256"] = ep["pin_file_sha256"]
+    b["pin_gb"] = ep["PIN_GB"]
     return b
 
 
@@ -2191,6 +2643,36 @@ def phase_test(cfg, ev, outdir, frozen, passes, ledger, mock_gold_dir=None,
     return rows_path, n_new
 
 
+def check_addendum_pinning(add7, cfg):
+    """[ASM-2513 v3, re-review #3] The pilot addendum-7 is the THIRD
+    cross-phase pin state (beside the cost ledger and the per-phase
+    [R10-4] bindings): it records expert_pinning at PILOT time and is
+    consumed at PRE-TEST time, so it must be compared, not trusted.
+    A mismatch = the pilot ran under a different pin stats-file or a
+    different matched-budget condition (DES §7.1) — no test spend."""
+    ep = (add7.get("expert_pinning") or {})
+    cur = validate_pinning(cfg)
+    if ep.get("pin_file_sha256") != cur["pin_file_sha256"]:
+        fail("ERR_F1K_PINNING",
+             "pre-test: addendum-7 expert_pinning.pin_file_sha256=%r "
+             "vs the current config's %s — the pilot ran under a "
+             "DIFFERENT pin stats-file; a swapped pin never enters "
+             "test [ASM-2513 v3 re-review #3]"
+             % (ep.get("pin_file_sha256"), cur["pin_file_sha256"]))
+    try:
+        agb = float(ep.get("PIN_GB"))
+    except (TypeError, ValueError):
+        agb = float("nan")     # NaN != x for all x -> refused below
+    if agb != cur["PIN_GB"]:
+        fail("ERR_F1K_PINNING",
+             "pre-test: addendum-7 expert_pinning.PIN_GB=%r vs the "
+             "current config's %r — PIN_GB is fixed ONCE at bring-up "
+             "(DES §7.1:639); a pilot/test budget divergence is a "
+             "DIFFERENT matched-budget condition, refused "
+             "[ASM-2513 v3 re-review #3]"
+             % (ep.get("PIN_GB"), cur["PIN_GB"]))
+
+
 def enforce_pretest_commits(cfg, outdir):
     """[FIX-6] PRE-TEST enforcement [DES §R-REV4.2 / ASM-2123: the test set
     stays untouched until (A),(B0),(5),(7),(6) are ALL committed; bring-up
@@ -2239,6 +2721,7 @@ def enforce_pretest_commits(cfg, outdir):
              "item 4)" % (add7.get("affordable"),))
     d3_deferred = attest_bool(add7.get("d3_text_deferred"),
                               "addendum-7 d3_text_deferred")
+    check_addendum_pinning(add7, cfg)     # [ASM-2513 v3 re-review #3]
     rg = (arts["addendum-6-inputs.json"].get("replace_gate")) or {}
     if rg.get("decision") not in ("RUN", "DEFER"):
         fail("ERR_F1K_REPLACE", "addendum-6 replace_gate.decision %r invalid"
@@ -2344,7 +2827,7 @@ def build_sidecar(cfg, outdir, guard_report, dose, ledger, d3_deferred,
                 ledger.d["spot_rate_usd_per_hour"],
             "phase_seconds": {k: round(v, 3) for k, v in
                               ledger.d["phase_seconds"].items()},
-            "expert_pinning": ledger.d["expert_pinning"],     # [FIX-5]
+            "expert_pinning": attested_pinning(ledger),  # [FIX-5+ASM-2513]
             "resume_safe_ledger": str(ledger.path),
             "d3_text_deferred": attest_bool(d3_deferred,      # [FIX-4]
                                             "d3_text_deferred")},
@@ -2909,7 +3392,7 @@ def phase_pilot(cfg, ev, outdir, ledger, mock_gold_dir=None):
         "usd_spent_prior": prior,
         "construction_instance_hours":
             ledger.d["construction_instance_hours"],
-        "expert_pinning": ledger.d["expert_pinning"],         # [FIX-5]
+        "expert_pinning": attested_pinning(ledger),      # [FIX-5+ASM-2513]
         "projected_total_usd": round(proj, 2),
         "usd_cap": USD_CAP,
         "degradation_order": list(DEGRADATION_ORDER),
@@ -3172,13 +3655,33 @@ def gen_mock_fixtures(outdir):
                       "alongside the pilot (design §R-REV4.2 step 3).\n",
                       encoding="utf-8")
 
+    # [ASM-2513] deterministic MOCK hot-expert stats-file: the $0 oracle
+    # exercises the accept+hash+verify+record path with a SHAPED mock
+    # pin (M4-measured '<layer> <expert> <count>' triples — accum20.stats
+    # format), NEVER the real GCS-resident dev pin (pin_50gb.stats
+    # 6802cc97..., which in any case does NOT transfer: the campaign pin
+    # is re-derived on the real construction corpus at bring-up,
+    # F1K-CONSTRUCTION-PLAN.md §5.4). Deterministic literals — seeded by
+    # nothing, like every fixture here.
+    pin_path = fx / "mock-pin.stats"
+    pin_path.write_text(
+        "".join("%d %d %d\n" % (3 + (i % 12), i, 4096 - 17 * i)
+                for i in range(128)),
+        encoding="utf-8")
+
     cfg = {
         "engine": {
             "argv": [sys.executable, str(HERE / "mock_colibri.py")],
             "env": {"MOCK_SALT": "f1k-mock-v1",
-                    # [FIX-5] pinning ENFORCED even in the mock so the same
-                    # validation path runs (values are mock placeholders)
-                    "PIN": "1", "PIN_GB": "96"},
+                    # [FIX-5]+[ASM-2513] pinning ENFORCED even in the
+                    # mock so the SAME validate+hash+verify path runs:
+                    # PIN = the mock stats-file above (frozen semantics
+                    # PIN=<stats-file> — never the legacy literal "1");
+                    # PIN_GB = mock placeholder in the M4-measured
+                    # 40-50 GB pinnable-headroom band (m4.json
+                    # h_pin_by_G; the REAL value is fixed at bring-up
+                    # from measured free RAM, DES §7.1:639)
+                    "PIN": str(pin_path), "PIN_GB": "48"},
             "note": "MOCK stub — a real run points argv at the patched "
                     "colibri glm binary + snapshot args"},
         "eval_manifest": str(ev_path),
@@ -3405,6 +3908,16 @@ def mock_main(args):
         shutil.rmtree(str(outdir / sub), ignore_errors=True)
     try:
         (outdir / "cost-ledger.json").unlink()
+    except OSError:
+        pass
+    try:
+        # [ASM-2513 v4] the clean slate removes the SPEND-START
+        # sentinel WITH the ledger it guards — the deterministic $0
+        # oracle re-runs from scratch by design; one of exactly two
+        # lawful removals (the other: the maintainer-authorized
+        # archiving reset, §1e recovery text). The REAL campaign path
+        # never deletes it.
+        (outdir / SPEND_START_NAME).unlink()
     except OSError:
         pass
     outdir.mkdir(parents=True, exist_ok=True)
@@ -3771,6 +4284,252 @@ def mock_main(args):
     ra_closed = (ra_pos and ra_tamper and ra_noauth and ra_foreign
                  and ra_inject)
 
+    # 5b4. [ASM-2513, v4 probe set] pinning fail-closed probes — the
+    # false-attestation exploit class: the legacy literal "1", a missing
+    # stats-file, a malformed stats-file, a schema-illegal basename, a
+    # non-ASCII "digit" triple, a non-finite PIN_GB, an engine that
+    # never armed the hot store, a PRIOR invocation's stale armed banner
+    # riding the append-mode log, a ROTATED/REPLACED log pathname
+    # carrying a planted banner [v3], a mid-run pin-file/ledger-hash
+    # mismatch, a PIN_GB swap at the cross-phase ledger seam, a MISSING
+    # ledger beside existing campaign artifacts [v3], a MISSING ledger
+    # beside ONLY the SPEND-START sentinel (the spawn-to-checkpoint
+    # crash window) [v4], an addendum-7 pin/budget mismatch at pre-test
+    # consumption [v3], and a resume under a swapped pin must ALL
+    # refuse — while a VIRGIN outdir (no sentinel, no artifacts) must
+    # still fresh-init [v4, positive probe] and a same-basis ledger+
+    # sentinel pair must still RESUME cleanly [v5, positive probe].
+    print("probe: [ASM-2513] pinning fail-closed probes — the next "
+          "ERR_F1K_PINNING lines are EXPECTED")
+    # [v2] the validated mock pin file, FROM the loaded config (the
+    # gen_mock_fixtures local `pin_path` is not in scope at this
+    # insertion point) — validate_pinning already resolved it absolute
+    pin_path = Path(cfg["engine"]["env"]["PIN"])
+
+    def _pin_cfg(val, gb=None):
+        c = _copy.deepcopy(cfg)
+        c["engine"]["env"]["PIN"] = val
+        if gb is not None:
+            c["engine"]["env"]["PIN_GB"] = gb
+        return c
+
+    pin_legacy = expect_stop(lambda: validate_pinning(_pin_cfg("1")))
+    pin_missing = expect_stop(lambda: validate_pinning(
+        _pin_cfg(str(outdir / "fixtures" / "no-such.stats"))))
+    badp = outdir / "fixtures" / "malformed-pin.stats"
+    badp.write_text("3 0 not-an-int\n", encoding="utf-8")
+    pin_malformed = expect_stop(
+        lambda: validate_pinning(_pin_cfg(str(badp))))
+    # [v2, review #3] basename the PINNED schema would reject (space is
+    # outside [A-Za-z0-9._+-]) — must fail AT CONFIG LOAD, before spend,
+    # even though the file itself is valid and readable
+    badn = outdir / "fixtures" / "bad name.stats"
+    badn.write_text("3 0 7\n", encoding="utf-8")
+    pin_badname = expect_stop(
+        lambda: validate_pinning(_pin_cfg(str(badn))))
+    # [v2, review #2] Unicode-digit triple: '٣'.isdigit() is True and
+    # int('٣') == 3 [MEASURED], so v1 would have hashed+accepted a
+    # non-ASCII pin list the engine cannot parse
+    badu = outdir / "fixtures" / "nonascii-pin.stats"
+    badu.write_text("٣ 0 7\n", encoding="utf-8")   # Arabic-Indic 3
+    pin_nonascii = expect_stop(
+        lambda: validate_pinning(_pin_cfg(str(badu))))
+    # [v2, review #2] non-finite PIN_GB: NaN slides past `gb <= 0`
+    pin_nangb = expect_stop(lambda: validate_pinning(
+        _pin_cfg(str(pin_path), gb="nan")))
+    pin_infgb = expect_stop(lambda: validate_pinning(
+        _pin_cfg(str(pin_path), gb="inf")))
+    print("probe: fault-injecting a pin load failure — the next "
+          "ERR_F1K_PINNING line is EXPECTED")
+    pprobe_dir = outdir / "pilot" / "pin-failclosed-probe"
+    pprobe_dir.mkdir(parents=True, exist_ok=True)
+    penv = arm_env(cfg, "b0", None, str(pprobe_dir), frozen)
+    penv["MOCK_PIN_FORCE_LOAD_FAIL"] = "1"
+    pin_unarmed = expect_stop(lambda: run_scoring_pass(
+        cfg, ev["guard"][:1], "probe:b0", 0, None, penv,
+        pprobe_dir / "rows.jsonl", set(), mock_gold_dir=gold_dir,
+        phase="probe"))
+    pin_rows = pprobe_dir / "rows.jsonl"
+    pin_unarmed = pin_unarmed and (
+        not pin_rows.exists() or not pin_rows.read_text().strip())
+    # [v2, review #2 — SECURITY] STALE-BANNER-RESUME probe: pre-seed the
+    # DETERMINISTIC append-mode stderr log with a byte-perfect armed
+    # banner from a "prior invocation", then run an engine that stays
+    # SILENT about its pin (MOCK_PIN_SILENT=1). v1's whole-file scan
+    # would have gone GREEN on the stale banner — a newly UNPINNED
+    # process authorized by a prior run's attestation; v2's pre-spawn
+    # offset slice must see NO banner and refuse with zero rows scored.
+    print("probe: stale-banner resume — the next ERR_F1K_PINNING line "
+          "is EXPECTED (a prior run's banner must authorize NOTHING)")
+    sprobe_dir = outdir / "pilot" / "pin-staleban-probe"
+    (sprobe_dir / "stderr").mkdir(parents=True, exist_ok=True)
+    stale_log = sprobe_dir / "stderr" / "probe.probe:b0.pass0.log"
+    stale_log.write_text(
+        "[PIN] hot-expert store armed: pinned 128 experts, 2.210 GiB "
+        "(budget 48.00 GiB) from mock-pin.stats\n", encoding="utf-8")
+    senv = arm_env(cfg, "b0", None, str(sprobe_dir), frozen)
+    senv["MOCK_PIN_SILENT"] = "1"
+    pin_stale = expect_stop(lambda: run_scoring_pass(
+        cfg, ev["guard"][:1], "probe:b0", 0, None, senv,
+        sprobe_dir / "rows.jsonl", set(), mock_gold_dir=gold_dir,
+        phase="probe"))
+    stale_rows = sprobe_dir / "rows.jsonl"
+    pin_stale = pin_stale and (
+        not stale_rows.exists() or not stale_rows.read_text().strip())
+    # [v3, re-review #1] LOG-ROTATION/REPLACEMENT probe: pre-seed the
+    # deterministic log (so the pre-spawn offset > 0), then run an
+    # engine that is SILENT on its real (fd-inherited) stderr but
+    # plants a decoy AT THE PATHNAME — pad bytes >= the offset + a
+    # stale armed banner (MOCK_PIN_ROTATE_LOG/_PAD, §1h). The decoy
+    # passes the v2 short-file guard and carries a valid banner after
+    # the offset, so a NAME-based read goes GREEN on it [MEASURED:
+    # decoy-rotation demo, this box 2026-07-18]; the v3 descriptor-
+    # bound read sees NO banner on the true file object -> RED, zero
+    # rows.
+    print("probe: log rotation/replacement swap — the next "
+          "ERR_F1K_PINNING line is EXPECTED (a pathname decoy must "
+          "authorize NOTHING)")
+    rprobe_dir = outdir / "pilot" / "pin-rotate-probe"
+    (rprobe_dir / "stderr").mkdir(parents=True, exist_ok=True)
+    rot_log = rprobe_dir / "stderr" / "probe.probe:b0.pass0.log"
+    rot_log.write_text("prior invocation noise\n", encoding="utf-8")
+    renv = arm_env(cfg, "b0", None, str(rprobe_dir), frozen)
+    renv["MOCK_PIN_ROTATE_LOG"] = str(rot_log)
+    renv["MOCK_PIN_ROTATE_PAD"] = str(rot_log.stat().st_size)
+    pin_rotate = expect_stop(lambda: run_scoring_pass(
+        cfg, ev["guard"][:1], "probe:b0", 0, None, renv,
+        rprobe_dir / "rows.jsonl", set(), mock_gold_dir=gold_dir,
+        phase="probe"))
+    rot_rows = rprobe_dir / "rows.jsonl"
+    pin_rotate = (pin_rotate
+                  and (not rot_rows.exists()
+                       or not rot_rows.read_text().strip())
+                  and b"[PIN] hot-expert store armed"
+                  in rot_log.read_bytes())
+    #   ^ third conjunct: the decoy really IS at the pathname (the bait
+    #     was live) — ONLY the descriptor-bound read refused it
+    # [v2, review #6 probe (a)] EXPECTED-HASH mismatch: the ledger's
+    # pin_file_sha256 no longer matches the file BYTES (the file grew
+    # after ledger init = a mid-run swap) — check_pin_engagement must
+    # re-derive from bytes and go RED, zero rows scored.
+    print("probe: ledger pin-hash vs file-bytes mismatch — the next "
+          "ERR_F1K_PINNING line is EXPECTED")
+    hprobe_dir = outdir / "pilot" / "pin-hashswap-probe"
+    hprobe_dir.mkdir(parents=True, exist_ok=True)
+    pin2 = outdir / "fixtures" / "hashswap-pin.stats"
+    pin2.write_text(pin_path.read_text(encoding="utf-8"),
+                    encoding="utf-8")
+    hcfg = _pin_cfg(str(pin2))
+    hled = Ledger(str(hprobe_dir), hcfg)     # hashes pin2 AS IT IS NOW
+    with open(pin2, "a", encoding="utf-8") as pf:
+        pf.write("3 999 1\n")                # ...then the bytes change
+    henv = arm_env(hcfg, "b0", None, str(hprobe_dir), frozen)
+    pin_hashswap = expect_stop(lambda: run_scoring_pass(
+        hcfg, ev["guard"][:1], "probe:b0", 0, None, henv,
+        hprobe_dir / "rows.jsonl", set(), ledger=hled,
+        mock_gold_dir=gold_dir, phase="probe"))
+    hs_rows = hprobe_dir / "rows.jsonl"
+    pin_hashswap = pin_hashswap and (
+        not hs_rows.exists() or not hs_rows.read_text().strip())
+    # [v2, review #5] PIN_GB swap at the CROSS-PHASE ledger seam: a
+    # ledger written under PIN_GB=48 must refuse a re-init (= a phase
+    # boundary or resume) whose config carries a different budget.
+    print("probe: cross-phase PIN_GB swap — the next ERR_F1K_PINNING "
+          "line is EXPECTED")
+    gprobe_dir = outdir / "pilot" / "pin-gbswap-probe"
+    gprobe_dir.mkdir(parents=True, exist_ok=True)
+    Ledger(str(gprobe_dir), cfg)             # ledger under PIN_GB=48
+    gb_ledgerswap = expect_stop(
+        lambda: Ledger(str(gprobe_dir), _pin_cfg(str(pin_path),
+                                                 gb="32")))
+    # [v3, re-review #3] MISSING-LEDGER phase-transition probe:
+    # campaign evidence exists (a pilot artifact) but cost-ledger.json
+    # does NOT — Ledger init must REFUSE to re-initialize (the
+    # cross-phase comparison basis is gone; §1e second hunk), naming
+    # the recovery path.
+    print("probe: missing ledger beside campaign artifacts — the next "
+          "ERR_F1K_COST line is EXPECTED")
+    mprobe_dir = outdir / "pilot" / "pin-noledger-probe"
+    (mprobe_dir / "pilot").mkdir(parents=True, exist_ok=True)
+    (mprobe_dir / "pilot" / "pilot-gates.json").write_text(
+        "{}", encoding="utf-8")            # evidence present, no ledger
+    pin_noledger = expect_stop(lambda: Ledger(str(mprobe_dir), cfg))
+    # [v4, round-3 #2] SPAWN-TO-CHECKPOINT CRASH-WINDOW probe: a spawn
+    # was attempted (sentinel written, exactly as run_scoring_pass does
+    # BEFORE Popen) but the run was interrupted before ANY of the seven
+    # artifact/checkpoint paths existed, and cost-ledger.json was then
+    # lost — the ONLY evidence is the sentinel. v3's predicate saw
+    # nothing here and fresh-inited silently; v4 must refuse.
+    print("probe: SPEND-START sentinel beside a missing ledger (spawn-"
+          "to-checkpoint crash window) — the next ERR_F1K_COST line is "
+          "EXPECTED")
+    wprobe_dir = outdir / "pilot" / "pin-spendstart-probe"
+    wprobe_dir.mkdir(parents=True, exist_ok=True)
+    write_spend_start(Ledger(str(wprobe_dir), cfg), "probe", "b0", 0)
+    # [v5, round-4 #1] NORMAL-RESUME positive assertion, BEFORE the
+    # unlink: while ledger AND sentinel COEXIST (exactly the state an
+    # ordinary interrupted run leaves behind), a SAME-config
+    # Ledger(...) is a lawful resume and must PROCEED — a wrong
+    # fail-closed here dies loudly (not wrapped in expect_stop), the
+    # positive-probe signal, as pin_virgin — reporting the SAME basis:
+    # the config-derived pin sha + PIN_GB carried through the §1e
+    # resume comparison (exact equality; §1e semantics). With
+    # pin_virgin and the post-unlink crash assertion below, this
+    # sequence now distinguishes all THREE states: virgin /
+    # normal-resume / crash-window.
+    wexp = validate_pinning(cfg)
+    wres = Ledger(str(wprobe_dir), cfg)          # must NOT stop
+    pin_spendresume = (
+        (wprobe_dir / "cost-ledger.json").exists()      # the state
+        and (wprobe_dir / SPEND_START_NAME).exists()    # under test
+        #   really held: ledger + sentinel COEXIST at resume time ^
+        and wres.d["expert_pinning"]["pin_file_sha256"]
+        == wexp["pin_file_sha256"]
+        and float(wres.d["expert_pinning"]["PIN_GB"]) == wexp["PIN_GB"])
+    (wprobe_dir / "cost-ledger.json").unlink()   # ...then the ledger is
+    #   lost; NO artifact/checkpoint path exists in this outdir
+    pin_spendstart = expect_stop(lambda: Ledger(str(wprobe_dir), cfg))
+    pin_spendstart = pin_spendstart and \
+        (wprobe_dir / SPEND_START_NAME).exists()
+    #   ^ second conjunct: the sentinel really IS the only evidence
+    #     present — the refusal came from it, not from an artifact
+    # [v4, round-3 #2] VIRGIN-OUTDIR fresh-start PRESERVED (positive
+    # probe, per the round-3 prescription): no sentinel, no artifacts
+    # -> Ledger init must PROCEED (not raise) and persist a fresh
+    # ledger. A wrong fail-closed here dies loudly (not wrapped in
+    # expect_stop) — the correct signal for a positive probe.
+    vprobe_dir = outdir / "pilot" / "pin-virgin-probe"
+    vprobe_dir.mkdir(parents=True, exist_ok=True)
+    Ledger(str(vprobe_dir), cfg)                 # must NOT stop
+    pin_virgin = (vprobe_dir / "cost-ledger.json").exists() and \
+        not (vprobe_dir / SPEND_START_NAME).exists()
+    # [v3, re-review #3] ADDENDUM-MISMATCH probes: a pilot addendum
+    # whose recorded pin sha (or PIN_GB) differs from the CURRENT
+    # config must refuse at pre-test consumption (§1e2 helper, exact
+    # equality semantics of the ledger seam).
+    print("probe: addendum-7 pin/budget mismatch — the next TWO "
+          "ERR_F1K_PINNING lines are EXPECTED")
+    cur_ep = validate_pinning(cfg)
+    pin_addsha = expect_stop(lambda: check_addendum_pinning(
+        {"expert_pinning": {"pin_file_sha256": "e" * 64,
+                            "PIN_GB": cur_ep["PIN_GB"]}}, cfg))
+    pin_addgb = expect_stop(lambda: check_addendum_pinning(
+        {"expert_pinning": {"pin_file_sha256": cur_ep["pin_file_sha256"],
+                            "PIN_GB": 32.0}}, cfg))
+    # [R10-4] pin-swap resume: a binding whose pin-file hash differs is
+    # a FOREIGN run — refused like any other binding mismatch.
+    pswap = json.loads(json.dumps(tbind))
+    pswap["pin_file_sha256"] = "f" * 64
+    ra_pinswap = expect_stop(
+        lambda: read_ckpt_authed(_ra_fixture("pin-swap"), pswap))
+    pin_closed = (pin_legacy and pin_missing and pin_malformed
+                  and pin_badname and pin_nonascii and pin_nangb
+                  and pin_infgb and pin_unarmed and pin_stale
+                  and pin_rotate and pin_hashswap and gb_ledgerswap
+                  and pin_noledger and pin_spendstart
+                  and pin_spendresume and pin_virgin
+                  and pin_addsha and pin_addgb and ra_pinswap)
+
     # 5c. [R3-SEAM] the OFFICIAL round-trip, both fixtures: the driver's
     # kot-log/1 record through the REAL log-append -> verdict-gen ->
     # pinned-analysis path (sandboxed repo root; see run_official_seam).
@@ -3837,10 +4596,34 @@ def mock_main(args):
          (("d3-text", 0, None) in main_arm_passes(False)) and
          (("d3-text", 0, None) not in main_arm_passes(True)) and
          ((("d3-text", 0, None) in passes) == (not d3_deferred))),
-        ("[5] expert pinning ENFORCED + RECORDED: PIN=1 PIN_GB=%s in "
-         "ledger + sidecar cost.expert_pinning [%s]"
-         % (led["expert_pinning"]["PIN_GB"], ref(5)),
-         led.get("expert_pinning", {}).get("PIN") == "1"),
+        ("[5] expert pinning ENFORCED + RECORDED (ASM-2513 "
+         "PIN=<stats-file>): PIN=%s sha256=%.12s... PIN_GB=%s "
+         "experts_pinned=%s (%d engine pin verifications, descriptor-"
+         "bound evidence) in ledger + sidecar cost.expert_pinning; "
+         "legacy \"1\" / missing / malformed / bad-basename / "
+         "non-ASCII-digits / non-finite-PIN_GB / unarmed-engine / "
+         "STALE-BANNER-RESUME / LOG-ROTATION-SWAP / ledger-hash-"
+         "vs-bytes / cross-phase-PIN_GB-swap / MISSING-LEDGER-REINIT / "
+         "SPEND-START-CRASH-WINDOW / ADDENDUM-PIN-MISMATCH / "
+         "pin-swap-resume ALL "
+         "REFUSED (ERR_F1K_PINNING / ERR_F1K_COST); virgin-outdir "
+         "fresh init AND same-basis ledger+sentinel NORMAL-RESUME "
+         "PRESERVED; spend-start sentinel written by every "
+         "metered spawn [%s]"
+         % (led["expert_pinning"]["PIN"],
+            led["expert_pinning"]["pin_file_sha256"],
+            led["expert_pinning"]["PIN_GB"],
+            led["expert_pinning"].get("experts_pinned"),
+            PIN_CHECKS["n"], ref(5)),
+         led.get("expert_pinning", {}).get("PIN") == "mock-pin.stats"
+         and len(led["expert_pinning"].get("pin_file_sha256", "")) == 64
+         and led["expert_pinning"].get("experts_pinned") == 128
+         and PIN_CHECKS["n"] > 0 and pin_closed
+         and (outdir / SPEND_START_NAME).exists()),
+        #   ^ [v4] final conjunct: the mock campaign's own metered
+        #     spawns really wrote the sentinel at the outdir root —
+        #     the pre-Popen write is proven on the REAL code path,
+        #     not only by the direct-call probe
         ("[6] PILOT: dev-96 scored post-freeze (%d dev96:b0 rows); frozen "
          "g = %.4g x %.4g = %.6g (multiplier x mean native expert "
          "weight); FULL panel validation (seed 11 / d0 seed 7 / {2,1,1} / "

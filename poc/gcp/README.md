@@ -2,7 +2,7 @@
 
 > **Provision-ready + bring-up-capable.** This directory is the GCP-Spot
 > orchestration layer for the **frozen** F1-K correctness run
-> (`registry/experiments/f1k.json`, `frozen_sha256 01cf2b17…`). It DESIGNS
+> (`registry/experiments/f1k.json`, `frozen_sha256 35372275…`). It DESIGNS
 > nothing and CONCLUDES nothing: the kernel, model, engine, carriers, protocol,
 > and analysis are frozen upstream (Fable). This layer only provisions, stages,
 > builds, drives the pinned generator/driver, checkpoints, monitors, and tears
@@ -15,7 +15,7 @@
 
 ## Why GCP Spot (and not Modal)
 
-The pinned analysis `analysis/f1k.py` (sha `54924cfd`) hard-enforces a ledger
+The pinned analysis `analysis/f1k.py` (sha `126129b9`) hard-enforces a ledger
 window: `instance_hours ∈ [260.6, 900] h`, `usd_total ∈ [$73, $155]`,
 `usd_total ≈ usd_spent_prior + run_hours·rate` (±$0.01), `prefills ≥ 11,011`.
 So the admissible **effective** rate is `[73/900, 155/260.6] = [$0.081,

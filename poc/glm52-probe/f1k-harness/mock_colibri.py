@@ -150,6 +150,51 @@ def main():
                   "(KAE_SCORE binds per item)" % (nc, nl, float(g)),
                   file=sys.stderr)
             sys.stderr.flush()
+    # --- [ASM-2513] pin load report (mirrors the engine's hot-store
+    # arming; the REAL banner wording is fetch-grade — re-verified at
+    # bring-up per ASM-1971) ---
+    pin = os.environ.get("PIN")
+    rot = os.environ.get("MOCK_PIN_ROTATE_LOG")
+    if pin and rot:
+        # [v3, re-review #1] MOCK_PIN_ROTATE_LOG=<path> fault knob: the
+        # rotation/replacement attack — this engine stays SILENT on its
+        # REAL (fd-inherited) stderr and instead plants a decoy file AT
+        # the log's PATHNAME: pad bytes (MOCK_PIN_ROTATE_PAD, >= the
+        # driver's pre-spawn offset so the short-file guard passes) +
+        # a stale armed banner after the offset. A NAME-based verifier
+        # (v2's Path.read_bytes()) reads the decoy and goes GREEN; the
+        # v3 descriptor-bound verifier never sees it. The §1i
+        # pin_rotate probe proves the refusal.
+        pad = int(os.environ.get("MOCK_PIN_ROTATE_PAD", "0") or 0)
+        with open(rot + ".rot", "w", encoding="utf-8") as rf:
+            rf.write(" " * pad)
+            rf.write("[PIN] hot-expert store armed: pinned 128 "
+                     "experts, 2.210 GiB (budget 48.00 GiB) from "
+                     "mock-pin.stats\n")
+        os.replace(rot + ".rot", rot)
+    elif pin and os.environ.get("MOCK_PIN_SILENT") != "1":
+        # [v2, review #2] MOCK_PIN_SILENT=1 fault knob: an engine that
+        # says NOTHING about its pin state this invocation — the
+        # stale-banner-resume exploit needs exactly this (a silent new
+        # process riding a PRIOR invocation's armed banner in the
+        # append-mode log); the §1i pin_stale probe proves the driver
+        # now refuses it.
+        pin_ok = os.path.exists(pin) and \
+            os.environ.get("MOCK_PIN_FORCE_LOAD_FAIL") != "1"
+        if not pin_ok:
+            print("[PIN] cannot open %s -> pinning DISABLED" % pin,
+                  file=sys.stderr)
+            sys.stderr.flush()
+        else:
+            with open(pin, encoding="utf-8") as pf:
+                n_pin = sum(1 for ln in pf if ln.strip())
+            budget = float(os.environ.get("PIN_GB", "0") or 0)
+            gb_used = round(min(budget, n_pin * 18541666.7 / 2 ** 30), 3)
+            print("[PIN] hot-expert store armed: pinned %d experts, "
+                  "%.3f GiB (budget %.2f GiB) from %s"
+                  % (n_pin, gb_used, budget, os.path.basename(pin)),
+                  file=sys.stderr)
+            sys.stderr.flush()
     print("loaded in 0.01s | resident dense: 0.00 MB | layers=12 "
           "experts=64 | MTP off (draft=0)")
     sys.stdout.flush()

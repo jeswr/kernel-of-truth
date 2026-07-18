@@ -2,7 +2,7 @@
 """f1k_gcp.py — GCP-Spot orchestrator for the FROZEN F1-K correctness run.
 
 OPUS EXECUTION-role harness (kern/opus-runner-<N>). It RUNS the already-frozen
-F1-K experiment (registry/experiments/f1k.json, frozen_sha256 01cf2b17…) on the
+F1-K experiment (registry/experiments/f1k.json, frozen_sha256 35372275…) on the
 coordinator-resolved compute target (bead pzb6): a GCP **Spot** n2d-highmem-8
 (8 vCPU / 64 GB) + 3×375 GiB local SSD (1,125 GiB NVMe), zone us-central1-a.
 It designs NOTHING and concludes NOTHING: the science (kernel, model, engine,
@@ -11,7 +11,7 @@ stages, builds, drives the pinned generator/driver, checkpoints, monitors, and
 tears down — from the frozen RunSpec, fail-closed on any pin mismatch.
 
 Compute-target economics (why GCP Spot, not Modal): the pinned analysis
-analysis/f1k.py (sha 54924cfd) hard-enforces a ledger window
+analysis/f1k.py (sha 126129b9) hard-enforces a ledger window
   instance_hours ∈ [260.6, 900] h,  usd_total ∈ [$73, $155],
   usd_total ≈ usd_spent_prior + run_hours*rate  (COST_TOL $0.01),
   prefills ≥ 11,011,
@@ -46,15 +46,15 @@ KAE_PATCH_DIR = REPO / "poc" / "glm52-probe" / "kae-patch-draft"
 DUMP_PATCH_DIR = HARNESS / "dump-patch"
 
 # ---------------------------------------------------------------------------
-# FROZEN PINS (registry/experiments/f1k.json 01cf2b17…; verified at launch)
+# FROZEN PINS (registry/experiments/f1k.json 35372275…; verified at launch)
 # ---------------------------------------------------------------------------
-FROZEN_SHA256 = "01cf2b17a882b2ab89873234a381720108dbb9d0dcd406a752962e280b71dc55"
+FROZEN_SHA256 = "35372275354c7d3841dcf627b70edf64ffbe15190a0669658c5b6df082dc9b9c"
 COLIBRI_COMMIT = "a78a06fc5acc4b0dc0f9ef03987c66b0559d1250"
 ESTATE_REPO = "mateogrgic/GLM-5.2-colibri-int4-with-int8-mtp"
 ESTATE_GB = 383.8
 PINS = {
     "analysis/f1k.py":
-        "54924cfd0f1b7878da53228aa54f3cdf3e405aa4d0ecefd185fcb75da9eea8eb",
+        "126129b9ce78e398122b3d3bf0855b7e551a892ba43d7d1a8d072a1245fb3326",
     "build_carriers.py":
         "a92be3e4fe535c1dfefc41e2a422e010d25e8e40cf8e4cc123e7d829d63e9e61",
     "kae-add-path.patch":
