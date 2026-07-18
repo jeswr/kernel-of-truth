@@ -159,6 +159,171 @@ def sha256_file(p: Path) -> str:
     return h.hexdigest()
 
 
+def _is_construction_run_output(rel: Path) -> bool:
+    """True for run products that must never enter the tracked payload."""
+    output_dirs = {"opus-runs", "mock-out", "probe-results",
+                   "results-incoming", "run-outputs"}
+    output_names = {"run-log.jsonl", "construction-report.json",
+                    "worker.log", "launcher.log",
+                    "failed-heartbeat.json", "FAILED"}
+    return (any(part in output_dirs for part in rel.parts)
+            or rel.suffix == ".log"
+            or rel.name.startswith("mock-out-")
+            or rel.name in output_names)
+
+
+def _construction_payload_files() -> list[Path]:
+    """Resolve the reviewed, tracked construction subset, fail-closed."""
+    required = (
+        Path("poc/glm52-probe/f1k-harness/build_carriers.py"),
+        Path("poc/glm52-probe/f1k-harness/f1k_driver.py"),
+        Path("poc/glm52-probe/f1k-harness/tok_glm52.py"),
+        Path("poc/gcp/f1k_gcp.py"),
+        Path("poc/gcp/f1k_worker.sh"),
+        Path("poc/gcp/bringup_gcp.sh"),
+        Path("poc/gcp/f1k_bringup_gate.py"),
+        Path("poc/gcp/f1k_ops.py"),
+        Path("analysis/f1k.py"),
+        Path("registry/experiments/f1k.json"),
+        Path("registry/frozen-index.json"),
+    )
+    tree_prefixes = [
+        Path("poc/glm52-probe/kae-patch-draft"),
+        Path("tools/registry"),
+        Path("registry/schema"),
+        Path("data/f1k-eval-v1"),
+        Path("data/f1k-trigger-map-v1"),
+    ]
+    optional_carriers = Path("data/f1k-carriers-v1")
+    if (REPO / optional_carriers).exists():
+        if not (REPO / optional_carriers).is_dir():
+            die("F1K_CONSTRUCTION_PAYLOAD",
+                "%s exists but is not a directory" % optional_carriers)
+        tree_prefixes.append(optional_carriers)
+    pathspecs = ([str(p) for p in required]
+                 + [str(p) for p in tree_prefixes]
+                 + ["poc/glm52-probe/f1k-harness/mock*.py"])
+    try:
+        rc = subprocess.run(["git", "ls-files", "-z", "--", *pathspecs],
+                            cwd=str(REPO), capture_output=True)
+    except OSError as exc:
+        die("F1K_CONSTRUCTION_PAYLOAD",
+            "cannot resolve tracked payload with git ls-files (%s)" % exc)
+    if rc.returncode != 0:
+        die("F1K_CONSTRUCTION_PAYLOAD",
+            "git ls-files failed: %s"
+            % rc.stderr.decode("utf-8", "replace").strip())
+    rels = sorted({Path(os.fsdecode(raw))
+                   for raw in rc.stdout.split(b"\0") if raw})
+    unsafe = [str(rel) for rel in rels
+              if rel.is_absolute() or ".." in rel.parts]
+    if unsafe:
+        die("F1K_CONSTRUCTION_PAYLOAD",
+            "git returned unsafe paths: %s" % ", ".join(unsafe))
+    rels = [rel for rel in rels
+            if not _is_construction_run_output(rel)]
+    if not rels:
+        die("F1K_CONSTRUCTION_PAYLOAD",
+            "reviewed git ls-files subset is empty")
+    missing_required = [str(rel) for rel in required if rel not in rels]
+    empty_prefixes = [str(prefix) for prefix in tree_prefixes
+                      if not any(rel == prefix or prefix in rel.parents
+                                 for rel in rels)]
+    harness = Path("poc/glm52-probe/f1k-harness")
+    has_mock = any(rel.parent == harness
+                   and rel.name.startswith("mock")
+                   and rel.suffix == ".py" for rel in rels)
+    if missing_required or empty_prefixes or not has_mock:
+        problems = []
+        if missing_required:
+            problems.append("required files absent/untracked: %s"
+                            % ", ".join(missing_required))
+        if empty_prefixes:
+            problems.append("reviewed prefixes empty: %s"
+                            % ", ".join(empty_prefixes))
+        if not has_mock:
+            problems.append("tracked harness mock*.py subset empty")
+        die("F1K_CONSTRUCTION_PAYLOAD", "; ".join(problems))
+    missing_files = [str(rel) for rel in rels
+                     if not (REPO / rel).is_file()]
+    if missing_files:
+        die("F1K_CONSTRUCTION_PAYLOAD",
+            "tracked payload files missing: %s" % ", ".join(missing_files))
+    return [REPO / rel for rel in rels]
+
+
+def _bringup_deploy_selftest() -> int:
+    """$0 staging-plan oracle: local files + git only, never GCP."""
+    payload = _construction_payload_files()
+    rels = [p.relative_to(REPO) for p in payload]
+    relset = set(rels)
+    builder = Path("poc/glm52-probe/f1k-harness/build_carriers.py")
+    builder_sha = sha256_file(REPO / builder)
+    worker_layout = (
+        "f1k_worker.sh", "bringup_gcp.sh", "f1k_bringup_gate.py",
+        "f1k_launch.sh (generated)", "tok_glm52.py",
+        "kae-patch-draft/", "dump-patch/",
+        "gate-corpus/construction-manifest.jsonl",
+        "gate-corpus/test.jsonl", "gate-corpus/dev.jsonl",
+        "gate-corpus/guard.jsonl", "bundle-manifest.json (generated)",
+    )
+    plan_bytes = ("\n".join(str(rel) for rel in rels) + "\n").encode()
+    print("SELFTEST SCOPE: $0 local bringup-deploy staging plan; "
+          "NO gcloud, SSH, GCS, VM, worker, or construction launch.")
+    print("BRINGUP-DEPLOY STAGING PLAN:")
+    print("  worker-layout: %s" % ", ".join(worker_layout))
+    print("  construction-payload: %d tracked repo-relative files"
+          % len(rels))
+    print("  construction-plan-sha256: %s"
+          % hashlib.sha256(plan_bytes).hexdigest())
+    print("  build_carriers.py-sha256: %s" % builder_sha)
+    for rel in (
+            "poc/glm52-probe/f1k-harness/build_carriers.py",
+            "poc/glm52-probe/f1k-harness/f1k_driver.py",
+            "poc/glm52-probe/f1k-harness/tok_glm52.py",
+            "poc/gcp/f1k_bringup_gate.py", "poc/gcp/f1k_ops.py"):
+        print("    required: %s" % rel)
+    print("  exclusions: opus-runs/, *.log, mock/probe/results run outputs")
+    passed = 0
+    total = 0
+
+    def check(cond: bool, label: str) -> None:
+        nonlocal passed, total
+        total += 1
+        if cond:
+            passed += 1
+        print("  %s %s" % ("ok:  " if cond else "FAIL:", label))
+
+    check(bool(rels) and all(p.is_file() for p in payload),
+          "construction payload is nonempty and every listed file exists")
+    check(builder in relset and builder_sha == PINS["build_carriers.py"],
+          "build_carriers.py present and sha a92be3e4...")
+    check(Path("poc/glm52-probe/f1k-harness/f1k_driver.py") in relset,
+          "f1k_driver.py present")
+    check(Path("poc/gcp/f1k_bringup_gate.py") in relset,
+          "f1k_bringup_gate.py present")
+    check(Path("poc/gcp/f1k_ops.py") in relset, "f1k_ops.py present")
+    check(Path("poc/glm52-probe/f1k-harness/tok_glm52.py") in relset,
+          "tok_glm52.py present")
+    check(not any("opus-runs" in rel.parts for rel in rels),
+          "opus-runs/ excluded from construction payload")
+    check(not any(_is_construction_run_output(rel) for rel in rels),
+          "run outputs excluded from construction payload")
+    items = REPO / "data" / "f1k-eval-v1" / "items"
+    worker_sources = (
+        HERE / "f1k_worker.sh", HERE / "bringup_gcp.sh",
+        HERE / "f1k_bringup_gate.py", HARNESS / "tok_glm52.py",
+        PIN_PATHS["construction-manifest.jsonl"],
+        items / "test.jsonl", items / "dev.jsonl", items / "guard.jsonl",
+    )
+    check(all(p.is_file() for p in worker_sources)
+          and KAE_PATCH_DIR.is_dir() and DUMP_PATCH_DIR.is_dir(),
+          "existing worker-layout sources remain present")
+    print("SELFTEST: %d/%d %s"
+          % (passed, total, "PASS" if passed == total else "FAILED"))
+    return 0 if passed == total else 2
+
+
 # ---------------------------------------------------------------------------
 # pin verification (fail-closed BEFORE any spend)
 # ---------------------------------------------------------------------------
@@ -539,7 +704,10 @@ def cmd_bringup_deploy() -> None:
       verify: pgrep -f 'f1k_gcp.py watchdog'
       guest max-life verify: gcloud compute ssh ... 'sudo shutdown --show'"""
     import shutil, tempfile
+    if "--selftest" in sys.argv[2:]:
+        sys.exit(_bringup_deploy_selftest())
     verify_pins()
+    construction_files = _construction_payload_files()
     if not vm_exists():
         die("F1K_DEPLOY", "no VM %s in %s — run provision first"
             % (INSTANCE_NAME, ZONE))
@@ -637,6 +805,17 @@ def cmd_bringup_deploy() -> None:
     items = REPO / "data" / "f1k-eval-v1" / "items"
     for f in ("test.jsonl", "dev.jsonl", "guard.jsonl"):
         shutil.copy2(items / f, gc / f)
+    builder_sha = sha256_file(PIN_PATHS["build_carriers.py"])
+    if builder_sha != PINS["build_carriers.py"]:
+        die("F1K_DEPLOY_CONSTRUCTION_PIN",
+            "build_carriers.py sha %s != pinned %s — refuse staging"
+            % (builder_sha, PINS["build_carriers.py"]))
+    # STAGE ONLY: guard remains the sole construction launcher. Add the
+    # reviewed subset without changing the worker layout or launch above.
+    for src in construction_files:
+        dst = bundle / src.relative_to(REPO)
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(src, dst)
     manifest = {str(p.relative_to(bundle)): sha256_file(p)
                 for p in sorted(bundle.rglob("*")) if p.is_file()}
     (bundle / "bundle-manifest.json").write_text(json.dumps(manifest,
