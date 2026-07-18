@@ -1,0 +1,590 @@
+{
+  "schema": "kot-falsifier1/0a",
+  "provenance": {
+    "spec": "docs/next/design/candidate-a-stage0-measurement.md \u00a73 (v3; Stage-0a approved to run as designed)",
+    "source_sha256": {
+      "poc/gcp/probe-results/accum20.stats": "fe705535c59593f85e00cc9a7d6e75451a75f7cd0c51c2fb10a360065f5de16f",
+      "poc/gcp/probe-results/m4.json": "dcf60d1cee8bc80a9e56d6400e515dbe2d8c5397e5479abba437fe62c8b34ebc",
+      "poc/glm52-probe/results/stats/f000.stats": "49d69ca0e45fd952a6b1ea678711f4f307846ca3570670addb66ed283496da18",
+      "poc/glm52-probe/results/stats/f001.stats": "0636c95da35cf0cb68e95596a4b38f7b8dc482bc5397c2c1e4a03425ab182743",
+      "poc/glm52-probe/results/stats/f002.stats": "9b5c21b52ea83bc14f68e6d21abe8b4c26825717b0dff715938bcfdadb830e7b",
+      "poc/glm52-probe/results/stats/f003.stats": "73e3c024619151c131880e7cb2cba8aede0f555bfd2ef860372819dd97e68d09",
+      "poc/glm52-probe/results/stats/f004.stats": "600710276698bd7f4a8dc80e0c1aff7f9a201efd939d28aad824e0a56d182909",
+      "poc/glm52-probe/results/stats/f005.stats": "2a926d803c25a68a0ab47f4e3cf4329c07ad6c7bad34a5b6110d7f25f41f5522",
+      "poc/glm52-probe/results/stats/f006.stats": "a93f5524fbf28ee05a1b3bebaad31abf70b0f1462a2ab8ef521d43622d4eb858",
+      "poc/glm52-probe/results/stats/f007.stats": "765ecd365a07ac1128989183534299112ba2d8465bb411fc48b64ebae279216c",
+      "poc/glm52-probe/results/stats/f008.stats": "7ed648411384a41e3bfd07a39ab7470fa0b21300b3fd62d49bcd65fe6351605e",
+      "poc/glm52-probe/results/stats/f009.stats": "d8c21d2c9b715d171118b52c23cbe8ea75ca31e37b448060fc1d7bbe6408652b",
+      "poc/glm52-probe/results/stats/f010.stats": "56720d168c48c1d3dd86879edfd3ae559a6ee16225ae3c4a8727ba87912b4d92",
+      "poc/glm52-probe/results/stats/f011.stats": "5d0311d5f9b2758fa6927f7196c9d336f824ec9908841fc8b84897b21cd03f3e",
+      "poc/glm52-probe/results/stats/f012.stats": "68db8f022e1b49c500afaa55d13350cfc7f13720589ad946e576a5ab444635da",
+      "poc/glm52-probe/results/stats/f013.stats": "dc7c9e9fb3fd315b59f1b5a0d1a0a90c4e05ec9b8e3b9c5b2a44abe437247fb5",
+      "poc/glm52-probe/results/stats/f014.stats": "64d1e2b07457c19b724a62eb5d500618cfdcb1904336a4561e9a0a0a0d506fdd",
+      "poc/glm52-probe/results/stats/f015.stats": "34ee111e496fbed52d6415166d3e8594d574d16c163b8f265ce077f527420dd9",
+      "poc/glm52-probe/results/stats/f016.stats": "89ee9a3206d662f89953b1d1a12c2b5a8c684143e53dd210d6e48e1af2b0fe1a",
+      "poc/glm52-probe/results/stats/f017.stats": "04fc2273d1c8d257945a7e4a0fda92bd0dbbf037114266c2e4acec94b49f72bb",
+      "poc/glm52-probe/results/stats/f018.stats": "6a614556ca9d27fd31d4c1bbc62167249a41a23d070583786322838150148f68",
+      "poc/glm52-probe/results/stats/f019.stats": "d472032d31a91319ef582338c32bec9f5392fee98916b3f35edd5620709962f7",
+      "poc/glm52-probe/results/stats/f020.stats": "b485a4f1752b824276070c76a66f4dcb5d3d5faff7e56a284f9591b8de213426",
+      "poc/glm52-probe/results/stats/f021.stats": "f0564574eaebeab00b96b0e38f9f04a9ddba3d16d6f98461aa0c0f1174f27484",
+      "poc/glm52-probe/results/stats/f022.stats": "88c4e06f2d8a467ffd7ab5edfe015f87a87a8947ac5ff8e398a5c95069188972",
+      "poc/glm52-probe/results/stats/f023.stats": "b723920c6390c764e98497deb04181cf24b0bac75e1f185289b1b11e392a8402",
+      "poc/glm52-probe/results/stats/manifest.json": "7fa022ac545a9f49730ee0952566349a1273012a91b408c02b6cfb60d89bf89d",
+      "poc/glm52-probe/wave-a/atlas/coverage_gates.json": "7ac4cfaa37066c2e23e38d30c3a950a06b994ab08019b2785849037086119f8e",
+      "poc/glm52-probe/wave-a/atlas/expert_atlas.parquet": "38516448c7ec33a7a544cd9fa4ca754902c447d08650c9c142b53aba5dbd1530",
+      "poc/glm52-probe/wave-a/atlas/expert_atlas_index.json": "3adfba0f3615ea97c9a88f9e1651f1b44fd262807c1089629409504c85d022b6",
+      "poc/glm52-probe/wave-a/corpus/corpus_manifest.json": "ae03bf3d6e52576d43cf832e83813e047eb40a446333ad6c3ae0327afd61eb3e"
+    },
+    "seed": 20260712,
+    "script": "poc/glm52-probe/analyze_residual_v1.py",
+    "script_sha256": "468264bef8d5f43f1ba048afe674d8b54d068aba6afd93996b746882a7b1b419",
+    "tier": "committed-bytes-only",
+    "d3_commit": "d594844070b02e1234b095e14942a8405dacffee",
+    "reused_from_analyze_routing_v3": [
+      "load() stats parser",
+      "ERR_NOT_CUMULATIVE fail-closed check",
+      "first-difference recipe (f000 dropped, n=23)",
+      "seeded Random(SEED) resampling machinery pattern"
+    ],
+    "deterministic": "seed 20260712, 10000 bootstrap resamples, pure stdlib, no network"
+  },
+  "config": {
+    "pin_budget_gb": 50,
+    "pin_cells": 2696,
+    "per_expert_bytes": 18541666.7,
+    "layer78_excluded": true,
+    "thresholds": {
+      "kill_pp": 5,
+      "green_pp": 10,
+      "note": "ASM-2505 applies at 0b/Stage-1 ONLY, not at 0a"
+    },
+    "nboot": 10000,
+    "seed": 20260712,
+    "n_prompts": 23
+  },
+  "A1": {
+    "h_pin_insample": 0.762844,
+    "residual_mass_insample_biased": 0.237156,
+    "anchor_reproduced": true,
+    "anchor": 0.7628,
+    "secondary_anchors": {
+      "G40": {
+        "cells": 2157,
+        "h_pin_reconstructed": 0.7132,
+        "h_pin_m4": 0.7132,
+        "match": true
+      },
+      "G50": {
+        "cells": 2696,
+        "h_pin_reconstructed": 0.7628,
+        "h_pin_m4": 0.7628,
+        "match": true
+      },
+      "G100": {
+        "cells": 5393,
+        "h_pin_reconstructed": 0.9032,
+        "h_pin_m4": 0.9032,
+        "match": true
+      }
+    },
+    "bias": "IN-SAMPLE: pin ranked and scored on the same histogram; residual is an optimistically-LOW-biased point estimate, NOT an out-of-sample floor (true OOS residual likely higher)"
+  },
+  "A2": {
+    "scope": "static/prompt-level residency only",
+    "note": "bounds STATIC and prompt-level residency levers only; a token/layer-conditioned swapping policy can reuse capacity across the diffuse tail (ASM-2511); dynamic levers are addressed only at 0b/Stage-1",
+    "gb_for_next_5pp": {
+      "extra_cells": 705,
+      "extra_gb": 13.07,
+      "total_gb": 63.07,
+      "cum_hit_frac_total": 0.8129
+    },
+    "gb_for_next_10pp": {
+      "extra_cells": 1650,
+      "extra_gb": 30.59,
+      "total_gb": 80.59,
+      "cum_hit_frac_total": 0.8629
+    },
+    "curve": [
+      {
+        "cum_hit_frac_total": 0.77,
+        "extra_cells": 89,
+        "extra_gb": 1.65,
+        "total_gb": 51.65
+      },
+      {
+        "cum_hit_frac_total": 0.78,
+        "extra_cells": 220,
+        "extra_gb": 4.08,
+        "total_gb": 54.08
+      },
+      {
+        "cum_hit_frac_total": 0.79,
+        "extra_cells": 358,
+        "extra_gb": 6.64,
+        "total_gb": 56.64
+      },
+      {
+        "cum_hit_frac_total": 0.8,
+        "extra_cells": 505,
+        "extra_gb": 9.36,
+        "total_gb": 59.36
+      },
+      {
+        "cum_hit_frac_total": 0.81,
+        "extra_cells": 659,
+        "extra_gb": 12.22,
+        "total_gb": 62.22
+      },
+      {
+        "cum_hit_frac_total": 0.82,
+        "extra_cells": 823,
+        "extra_gb": 15.26,
+        "total_gb": 65.26
+      },
+      {
+        "cum_hit_frac_total": 0.83,
+        "extra_cells": 997,
+        "extra_gb": 18.49,
+        "total_gb": 68.49
+      },
+      {
+        "cum_hit_frac_total": 0.84,
+        "extra_cells": 1181,
+        "extra_gb": 21.9,
+        "total_gb": 71.9
+      },
+      {
+        "cum_hit_frac_total": 0.85,
+        "extra_cells": 1377,
+        "extra_gb": 25.53,
+        "total_gb": 75.53
+      },
+      {
+        "cum_hit_frac_total": 0.86,
+        "extra_cells": 1588,
+        "extra_gb": 29.44,
+        "total_gb": 79.44
+      },
+      {
+        "cum_hit_frac_total": 0.87,
+        "extra_cells": 1813,
+        "extra_gb": 33.62,
+        "total_gb": 83.62
+      },
+      {
+        "cum_hit_frac_total": 0.88,
+        "extra_cells": 2055,
+        "extra_gb": 38.1,
+        "total_gb": 88.1
+      },
+      {
+        "cum_hit_frac_total": 0.89,
+        "extra_cells": 2316,
+        "extra_gb": 42.94,
+        "total_gb": 92.94
+      },
+      {
+        "cum_hit_frac_total": 0.9,
+        "extra_cells": 2600,
+        "extra_gb": 48.21,
+        "total_gb": 98.21
+      },
+      {
+        "cum_hit_frac_total": 0.91,
+        "extra_cells": 2911,
+        "extra_gb": 53.97,
+        "total_gb": 103.97
+      },
+      {
+        "cum_hit_frac_total": 0.92,
+        "extra_cells": 3254,
+        "extra_gb": 60.33,
+        "total_gb": 110.33
+      },
+      {
+        "cum_hit_frac_total": 0.93,
+        "extra_cells": 3637,
+        "extra_gb": 67.44,
+        "total_gb": 117.44
+      },
+      {
+        "cum_hit_frac_total": 0.94,
+        "extra_cells": 4065,
+        "extra_gb": 75.37,
+        "total_gb": 125.37
+      },
+      {
+        "cum_hit_frac_total": 0.95,
+        "extra_cells": 4557,
+        "extra_gb": 84.49,
+        "total_gb": 134.49
+      },
+      {
+        "cum_hit_frac_total": 0.96,
+        "extra_cells": 5141,
+        "extra_gb": 95.32,
+        "total_gb": 145.32
+      },
+      {
+        "cum_hit_frac_total": 0.97,
+        "extra_cells": 5859,
+        "extra_gb": 108.64,
+        "total_gb": 158.64
+      },
+      {
+        "cum_hit_frac_total": 0.98,
+        "extra_cells": 6809,
+        "extra_gb": 126.25,
+        "total_gb": 176.25
+      },
+      {
+        "cum_hit_frac_total": 0.99,
+        "extra_cells": 8244,
+        "extra_gb": 152.86,
+        "total_gb": 202.86
+      },
+      {
+        "cum_hit_frac_total": 1.0,
+        "extra_cells": 13488,
+        "extra_gb": 250.09,
+        "total_gb": 300.09,
+        "note": "full observed tail (16,184 active cells of 19,200)"
+      }
+    ]
+  },
+  "A3": {
+    "per_prompt_hit": [
+      {
+        "fid": "f001",
+        "concept": "break.shatter",
+        "hit": 0.2421
+      },
+      {
+        "fid": "f002",
+        "concept": "break.shatter",
+        "hit": 0.2518
+      },
+      {
+        "fid": "f003",
+        "concept": "break.violate",
+        "hit": 0.2512
+      },
+      {
+        "fid": "f004",
+        "concept": "break.violate",
+        "hit": 0.2408
+      },
+      {
+        "fid": "f005",
+        "concept": "break.violate",
+        "hit": 0.2573
+      },
+      {
+        "fid": "f006",
+        "concept": "break.interrupt",
+        "hit": 0.2466
+      },
+      {
+        "fid": "f007",
+        "concept": "break.interrupt",
+        "hit": 0.2398
+      },
+      {
+        "fid": "f008",
+        "concept": "break.interrupt",
+        "hit": 0.232
+      },
+      {
+        "fid": "f009",
+        "concept": "bank.river",
+        "hit": 0.2636
+      },
+      {
+        "fid": "f010",
+        "concept": "bank.river",
+        "hit": 0.2656
+      },
+      {
+        "fid": "f011",
+        "concept": "bank.river",
+        "hit": 0.2539
+      },
+      {
+        "fid": "f012",
+        "concept": "bank.finance",
+        "hit": 0.2558
+      },
+      {
+        "fid": "f013",
+        "concept": "bank.finance",
+        "hit": 0.2332
+      },
+      {
+        "fid": "f014",
+        "concept": "bank.finance",
+        "hit": 0.248
+      },
+      {
+        "fid": "f015",
+        "concept": "animal",
+        "hit": 0.2593
+      },
+      {
+        "fid": "f016",
+        "concept": "animal",
+        "hit": 0.2515
+      },
+      {
+        "fid": "f017",
+        "concept": "animal",
+        "hit": 0.2673
+      },
+      {
+        "fid": "f018",
+        "concept": "finance",
+        "hit": 0.2392
+      },
+      {
+        "fid": "f019",
+        "concept": "finance",
+        "hit": 0.2322
+      },
+      {
+        "fid": "f020",
+        "concept": "finance",
+        "hit": 0.2456
+      },
+      {
+        "fid": "f021",
+        "concept": "mathematics",
+        "hit": 0.2358
+      },
+      {
+        "fid": "f022",
+        "concept": "mathematics",
+        "hit": 0.2242
+      },
+      {
+        "fid": "f023",
+        "concept": "mathematics",
+        "hit": 0.2241
+      }
+    ],
+    "median": 0.2466,
+    "min": 0.2241,
+    "mean": 0.2461,
+    "ci95_median_bca": [
+      0.2392,
+      0.2518
+    ],
+    "layer78_mass_excluded_mean": 0.0125,
+    "config_mismatch": "D1 MTP-active (draft=3) int8 78L vs target int4 DRAFT=0 75L; layer-78 cells excluded both sides; corpus AND execution config differ -> prompt-fixed diagnostic, NOT clean OOD evidence"
+  },
+  "A4": {
+    "delta_oracle_mean": 0.5146,
+    "delta_oracle_median": 0.5143,
+    "ci95_mean_bca": [
+      0.5109,
+      0.5187
+    ],
+    "per_prompt": [
+      {
+        "fid": "f001",
+        "concept": "break.shatter",
+        "oracle_hit": 0.7714,
+        "static_hit": 0.2421,
+        "delta_oracle": 0.5293,
+        "positive_cells": 5302
+      },
+      {
+        "fid": "f002",
+        "concept": "break.shatter",
+        "oracle_hit": 0.7596,
+        "static_hit": 0.2518,
+        "delta_oracle": 0.5079,
+        "positive_cells": 5292
+      },
+      {
+        "fid": "f003",
+        "concept": "break.violate",
+        "oracle_hit": 0.7507,
+        "static_hit": 0.2512,
+        "delta_oracle": 0.4995,
+        "positive_cells": 5239
+      },
+      {
+        "fid": "f004",
+        "concept": "break.violate",
+        "oracle_hit": 0.762,
+        "static_hit": 0.2408,
+        "delta_oracle": 0.5212,
+        "positive_cells": 5124
+      },
+      {
+        "fid": "f005",
+        "concept": "break.violate",
+        "oracle_hit": 0.7561,
+        "static_hit": 0.2573,
+        "delta_oracle": 0.4988,
+        "positive_cells": 5330
+      },
+      {
+        "fid": "f006",
+        "concept": "break.interrupt",
+        "oracle_hit": 0.7602,
+        "static_hit": 0.2466,
+        "delta_oracle": 0.5136,
+        "positive_cells": 5430
+      },
+      {
+        "fid": "f007",
+        "concept": "break.interrupt",
+        "oracle_hit": 0.7507,
+        "static_hit": 0.2398,
+        "delta_oracle": 0.5109,
+        "positive_cells": 5538
+      },
+      {
+        "fid": "f008",
+        "concept": "break.interrupt",
+        "oracle_hit": 0.7421,
+        "static_hit": 0.232,
+        "delta_oracle": 0.5101,
+        "positive_cells": 5636
+      },
+      {
+        "fid": "f009",
+        "concept": "bank.river",
+        "oracle_hit": 0.7782,
+        "static_hit": 0.2636,
+        "delta_oracle": 0.5146,
+        "positive_cells": 5491
+      },
+      {
+        "fid": "f010",
+        "concept": "bank.river",
+        "oracle_hit": 0.7731,
+        "static_hit": 0.2656,
+        "delta_oracle": 0.5075,
+        "positive_cells": 5147
+      },
+      {
+        "fid": "f011",
+        "concept": "bank.river",
+        "oracle_hit": 0.7569,
+        "static_hit": 0.2539,
+        "delta_oracle": 0.503,
+        "positive_cells": 5613
+      },
+      {
+        "fid": "f012",
+        "concept": "bank.finance",
+        "oracle_hit": 0.7731,
+        "static_hit": 0.2558,
+        "delta_oracle": 0.5173,
+        "positive_cells": 5283
+      },
+      {
+        "fid": "f013",
+        "concept": "bank.finance",
+        "oracle_hit": 0.766,
+        "static_hit": 0.2332,
+        "delta_oracle": 0.5328,
+        "positive_cells": 5223
+      },
+      {
+        "fid": "f014",
+        "concept": "bank.finance",
+        "oracle_hit": 0.7648,
+        "static_hit": 0.248,
+        "delta_oracle": 0.5168,
+        "positive_cells": 5518
+      },
+      {
+        "fid": "f015",
+        "concept": "animal",
+        "oracle_hit": 0.7794,
+        "static_hit": 0.2593,
+        "delta_oracle": 0.5201,
+        "positive_cells": 5211
+      },
+      {
+        "fid": "f016",
+        "concept": "animal",
+        "oracle_hit": 0.7814,
+        "static_hit": 0.2515,
+        "delta_oracle": 0.5299,
+        "positive_cells": 5188
+      },
+      {
+        "fid": "f017",
+        "concept": "animal",
+        "oracle_hit": 0.7816,
+        "static_hit": 0.2673,
+        "delta_oracle": 0.5143,
+        "positive_cells": 4924
+      },
+      {
+        "fid": "f018",
+        "concept": "finance",
+        "oracle_hit": 0.7559,
+        "static_hit": 0.2392,
+        "delta_oracle": 0.5168,
+        "positive_cells": 5039
+      },
+      {
+        "fid": "f019",
+        "concept": "finance",
+        "oracle_hit": 0.7619,
+        "static_hit": 0.2322,
+        "delta_oracle": 0.5297,
+        "positive_cells": 5125
+      },
+      {
+        "fid": "f020",
+        "concept": "finance",
+        "oracle_hit": 0.7527,
+        "static_hit": 0.2456,
+        "delta_oracle": 0.5071,
+        "positive_cells": 5367
+      },
+      {
+        "fid": "f021",
+        "concept": "mathematics",
+        "oracle_hit": 0.7497,
+        "static_hit": 0.2358,
+        "delta_oracle": 0.5139,
+        "positive_cells": 5850
+      },
+      {
+        "fid": "f022",
+        "concept": "mathematics",
+        "oracle_hit": 0.7266,
+        "static_hit": 0.2242,
+        "delta_oracle": 0.5024,
+        "positive_cells": 5977
+      },
+      {
+        "fid": "f023",
+        "concept": "mathematics",
+        "oracle_hit": 0.7419,
+        "static_hit": 0.2241,
+        "delta_oracle": 0.5178,
+        "positive_cells": 5484
+      }
+    ],
+    "note": "oracle = top-2,696 cells of the prompt's OWN fingerprint (same ranking rule); bounds prompt-conditioned residency policies on this config-mismatched prompt set only; NOT a bound on within-sequence token-level swapping (ASM-2511)",
+    "config_mismatch": "D1 MTP-active (draft=3) int8 78L vs target int4 DRAFT=0 75L; layer-78 cells excluded both sides; corpus AND execution config differ -> prompt-fixed diagnostic, NOT clean OOD evidence"
+  },
+  "verdict": "PROVISIONAL-NEEDS-0b",
+  "caveats": [
+    "descriptive only \u2014 Stage-0a licenses no falsifier verdict; ASM-2505 applies at 0b/Stage-1",
+    "in-sample pin: residual 0.2372 biased low, NOT a deterministic out-of-sample floor",
+    "A3/A4 config-confounded: D1 MTP-active int8 78L vs target int4 DRAFT=0 75L (layer 78 excluded both sides); corpus AND execution config differ",
+    "no predictability estimate exists at this tier: committed D5 parquet drops the family x counterpart conditional-mass maps (6 biased top-activation exemplars per cell only)",
+    "A2 bounds STATIC/prompt-level residency only; token/layer-conditioned swapping not bounded (ASM-2511)",
+    "wave-a atlas coverage gates FAILED (mass_on_ge100_event_experts 0.825 < 0.95 gate; Spearman median 0.6328, 0% layers >= 0.8 gate; 10266/19200 cells rare) \u2014 the undersampled region is exactly the non-resident residual",
+    "n=23 differenced prompt fingerprints (f000 unrecoverable, dropped); BCa CIs wide",
+    "D1 .stats are SESSION-CUMULATIVE; per-prompt fingerprints recovered by first-differencing (cumulativity re-verified fail-closed at load)"
+  ]
+}
