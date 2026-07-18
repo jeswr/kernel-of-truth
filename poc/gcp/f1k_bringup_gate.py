@@ -483,14 +483,103 @@ def cmd_pinfile(args):
 # ---------------------------------------------------------------------------
 # collect: on-VM merge of timing results -> gate-inputs.json (NO verdict)
 # ---------------------------------------------------------------------------
-def _read_results(path):
-    if not path or not Path(path).is_file():
-        return {}
+def _read_sample_results(directory, *, phase, expected_ids):
+    """Read one atomic JSON file per expected sample; reject partial sets."""
+    if phase not in ("t1", "t2"):
+        die("F1K_GATE_COLLECT", "invalid timing phase %r" % phase)
+    expected = list(expected_ids)
+    if not expected or any(not isinstance(sid, str) or not sid
+                           for sid in expected) \
+            or len(expected) != len(set(expected)):
+        die("F1K_GATE_COLLECT", "%s expected sample ids are malformed or "
+            "duplicated" % phase.upper())
+    root = Path(directory) if directory else None
+    if root is None or not root.is_dir():
+        die("F1K_GATE_COLLECT", "%s timing result directory missing: %r"
+            % (phase.upper(), directory))
+
+    parsed = []
+    for path in sorted(root.glob("*.json"), key=lambda p: p.name):
+        if not path.is_file():
+            die("F1K_GATE_COLLECT", "%s timing result is not a regular "
+                "file: %s" % (phase.upper(), path))
+        try:
+            with path.open(encoding="utf-8") as handle:
+                record = json.load(handle)
+        except (OSError, UnicodeError, ValueError) as exc:
+            die("F1K_GATE_COLLECT", "%s malformed timing result %s: %s"
+                % (phase.upper(), path, exc))
+        if not isinstance(record, dict):
+            die("F1K_GATE_COLLECT", "%s malformed timing result %s: "
+                "record is not an object" % (phase.upper(), path))
+        sid = record.get("sample_id")
+        if not isinstance(sid, str) or not sid:
+            die("F1K_GATE_COLLECT", "%s malformed timing result %s: "
+                "sample_id must be a nonempty string"
+                % (phase.upper(), path))
+        parsed.append((path, record))
+
+    seen = set()
+    duplicates = set()
+    for _, record in parsed:
+        sid = record["sample_id"]
+        if sid in seen:
+            duplicates.add(sid)
+        seen.add(sid)
+    if duplicates:
+        die("F1K_GATE_COLLECT", "%s duplicate timing sample id(s): %s"
+            % (phase.upper(), ",".join(sorted(duplicates))))
+
     out = {}
-    for l in open(path, encoding="utf-8"):
-        if l.strip():
-            r = json.loads(l)
-            out[r["sample_id"]] = r
+    for path, record in parsed:
+        sid = record["sample_id"]
+        expected_name = "%s-%s.json" % (phase, sid)
+        if path.name != expected_name:
+            die("F1K_GATE_COLLECT", "%s filename/sample_id disagreement: "
+                "%s contains %r (expected filename %s)"
+                % (phase.upper(), path.name, sid, expected_name))
+        if record.get("phase") != phase:
+            die("F1K_GATE_COLLECT", "%s timing result %s records phase %r"
+                % (phase.upper(), path, record.get("phase")))
+        seconds = record.get("s")
+        if isinstance(seconds, bool) or not isinstance(seconds, (int, float)) \
+                or not math.isfinite(seconds) or seconds <= 0:
+            die("F1K_GATE_COLLECT", "%s timing result %s has invalid s=%r; "
+                "require a finite value > 0"
+                % (phase.upper(), path, seconds))
+        timer_n = record.get("timer_n")
+        if isinstance(timer_n, bool) or not isinstance(timer_n, int) \
+                or timer_n < 1:
+            die("F1K_GATE_COLLECT", "%s timing result %s has invalid "
+                "timer_n=%r" % (phase.upper(), path, timer_n))
+        boot_id = record.get("boot_id")
+        if not isinstance(boot_id, str) or not boot_id.strip() \
+                or boot_id != boot_id.strip():
+            die("F1K_GATE_COLLECT", "%s timing result %s has invalid "
+                "boot_id=%r" % (phase.upper(), path, boot_id))
+        pin_evidence = record.get("pin_evidence")
+        if phase == "t2" and not isinstance(pin_evidence, str):
+            die("F1K_GATE_COLLECT", "T2 timing result %s has invalid or "
+                "missing pin_evidence" % path)
+        if pin_evidence is not None and not isinstance(pin_evidence, str):
+            die("F1K_GATE_COLLECT", "%s timing result %s has non-string "
+                "pin_evidence" % (phase.upper(), path))
+        out[sid] = record
+
+    expected_set = set(expected)
+    extra = sorted(set(out) - expected_set)
+    if extra:
+        die("F1K_GATE_COLLECT", "%s timing has unexpected sample id(s): %s"
+            % (phase.upper(), ",".join(extra)))
+    missing = [sid for sid in expected if sid not in out]
+    if missing:
+        die("F1K_GATE_COLLECT", "%s timing missing for %s (fail-closed: "
+            "partial samples never project)"
+            % (phase.upper(), ",".join(missing)))
+    boots = {record["boot_id"] for record in out.values()}
+    if len(boots) > 1:
+        die("F1K_GATE_COLLECT", "%s timing mixes boot_id values: %s"
+            % (phase.upper(), ",".join(sorted(boots))))
     return out
 
 
@@ -498,13 +587,16 @@ def cmd_collect(args):
     sample = json.loads(Path(args.sample).read_text())
     tokdir = Path(args.tokens)
     counts = json.loads((tokdir / "token-counts.json").read_text())
-    t2 = _read_results(args.t2)
-    t1 = _read_results(args.t1)
-    missing = [e["sample_id"] for e in sample["entries"]
-               if e["sample_id"] not in t2]
-    if missing:
-        die("F1K_GATE_COLLECT", "T2 timing missing for %s (fail-closed: "
-            "partial samples never project)" % ",".join(missing))
+    t1 = _read_sample_results(
+        args.t1, phase="t1", expected_ids=sample["t1_sample_ids"])
+    t2_ids = [entry["sample_id"] for entry in sample["entries"]]
+    t2 = _read_sample_results(args.t2, phase="t2", expected_ids=t2_ids)
+    t1_boot = next(iter({record["boot_id"] for record in t1.values()}))
+    t2_boot = next(iter({record["boot_id"] for record in t2.values()}))
+    if t1_boot != t2_boot:
+        die("F1K_GATE_COLLECT", "T1 boot_id %s != T2 boot_id %s; timing "
+            "phases from different boots must never be combined"
+            % (t1_boot, t2_boot))
     # [REV-B F2] STRUCTURAL manifest-vs-model consistency (the class of
     # defect gate-fix review #3 found): for every sampled text the score
     # manifest's ctxlen + contlen (= the token count the engine actually
@@ -1816,6 +1908,24 @@ def _fake_timing(sample, s_of_t, path, evidence=MOCK_PIN_BANNER):
                                 "timer_n": 1}) + "\n")
 
 
+def _fake_result_set(source_jsonl, directory, *, phase, expected_ids,
+                     boot_id):
+    """Turn planted legacy rows into the atomic per-sample fixture format."""
+    rows = {row["sample_id"]: row for row in
+            (json.loads(line) for line in Path(source_jsonl).read_text()
+             .splitlines() if line.strip())}
+    root = Path(directory)
+    root.mkdir()
+    for sid in expected_ids:
+        record = dict(rows[sid])
+        record.update({"phase": phase, "boot_id": boot_id})
+        if phase == "t1":
+            record["pin_evidence"] = ""
+        f1k_ops.atomic_write_json(root / ("%s-%s.json" % (phase, sid)),
+                                  record)
+    return root
+
+
 def selftest():
     import tempfile
     frozen = {"instance_hours": [260.6, 900.0], "usd_total": [73.0, 155.0],
@@ -1957,38 +2067,135 @@ def selftest():
         except SystemExit:
             check(True, "case 5 fail-closed: MOCK tokens refused for a "
                         "real verdict")
-        # case 6: collect refuses partial T2 timing
-        (td / "t2-part.jsonl").write_text(
-            (td / "t2-green.jsonl").read_text().splitlines(True)[0])
-        try:
-            cmd_collect(argparse.Namespace(
+        # case 6a-j: atomic per-sample complete-set validation. The planted
+        # legacy JSONL remains the arithmetic oracle; only collect's reader is
+        # changed.
+        import shutil
+        boot_a = "11111111-1111-4111-8111-111111111111"
+        boot_b = "22222222-2222-4222-8222-222222222222"
+        t2_ids = [entry["sample_id"] for entry in sample["entries"]]
+        t1_ids = sample["t1_sample_ids"]
+        t1_valid = _fake_result_set(
+            td / "t2-green.jsonl", td / "t1-valid", phase="t1",
+            expected_ids=t1_ids, boot_id=boot_a)
+        t2_valid = _fake_result_set(
+            td / "t2-green.jsonl", td / "t2-valid", phase="t2",
+            expected_ids=t2_ids, boot_id=boot_a)
+
+        def refuses_results(path, phase="t2", ids=t2_ids):
+            try:
+                _read_sample_results(path, phase=phase, expected_ids=ids)
+                return False
+            except SystemExit:
+                return True
+
+        def collect_args(t2, out, *, t1=t1_valid, rate="0.174"):
+            return argparse.Namespace(
                 sample=str(td / "samp/timing-sample.json"),
-                tokens=str(td / "tok"), t2=str(td / "t2-part.jsonl"),
-                t1=None, rate="0.174", pin_sha="", pin_gb="",
-                pin_path="", pin_derivation="",
-                pin_regime="pinned-bringup", dump_a="PASS", dump_b="PASS",
-                dump_c="PASS", functional="PASS", out=str(td / "gi.json")))
-            check(False, "case 6 must refuse partial T2 results")
+                tokens=str(td / "tok"), t2=str(t2), t1=str(t1), rate=rate,
+                pin_sha="f" * 64, pin_gb="40", pin_path=MOCK_PIN_PATH,
+                pin_derivation="", pin_regime="pinned-bringup",
+                dump_a="PASS", dump_b="PASS", dump_c="PASS",
+                functional="PASS", out=str(out))
+
+        valid_rows = _read_sample_results(
+            t2_valid, phase="t2", expected_ids=t2_ids)
+        check(list(valid_rows) == t2_ids,
+              "case 6a complete atomic T2 set accepted in sample order")
+
+        missing6 = td / "t2-missing"
+        shutil.copytree(t2_valid, missing6)
+        (missing6 / ("t2-%s.json" % t2_ids[-1])).unlink()
+        check(refuses_results(missing6),
+              "case 6b fail-closed: missing/partial T2 set refused")
+
+        extra6 = td / "t2-extra"
+        shutil.copytree(t2_valid, extra6)
+        extra_record = dict(valid_rows[t2_ids[0]])
+        extra_record["sample_id"] = "s999"
+        f1k_ops.atomic_write_json(extra6 / "t2-s999.json", extra_record)
+        check(refuses_results(extra6),
+              "case 6c fail-closed: unexpected/extra T2 id refused")
+
+        duplicate6 = td / "t2-duplicate"
+        shutil.copytree(t2_valid, duplicate6)
+        shutil.copyfile(duplicate6 / ("t2-%s.json" % t2_ids[0]),
+                        duplicate6 / "t2-duplicate.json")
+        check(refuses_results(duplicate6),
+              "case 6d fail-closed: duplicate record sample_id refused")
+
+        mismatch6 = td / "t2-filename-mismatch"
+        shutil.copytree(t2_valid, mismatch6)
+        (mismatch6 / ("t2-%s.json" % t2_ids[0])).rename(
+            mismatch6 / "t2-wrong-name.json")
+        check(refuses_results(mismatch6),
+              "case 6e fail-closed: filename/sample_id mismatch refused")
+
+        mixed6 = td / "t2-mixed-boot"
+        shutil.copytree(t2_valid, mixed6)
+        mixed_path = mixed6 / ("t2-%s.json" % t2_ids[0])
+        mixed_record = json.loads(mixed_path.read_text())
+        mixed_record["boot_id"] = boot_b
+        f1k_ops.atomic_write_json(mixed_path, mixed_record)
+        check(refuses_results(mixed6),
+              "case 6f fail-closed: mixed boot_id within T2 set refused")
+
+        malformed6 = td / "t2-malformed"
+        shutil.copytree(t2_valid, malformed6)
+        (malformed6 / ("t2-%s.json" % t2_ids[0])).write_text("{broken")
+        check(refuses_results(malformed6),
+              "case 6g fail-closed: malformed result record refused")
+
+        bad_numeric_refused = []
+        for i6n, bad_s in enumerate((float("nan"), float("inf"), 0.0, -1.0)):
+            numeric6 = td / ("t2-bad-s-%d" % i6n)
+            shutil.copytree(t2_valid, numeric6)
+            numeric_path = numeric6 / ("t2-%s.json" % t2_ids[0])
+            numeric_record = json.loads(numeric_path.read_text())
+            numeric_record["s"] = bad_s
+            numeric_path.write_text(json.dumps(numeric_record))
+            bad_numeric_refused.append(refuses_results(numeric6))
+        check(all(bad_numeric_refused),
+              "case 6h fail-closed: NaN/Infinity/zero/negative s refused")
+
+        cross_boot6 = td / "t1-cross-boot"
+        shutil.copytree(t1_valid, cross_boot6)
+        for path6 in cross_boot6.glob("*.json"):
+            record6 = json.loads(path6.read_text())
+            record6["boot_id"] = boot_b
+            f1k_ops.atomic_write_json(path6, record6)
+        try:
+            cmd_collect(collect_args(t2_valid, td / "gi-cross-boot.json",
+                                     t1=cross_boot6))
+            check(False, "case 6i must refuse cross-boot T1/T2 timing")
         except SystemExit:
-            check(True, "case 6 fail-closed: partial T2 timing refused")
-        # case 6b-f [finding 1]: collect retains the exact canonical decimal
+            check(True, "case 6i fail-closed: complete T1/T2 sets from "
+                        "different boots refused")
+
+        valid6_path = td / "gi-valid-atomic.json"
+        cmd_collect(collect_args(t2_valid, valid6_path))
+        valid6 = json.loads(valid6_path.read_text())
+        valid6["_allow_mock"] = True
+        atomic6 = project(valid6, frozen)
+        legacy6 = project(mk_inputs(td / "t2-green.jsonl"), frozen)
+        check(valid6["pin"]["pin_file_sha256"] == "f" * 64
+              and atomic6["verdict"] == legacy6["verdict"]
+              and atomic6["projection"] == legacy6["projection"],
+              "case 6j complete atomic sets preserve the bound pin and "
+              "projection arithmetic exactly")
+
+        # case 6k-o [finding 1]: collect retains the exact canonical decimal
         # spelling; project carries it as the authoritative licensing field.
         collected_rates = {}
         for i6, raw6 in enumerate(
                 ("0.190", "1.90e-1", "0.10000000000000001")):
             out6 = td / ("gi-rate-%d.json" % i6)
-            cmd_collect(argparse.Namespace(
-                sample=str(td / "samp/timing-sample.json"),
-                tokens=str(td / "tok"), t2=str(td / "t2-green.jsonl"),
-                t1=None, rate=raw6, pin_sha="", pin_gb="",
-                pin_path="", pin_derivation="",
-                pin_regime="pinned-bringup", dump_a="PASS", dump_b="PASS",
-                dump_c="PASS", functional="PASS", out=str(out6)))
+            cmd_collect(collect_args(t2_valid, out6, rate=raw6))
             collected_rates[raw6] = json.loads(out6.read_text())
         check(collected_rates["0.190"]["rate_usd_per_hour_decimal"]
               == collected_rates["1.90e-1"]["rate_usd_per_hour_decimal"]
               == "0.19",
-              "case 6b collect canonical decimal: 0.190 and 1.90e-1 "
+              "case 6k collect canonical decimal: 0.190 and 1.90e-1 "
               "both record as 0.19")
         lossy6 = collected_rates["0.10000000000000001"]
         check(lossy6["rate_usd_per_hour_decimal"]
@@ -1997,7 +2204,7 @@ def selftest():
               and lossy6["rate_usd_per_hour_decimal"]
               != f1k_ops.canonical_decimal(
                   str(lossy6["rate_usd_per_hour"]), field="lossy float"),
-              "case 6c collect preserves 0.10000000000000001 exactly "
+              "case 6l collect preserves 0.10000000000000001 exactly "
               "while its derived float is visibly lossy (0.1)")
         in6d = mk_inputs(td / "t2-green.jsonl", rate=0.19)
         in6d["rate_usd_per_hour_decimal"] = (
@@ -2006,7 +2213,7 @@ def selftest():
         check(art6d["verdict"] == "GREEN"
               and art6d["rate"]["usd_per_hour"] == 0.19
               and art6d["rate"]["usd_per_hour_decimal"] == "0.19",
-              "case 6d GREEN artifact carries derived float 0.19 AND "
+              "case 6m GREEN artifact carries derived float 0.19 AND "
               "authoritative canonical decimal '0.19'")
         in6e = mk_inputs(td / "t2-green.jsonl", rate=0.1)
         in6e["rate_usd_per_hour_decimal"] = (
@@ -2021,13 +2228,13 @@ def selftest():
               in rule6e
               and "config rate == rate.usd_per_hour" not in rule6e
               and "authoritative" in art6e["rate"]["source"],
-              "case 6e lossy float remains projection-only; licensing "
+              "case 6n lossy float remains projection-only; licensing "
               "equality names the exact decimal field exclusively")
         in6f = mk_inputs(td / "t2-green.jsonl", rate=0.19)
         del in6f["rate_usd_per_hour_decimal"]
         art6f = project(in6f, frozen)
         check(art6f["rate"]["usd_per_hour_decimal"] == "0.19",
-              "case 6f older inputs resume through canonical decimal "
+              "case 6o older inputs resume through canonical decimal "
               "reconstruction from the stored float")
         # case 7 (+REPLACE fail-closed, v3-review :417/:423 lineage): the
         # SAME timing gives mandatory GREEN but +REPLACE STOP — a tested
@@ -2107,13 +2314,7 @@ def selftest():
         m11.write_text("%d %d %s\n" % (e11["T"] - CONT_TOKENS, CONT_TOKENS,
                                        " ".join(ids11)))   # OLD convention
         try:
-            cmd_collect(argparse.Namespace(
-                sample=str(td / "samp/timing-sample.json"),
-                tokens=str(td / "tok"), t2=str(td / "t2-green.jsonl"),
-                t1=None, rate="0.174", pin_sha="", pin_gb="",
-                pin_path="", pin_derivation="",
-                pin_regime="pinned-bringup", dump_a="PASS", dump_b="PASS",
-                dump_c="PASS", functional="PASS", out=str(td / "gi11.json")))
+            cmd_collect(collect_args(t2_valid, td / "gi11.json"))
             check(False, "case 11 must refuse an off-by-continuation "
                          "manifest")
         except SystemExit:
@@ -2838,7 +3039,7 @@ def main():
     p.add_argument("--sample", required=True)
     p.add_argument("--tokens", required=True)
     p.add_argument("--t2", required=True)
-    p.add_argument("--t1")
+    p.add_argument("--t1", required=True)
     p.add_argument("--rate", required=True)
     p.add_argument("--pin-sha", default="")
     p.add_argument("--pin-gb", default="")

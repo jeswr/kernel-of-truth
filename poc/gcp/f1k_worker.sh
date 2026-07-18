@@ -43,6 +43,197 @@
 # =============================================================================
 set -euo pipefail
 
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+atomic_publish_file() {  # $1=complete temp file; $2=final path (same dir)
+  [ "$#" -eq 2 ] || { echo "atomic_publish_file: expected SRC DEST" >&2; return 2; }
+  local src="$1" dest="$2" src_dir dest_dir
+  [ -f "$src" ] && [ ! -L "$src" ] && [ -s "$src" ] \
+    || { echo "atomic_publish_file: source is not a nonempty regular file: $src" >&2; return 2; }
+  src_dir=$(cd "$(dirname -- "$src")" && pwd -P) || return 2
+  dest_dir=$(cd "$(dirname -- "$dest")" && pwd -P) || return 2
+  [ "$src_dir" = "$dest_dir" ] \
+    || { echo "atomic_publish_file: SRC and DEST must share a directory" >&2; return 2; }
+  python3 - "$src" <<'PY'
+import os, sys
+with open(sys.argv[1], "rb") as handle:
+    os.fsync(handle.fileno())
+PY
+  # Test-only preemption point: the complete temp remains; DEST is untouched.
+  [ "${KOT_F1K_TEST_INTERRUPT_BEFORE_RENAME:-0}" != 1 ] || return 99
+  python3 - "$src" "$dest" <<'PY'
+import os, stat, sys
+src, dest = sys.argv[1:]
+try:
+    mode = os.lstat(dest).st_mode
+except FileNotFoundError:
+    pass
+else:
+    if stat.S_ISLNK(mode) or not stat.S_ISREG(mode):
+        raise SystemExit("refusing non-regular destination: %s" % dest)
+os.replace(src, dest)
+dir_fd = os.open(os.path.dirname(dest) or ".",
+                 os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
+try:
+    os.fsync(dir_fd)
+finally:
+    os.close(dir_fd)
+PY
+}
+
+write_timing_result() {  # $1=phase $2=sample_id $3=complete result temp
+  [ "$#" -eq 3 ] || { echo "write_timing_result: expected PHASE SAMPLE_ID RESULT_TMP" >&2; return 2; }
+  local phase="$1" sid="$2" result_tmp="$3" result_dir dest sha
+  case "$phase" in t1|t2) ;; *) echo "write_timing_result: invalid phase $phase" >&2; return 2;; esac
+  [[ "$sid" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]] \
+    || { echo "write_timing_result: unsafe sample_id $sid" >&2; return 2; }
+  result_dir="$GATE/$phase-results"
+  mkdir -p "$result_dir"
+  dest="$result_dir/$phase-$sid.json"
+  [ -s "$result_tmp" ] \
+    || { echo "write_timing_result: empty result temp $result_tmp" >&2; return 2; }
+  sha=$(python3 - "$HERE" "$phase" "$sid" "$result_tmp" <<'PY'
+import json, math, sys
+sys.path.insert(0, sys.argv[1])
+import f1k_ops
+phase, sid, path = sys.argv[2:]
+with open(path, encoding="utf-8") as handle:
+    record = json.load(handle)
+if not isinstance(record, dict) or record.get("phase") != phase \
+        or record.get("sample_id") != sid:
+    raise SystemExit("timing temp phase/sample_id mismatch")
+seconds = record.get("s")
+timer_n = record.get("timer_n")
+boot_id = record.get("boot_id")
+if isinstance(seconds, bool) or not isinstance(seconds, (int, float)) \
+        or not math.isfinite(seconds) or seconds <= 0:
+    raise SystemExit("timing temp has invalid s")
+if isinstance(timer_n, bool) or not isinstance(timer_n, int) or timer_n < 1:
+    raise SystemExit("timing temp has invalid timer_n")
+if not isinstance(boot_id, str) or not boot_id.strip():
+    raise SystemExit("timing temp has invalid boot_id")
+if phase == "t2" and not isinstance(record.get("pin_evidence"), str):
+    raise SystemExit("T2 timing temp has invalid pin_evidence")
+print(f1k_ops.atomic_write_json(path, record, mode=0o600))
+PY
+) || return
+  atomic_publish_file "$result_tmp" "$dest" || return
+  echo "timing result published: $phase/$sid sha256=$sha"
+}
+
+validate_timing_results() {  # $1=phase $2=directory $3..=expected ids
+  local phase="$1" directory="$2"
+  shift 2
+  python3 - "$HERE" "$directory" "$phase" "$@" <<'PY'
+import sys
+sys.path.insert(0, sys.argv[1])
+from f1k_bringup_gate import _read_sample_results
+_read_sample_results(sys.argv[2], phase=sys.argv[3], expected_ids=sys.argv[4:])
+PY
+}
+
+worker_selftest() {
+  local td checks=0 fails=0 rc final before after held duplicate
+  td=$(mktemp -d) || return 1
+  GATE="$td/gate"
+  mkdir -p "$GATE/t2-results"
+  echo "== selftest: f1k_worker atomic timing artifacts (mock files only) =="
+
+  worker_check() {
+    checks=$((checks + 1))
+    if "$@"; then
+      echo "  ok:  $WORKER_CHECK_MSG"
+    else
+      echo "  FAIL: $WORKER_CHECK_MSG"
+      fails=$((fails + 1))
+    fi
+  }
+  mock_result_tmp() {
+    local path="$1" sid="$2"
+    python3 - "$HERE" "$path" "$sid" <<'PY'
+import os, sys
+sys.path.insert(0, sys.argv[1])
+import f1k_ops
+record = {"phase": "t2", "sample_id": sys.argv[3], "s": 1.25,
+          "timer_n": 1, "pin_evidence": "[PIN] mock",
+          "boot_id": "11111111-1111-4111-8111-111111111111"}
+payload = f1k_ops.canonical_json_bytes(record)
+with open(sys.argv[2], "wb") as handle:
+    handle.write(payload)
+    handle.flush()
+    os.fsync(handle.fileno())
+PY
+  }
+
+  final="$GATE/t2-results/t2-s000.json"
+  local staged="$GATE/t2-results/.t2-s000.interrupted.tmp"
+  mock_result_tmp "$staged" s000
+  rc=0
+  KOT_F1K_TEST_INTERRUPT_BEFORE_RENAME=1 \
+    write_timing_result t2 s000 "$staged" >/dev/null 2>&1 || rc=$?
+  WORKER_CHECK_MSG="injected interruption leaves no final and a complete temp"
+  worker_check test "$rc" -eq 99 -a ! -e "$final" -a -s "$staged"
+
+  write_timing_result t2 s000 "$staged" >/dev/null
+  WORKER_CHECK_MSG="successful publish exposes one complete canonical record"
+  worker_check python3 - "$HERE" "$final" <<'PY'
+import json, sys
+sys.path.insert(0, sys.argv[1])
+import f1k_ops
+raw = open(sys.argv[2], "rb").read()
+raise SystemExit(0 if raw == f1k_ops.canonical_json_bytes(json.loads(raw)) else 1)
+PY
+
+  staged="$GATE/t2-results/.t2-s001.complete.tmp"
+  mock_result_tmp "$staged" s001
+  write_timing_result t2 s001 "$staged" >/dev/null
+  WORKER_CHECK_MSG="complete expected set is consumable"
+  worker_check validate_timing_results t2 "$GATE/t2-results" s000 s001
+
+  held="$GATE/t2-results/.t2-s001.held.tmp"
+  mv -f "$GATE/t2-results/t2-s001.json" "$held"
+  WORKER_CHECK_MSG="partial set is not consumable"
+  if validate_timing_results t2 "$GATE/t2-results" s000 s001 >/dev/null 2>&1; then
+    worker_check false
+  else
+    worker_check true
+  fi
+  mv -f "$held" "$GATE/t2-results/t2-s001.json"
+
+  duplicate="$GATE/t2-results/t2-duplicate.json"
+  cp -f "$final" "$duplicate"
+  WORKER_CHECK_MSG="duplicate sample_id is not consumable"
+  if validate_timing_results t2 "$GATE/t2-results" s000 s001 >/dev/null 2>&1; then
+    worker_check false
+  else
+    worker_check true
+  fi
+  rm -f "$duplicate"
+
+  before=$(sha256sum "$final" | awk '{print $1}')
+  staged="$GATE/t2-results/.t2-s000.repeat.tmp"
+  mock_result_tmp "$staged" s000
+  write_timing_result t2 s000 "$staged" >/dev/null
+  after=$(sha256sum "$final" | awk '{print $1}')
+  WORKER_CHECK_MSG="complete-set republish is byte-deterministic"
+  worker_check test "$before" = "$after"
+
+  rm -rf "$td"
+  echo
+  echo "WORKER SELFTEST: $((checks - fails))/$checks $([ "$fails" -eq 0 ] && echo PASS || echo FAILED)"
+  [ "$fails" -eq 0 ]
+}
+
+if [ "${1:-}" = "--selftest" ]; then
+  shift
+  [ "$#" -eq 0 ] || { echo "usage: $0 [--selftest]" >&2; exit 2; }
+  worker_selftest
+  exit $?
+elif [ "$#" -ne 0 ]; then
+  echo "usage: $0 [--selftest]" >&2
+  exit 2
+fi
+
 BUCKET="${KOT_F1K_BUCKET:?set KOT_F1K_BUCKET=gs://... (same-region estate mirror + heartbeat)}"
 COLIBRI_GIT_URL="${COLIBRI_GIT_URL:?coordinator-supplied colibri clone URL}"
 SPOT_RATE="${KOT_F1K_SPOT_RATE:?record the ACTUAL assigned spot $/h (load-bearing for the affordability gate)}"
@@ -51,7 +242,6 @@ HOME_DIR="${HOME:-/home/ubuntu}"
 SSD="/mnt/nvme"                 # the striped local NVMe mount (see f1k_gcp provision docs)
 ESTATE_DIR="$SSD/glm52_i4"
 GATE="$HOME_DIR/f1k-gate"       # bring-up outputs
-HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 mkdir -p "$GATE"
 die() { echo "ERR_F1K_WORKER: $*" >&2; hb "FAILED: $*"; exit 1; }
@@ -392,9 +582,13 @@ PIN_GB="${KOT_F1K_PIN_GB:-$(( MEM_AVAIL_GB - 8 ))}"
 
 GATE_MAX_S="${KOT_F1K_GATE_MAX_S:-10800}"   # fail-closed timing budget (3 h)
 GATE_T0=$(date +%s)
-run_gate_sample() {   # $1=sample_id  $2=results.jsonl  $3.. = extra env pairs
-  local sid="$1"; local res="$2"; shift 2
+BOOT_ID=$(tr -d '\n' < /proc/sys/kernel/random/boot_id)
+[ -n "$BOOT_ID" ] || die "cannot read boot_id for timing result binding"
+run_gate_sample() {   # $1=phase $2=sample_id $3=result dir $4..=extra env
+  local phase="$1" sid="$2" resdir="$3"; shift 3
   local man="$GATE/gate-sample/sample-$sid.score"
+  local run_out="$GATE/gate-run-$phase-$sid.out"
+  local run_err="$GATE/gate-run-$phase-$sid.err"
   [ $(( $(date +%s) - GATE_T0 )) -lt "$GATE_MAX_S" ] \
     || die "gate timing exceeded KOT_F1K_GATE_MAX_S=$GATE_MAX_S s (fail-closed: no silent truncation — raise the budget or STOP)"
   env -u KAE -u KAE_G -u KAE_SCORE -u KAE_DUMP -u KAE_CARRIER -u KAE_SPANS \
@@ -402,20 +596,37 @@ run_gate_sample() {   # $1=sample_id  $2=results.jsonl  $3.. = extra env pairs
       SNAP="$ESTATE_DIR" SCORE="$man" \
       OMP_NUM_THREADS="$FUNC_OMP" OMP_DYNAMIC=FALSE OMP_PROC_BIND=close \
       OMP_WAIT_POLICY=active COLI_OMP_TUNED=1 "$@" \
-      "$SCORE_ENGINE" 64 4 8 > "$GATE/gate-run-$sid.out" 2> "$GATE/gate-run-$sid.err" \
-    || die "gate timing run $sid FAILED (see gate-run-$sid.err)"
-  local timer n s pin_ev
-  timer=$(grep -oE '\[score [0-9]+ req \| [0-9.]+s' "$GATE/gate-run-$sid.err" | tail -1 || true)
+      "$SCORE_ENGINE" 64 4 8 > "$run_out" 2> "$run_err" \
+    || die "gate timing run $phase/$sid FAILED (see $run_err)"
+  local timer n s pin_ev result_tmp
+  timer=$(grep -oE '\[score [0-9]+ req \| [0-9.]+s' "$run_err" | tail -1 || true)
   n=$(echo "$timer" | grep -oE '[0-9]+ req' | grep -oE '[0-9]+' || true)
   s=$(echo "$timer" | grep -oE '\| [0-9.]+s' | grep -oE '[0-9.]+' || true)
-  { [ -n "$s" ] && [ "${n:-0}" -ge 1 ]; } || die "gate run $sid: engine emitted no scoring timer (see gate-run-$sid.err)"
+  { [ -n "$s" ] && [ "${n:-0}" -ge 1 ]; } || die "gate run $phase/$sid: engine emitted no scoring timer (see $run_err)"
   # [REV-B F3] engagement evidence VERBATIM: the [PIN] banner/marker lines
   # (armed banner grammar = the LANDED driver's PIN_ARMED_RE, ASM-2513;
   # wording fetch-grade ASM-1971 — a real-engine divergence is aligned in
   # the DRIVER regex once, and the control-box check follows). The gate
   # verdict REQUIRES a coherent armed banner per pinned T2 run.
-  pin_ev=$(grep -E '\[PIN\]|pinning DISABLED' "$GATE/gate-run-$sid.err" | head -5 | tr -d '"' | tr '\n' ';' || true)
-  echo "{\"sample_id\":\"$sid\",\"s\":$s,\"timer_n\":$n,\"pin_evidence\":\"$pin_ev\"}" >> "$res"
+  pin_ev=$(grep -E '\[PIN\]|pinning DISABLED' "$run_err" | head -5 | tr -d '"' | tr '\n' ';' || true)
+  mkdir -p "$resdir"
+  result_tmp=$(mktemp "$resdir/.$phase-$sid.XXXXXX.tmp")
+  python3 - "$HERE" "$result_tmp" "$phase" "$sid" "$s" "$n" \
+          "$pin_ev" "$BOOT_ID" <<'PY'
+import os, sys
+sys.path.insert(0, sys.argv[1])
+import f1k_ops
+record = {"phase": sys.argv[3], "sample_id": sys.argv[4],
+          "s": float(sys.argv[5]), "timer_n": int(sys.argv[6]),
+          "pin_evidence": sys.argv[7], "boot_id": sys.argv[8]}
+payload = f1k_ops.canonical_json_bytes(record)
+with open(sys.argv[2], "wb") as handle:
+    handle.write(payload)
+    handle.flush()
+    os.fsync(handle.fileno())
+PY
+  write_timing_result "$phase" "$sid" "$result_tmp" \
+    || die "gate timing result publish failed for $phase/$sid"
 }
 
 # T1: UNPINNED runs over the t1 subset with engine usage stats ON.
@@ -430,16 +641,21 @@ run_gate_sample() {   # $1=sample_id  $2=results.jsonl  $3.. = extra env pairs
 # missing/empty/malformed file and records per-file sha provenance.
 T1_IDS=$(python3 -c "import json;print(' '.join(json.load(open('$GATE/gate-sample/timing-sample.json'))['t1_sample_ids']))")
 T1_CWD="$GATE/t1-cwd"; mkdir -p "$T1_CWD"
+T1_RESULTS_DIR="$GATE/t1-results"; mkdir -p "$T1_RESULTS_DIR"
 T1_STATS_DIR="${KOT_F1K_STATS_DIR:-$GATE/t1-stats}"; mkdir -p "$T1_STATS_DIR"
-: > "$GATE/t1-results.jsonl"
 : > "$GATE/t1-stats.manifest"
 for sid in $T1_IDS; do
   SFILE="$T1_STATS_DIR/stats-$sid.txt"
-  rm -f "$SFILE"
-  ( cd "$T1_CWD" && run_gate_sample "$sid" "$GATE/t1-results.jsonl" STATS="$SFILE" )
-  [ -s "$SFILE" ] || die "T1 run $sid wrote NO usage stats at $SFILE (STATS=<file>, kae-add-path.patch:175) — the pin never derives from a partial T1 union; STOP (maintainer surface; re-verify the STATS knob at the (7) semantic gate)"
+  SFILE_TMP=$(mktemp "$T1_STATS_DIR/.stats-$sid.XXXXXX.tmp")
+  rm -f "$SFILE_TMP"  # fresh whether the engine opens STATS append or truncate
+  ( cd "$T1_CWD" && run_gate_sample t1 "$sid" "$T1_RESULTS_DIR" STATS="$SFILE_TMP" )
+  [ -s "$SFILE_TMP" ] || die "T1 run $sid wrote NO usage stats at $SFILE_TMP (STATS=<file>, kae-add-path.patch:175) — the pin never derives from a partial T1 union; STOP (maintainer surface; re-verify the STATS knob at the (7) semantic gate)"
+  atomic_publish_file "$SFILE_TMP" "$SFILE" \
+    || die "T1 run $sid stats atomic publish failed"
   echo "$SFILE" >> "$GATE/t1-stats.manifest"
 done
+validate_timing_results t1 "$T1_RESULTS_DIR" $T1_IDS \
+  || die "T1 timing result set incomplete/invalid before pin derivation"
 hb "gate-t1-done"
 
 # bring-up pin file at PIN_GB from the EXPLICIT T1 stats manifest.
@@ -455,16 +671,18 @@ PIN_SHA=$(sha256sum "$PIN_FILE" | awk '{print $1}')
 # T2: the LICENSE timing — every sample text, per-item engine timer (model
 # load excluded), ALWAYS pinned (evidence per run; the control-box verdict
 # verifies an armed banner per run against the bound sha/PIN_GB).
-: > "$GATE/t2-results.jsonl"
+T2_RESULTS_DIR="$GATE/t2-results"; mkdir -p "$T2_RESULTS_DIR"
 ALL_IDS=$(python3 -c "import json;print(' '.join(e['sample_id'] for e in json.load(open('$GATE/gate-sample/timing-sample.json'))['entries']))")
 for sid in $ALL_IDS; do
-  run_gate_sample "$sid" "$GATE/t2-results.jsonl" PIN="$PIN_FILE" PIN_GB="$PIN_GB"
+  run_gate_sample t2 "$sid" "$T2_RESULTS_DIR" PIN="$PIN_FILE" PIN_GB="$PIN_GB"
 done
+validate_timing_results t2 "$T2_RESULTS_DIR" $ALL_IDS \
+  || die "T2 timing result set incomplete/invalid before collect"
 hb "gate-t2-done"
 
 python3 "$GATEPY" collect --sample "$GATE/gate-sample/timing-sample.json" \
-  --tokens "$GATE/gate-tokens" --t2 "$GATE/t2-results.jsonl" \
-  --t1 "$GATE/t1-results.jsonl" --rate "$SPOT_RATE" \
+  --tokens "$GATE/gate-tokens" --t2 "$T2_RESULTS_DIR" \
+  --t1 "$T1_RESULTS_DIR" --rate "$SPOT_RATE" \
   --pin-sha "$PIN_SHA" --pin-gb "$PIN_GB" --pin-regime "$PIN_REGIME" \
   --pin-path "$PIN_FILE" \
   --pin-derivation "$PIN_FILE.derivation.json" \
