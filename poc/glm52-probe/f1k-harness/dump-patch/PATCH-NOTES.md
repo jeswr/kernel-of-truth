@@ -129,7 +129,7 @@ The kot-f1k-tok/1 tokenizer wrapper is `../tok_glm52.py` (see below).
 |---|---|---|
 | `KAE_DUMP` | arms | manifest path; one pass per line `T t_0..t_{T-1} s_0..s_{T-1}` (-1 = ungated); EXACTLY 2T+1 integers per line — garbage lines and trailing junk abort (ASM-2489) |
 | `KAE_DUMP_OUT` | yes (when armed) | KAED output: `"KAED" i32 n_lines, nl, D, layer_id[nl]`, then per line `i32 gated_count, f32 sum[nl*D]` (little-endian, ASM-2491) |
-| `KAE_DUMP_LAYERS` | yes (when armed) | csv of dump layer ids = the A(iv) candidate splice-layer union (real runs: 3..78); **csv order = slot order** in the file |
+| `KAE_DUMP_LAYERS` | yes (when armed) | csv of dump layer ids = the A(iv) candidate splice-layer union (real runs: 3..77; layer 78 = MTP head, unreachable at DRAFT=0 [ASM-2504]); **csv order = slot order** in the file |
 | `KAE_SEED` | echo only | echoed verbatim in the arm line; the dump path consults **no RNG**; `run_dump` exports the registered `CONSTRUCTION_SEED=20260716` and fails closed on mismatch |
 | `KAE` / `KAE_SCORE` | must be unset | phase separation (ASM-2487): either one present with `KAE_DUMP` → abort before load |
 

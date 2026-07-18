@@ -42,15 +42,15 @@ is the (A)-time realized construction manifest (96 x 16 x 3 = 4,608
 forward passes; WITHOUT shared between K and d2).
 
 **Carrier-pipeline HARDENING refreeze (2026-07-16):** the exact candidate
-splice-layer ids are now RESOLVED + PINNED (A(iv) = ALL 76 MoE layers,
-engine ids 3..78 inclusive [MEASURED ASM-2342 R3]; pilot realization
-L1=[40] / L2=[40,53,65,78] / L3=all — see
+splice-layer ids are now RESOLVED + PINNED (A(iv) = the 75 DRAFT=0-reachable MoE layers,
+engine ids 3..77 inclusive [MEASURED probe M4 75/3/77; layer 78 = MTP head, excluded at DRAFT=0 — ASM-2504 amending ASM-2342 R3]; pilot realization
+L1=[40] / L2=[40,52,65,77] / L3=all [ASM-2504] — see
 `generator/generator-spec.json .candidate_splice_layers`), and the
 generator is provenance-hardened: mode-bound checkpoints
 (mock-vs-real contamination fail-closed), manifest content verified
 against a fresh (A)-spec re-derivation, engine KAE_SEED echo captured +
 verified, d0 reproducibility scoped to the pinned toolchain with a FULL
-byte-exact `verify` re-derivation.
+byte-exact `verify` re-derivation. LAYER-GEOMETRY RE-FREEZE (2026-07-17, ASM-2504): the 2026-07-16 pin transported the committed-stats universe (76 indices 3-78, incl. one MTP-trace layer) into the live DRAFT=0 dump universe (3..77 = 75); corrected here.
 
 **Still missing for (B0), never invented here:** the mean native expert
 weight for the g grid (model measurement, bring-up); and the realized

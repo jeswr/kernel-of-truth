@@ -2,7 +2,7 @@
 
 > **Provision-ready + bring-up-capable.** This directory is the GCP-Spot
 > orchestration layer for the **frozen** F1-K correctness run
-> (`registry/experiments/f1k.json`, `frozen_sha256 505165ee…`). It DESIGNS
+> (`registry/experiments/f1k.json`, `frozen_sha256 01cf2b17…`). It DESIGNS
 > nothing and CONCLUDES nothing: the kernel, model, engine, carriers, protocol,
 > and analysis are frozen upstream (Fable). This layer only provisions, stages,
 > builds, drives the pinned generator/driver, checkpoints, monitors, and tears

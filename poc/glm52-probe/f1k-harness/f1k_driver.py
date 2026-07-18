@@ -397,10 +397,11 @@ CORPUS_NAMES = ("f1k-eval-v1", "f1k-carriers-v1", "f1k-trigger-map-v1")
 # a real campaign. These are the REGISTERED values the driver now enforces
 # fail-closed BEFORE ingesting carriers for a REAL campaign (sources:
 # build_carriers.py module docstring + the frozen record riders).
-REGISTERED_SPLICE_LAYERS = list(range(3, 79))
-#   the A(iv) candidate splice union: ALL 76 MoE layers of the pinned
-#   GLM-5.2 config, ENGINE IDS 3..78 INCLUSIVE [MEASURED ASM-2342 R3;
-#   STIPULATED ASM-2406; REG A_pre_spend carrier-pipeline hardening rider]
+REGISTERED_SPLICE_LAYERS = list(range(3, 78))
+#   the A(iv) candidate splice union: the 75 DRAFT=0-reachable MoE layers
+#   of the pinned GLM-5.2 config, ENGINE IDS 3..77 INCLUSIVE [MEASURED
+#   probe M4 75/3/77 + PER-PROTOCOL DRAFT=0; ASM-2504 amending ASM-2342/
+#   ASM-2406; REG A_pre_spend layer-geometry re-freeze rider 2026-07-17]
 D_REGISTERED = 6144           # [generator-spec kaec_format "D = 6144"]
 REGISTERED_CONSTRUCTION_SEED = 20260716
 #   [REG freeze_manifest A(vii), freeze-(A) completion refreeze]
@@ -1034,7 +1035,7 @@ def verify_carrier_construction(cfg, mock):
         the full carrier-HOLD-fix-1 provenance binding;
       * report + binding mode == "real" (a mode=mock construction can
         NEVER feed a real campaign);
-      * layers == the REGISTERED A(iv) splice union (76 MoE layers 3..78
+      * layers == the REGISTERED A(iv) splice union (75 MoE layers 3..77
         [ASM-2342/ASM-2406]), D == 6144, nc == C_REGISTERED == 96,
         construction_seed == the registered 20260716 [REG A(vii)];
       * binding.manifest_sha256 == sha256 of the COMMITTED (A)-time
@@ -1116,7 +1117,7 @@ def verify_carrier_construction(cfg, mock):
                 rep.get("layers") != REGISTERED_SPLICE_LAYERS:
             fail("ERR_F1K_CARRIERPROV",
                  "REAL campaign: construction layers != the REGISTERED "
-                 "A(iv) splice union (76 MoE layers %d..%d [ASM-2342]); "
+                 "A(iv) splice union (75 MoE layers %d..%d [ASM-2504]); "
                  "got %r... — wrong-layer tables are never ingested "
                  "(re-review item 8)"
                  % (REGISTERED_SPLICE_LAYERS[0],
@@ -3918,7 +3919,7 @@ def mock_main(args):
          "mock-carrier exploit, (c) non-A(iv) layers [1,2,3,5,7,8,9,11], "
          "(d) D=8, (e) an asserted provenance sha != the DERIVED artifact "
          "digest, (f) a byte-tampered table vs the report pin; a VALID "
-         "real-mode fixture (nc=96, D=6144, layers 3..78, artifact-"
+         "real-mode fixture (nc=96, D=6144, layers 3..77, artifact-"
          "derived shas, 6 byte-witnessed NON-DEGENERATE tables) PASSES; "
          "mock fixtures DISCLOSED (%.24s); pins_observed (%d pin(s)) "
          "carried on the kot-log/1 record through the OFFICIAL seam"

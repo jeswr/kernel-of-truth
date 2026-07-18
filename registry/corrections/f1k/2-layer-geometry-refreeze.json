@@ -1,0 +1,24 @@
+{
+ "author": "coordinator-1",
+ "authorized_by": "Coordinator-verified freeze defect 2026-07-17 (poc/gcp/F1K-CONSTRUCTION-PLAN.md) + ASM-2504 (registered in this same commit) + GPT-5.6 xhigh review APPROVE-WITH-FIXES (poc/gpt56-review/f1k-layer-refreeze-review-VERDICT.md) + GPT-5.6 xhigh RE-review APPROVE-WITH-FIXES, both remaining must-fixes closed in v3 (poc/gpt56-review/f1k-layer-refreeze-rereview/last-message.json); surfaced to the maintainer as a GitHub issue per the NEXT-ACTION block of poc/gcp/F1K-LAYER-REFREEZE.md.",
+ "build_artifacts": "poc/gcp/F1K-LAYER-REFREEZE.md v3 (this amendment); poc/gcp/f1k_gcp.py launch pins re-pointed in the SAME commit (FROZEN_SHA256 + PINS[build_carriers.py] \u2014 \u00a71.5a); A-time data/f1k-carriers-v1 directory digest recomputed via tools/registry/corpus-pin.py and spliced at both f1k.json embed sites BEFORE the frozen hash (\u00a71.3b); tools/registry/registry-check.py --frozen-drift green post-land",
+ "changes": [
+  "/title: every '76 MoE layers 3..78' -> '75 MoE layers 3..77 (DRAFT=0-reachable) [ASM-2504]'; 'layers-3..78 protocol' -> 'layers-3..77 protocol'",
+  "/pins/harness_manifest: '76 MoE layers 3..78 [ASM-2342/ASM-2406]' -> '75 MoE layers 3..77 [ASM-2504 amending ASM-2342/ASM-2406]'; 'A(iv) union 3..78' -> 'A(iv) union 3..77' (2 sites); 'layers == 3..78' -> 'layers == 3..77'; 'A(iv) layers 3..78' -> 'A(iv) layers 3..77'; 'layers-3..78 protocol' -> 'layers-3..77 protocol'; build_carriers.py sha256 cda62364483559055feee2c355761abf748cdf8bbf8d4e4e1a4bc54958a2d624 -> a92be3e4fe535c1dfefc41e2a422e010d25e8e40cf8e4cc123e7d829d63e9e61",
+  "/design/n_planned/freeze_manifest/A_pre_spend: 'ALL 76 MoE layers ... ENGINE LAYER IDS 3..78 INCLUSIVE (num_hidden_layers=78, first_k_dense_replace=3; the committed routing-stats files span MoE layers 3-78 = 76 layers [MEASURED ASM-2342 R3]; ...)' -> 'the 75 DRAFT=0-REACHABLE MoE layers ... ENGINE LAYER IDS 3..77 INCLUSIVE (probe M4 75/3/77 MEASURED; layer 78 = MTP head, excluded at DRAFT=0 PER-PROTOCOL; TWO-UNIVERSE NOTE: committed stats span 3-78=76 incl. an MTP-trace layer [ASM-2342 R3, stats universe]; the live DRAFT=0 dump universe is 3..77=75 [ASM-2504])'; 'L2=[40,53,65,78] (round(linspace(40,78,4)), mid-to-late), L3 = all 76' -> 'L2=[40,52,65,77] (round(linspace(40,77,4)), mid-to-late), L3 = all 75' (2 sites); 'A(iv) union 3..78' -> 'A(iv) union 3..77'; 'layers 3..78/seed 20260716' -> 'layers 3..77/seed 20260716'; 'A(iv) 3..78 + D=6144' -> 'A(iv) 3..77 + D=6144'; build_carriers.py sha256 cda62364... -> a92be3e4fe535c1dfefc41e2a422e010d25e8e40cf8e4cc123e7d829d63e9e61",
+  "/design/n_planned/freeze_manifest/A_pre_spend clause (5) [v3, re-review pt 3]: A-time carrier-input directory digest 'the reconciled digest 513ed1964105347643d6b2c8339bcd1b101f7e11db4f6ab29fbd9dbfe0e0d3b1' -> 'e53622e3dcf22d732400193e6aabc5084c0f89f19659544332add22c0b768928'; the adjacent round-9 sentence 'the (A)-time carrier-input directory digest is UNCHANGED (no data/f1k-carriers-v1 edit)' remains as the (true) witness of THAT earlier pass \u2014 this correction supersedes its currency",
+  "/pins/corpus_hashes/f1k-carriers-v1 [v3, re-review pt 3] PLACEHOLDER TEXT ONLY (the PINNED-AT-INPUTS prefix and binds-at-construction status are UNCHANGED): '... are COMMITTED NOW at directory digest 513ed1964105347643d6b2c8339bcd1b101f7e11db4f6ab29fbd9dbfe0e0d3b1' -> the SAME recomputed A-time digest as the clause-(5) entry above"
+ ],
+ "date": "2026-07-17T00:00:00Z",
+ "defect": "The frozen A(iv) splice union 3..78 (76 layers) includes layer 78, the DRAFT>=1-only MTP head, unreachable in the record's own declared DRAFT=0 mode; the run cannot execute as frozen (kae.h:194 fail-close / ASM-2488 abort). MEASURED: probe M4 shape 75/3/77 on the construction box.",
+ "experiment": "f1k",
+ "kill_criterion_status": "UNCHANGED verbatim (this correction touches layer geometry and the generator sha pin only; endpoints, TOST margins, power, caps, floors, envelope untouched).",
+ "kind": "pre-run defect correction (layer-geometry re-freeze)",
+ "legitimacy": "Correctness-only: makes the frozen artifact executable in its own declared DRAFT=0 mode; the corrected run does strictly LESS work. MEASURED basis probe M4 (75/3/77) + PER-PROTOCOL MTP exclusion (stage1-feasibility-manifest.md B4). Two-universe reconciliation in ASM-2504.",
+ "non_retroactivity": "No run, pilot, or construction has executed against the defective geometry (construction is pre-(B0); pins.corpus_hashes.f1k-carriers-v1 is still PINNED-AT-INPUTS). Nothing is retroactively regraded.",
+ "refreeze_chain": "supersedes frozen_sha256 505165eebad647509bcb26bf6051deba16c3d400a0382c136ee6037d47a9fd41",
+ "refrozen_sha256": "01cf2b17a882b2ab89873234a381720108dbb9d0dcd406a752962e280b71dc55",
+ "schema_version": "kot-correction/1",
+ "seq": 2,
+ "supersedes_frozen_sha256": "505165eebad647509bcb26bf6051deba16c3d400a0382c136ee6037d47a9fd41"
+}

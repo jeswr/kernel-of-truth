@@ -17,7 +17,7 @@
 > **Protocol revision note (2026-07-16).** This runbook states the CURRENT
 > frozen REVISION-6 + freeze-(A)-completion protocol: **n = 1,573** test
 > items over **C = 96** clusters (EQUALITY-form power gate), splice layers
-> **3..78** (the registered A(iv) union), **$129.40** mandatory-campaign
+> **3..77** (the registered A(iv) union; 75 DRAFT=0 MoE layers [ASM-2504]), **$129.40** mandatory-campaign
 > worst case vs the **$155** cap (ASM-2374). The superseded n=1440 / $149 /
 > C≥65 figures that earlier revisions of this file carried are historical
 > only; where they appear in old logs they are superseded by
@@ -45,8 +45,8 @@ Ordering is the frozen §R-REV4.2 sequence; the test set stays untouched until
    completion refreeze (2026-07-16): construction seed 20260716, d0 algorithm
    `kot-f1k-d0/1` (seed 7), the generator `build_carriers.py` sha-pinned, the
    (A)-time `construction-manifest.jsonl` committed, A(iv) splice layers
-   RESOLVED + PINNED = **all 76 MoE layers, engine ids 3..78 inclusive**
-   (ASM-2342/ASM-2406; pilot realization L1=[40], L2=[40,53,65,78], L3=all).
+   RESOLVED + PINNED = **the 75 DRAFT=0-reachable MoE layers, engine ids 3..77 inclusive**
+   (ASM-2504 amending ASM-2342/ASM-2406; pilot realization L1=[40], L2=[40,52,65,77], L3=all).
 2. **Launch the spot i4i.2xlarge** (default for all GLM-5.2 runs;
    `docs/next/design/glm52-f1k-cost-reduction.md`).
 3. **`bringup.sh`** (with `COLIBRI_GIT_URL` exported) — engine pinned, patch
@@ -60,7 +60,7 @@ Ordering is the frozen §R-REV4.2 sequence; the test set stays untouched until
    (`build_carriers.py`, sha-pinned; §R-REV3.3): the runner implements the
    `kot-f1k-dump/1` construction-only engine patch and the `kot-f1k-tok/1`
    tokenizer wrapper at bring-up, then runs
-   `construct --mode real --layers 3,...,78` with the three provenance shas
+   `construct --mode real --layers 3,...,77` with the three provenance shas
    **and the artifacts they derive from**
    (`--tokenizer-sha/--tokenizer-artifact`, `--engine-weights-sha/-artifact`,
    `--dump-patch-sha/-artifact` — each sha is re-DERIVED from the artifact
@@ -100,7 +100,7 @@ Ordering is the frozen §R-REV4.2 sequence; the test set stays untouched until
    (a spot interruption just resumes: re-run the same command). Every phase
    first re-runs the input seams: corpus pins, id-list hashes, AND the
    `[R9-PROV]` carrier-construction provenance gate (construction-report
-   mode == real, D == 6144, layers == 3..78, seed == 20260716, bindings
+   mode == real, D == 6144, layers == 3..77, seed == 20260716, bindings
    artifact-derived, every configured table byte-witnessed). Emits
    `out/test/rows.jsonl`, `out/test/sidecar.json`,
    `out/test/run-record.jsonl` (with the `pins_observed` carrier witness),
@@ -160,7 +160,7 @@ the coordinator's driver-vs-protocol audit map. **No invented thresholds.**
 | `N_TEST` | **1,573** | `f1k.json` `design.n_planned` (REVISION-6, ASM-2369; runs AT the cap); `analysis/f1k.py` `N_REGISTERED` |
 | `C_REGISTERED` / power gate | **96**, EQUALITY form: n_clusters == 96 AND each m ≥ 8 AND n == 1,573 | `f1k.json` `design.n_planned.power_gate` (ASM-2369; RUN-HOLD equality fix) |
 | `DEV_N` / `GUARD_N` | 96 / 60 | `f1k.json` `design.n_planned.dev_split_items` / `off_concept_guard_items` |
-| Splice layers (A(iv)) | **3..78 inclusive** (all 76 MoE layers); pilot L1=[40], L2=[40,53,65,78], L3=all | freeze-(A) A(iv) resolution [ASM-2342/ASM-2406]; `build_carriers.py REGISTERED_SPLICE_LAYERS`; driver `[R9-PROV]` gate |
+| Splice layers (A(iv)) | **3..77 inclusive** (the 75 DRAFT=0 MoE layers); pilot L1=[40], L2=[40,52,65,77], L3=all | freeze-(A) A(iv) resolution [ASM-2504 amending ASM-2342/ASM-2406]; `build_carriers.py REGISTERED_SPLICE_LAYERS`; driver `[R9-PROV]` gate |
 | Construction | seed 20260716; 4,608 passes EXACT; d0 = `kot-f1k-d0/1` seed 7; kdrng seed 11 | `f1k.json` freeze_manifest A(vii) + freeze-(A) completion riders |
 | Scorer | ONE prefill/item/arm; argmax over K label-token logits; lowest-index tie-break | §R1.1 / `f1k.json` dependent_vars.item_correct; engine `run_kae_score` via `KAE_SCORE` |
 | Template identity | byte-identical across arms except d3-text (prompt text, no splice); spans frozen per item | §R1.1/§R-REV2.1; §2.6 arm d3-text |
@@ -174,7 +174,7 @@ the coordinator's driver-vs-protocol audit map. **No invented thresholds.**
 | Guard rule | byte-identity vs b0; mismatch VOIDS; XCACHE off | §2.5; `f1k.json` kill_criterion_verbatim; expert-cache ASM-2306 |
 | `CEILING_B0` | 0.95 (echoed, never moved) | §2.7; `analysis/f1k.py` `CEILING_B0` (immutable) |
 | Inference block | `{method: signflip\|bca, dev_sign_symmetry_pass}` coordinator-committed at addendum (6) | §R-REV4.1a; coherence enforced fail-closed by the analysis |
-| Carrier provenance gate | construction-report mode=real, D=6144, layers 3..78, seed 20260716; bindings artifact-DERIVED; tables byte-witnessed; witness pins on the run record | carrier re-review item 8 (2026-07-16); `[R9-PROV]` in `f1k_driver.py`; `build_carriers.py` binding (carrier-HOLD fix 1) |
+| Carrier provenance gate | construction-report mode=real, D=6144, layers 3..77, seed 20260716; bindings artifact-DERIVED; tables byte-witnessed; witness pins on the run record | carrier re-review item 8 (2026-07-16); `[R9-PROV]` in `f1k_driver.py`; `build_carriers.py` binding (carrier-HOLD fix 1) |
 | Carrier CONTENT authentication | real bindings denylisted vs repo mock-stack digests (a real report can never be satisfied by a mock table; mock verify = testing scope only, never the production dir); full-coverage non-degeneracy per (c,l) cell (all-zero/near-constant/min-variance bodies refused; floors 1e-3 std/rms, 1/1024 nonzero); per-concept checkpoint `content_sha256` (exact f64 bytes, slot/layers/D-bound) re-derived on every resume + witnessed in the report | carrier re-review round-10 (2026-07-16); `[R10-1/2/3]` in `f1k_driver.py` + `build_carriers.py` |
 | Campaign resume auth | `rows.jsonl.auth.json`: running content hash (`kot-f1k-rows-auth/1`) over the exact row lines + binding to {K table, construction report, engine files, eval manifest, phase}; foreign/tampered/unauthenticated resume refused; uncovered tails dropped + re-scored | carrier re-review round-10 gap 4 (2026-07-16); `[R10-4]` in `f1k_driver.py` (pilot, guard, test) |
 | Rows/sidecar schema | exact `analysis/f1k.py` input contract | `analysis/f1k.py` docstring "ROWS (JSONL)" / "SIDECAR" |

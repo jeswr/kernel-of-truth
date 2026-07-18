@@ -139,6 +139,27 @@ def main():
     side = json.loads(Path(sidecar_path).read_text("utf-8"))
     car = side["carriers"]
     K = drv.kaec_read(cfg["carriers"]["K"]["path"])
+    # [ASM-2504] REGISTERED-GEOMETRY HARD GATE (layer re-freeze v3, re-review
+    # pt 1): the oracle previously validated table_bytes against
+    # car["layers"] self-consistently, so a STALE pre-built carriers dir
+    # (76 layers, 3..78) could still pass. Bind the MASTER geometry
+    # (construction report + master K table) to the registered union
+    # EXACTLY (len==75, ids==3..77 — the real stale-76 guard); validate the
+    # SIDECAR against the frozen-L PILOT-SELECTED subset actually spliced
+    # (f1k_driver.py:2330 sets car["layers"] = km["nl"] of the
+    # frozen["layers"] subset table — L1=1 / L2=4 / L3=75 are ALL
+    # legitimate greens; a fixed ==75 here would be wrong).
+    want_layers = list(drv.REGISTERED_SPLICE_LAYERS)
+    assert want_layers == list(range(3, 78)) and len(want_layers) == 75, \
+        "driver constant is not the ASM-2504 union 3..77 = 75"
+    assert report["binding"]["layers"] == want_layers, \
+        "STALE carriers dir: construction-report binding.layers != 3..77 (75)"
+    assert K["layers"] == want_layers and K["nl"] == 75, \
+        "STALE master table: .kaec layers != registered 3..77 (nl=75)"
+    sel = list(frozen["layers"])   # pilot-selected splice subset (addendum 5)
+    assert set(sel) <= set(want_layers) and car["layers"] == len(sel), \
+        "sidecar carriers.layers != len(frozen-L pilot subset), or the " \
+        "subset escapes the registered union 3..77"
     want_master_params = K["nc"] * K["nl"] * K["D"]
     summary = {
         "generator_tables_dir": str(cdir_src),

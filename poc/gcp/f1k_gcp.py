@@ -2,7 +2,7 @@
 """f1k_gcp.py — GCP-Spot orchestrator for the FROZEN F1-K correctness run.
 
 OPUS EXECUTION-role harness (kern/opus-runner-<N>). It RUNS the already-frozen
-F1-K experiment (registry/experiments/f1k.json, frozen_sha256 505165ee…) on the
+F1-K experiment (registry/experiments/f1k.json, frozen_sha256 01cf2b17…) on the
 coordinator-resolved compute target (bead pzb6): a GCP **Spot** n2d-highmem-8
 (8 vCPU / 64 GB) + 3×375 GiB local SSD (1,125 GiB NVMe), zone us-central1-a.
 It designs NOTHING and concludes NOTHING: the science (kernel, model, engine,
@@ -46,9 +46,9 @@ KAE_PATCH_DIR = REPO / "poc" / "glm52-probe" / "kae-patch-draft"
 DUMP_PATCH_DIR = HARNESS / "dump-patch"
 
 # ---------------------------------------------------------------------------
-# FROZEN PINS (registry/experiments/f1k.json 505165ee…; verified at launch)
+# FROZEN PINS (registry/experiments/f1k.json 01cf2b17…; verified at launch)
 # ---------------------------------------------------------------------------
-FROZEN_SHA256 = "505165eebad647509bcb26bf6051deba16c3d400a0382c136ee6037d47a9fd41"
+FROZEN_SHA256 = "01cf2b17a882b2ab89873234a381720108dbb9d0dcd406a752962e280b71dc55"
 COLIBRI_COMMIT = "a78a06fc5acc4b0dc0f9ef03987c66b0559d1250"
 ESTATE_REPO = "mateogrgic/GLM-5.2-colibri-int4-with-int8-mtp"
 ESTATE_GB = 383.8
@@ -56,7 +56,7 @@ PINS = {
     "analysis/f1k.py":
         "54924cfd0f1b7878da53228aa54f3cdf3e405aa4d0ecefd185fcb75da9eea8eb",
     "build_carriers.py":
-        "cda62364483559055feee2c355761abf748cdf8bbf8d4e4e1a4bc54958a2d624",
+        "a92be3e4fe535c1dfefc41e2a422e010d25e8e40cf8e4cc123e7d829d63e9e61",
     "kae-add-path.patch":
         "11f8b45884878111480192ee086c92b22acaa1aaf3238b2d46c47f952e9dd9cb",
     "kot-f1k-dump.patch":

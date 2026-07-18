@@ -46,8 +46,8 @@ PHASE SEPARATION (the freeze ordering (A) -> construction spend -> (B0)):
              a mode=mock checkpoint is categorically UNUSABLE in a
              mode=real construction (see `selftest`). In --mode real the
              layer list MUST equal the REGISTERED A(iv) candidate splice
-             union (REGISTERED_SPLICE_LAYERS below — the 76 MoE layers
-             3..78; carrier-HOLD fix 2); any other list fails closed.
+             union (REGISTERED_SPLICE_LAYERS below — the 75 DRAFT=0 MoE layers
+             3..77; carrier-HOLD fix 2, ASM-2504); any other list fails closed.
              CACHED-RESUME re-checks (carrier RE-REVIEW 2026-07-16): a
              cached per-concept checkpoint is held to the SAME engine-echo
              requirement as a fresh batch — its stored engine_echo is
@@ -171,7 +171,7 @@ ROUND-10 CONTENT AUTHENTICATION (carrier re-review concrete content gaps,
 the CONTENT-integrity holes):
 
   gap 1  THE ONLY REAL-RUN VERIFY PATH IS --expect-mode real, which
-         enforces mode=real AND the A(iv) layers 3..78 AND D=6144 AND a
+         enforces mode=real AND the A(iv) layers 3..77 AND D=6144 AND a
          MOCK-STACK DENYLIST (binding provenance shas must not equal any
          repo mock script's digest — a mock construction relabeled
          mode=real fails; a real report can never be satisfied by a mock
@@ -221,7 +221,7 @@ Usage:
   # caller's asserted pin; a bare 64-hex assertion is never accepted):
   python3 build_carriers.py construct --mode real \
       --engine-cmd '[...]' --tokenizer-cmd '[...]' \
-      --layers 3,4,...,78 \
+      --layers 3,4,...,77 \
       --tokenizer-sha <64hex> --tokenizer-artifact <path> \
       --engine-weights-sha <64hex> --engine-weights-artifact <path> \
       --dump-patch-sha <64hex> --dump-patch-artifact <path> \
@@ -274,22 +274,28 @@ SEPARATOR = "\n\n"                  # OP-9: one blank line
 VARIANTS = ("without", "with_k", "with_d2")   # 3 passes per (concept, ctx)
 D0_DOMAIN = "kot-f1k-d0/1"          # versioned domain string, registered
 
-# ---- A(iv) RESOLUTION (carrier-HOLD fix 2; registered at the carrier-
-# pipeline hardening refreeze 2026-07-16) ------------------------------------
+# ---- A(iv) RESOLUTION (carrier-HOLD fix 2; LAYER-GEOMETRY RE-FREEZE
+# 2026-07-17 [ASM-2504]) ------------------------------------------------------
 # The pinned GLM-5.2 config (num_hidden_layers=78, first_k_dense_replace=3;
-# poc/glm52-probe/stage1-feasibility-manifest.md P0 config read) yields 76
-# MoE layers at ENGINE layer ids 3..78 INCLUSIVE — the id space of the
-# committed routing-stats files and of KAE_DUMP_LAYERS [MEASURED ASM-2342
-# R3-amended: "the committed stats files span MoE layers 3-78 = 76 layers"].
-# DES §2.3 pilot grid: L1 = one mid-stack MoE layer (~ layer 40), L2 = four
-# evenly spaced mid-to-late, L3 = ALL MoE layers. L3 = ALL, so the A(iv)
-# candidate splice union == the full MoE set, independent of L1/L2.
-MOE_LAYERS = tuple(range(3, 79))    # 76 MoE layers, ids 3..78 [ASM-2342]
+# poc/glm52-probe/stage1-feasibility-manifest.md P0 config read) yields 75
+# DRAFT=0-reachable MoE layers at ENGINE ids 3..77 INCLUSIVE [MEASURED:
+# probe-results.json /M4/shape moe_layers=75 layer_min=3 layer_max=77;
+# PER-PROTOCOL: layer 78 is the MTP head, DRAFT>=1-only, excluded at the
+# frozen DRAFT=0 mode — stage1-feasibility-manifest.md B4]. TWO-UNIVERSE
+# NOTE [ASM-2504]: the COMMITTED ROUTING-STATS files span 76 indices 3-78
+# (they include an MTP-trace layer; ASM-2342 R3 is TRUE of that universe);
+# the LIVE DRAFT=0 F1-K dump universe is 3..77 = 75 — this file pins the
+# latter. DES §2.3 pilot grid: L1 = one mid-stack MoE layer (~ layer 40),
+# L2 = four evenly spaced mid-to-late, L3 = ALL MoE layers. L3 = ALL, so
+# the A(iv) candidate splice union == the full MoE set, independent of L1/L2.
+MOE_LAYERS = tuple(range(3, 78))    # 75 MoE layers, ids 3..77 (DRAFT=0-
+                                    #  reachable set) [ASM-2342 amended:
+                                    #  ASM-2504]
 PILOT_LAYER_SETS = {                # DES §2.3 realization [STIPULATED,
     "L1": [40],                     #  registered A(iv)/pilot rider]: L1 =
-    "L2": [40, 53, 65, 78],         #  the DES's own "~ layer 40"; L2 =
-    "L3": list(MOE_LAYERS),         #  round(linspace(40, 78, 4)); L3 = ALL
-}
+    "L2": [40, 52, 65, 77],         #  the DES's own "~ layer 40"; L2 =
+    "L3": list(MOE_LAYERS),         #  round(linspace(40, 77, 4)) at the
+}                                   #  DRAFT=0 top layer [ASM-2504]; L3 = ALL
 REGISTERED_SPLICE_LAYERS = list(MOE_LAYERS)   # the ENFORCED A(iv) union
 MODES = ("mock", "real")
 HEX64_RE = re.compile(r"[0-9a-f]{64}\Z")
@@ -309,7 +315,7 @@ REAL_CORPUS_DIR = ROOT / "data" / "f1k-carriers-v1"
 #   --mode mock` refuses an --out/--workdir under it, and `verify
 #   --expect-mode mock` refuses an --out under it — the only verify path
 #   that can bless the production location is the real one (mode=real AND
-#   layers 3..78 AND D=6144 AND the mock-stack denylist below).
+#   layers 3..77 AND D=6144 AND the mock-stack denylist below).
 CKPT_CONTENT_DOMAIN = "kot-f1k-ckpt-content/1"
 #   [R10-3] per-concept checkpoint CONTENT hash domain: sha256 over
 #   (domain | slot | layers | D) + the exact little-endian f64 bytes of
@@ -801,7 +807,7 @@ def cmd_construct(args):
     # ---- A(iv) enforcement (carrier-HOLD fix 2) ---------------------------
     if args.mode == "real" and layers != REGISTERED_SPLICE_LAYERS:
         fail("--mode real: --layers != the REGISTERED A(iv) candidate "
-             "splice union (the 76 MoE layers %d..%d of the pinned GLM-5.2 "
+             "splice union (the 75 DRAFT=0 MoE layers %d..%d of the pinned GLM-5.2 "
              "config [ASM-2342]); got %d ids %s... — any other list fails "
              "closed (carrier-HOLD fix 2)"
              % (REGISTERED_SPLICE_LAYERS[0], REGISTERED_SPLICE_LAYERS[-1],
@@ -1210,7 +1216,7 @@ def cmd_verify(args):
     if expect_mode == "mock":
         # [R10-1] a mock-scoped verify can never bless the REGISTERED
         # production corpus location — the ONLY verify path that can is
-        # the real one (mode=real + A(iv) 3..78 + D=6144 + denylist).
+        # the real one (mode=real + A(iv) 3..77 + D=6144 + denylist).
         ck("mock-scoped verify is NOT aimed at the production corpus dir",
            not under_real_corpus(outdir),
            "[R10-1] %s is real-verify-only" % REAL_CORPUS_DIR)
@@ -1246,7 +1252,7 @@ def cmd_verify(args):
         # ---- [R10-1] a REAL report can NEVER be satisfied by a mock
         # table/toolchain: binding provenance shas are denylisted against
         # the repo mock stack's CURRENT digests — a mock construction
-        # relabeled mode=real (mock geometry can legally rehearse 3..78 /
+        # relabeled mode=real (mock geometry can legally rehearse 3..77 /
         # D=6144, so geometry alone cannot tell them apart) fails here.
         mstack = drv.mock_stack_shas()
         hits = ["%s == %s" % (f, mstack[binding[f]])
@@ -1261,7 +1267,7 @@ def cmd_verify(args):
         # UNCONDITIONAL for anything claiming (or expected to be) real:
         # the registered A(iv) union, no other list (re-review item 2)
         ck("REAL construction layers == the REGISTERED A(iv) splice union "
-           "(76 MoE layers 3..78 [ASM-2342])",
+           "(75 MoE layers 3..77 [ASM-2342 amended: ASM-2504])",
            layers == REGISTERED_SPLICE_LAYERS, "carrier-HOLD fix 2")
     else:
         print("  [note] mode=mock artifact set: mock geometry permitted; "
@@ -1440,11 +1446,11 @@ def cmd_verify(args):
         print("verify: %d/%d checks PASS — MOCK SCOPE ONLY: this verify "
               "can NEVER satisfy a real construction/report; the only "
               "real-run verify path is --expect-mode real (mode=real AND "
-              "the A(iv) layers 3..78 AND D=6144 AND the mock-stack "
+              "the A(iv) layers 3..77 AND D=6144 AND the mock-stack "
               "denylist) [R10-1]" % (len(checks), len(checks)))
     else:
         print("verify: %d/%d checks PASS (REAL scope: mode=real, A(iv) "
-              "3..78, D=6144, mock-stack denylist, non-degeneracy, "
+              "3..77, D=6144, mock-stack denylist, non-degeneracy, "
               "checkpoint-content witness)" % (len(checks), len(checks)))
     return 0
 
@@ -1874,7 +1880,7 @@ def main():
                         "(carrier-HOLD fix 1)")
     c.add_argument("--layers", required=True,
                    help="csv splice-layer ids; --mode real REQUIRES the "
-                        "registered A(iv) union 3..78 (carrier-HOLD fix 2)")
+                        "registered A(iv) union 3..77 (carrier-HOLD fix 2)")
     c.add_argument("--tokenizer-sha", default=None,
                    help="pinned tokenizer artifact sha256 (REQUIRED real)")
     c.add_argument("--engine-weights-sha", default=None,
