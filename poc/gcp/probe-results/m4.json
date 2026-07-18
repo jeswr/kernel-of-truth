@@ -1,0 +1,92 @@
+{
+  "shape": {
+    "moe_layers": 75,
+    "n_experts": 256,
+    "total_expert_tensors": 19200,
+    "layer_min": 3,
+    "layer_max": 77
+  },
+  "per_expert_bytes": 18541666.7,
+  "total_selections": 2880000,
+  "distinct_tensors": 16184,
+  "concentration_curve": [
+    {
+      "rank": 1,
+      "cum_hit_frac": 0.0017,
+      "gb": 0.02
+    },
+    {
+      "rank": 10,
+      "cum_hit_frac": 0.0165,
+      "gb": 0.19
+    },
+    {
+      "rank": 50,
+      "cum_hit_frac": 0.0772,
+      "gb": 0.93
+    },
+    {
+      "rank": 100,
+      "cum_hit_frac": 0.1409,
+      "gb": 1.85
+    },
+    {
+      "rank": 250,
+      "cum_hit_frac": 0.2683,
+      "gb": 4.64
+    },
+    {
+      "rank": 500,
+      "cum_hit_frac": 0.3965,
+      "gb": 9.27
+    },
+    {
+      "rank": 1000,
+      "cum_hit_frac": 0.5421,
+      "gb": 18.54
+    },
+    {
+      "rank": 2000,
+      "cum_hit_frac": 0.6964,
+      "gb": 37.08
+    },
+    {
+      "rank": 3000,
+      "cum_hit_frac": 0.7862,
+      "gb": 55.62
+    },
+    {
+      "rank": 5000,
+      "cum_hit_frac": 0.8896,
+      "gb": 92.71
+    },
+    {
+      "rank": 16184,
+      "cum_hit_frac": 1.0,
+      "gb": 300.08
+    }
+  ],
+  "h_pin_by_G": {
+    "G40": {
+      "gb_budget": 40,
+      "experts_pinned": 2157,
+      "h_pin": 0.7132
+    },
+    "G50": {
+      "gb_budget": 50,
+      "experts_pinned": 2696,
+      "h_pin": 0.7628
+    },
+    "G100": {
+      "gb_budget": 100,
+      "experts_pinned": 5393,
+      "h_pin": 0.9032
+    }
+  },
+  "pin": {
+    "pin_file": "/home/ec2-user/f1k-probe/pin_50gb.stats",
+    "experts": 2696,
+    "gb_budget": 50.0,
+    "sha256": "6802cc97684e991961b3678b8b46777996d7973aa8baef54fa0307d3703cb70d"
+  }
+}
