@@ -75,6 +75,21 @@ def main():
         m["path"] = repath(m["path"])
     cfg["carriers"] = carriers
     cfg["pilot"]["panel"] = panel
+    # [uaud] gen_mock_fixtures builds the pilot grid over the D=8 STUB master
+    # union [1,2,3,5,7,8,9,11]; swapping in the REAL D=6144 tables (registered
+    # union 3..77) leaves layers 1 & 2 uncovered, so the pilot splice
+    # (kaec_subset) fails-closed ERR_F1K_CARRIER 'frozen layer 2 absent from
+    # master'. Remap the mock grid to subsets of the REAL coverage (same
+    # 1/4/6 shape; real registered grid is L1=[40], L2=[40,52,65,77], L3=all,
+    # README §Splice) so the acceptance path resolves every layer. MOCK-ONLY:
+    # the fail-closed guard is a real invariant and is exercised, unweakened,
+    # by the wrong-layers provenance fixture + the REAL-mode ingest refusal.
+    master_cov = set(report["binding"]["layers"])          # the real 3..77
+    cfg["pilot"]["layer_sets"] = {"L1": [5], "L2": [4, 5, 8, 11],
+                                  "L3": [3, 5, 7, 9, 11, 13]}
+    assert all(set(ls) <= master_cov
+               for ls in cfg["pilot"]["layer_sets"].values()), \
+        "mock pilot layer_sets escape the real master coverage 3..77"
     cfg["corpora"]["f1k-carriers-v1"]["expected_kot_corpus_hash"] = \
         drv.kot_corpus_hash(cdir)
     cfg["corpora"]["f1k-carriers-v1"]["provenance"] = \
