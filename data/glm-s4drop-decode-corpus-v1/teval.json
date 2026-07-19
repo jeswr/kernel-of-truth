@@ -1,0 +1,48 @@
+{
+ "_purpose": "Held-out decode workload for the glm-s4drop-0 THROUGHPUT phase: per arm, these prompts are greedily decoded (DRAFT=0, pinned cache config, seeded arm-order block randomization) and tok/s + realized per-cell miss-bytes/token are read from the engine counters. DISJOINT from T-build (masks were built there) and from the quality suite.",
+ "_schema": "kot-s4decode/1",
+ "_split": "T-eval",
+ "max_new_tokens": 96,
+ "prompts": [
+  {
+   "domain": "chat_general",
+   "id": "s4d-e00",
+   "text": "Give a plain-language explanation of why ships made of steel float even though steel is denser than water, ending with one everyday example."
+  },
+  {
+   "domain": "code",
+   "id": "s4d-e01",
+   "text": "Write a Python function count_words(path) that reads a text file and returns a dict mapping each lowercase word to its count, ignoring punctuation. Add a one-line docstring."
+  },
+  {
+   "domain": "arithmetic",
+   "id": "s4d-e02",
+   "text": "A cinema sells 342 tickets at 9 dollars and 187 tickets at 6 dollars. Compute the total revenue step by step and state the final amount."
+  },
+  {
+   "domain": "format_csv",
+   "id": "s4d-e03",
+   "text": "Create a CSV table with header city,country,population_millions for Jakarta (Indonesia, 10.6), Lagos (Nigeria, 15.4), and Vienna (Austria, 1.9), then add one sentence naming the largest of the three."
+  },
+  {
+   "domain": "multiling_zh",
+   "id": "s4d-e04",
+   "text": "请用中文写三句话，描述一个下雨天的火车站台上乘客们在做什么。"
+  },
+  {
+   "domain": "science",
+   "id": "s4d-e05",
+   "text": "Explain in four sentences why the Moon shows phases over the course of a month, mentioning the roles of the Sun's light and the Moon's orbit."
+  },
+  {
+   "domain": "legal_fin",
+   "id": "s4d-e06",
+   "text": "In two short paragraphs, explain what a security deposit on a rental apartment is and under what typical conditions a tenant gets it back."
+  },
+  {
+   "domain": "prose",
+   "id": "s4d-e07",
+   "text": "Write a six-line poem about a city waking up in winter, unrhymed, concrete images only."
+  }
+ ]
+}

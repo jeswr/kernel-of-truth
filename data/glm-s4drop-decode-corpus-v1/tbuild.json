@@ -1,0 +1,88 @@
+{
+ "_purpose": "Representative decode workload for the glm-s4drop-0 TELEMETRY phase: per-cell selection counts + cache-miss bytes are measured while greedily decoding max_new_tokens continuations of these prompts (DRAFT=0, pinned cache config). Masks are a pure function of THIS split's telemetry; throughput/realized-I/O is measured on the disjoint T-eval split only.",
+ "_schema": "kot-s4decode/1",
+ "_split": "T-build",
+ "max_new_tokens": 192,
+ "prompts": [
+  {
+   "domain": "chat_general",
+   "id": "s4d-b00",
+   "text": "Explain to a curious teenager why the sky is blue during the day but turns red and orange at sunset. Use plain language and give the explanation in three short paragraphs."
+  },
+  {
+   "domain": "code",
+   "id": "s4d-b01",
+   "text": "Write a Python function called merge_intervals that takes a list of (start, end) integer tuples and returns the list with all overlapping intervals merged, sorted by start. Include a short docstring and two example calls with their expected outputs as comments."
+  },
+  {
+   "domain": "arithmetic",
+   "id": "s4d-b02",
+   "text": "A warehouse receives 3 shipments of 148 boxes each, then sends out 217 boxes on Monday and 189 boxes on Tuesday. Work through how many boxes remain, showing each arithmetic step on its own line, and state the final count."
+  },
+  {
+   "domain": "format_csv",
+   "id": "s4d-b03",
+   "text": "Convert the following product records into a CSV table with the header sku,name,price,stock:\n- SKU 1042, 'Steel water bottle', costs 18.50, 240 in stock\n- SKU 1043, 'Canvas backpack', costs 42.00, 75 in stock\n- SKU 1044, 'Trail lantern', costs 27.25, 0 in stock\nThen add one sentence noting which item is out of stock."
+  },
+  {
+   "domain": "format_json",
+   "id": "s4d-b04",
+   "text": "Produce a JSON object describing a fictional library book: it should have fields for title, author, year, a list of three subject tags, and a nested availability object with branch and copies. Then explain each field in one line."
+  },
+  {
+   "domain": "multiling_de",
+   "id": "s4d-b05",
+   "text": "Beschreibe in fuenf Saetzen auf Deutsch, wie man einen einfachen Gemuesegarten auf einem Balkon anlegt. Nenne konkrete Gemuesesorten und einen Tipp zum Giessen."
+  },
+  {
+   "domain": "multiling_zh",
+   "id": "s4d-b06",
+   "text": "请用中文写一段大约一百字的短文，介绍一位老师傅如何教徒弟修理自行车，包括两个具体的修理步骤。"
+  },
+  {
+   "domain": "science",
+   "id": "s4d-b07",
+   "text": "Describe what happens, step by step, when a helium balloon is released at sea level and rises through the atmosphere: cover pressure, volume, temperature, and what ultimately happens to the balloon."
+  },
+  {
+   "domain": "legal_fin",
+   "id": "s4d-b08",
+   "text": "A small bakery takes a 12,000 loan at 6% simple annual interest for 3 years. Walk through the total interest paid, the total repayment, and then briefly explain in plain terms the difference between simple and compound interest for this case."
+  },
+  {
+   "domain": "copy_transform",
+   "id": "s4d-b09",
+   "text": "Take the sentence 'The quiet river carried the old wooden boat past the sleeping village.' First repeat it exactly. Then rewrite it in the past perfect tense. Then rewrite it as a question. Label each version."
+  },
+  {
+   "domain": "chat_advice",
+   "id": "s4d-b10",
+   "text": "A friend is preparing for their first job interview at a small software company. Give them five concrete pieces of advice, numbered, each with one sentence of reasoning."
+  },
+  {
+   "domain": "code_sql",
+   "id": "s4d-b11",
+   "text": "Given a table orders(order_id, customer_id, order_date, total_cents), write a SQL query that returns each customer's total spend in dollars for 2025, only for customers who spent more than 500 dollars, ordered from highest to lowest. Explain the query in two sentences afterwards."
+  },
+  {
+   "domain": "prose",
+   "id": "s4d-b12",
+   "text": "Write the opening paragraph of a short story about a lighthouse keeper who finds a message in a bottle on the last morning of her final shift. Aim for about 120 words, calm and descriptive in tone."
+  },
+  {
+   "domain": "science_bio",
+   "id": "s4d-b13",
+   "text": "Explain how a vaccine trains the immune system to fight a virus, in four steps a high-school student could follow, and end with one sentence on why booster doses are sometimes needed."
+  },
+  {
+   "domain": "format_xml",
+   "id": "s4d-b14",
+   "text": "Turn this note into a small XML document with a root element <meeting> and child elements for date, room, organizer, and a nested <agenda> with three <item> entries: the project sync is on 2026-03-12 in room B4, organised by the operations lead, covering budget review, hiring update, and the release timeline."
+  },
+  {
+   "domain": "multiling_fr",
+   "id": "s4d-b15",
+   "text": "Redigez en francais un court paragraphe (environ 80 mots) expliquant a un touriste comment se rendre du centre-ville a la gare en utilisant les transports en commun, avec une remarque sur l'achat des billets."
+  }
+ ]
+}

@@ -1,0 +1,2800 @@
+{
+ "_about": "GLM-5.2 Stage-3 causal characterisation \u2014 per-expert classification + skip-list",
+ "thresholds_stipulated": {
+  "LOW": 0.05,
+  "MID": 0.15,
+  "HIGH": 0.4,
+  "CORR_SIG": -0.05,
+  "SWAP_RECOVER_FRAC": 0.4,
+  "CONF_HI": 0.66,
+  "CONF_MED": 0.4,
+  "SKIP_MIN_CONF": 0.5
+ },
+ "n_experts": 32,
+ "label_counts": {
+  "SAFE-TO-DROP": 22,
+  "CHARACTERISE-MORE": 6,
+  "LOAD-BEARING": 4
+ },
+ "confidence_buckets": {
+  "high": 14,
+  "med": 11,
+  "low": 7
+ },
+ "skiplist": [
+  {
+   "cell": "main|43|152",
+   "action": "DROP",
+   "swap_to": 159,
+   "causal_confidence": 0.812,
+   "route_on_dNLL": -0.0408,
+   "route_off_dNLL": 0.0,
+   "stratum": "lead_copy"
+  },
+  {
+   "cell": "main|42|66",
+   "action": "DROP",
+   "swap_to": 196,
+   "causal_confidence": 0.793,
+   "route_on_dNLL": -0.1679,
+   "route_off_dNLL": 0.0,
+   "stratum": "lead_arithmetic"
+  },
+  {
+   "cell": "main|18|224",
+   "action": "DROP",
+   "swap_to": 185,
+   "causal_confidence": 0.757,
+   "route_on_dNLL": -0.0149,
+   "route_off_dNLL": 0.0,
+   "stratum": "lead_arithmetic"
+  },
+  {
+   "cell": "main|38|98",
+   "action": "DROP",
+   "swap_to": null,
+   "causal_confidence": 0.752,
+   "route_on_dNLL": -0.2218,
+   "route_off_dNLL": -0.0562,
+   "stratum": "generalist"
+  },
+  {
+   "cell": "main|56|45",
+   "action": "DROP",
+   "swap_to": 10,
+   "causal_confidence": 0.706,
+   "route_on_dNLL": -0.0012,
+   "route_off_dNLL": 0.0,
+   "stratum": "lead_format"
+  },
+  {
+   "cell": "main|69|149",
+   "action": "DROP",
+   "swap_to": 202,
+   "causal_confidence": 0.704,
+   "route_on_dNLL": -0.0139,
+   "route_off_dNLL": 0.0,
+   "stratum": "lead_format"
+  },
+  {
+   "cell": "main|73|120",
+   "action": "DROP",
+   "swap_to": null,
+   "causal_confidence": 0.68,
+   "route_on_dNLL": -0.0541,
+   "route_off_dNLL": 0.0,
+   "stratum": "control_rare"
+  },
+  {
+   "cell": "main|60|243",
+   "action": "DROP",
+   "swap_to": 32,
+   "causal_confidence": 0.66,
+   "route_on_dNLL": -0.002,
+   "route_off_dNLL": 0.0,
+   "stratum": "lead_format"
+  },
+  {
+   "cell": "main|72|206",
+   "action": "DROP",
+   "swap_to": null,
+   "causal_confidence": 0.63,
+   "route_on_dNLL": -0.0237,
+   "route_off_dNLL": 0.0,
+   "stratum": "specialist_legal_fin"
+  },
+  {
+   "cell": "main|59|9",
+   "action": "DROP",
+   "swap_to": null,
+   "causal_confidence": 0.614,
+   "route_on_dNLL": 0.0416,
+   "route_off_dNLL": 0.0,
+   "stratum": "specialist_science"
+  },
+  {
+   "cell": "main|44|177",
+   "action": "DROP",
+   "swap_to": 103,
+   "causal_confidence": 0.609,
+   "route_on_dNLL": 0.0386,
+   "route_off_dNLL": 0.0,
+   "stratum": "lead_copy"
+  },
+  {
+   "cell": "main|70|222",
+   "action": "DROP",
+   "swap_to": null,
+   "causal_confidence": 0.57,
+   "route_on_dNLL": 0.0193,
+   "route_off_dNLL": 0.0,
+   "stratum": "control_rare"
+  },
+  {
+   "cell": "main|63|204",
+   "action": "DROP",
+   "swap_to": 206,
+   "causal_confidence": 0.564,
+   "route_on_dNLL": 0.0173,
+   "route_off_dNLL": 0.0,
+   "stratum": "lead_copy"
+  },
+  {
+   "cell": "main|46|250",
+   "action": "DROP",
+   "swap_to": null,
+   "causal_confidence": 0.546,
+   "route_on_dNLL": 0.0113,
+   "route_off_dNLL": 0.0,
+   "stratum": "control_rare"
+  },
+  {
+   "cell": "main|60|196",
+   "action": "DROP",
+   "swap_to": null,
+   "causal_confidence": 0.509,
+   "route_on_dNLL": 0.0018,
+   "route_off_dNLL": 0.0,
+   "stratum": "control_rare"
+  },
+  {
+   "cell": "main|63|217",
+   "action": "DROP",
+   "swap_to": 206,
+   "causal_confidence": 0.504,
+   "route_on_dNLL": 0.0008,
+   "route_off_dNLL": 0.0,
+   "stratum": "lead_format"
+  }
+ ],
+ "skiplist_size": 16,
+ "experts": [
+  {
+   "cell": "main|44|227",
+   "stratum": "lead_arithmetic",
+   "candidate_kind": "arithmetic",
+   "primary_domain": "math",
+   "events_total": 100,
+   "routing_confidence": 0.512,
+   "label": "CHARACTERISE-MORE",
+   "causal_confidence": 0.811,
+   "confidence_bucket": "high",
+   "evidence": {
+    "route_on_dNLL": 0.0899,
+    "route_off_dNLL": 0.0,
+    "contrib_on_dNLL": 0.0381,
+    "contrib_on_dCorr": 0,
+    "swap_on_dNLL": 0.046,
+    "coverage": 1.0,
+    "sign_stability": 0.8,
+    "contrib_route_sign_agree": 1.0,
+    "on_off_contrast": 0.643
+   },
+   "summaries": {
+    "contrib_on": {
+     "n_items": 10,
+     "n_pos": 11,
+     "dNLL_mean": 0.0381,
+     "dNLL_ci": [
+      -0.0154,
+      0.0926
+     ],
+     "dMargin_mean": 0.345,
+     "KL_mean": 0.0553,
+     "dCorr_mean": 0,
+     "sign_stability": 0.6
+    },
+    "contrib_off": {
+     "n_items": 8,
+     "n_pos": 15,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "route_on": {
+     "n_items": 10,
+     "n_pos": 11,
+     "dNLL_mean": 0.0899,
+     "dNLL_ci": [
+      0.0284,
+      0.1571
+     ],
+     "dMargin_mean": 0.1876,
+     "KL_mean": 0.058,
+     "dCorr_mean": 0,
+     "sign_stability": 0.8
+    },
+    "route_off": {
+     "n_items": 8,
+     "n_pos": 15,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "swap_on": {
+     "n_items": 10,
+     "n_pos": 11,
+     "dNLL_mean": 0.046,
+     "dNLL_ci": [
+      0.0051,
+      0.0868
+     ],
+     "dMargin_mean": 0.4018,
+     "KL_mean": 0.069,
+     "dCorr_mean": 0,
+     "sign_stability": 0.6
+    }
+   }
+  },
+  {
+   "cell": "main|37|89",
+   "stratum": "control_mid_none",
+   "candidate_kind": "none",
+   "primary_domain": "logic",
+   "events_total": 210,
+   "routing_confidence": 0.54,
+   "label": "CHARACTERISE-MORE",
+   "causal_confidence": 0.786,
+   "confidence_bucket": "high",
+   "evidence": {
+    "route_on_dNLL": 0.1446,
+    "route_off_dNLL": 0.0,
+    "contrib_on_dNLL": 0.2961,
+    "contrib_on_dCorr": 0,
+    "swap_on_dNLL": null,
+    "coverage": 1.0,
+    "sign_stability": 0.7,
+    "contrib_route_sign_agree": 1.0,
+    "on_off_contrast": 0.743
+   },
+   "summaries": {
+    "contrib_on": {
+     "n_items": 10,
+     "n_pos": 20,
+     "dNLL_mean": 0.2961,
+     "dNLL_ci": [
+      0.1182,
+      0.5186
+     ],
+     "dMargin_mean": -0.1026,
+     "KL_mean": 0.0619,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "contrib_off": {
+     "n_items": 8,
+     "n_pos": 26,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "route_on": {
+     "n_items": 10,
+     "n_pos": 20,
+     "dNLL_mean": 0.1446,
+     "dNLL_ci": [
+      0.0332,
+      0.272
+     ],
+     "dMargin_mean": -0.0022,
+     "KL_mean": 0.0474,
+     "dCorr_mean": 0,
+     "sign_stability": 0.7
+    },
+    "route_off": {
+     "n_items": 8,
+     "n_pos": 26,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    }
+   }
+  },
+  {
+   "cell": "main|32|119",
+   "stratum": "lead_copy",
+   "candidate_kind": "copy",
+   "primary_domain": "copy",
+   "events_total": 104,
+   "routing_confidence": 0.329,
+   "label": "CHARACTERISE-MORE",
+   "causal_confidence": 0.681,
+   "confidence_bucket": "high",
+   "evidence": {
+    "route_on_dNLL": 0.0548,
+    "route_off_dNLL": 0.0,
+    "contrib_on_dNLL": 0.1691,
+    "contrib_on_dCorr": -0.0333,
+    "swap_on_dNLL": 0.0764,
+    "coverage": 1.0,
+    "sign_stability": 0.6,
+    "contrib_route_sign_agree": 1.0,
+    "on_off_contrast": 0.523
+   },
+   "summaries": {
+    "contrib_on": {
+     "n_items": 10,
+     "n_pos": 18,
+     "dNLL_mean": 0.1691,
+     "dNLL_ci": [
+      0.0306,
+      0.3237
+     ],
+     "dMargin_mean": -0.0711,
+     "KL_mean": 0.0238,
+     "dCorr_mean": -0.0333,
+     "sign_stability": 0.6
+    },
+    "contrib_off": {
+     "n_items": 8,
+     "n_pos": 19,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "route_on": {
+     "n_items": 10,
+     "n_pos": 18,
+     "dNLL_mean": 0.0548,
+     "dNLL_ci": [
+      -0.0649,
+      0.183
+     ],
+     "dMargin_mean": 0.036,
+     "KL_mean": 0.0345,
+     "dCorr_mean": -0.0333,
+     "sign_stability": 0.6
+    },
+    "route_off": {
+     "n_items": 8,
+     "n_pos": 19,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "swap_on": {
+     "n_items": 10,
+     "n_pos": 18,
+     "dNLL_mean": 0.0764,
+     "dNLL_ci": [
+      -0.0747,
+      0.2669
+     ],
+     "dMargin_mean": 0.1041,
+     "KL_mean": 0.0557,
+     "dCorr_mean": -0.0833,
+     "sign_stability": 0.4
+    }
+   }
+  },
+  {
+   "cell": "main|57|190",
+   "stratum": "specialist_multiling",
+   "candidate_kind": "none",
+   "primary_domain": "multiling",
+   "events_total": 131,
+   "routing_confidence": 0.756,
+   "label": "CHARACTERISE-MORE",
+   "causal_confidence": 0.679,
+   "confidence_bucket": "high",
+   "evidence": {
+    "route_on_dNLL": 0.1254,
+    "route_off_dNLL": 0.0,
+    "contrib_on_dNLL": 0.1189,
+    "contrib_on_dCorr": 0,
+    "swap_on_dNLL": null,
+    "coverage": 1.0,
+    "sign_stability": 0.4,
+    "contrib_route_sign_agree": 1.0,
+    "on_off_contrast": 0.715
+   },
+   "summaries": {
+    "contrib_on": {
+     "n_items": 10,
+     "n_pos": 12,
+     "dNLL_mean": 0.1189,
+     "dNLL_ci": [
+      0.0096,
+      0.2464
+     ],
+     "dMargin_mean": -0.0962,
+     "KL_mean": 0.0091,
+     "dCorr_mean": 0,
+     "sign_stability": 0.5
+    },
+    "contrib_off": {
+     "n_items": 8,
+     "n_pos": 8,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "route_on": {
+     "n_items": 10,
+     "n_pos": 12,
+     "dNLL_mean": 0.1254,
+     "dNLL_ci": [
+      0.0282,
+      0.2386
+     ],
+     "dMargin_mean": -0.0803,
+     "KL_mean": 0.009,
+     "dCorr_mean": 0,
+     "sign_stability": 0.4
+    },
+    "route_off": {
+     "n_items": 8,
+     "n_pos": 8,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    }
+   }
+  },
+  {
+   "cell": "main|17|233",
+   "stratum": "lead_format",
+   "candidate_kind": "format",
+   "primary_domain": "structured",
+   "events_total": 118,
+   "routing_confidence": 0.725,
+   "label": "CHARACTERISE-MORE",
+   "causal_confidence": 0.4,
+   "confidence_bucket": "med",
+   "evidence": {
+    "route_on_dNLL": 0.0755,
+    "route_off_dNLL": 0.0,
+    "contrib_on_dNLL": -0.1612,
+    "contrib_on_dCorr": 0.031,
+    "swap_on_dNLL": 0.0001,
+    "coverage": 1.0,
+    "sign_stability": 0.3,
+    "contrib_route_sign_agree": 0.0,
+    "on_off_contrast": 0.602
+   },
+   "summaries": {
+    "contrib_on": {
+     "n_items": 10,
+     "n_pos": 43,
+     "dNLL_mean": -0.1612,
+     "dNLL_ci": [
+      -0.3978,
+      -0.0209
+     ],
+     "dMargin_mean": 0.2262,
+     "KL_mean": 0.0612,
+     "dCorr_mean": 0.031,
+     "sign_stability": 0.9
+    },
+    "contrib_off": {
+     "n_items": 8,
+     "n_pos": 11,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "route_on": {
+     "n_items": 10,
+     "n_pos": 43,
+     "dNLL_mean": 0.0755,
+     "dNLL_ci": [
+      -0.0474,
+      0.2308
+     ],
+     "dMargin_mean": -0.1099,
+     "KL_mean": 0.0774,
+     "dCorr_mean": 0.031,
+     "sign_stability": 0.3
+    },
+    "route_off": {
+     "n_items": 8,
+     "n_pos": 11,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "swap_on": {
+     "n_items": 10,
+     "n_pos": 43,
+     "dNLL_mean": 0.0001,
+     "dNLL_ci": [
+      -0.0697,
+      0.0645
+     ],
+     "dMargin_mean": -0.01,
+     "KL_mean": 0.032,
+     "dCorr_mean": 0.0286,
+     "sign_stability": 0.3
+    }
+   }
+  },
+  {
+   "cell": "main|36|38",
+   "stratum": "generalist",
+   "candidate_kind": "format",
+   "primary_domain": null,
+   "events_total": 2640,
+   "routing_confidence": 0.695,
+   "label": "CHARACTERISE-MORE",
+   "causal_confidence": 0.38,
+   "confidence_bucket": "low",
+   "evidence": {
+    "route_on_dNLL": 0.0538,
+    "route_off_dNLL": -0.0003,
+    "contrib_on_dNLL": -0.0567,
+    "contrib_on_dCorr": 0.05,
+    "swap_on_dNLL": null,
+    "coverage": 1.0,
+    "sign_stability": 0.4,
+    "contrib_route_sign_agree": 0.0,
+    "on_off_contrast": 0.521
+   },
+   "summaries": {
+    "contrib_on": {
+     "n_items": 10,
+     "n_pos": 16,
+     "dNLL_mean": -0.0567,
+     "dNLL_ci": [
+      -0.2387,
+      0.1025
+     ],
+     "dMargin_mean": 0.1068,
+     "KL_mean": 0.0377,
+     "dCorr_mean": 0.05,
+     "sign_stability": 0.7
+    },
+    "contrib_off": {
+     "n_items": 8,
+     "n_pos": 22,
+     "dNLL_mean": 0.034,
+     "dNLL_ci": [
+      -0.009,
+      0.076
+     ],
+     "dMargin_mean": -0.0771,
+     "KL_mean": 0.0155,
+     "dCorr_mean": 0,
+     "sign_stability": 0.5
+    },
+    "route_on": {
+     "n_items": 10,
+     "n_pos": 16,
+     "dNLL_mean": 0.0538,
+     "dNLL_ci": [
+      -0.2375,
+      0.3296
+     ],
+     "dMargin_mean": -0.0219,
+     "KL_mean": 0.038,
+     "dCorr_mean": 0,
+     "sign_stability": 0.4
+    },
+    "route_off": {
+     "n_items": 8,
+     "n_pos": 22,
+     "dNLL_mean": -0.0003,
+     "dNLL_ci": [
+      -0.0238,
+      0.0218
+     ],
+     "dMargin_mean": -0.082,
+     "KL_mean": 0.0143,
+     "dCorr_mean": 0,
+     "sign_stability": 0.75
+    }
+   }
+  },
+  {
+   "cell": "main|15|159",
+   "stratum": "generalist",
+   "candidate_kind": "none",
+   "primary_domain": null,
+   "events_total": 3154,
+   "routing_confidence": 0.593,
+   "label": "LOAD-BEARING",
+   "causal_confidence": 0.85,
+   "confidence_bucket": "high",
+   "evidence": {
+    "route_on_dNLL": -0.3193,
+    "route_off_dNLL": 0.185,
+    "contrib_on_dNLL": -0.1667,
+    "contrib_on_dCorr": 0.02,
+    "swap_on_dNLL": null,
+    "coverage": 1.0,
+    "sign_stability": 0.7,
+    "contrib_route_sign_agree": 1.0,
+    "on_off_contrast": 1.0
+   },
+   "summaries": {
+    "contrib_on": {
+     "n_items": 10,
+     "n_pos": 43,
+     "dNLL_mean": -0.1667,
+     "dNLL_ci": [
+      -0.4297,
+      0.0169
+     ],
+     "dMargin_mean": 0.2439,
+     "KL_mean": 0.0698,
+     "dCorr_mean": 0.02,
+     "sign_stability": 0.6
+    },
+    "contrib_off": {
+     "n_items": 8,
+     "n_pos": 14,
+     "dNLL_mean": 0.118,
+     "dNLL_ci": [
+      -0.1227,
+      0.3871
+     ],
+     "dMargin_mean": -0.0434,
+     "KL_mean": 0.0488,
+     "dCorr_mean": 0,
+     "sign_stability": 0.625
+    },
+    "route_on": {
+     "n_items": 10,
+     "n_pos": 43,
+     "dNLL_mean": -0.3193,
+     "dNLL_ci": [
+      -0.6932,
+      -0.0209
+     ],
+     "dMargin_mean": 0.3949,
+     "KL_mean": 0.0664,
+     "dCorr_mean": 0.04,
+     "sign_stability": 0.7
+    },
+    "route_off": {
+     "n_items": 8,
+     "n_pos": 14,
+     "dNLL_mean": 0.185,
+     "dNLL_ci": [
+      -0.0243,
+      0.405
+     ],
+     "dMargin_mean": -0.1175,
+     "KL_mean": 0.0729,
+     "dCorr_mean": 0,
+     "sign_stability": 0.625
+    }
+   }
+  },
+  {
+   "cell": "main|19|15",
+   "stratum": "specialist_legal_fin",
+   "candidate_kind": "none",
+   "primary_domain": "legal_fin",
+   "events_total": 159,
+   "routing_confidence": 0.748,
+   "label": "LOAD-BEARING",
+   "causal_confidence": 0.826,
+   "confidence_bucket": "high",
+   "evidence": {
+    "route_on_dNLL": 0.477,
+    "route_off_dNLL": 0.0,
+    "contrib_on_dNLL": 0.2013,
+    "contrib_on_dCorr": -0.05,
+    "swap_on_dNLL": null,
+    "coverage": 1.0,
+    "sign_stability": 0.7,
+    "contrib_route_sign_agree": 1.0,
+    "on_off_contrast": 0.905
+   },
+   "summaries": {
+    "contrib_on": {
+     "n_items": 10,
+     "n_pos": 17,
+     "dNLL_mean": 0.2013,
+     "dNLL_ci": [
+      -0.0446,
+      0.4763
+     ],
+     "dMargin_mean": -0.2325,
+     "KL_mean": 0.0827,
+     "dCorr_mean": -0.05,
+     "sign_stability": 0.6
+    },
+    "contrib_off": {
+     "n_items": 8,
+     "n_pos": 19,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "route_on": {
+     "n_items": 10,
+     "n_pos": 17,
+     "dNLL_mean": 0.477,
+     "dNLL_ci": [
+      0.0973,
+      0.8981
+     ],
+     "dMargin_mean": -0.574,
+     "KL_mean": 0.1976,
+     "dCorr_mean": -0.05,
+     "sign_stability": 0.7
+    },
+    "route_off": {
+     "n_items": 8,
+     "n_pos": 19,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    }
+   }
+  },
+  {
+   "cell": "main|26|246",
+   "stratum": "control_mid_none",
+   "candidate_kind": "none",
+   "primary_domain": "legal_fin",
+   "events_total": 380,
+   "routing_confidence": 0.679,
+   "label": "LOAD-BEARING",
+   "causal_confidence": 0.519,
+   "confidence_bucket": "med",
+   "evidence": {
+    "route_on_dNLL": -0.0159,
+    "route_off_dNLL": -0.0604,
+    "contrib_on_dNLL": 0.1017,
+    "contrib_on_dCorr": -0.05,
+    "swap_on_dNLL": null,
+    "coverage": 1.0,
+    "sign_stability": 0.7,
+    "contrib_route_sign_agree": 0.0,
+    "on_off_contrast": 0.675
+   },
+   "summaries": {
+    "contrib_on": {
+     "n_items": 10,
+     "n_pos": 15,
+     "dNLL_mean": 0.1017,
+     "dNLL_ci": [
+      -0.0726,
+      0.288
+     ],
+     "dMargin_mean": -0.1608,
+     "KL_mean": 0.0441,
+     "dCorr_mean": -0.05,
+     "sign_stability": 0.4
+    },
+    "contrib_off": {
+     "n_items": 8,
+     "n_pos": 21,
+     "dNLL_mean": 0.0081,
+     "dNLL_ci": [
+      0.0,
+      0.0242
+     ],
+     "dMargin_mean": 0.0096,
+     "KL_mean": 0.0084,
+     "dCorr_mean": 0,
+     "sign_stability": 0.125
+    },
+    "route_on": {
+     "n_items": 10,
+     "n_pos": 15,
+     "dNLL_mean": -0.0159,
+     "dNLL_ci": [
+      -0.417,
+      0.4085
+     ],
+     "dMargin_mean": -0.0645,
+     "KL_mean": 0.0038,
+     "dCorr_mean": 0,
+     "sign_stability": 0.7
+    },
+    "route_off": {
+     "n_items": 8,
+     "n_pos": 21,
+     "dNLL_mean": -0.0604,
+     "dNLL_ci": [
+      -0.1811,
+      0.0
+     ],
+     "dMargin_mean": 0.0636,
+     "KL_mean": 0.0046,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    }
+   }
+  },
+  {
+   "cell": "main|41|141",
+   "stratum": "lead_copy",
+   "candidate_kind": "copy",
+   "primary_domain": "copy",
+   "events_total": 131,
+   "routing_confidence": 0.771,
+   "label": "LOAD-BEARING",
+   "causal_confidence": 0.342,
+   "confidence_bucket": "low",
+   "evidence": {
+    "route_on_dNLL": -0.0101,
+    "route_off_dNLL": 0.0,
+    "contrib_on_dNLL": 0.0747,
+    "contrib_on_dCorr": -0.05,
+    "swap_on_dNLL": 0.0276,
+    "coverage": 1.0,
+    "sign_stability": 0.6,
+    "contrib_route_sign_agree": 0.0,
+    "on_off_contrast": 0.168
+   },
+   "summaries": {
+    "contrib_on": {
+     "n_items": 10,
+     "n_pos": 14,
+     "dNLL_mean": 0.0747,
+     "dNLL_ci": [
+      -0.0317,
+      0.1795
+     ],
+     "dMargin_mean": -0.0736,
+     "KL_mean": 0.0199,
+     "dCorr_mean": -0.05,
+     "sign_stability": 0.5
+    },
+    "contrib_off": {
+     "n_items": 8,
+     "n_pos": 22,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "route_on": {
+     "n_items": 10,
+     "n_pos": 14,
+     "dNLL_mean": -0.0101,
+     "dNLL_ci": [
+      -0.0989,
+      0.0867
+     ],
+     "dMargin_mean": 0.0076,
+     "KL_mean": 0.0106,
+     "dCorr_mean": 0,
+     "sign_stability": 0.6
+    },
+    "route_off": {
+     "n_items": 8,
+     "n_pos": 22,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "swap_on": {
+     "n_items": 10,
+     "n_pos": 14,
+     "dNLL_mean": 0.0276,
+     "dNLL_ci": [
+      -0.104,
+      0.1684
+     ],
+     "dMargin_mean": -0.0078,
+     "KL_mean": 0.0218,
+     "dCorr_mean": -0.05,
+     "sign_stability": 0.4
+    }
+   }
+  },
+  {
+   "cell": "main|43|152",
+   "stratum": "lead_copy",
+   "candidate_kind": "copy",
+   "primary_domain": "copy",
+   "events_total": 142,
+   "routing_confidence": 0.4,
+   "label": "SAFE-TO-DROP",
+   "causal_confidence": 0.812,
+   "confidence_bucket": "high",
+   "evidence": {
+    "route_on_dNLL": -0.0408,
+    "route_off_dNLL": 0.0,
+    "contrib_on_dNLL": -0.0071,
+    "contrib_on_dCorr": 0,
+    "swap_on_dNLL": -0.0757,
+    "coverage": 1.0,
+    "sign_stability": 0.9,
+    "contrib_route_sign_agree": 1.0,
+    "on_off_contrast": 0.449
+   },
+   "summaries": {
+    "contrib_on": {
+     "n_items": 10,
+     "n_pos": 16,
+     "dNLL_mean": -0.0071,
+     "dNLL_ci": [
+      -0.1004,
+      0.0985
+     ],
+     "dMargin_mean": 0.0064,
+     "KL_mean": 0.0224,
+     "dCorr_mean": 0,
+     "sign_stability": 0.7
+    },
+    "contrib_off": {
+     "n_items": 8,
+     "n_pos": 8,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "route_on": {
+     "n_items": 10,
+     "n_pos": 16,
+     "dNLL_mean": -0.0408,
+     "dNLL_ci": [
+      -0.0936,
+      0.0106
+     ],
+     "dMargin_mean": 0.0446,
+     "KL_mean": 0.029,
+     "dCorr_mean": 0,
+     "sign_stability": 0.9
+    },
+    "route_off": {
+     "n_items": 8,
+     "n_pos": 8,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "swap_on": {
+     "n_items": 10,
+     "n_pos": 16,
+     "dNLL_mean": -0.0757,
+     "dNLL_ci": [
+      -0.2402,
+      0.0361
+     ],
+     "dMargin_mean": 0.0874,
+     "KL_mean": 0.0188,
+     "dCorr_mean": 0,
+     "sign_stability": 0.6
+    }
+   }
+  },
+  {
+   "cell": "main|42|66",
+   "stratum": "lead_arithmetic",
+   "candidate_kind": "arithmetic",
+   "primary_domain": "math",
+   "events_total": 232,
+   "routing_confidence": 0.734,
+   "label": "SAFE-TO-DROP",
+   "causal_confidence": 0.793,
+   "confidence_bucket": "high",
+   "evidence": {
+    "route_on_dNLL": -0.1679,
+    "route_off_dNLL": 0.0,
+    "contrib_on_dNLL": -0.1427,
+    "contrib_on_dCorr": 0,
+    "swap_on_dNLL": -0.1798,
+    "coverage": 1.0,
+    "sign_stability": 0.7,
+    "contrib_route_sign_agree": 1.0,
+    "on_off_contrast": 0.771
+   },
+   "summaries": {
+    "contrib_on": {
+     "n_items": 10,
+     "n_pos": 16,
+     "dNLL_mean": -0.1427,
+     "dNLL_ci": [
+      -0.3562,
+      0.0027
+     ],
+     "dMargin_mean": 0.4375,
+     "KL_mean": 0.1031,
+     "dCorr_mean": 0,
+     "sign_stability": 0.6
+    },
+    "contrib_off": {
+     "n_items": 8,
+     "n_pos": 22,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "route_on": {
+     "n_items": 10,
+     "n_pos": 16,
+     "dNLL_mean": -0.1679,
+     "dNLL_ci": [
+      -0.414,
+      -0.0115
+     ],
+     "dMargin_mean": 0.5938,
+     "KL_mean": 0.1017,
+     "dCorr_mean": 0,
+     "sign_stability": 0.7
+    },
+    "route_off": {
+     "n_items": 8,
+     "n_pos": 22,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "swap_on": {
+     "n_items": 10,
+     "n_pos": 16,
+     "dNLL_mean": -0.1798,
+     "dNLL_ci": [
+      -0.4676,
+      -0.0105
+     ],
+     "dMargin_mean": 0.4697,
+     "KL_mean": 0.1173,
+     "dCorr_mean": 0,
+     "sign_stability": 0.7
+    }
+   }
+  },
+  {
+   "cell": "main|18|224",
+   "stratum": "lead_arithmetic",
+   "candidate_kind": "arithmetic",
+   "primary_domain": "math",
+   "events_total": 153,
+   "routing_confidence": 0.733,
+   "label": "SAFE-TO-DROP",
+   "causal_confidence": 0.757,
+   "confidence_bucket": "high",
+   "evidence": {
+    "route_on_dNLL": -0.0149,
+    "route_off_dNLL": 0.0,
+    "contrib_on_dNLL": -0.0113,
+    "contrib_on_dCorr": 0.0333,
+    "swap_on_dNLL": -0.0092,
+    "coverage": 1.0,
+    "sign_stability": 0.9,
+    "contrib_route_sign_agree": 1.0,
+    "on_off_contrast": 0.23
+   },
+   "summaries": {
+    "contrib_on": {
+     "n_items": 10,
+     "n_pos": 14,
+     "dNLL_mean": -0.0113,
+     "dNLL_ci": [
+      -0.0362,
+      0.0023
+     ],
+     "dMargin_mean": -0.0873,
+     "KL_mean": 0.0047,
+     "dCorr_mean": 0.0333,
+     "sign_stability": 0.9
+    },
+    "contrib_off": {
+     "n_items": 8,
+     "n_pos": 11,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "route_on": {
+     "n_items": 10,
+     "n_pos": 14,
+     "dNLL_mean": -0.0149,
+     "dNLL_ci": [
+      -0.045,
+      0.0004
+     ],
+     "dMargin_mean": -0.0171,
+     "KL_mean": 0.0079,
+     "dCorr_mean": 0.0333,
+     "sign_stability": 0.9
+    },
+    "route_off": {
+     "n_items": 8,
+     "n_pos": 11,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "swap_on": {
+     "n_items": 10,
+     "n_pos": 14,
+     "dNLL_mean": -0.0092,
+     "dNLL_ci": [
+      -0.0291,
+      0.0014
+     ],
+     "dMargin_mean": -0.1408,
+     "KL_mean": 0.0028,
+     "dCorr_mean": 0.0333,
+     "sign_stability": 0.9
+    }
+   }
+  },
+  {
+   "cell": "main|38|98",
+   "stratum": "generalist",
+   "candidate_kind": "none",
+   "primary_domain": null,
+   "events_total": 2603,
+   "routing_confidence": 0.599,
+   "label": "SAFE-TO-DROP",
+   "causal_confidence": 0.752,
+   "confidence_bucket": "high",
+   "evidence": {
+    "route_on_dNLL": -0.2218,
+    "route_off_dNLL": -0.0562,
+    "contrib_on_dNLL": -0.1931,
+    "contrib_on_dCorr": 0,
+    "swap_on_dNLL": null,
+    "coverage": 1.0,
+    "sign_stability": 0.7,
+    "contrib_route_sign_agree": 1.0,
+    "on_off_contrast": 0.609
+   },
+   "summaries": {
+    "contrib_on": {
+     "n_items": 10,
+     "n_pos": 18,
+     "dNLL_mean": -0.1931,
+     "dNLL_ci": [
+      -0.6088,
+      0.1824
+     ],
+     "dMargin_mean": 0.1166,
+     "KL_mean": 0.0118,
+     "dCorr_mean": 0,
+     "sign_stability": 0.7
+    },
+    "contrib_off": {
+     "n_items": 8,
+     "n_pos": 21,
+     "dNLL_mean": 0.0342,
+     "dNLL_ci": [
+      -0.0212,
+      0.0951
+     ],
+     "dMargin_mean": -0.1043,
+     "KL_mean": 0.0089,
+     "dCorr_mean": 0,
+     "sign_stability": 0.625
+    },
+    "route_on": {
+     "n_items": 10,
+     "n_pos": 18,
+     "dNLL_mean": -0.2218,
+     "dNLL_ci": [
+      -0.5292,
+      0.0327
+     ],
+     "dMargin_mean": 0.1791,
+     "KL_mean": 0.0177,
+     "dCorr_mean": 0,
+     "sign_stability": 0.7
+    },
+    "route_off": {
+     "n_items": 8,
+     "n_pos": 21,
+     "dNLL_mean": -0.0562,
+     "dNLL_ci": [
+      -0.1876,
+      0.073
+     ],
+     "dMargin_mean": 0.0066,
+     "KL_mean": 0.0114,
+     "dCorr_mean": 0,
+     "sign_stability": 0.625
+    }
+   }
+  },
+  {
+   "cell": "main|56|45",
+   "stratum": "lead_format",
+   "candidate_kind": "format",
+   "primary_domain": "structured",
+   "events_total": 111,
+   "routing_confidence": 0.7,
+   "label": "SAFE-TO-DROP",
+   "causal_confidence": 0.706,
+   "confidence_bucket": "high",
+   "evidence": {
+    "route_on_dNLL": -0.0012,
+    "route_off_dNLL": 0.0,
+    "contrib_on_dNLL": -0.0035,
+    "contrib_on_dCorr": 0,
+    "swap_on_dNLL": 0.0012,
+    "coverage": 1.0,
+    "sign_stability": 0.9,
+    "contrib_route_sign_agree": 1.0,
+    "on_off_contrast": 0.023
+   },
+   "summaries": {
+    "contrib_on": {
+     "n_items": 10,
+     "n_pos": 43,
+     "dNLL_mean": -0.0035,
+     "dNLL_ci": [
+      -0.0327,
+      0.0193
+     ],
+     "dMargin_mean": -0.0385,
+     "KL_mean": 0.0092,
+     "dCorr_mean": 0,
+     "sign_stability": 0.7
+    },
+    "contrib_off": {
+     "n_items": 8,
+     "n_pos": 11,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "route_on": {
+     "n_items": 10,
+     "n_pos": 43,
+     "dNLL_mean": -0.0012,
+     "dNLL_ci": [
+      -0.0165,
+      0.0164
+     ],
+     "dMargin_mean": -0.0492,
+     "KL_mean": 0.0087,
+     "dCorr_mean": 0,
+     "sign_stability": 0.9
+    },
+    "route_off": {
+     "n_items": 8,
+     "n_pos": 11,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "swap_on": {
+     "n_items": 10,
+     "n_pos": 43,
+     "dNLL_mean": 0.0012,
+     "dNLL_ci": [
+      -0.0265,
+      0.0267
+     ],
+     "dMargin_mean": -0.0388,
+     "KL_mean": 0.0153,
+     "dCorr_mean": 0,
+     "sign_stability": 0.3
+    }
+   }
+  },
+  {
+   "cell": "main|69|149",
+   "stratum": "lead_format",
+   "candidate_kind": "format",
+   "primary_domain": "structured",
+   "events_total": 130,
+   "routing_confidence": 0.77,
+   "label": "SAFE-TO-DROP",
+   "causal_confidence": 0.704,
+   "confidence_bucket": "high",
+   "evidence": {
+    "route_on_dNLL": -0.0139,
+    "route_off_dNLL": 0.0,
+    "contrib_on_dNLL": -0.02,
+    "contrib_on_dCorr": 0,
+    "swap_on_dNLL": 0.0104,
+    "coverage": 1.0,
+    "sign_stability": 0.8,
+    "contrib_route_sign_agree": 1.0,
+    "on_off_contrast": 0.218
+   },
+   "summaries": {
+    "contrib_on": {
+     "n_items": 10,
+     "n_pos": 16,
+     "dNLL_mean": -0.02,
+     "dNLL_ci": [
+      -0.0407,
+      0.0009
+     ],
+     "dMargin_mean": 0.0049,
+     "KL_mean": 0.009,
+     "dCorr_mean": 0,
+     "sign_stability": 0.8
+    },
+    "contrib_off": {
+     "n_items": 8,
+     "n_pos": 18,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "route_on": {
+     "n_items": 10,
+     "n_pos": 16,
+     "dNLL_mean": -0.0139,
+     "dNLL_ci": [
+      -0.0518,
+      0.026
+     ],
+     "dMargin_mean": -0.0281,
+     "KL_mean": 0.0233,
+     "dCorr_mean": 0,
+     "sign_stability": 0.8
+    },
+    "route_off": {
+     "n_items": 8,
+     "n_pos": 18,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "swap_on": {
+     "n_items": 10,
+     "n_pos": 16,
+     "dNLL_mean": 0.0104,
+     "dNLL_ci": [
+      -0.0144,
+      0.0358
+     ],
+     "dMargin_mean": -0.0371,
+     "KL_mean": 0.0185,
+     "dCorr_mean": 0,
+     "sign_stability": 0.5
+    }
+   }
+  },
+  {
+   "cell": "main|73|120",
+   "stratum": "control_rare",
+   "candidate_kind": "none",
+   "primary_domain": null,
+   "events_total": 29,
+   "routing_confidence": 0.225,
+   "label": "SAFE-TO-DROP",
+   "causal_confidence": 0.68,
+   "confidence_bucket": "high",
+   "evidence": {
+    "route_on_dNLL": -0.0541,
+    "route_off_dNLL": 0.0,
+    "contrib_on_dNLL": -0.0683,
+    "contrib_on_dCorr": 0,
+    "swap_on_dNLL": null,
+    "coverage": 1.0,
+    "sign_stability": 0.6,
+    "contrib_route_sign_agree": 1.0,
+    "on_off_contrast": 0.52
+   },
+   "summaries": {
+    "contrib_on": {
+     "n_items": 10,
+     "n_pos": 12,
+     "dNLL_mean": -0.0683,
+     "dNLL_ci": [
+      -0.2205,
+      0.0239
+     ],
+     "dMargin_mean": 0.0336,
+     "KL_mean": -0.0004,
+     "dCorr_mean": 0,
+     "sign_stability": 0.7
+    },
+    "contrib_off": {
+     "n_items": 8,
+     "n_pos": 14,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "route_on": {
+     "n_items": 10,
+     "n_pos": 12,
+     "dNLL_mean": -0.0541,
+     "dNLL_ci": [
+      -0.2377,
+      0.0632
+     ],
+     "dMargin_mean": -0.023,
+     "KL_mean": -0.0058,
+     "dCorr_mean": 0,
+     "sign_stability": 0.6
+    },
+    "route_off": {
+     "n_items": 8,
+     "n_pos": 14,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    }
+   }
+  },
+  {
+   "cell": "main|60|243",
+   "stratum": "lead_format",
+   "candidate_kind": "format",
+   "primary_domain": "structured",
+   "events_total": 140,
+   "routing_confidence": 0.752,
+   "label": "SAFE-TO-DROP",
+   "causal_confidence": 0.66,
+   "confidence_bucket": "high",
+   "evidence": {
+    "route_on_dNLL": -0.002,
+    "route_off_dNLL": 0.0,
+    "contrib_on_dNLL": -0.0114,
+    "contrib_on_dCorr": 0,
+    "swap_on_dNLL": -0.0076,
+    "coverage": 1.0,
+    "sign_stability": 0.8,
+    "contrib_route_sign_agree": 1.0,
+    "on_off_contrast": 0.038
+   },
+   "summaries": {
+    "contrib_on": {
+     "n_items": 10,
+     "n_pos": 43,
+     "dNLL_mean": -0.0114,
+     "dNLL_ci": [
+      -0.0374,
+      0.0192
+     ],
+     "dMargin_mean": 0.017,
+     "KL_mean": 0.0079,
+     "dCorr_mean": 0,
+     "sign_stability": 0.9
+    },
+    "contrib_off": {
+     "n_items": 8,
+     "n_pos": 9,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "route_on": {
+     "n_items": 10,
+     "n_pos": 43,
+     "dNLL_mean": -0.002,
+     "dNLL_ci": [
+      -0.0146,
+      0.0135
+     ],
+     "dMargin_mean": 0.0366,
+     "KL_mean": 0.008,
+     "dCorr_mean": 0,
+     "sign_stability": 0.8
+    },
+    "route_off": {
+     "n_items": 8,
+     "n_pos": 9,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "swap_on": {
+     "n_items": 10,
+     "n_pos": 43,
+     "dNLL_mean": -0.0076,
+     "dNLL_ci": [
+      -0.0307,
+      0.021
+     ],
+     "dMargin_mean": -0.0126,
+     "KL_mean": 0.0079,
+     "dCorr_mean": 0,
+     "sign_stability": 0.8
+    }
+   }
+  },
+  {
+   "cell": "main|72|206",
+   "stratum": "specialist_legal_fin",
+   "candidate_kind": "format",
+   "primary_domain": "legal_fin",
+   "events_total": 132,
+   "routing_confidence": 0.733,
+   "label": "SAFE-TO-DROP",
+   "causal_confidence": 0.63,
+   "confidence_bucket": "med",
+   "evidence": {
+    "route_on_dNLL": -0.0237,
+    "route_off_dNLL": 0.0,
+    "contrib_on_dNLL": -0.0389,
+    "contrib_on_dCorr": 0,
+    "swap_on_dNLL": null,
+    "coverage": 1.0,
+    "sign_stability": 0.6,
+    "contrib_route_sign_agree": 1.0,
+    "on_off_contrast": 0.322
+   },
+   "summaries": {
+    "contrib_on": {
+     "n_items": 10,
+     "n_pos": 14,
+     "dNLL_mean": -0.0389,
+     "dNLL_ci": [
+      -0.1284,
+      0.0191
+     ],
+     "dMargin_mean": 0.0114,
+     "KL_mean": 0.0037,
+     "dCorr_mean": 0,
+     "sign_stability": 0.6
+    },
+    "contrib_off": {
+     "n_items": 8,
+     "n_pos": 22,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "route_on": {
+     "n_items": 10,
+     "n_pos": 14,
+     "dNLL_mean": -0.0237,
+     "dNLL_ci": [
+      -0.0806,
+      0.0195
+     ],
+     "dMargin_mean": 0.0401,
+     "KL_mean": 0.0039,
+     "dCorr_mean": 0,
+     "sign_stability": 0.6
+    },
+    "route_off": {
+     "n_items": 8,
+     "n_pos": 22,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    }
+   }
+  },
+  {
+   "cell": "main|59|9",
+   "stratum": "specialist_science",
+   "candidate_kind": "semantic_lookup",
+   "primary_domain": "science",
+   "events_total": 219,
+   "routing_confidence": 0.842,
+   "label": "SAFE-TO-DROP",
+   "causal_confidence": 0.614,
+   "confidence_bucket": "med",
+   "evidence": {
+    "route_on_dNLL": 0.0416,
+    "route_off_dNLL": 0.0,
+    "contrib_on_dNLL": 0.064,
+    "contrib_on_dCorr": 0,
+    "swap_on_dNLL": null,
+    "coverage": 1.0,
+    "sign_stability": 0.5,
+    "contrib_route_sign_agree": 1.0,
+    "on_off_contrast": 0.454
+   },
+   "summaries": {
+    "contrib_on": {
+     "n_items": 10,
+     "n_pos": 20,
+     "dNLL_mean": 0.064,
+     "dNLL_ci": [
+      -0.0684,
+      0.2035
+     ],
+     "dMargin_mean": -0.0117,
+     "KL_mean": 0.0334,
+     "dCorr_mean": 0,
+     "sign_stability": 0.7
+    },
+    "contrib_off": {
+     "n_items": 8,
+     "n_pos": 9,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "route_on": {
+     "n_items": 10,
+     "n_pos": 20,
+     "dNLL_mean": 0.0416,
+     "dNLL_ci": [
+      -0.1324,
+      0.238
+     ],
+     "dMargin_mean": 0.0223,
+     "KL_mean": 0.0467,
+     "dCorr_mean": 0,
+     "sign_stability": 0.5
+    },
+    "route_off": {
+     "n_items": 8,
+     "n_pos": 9,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    }
+   }
+  },
+  {
+   "cell": "main|44|177",
+   "stratum": "lead_copy",
+   "candidate_kind": "copy",
+   "primary_domain": "copy",
+   "events_total": 125,
+   "routing_confidence": 0.489,
+   "label": "SAFE-TO-DROP",
+   "causal_confidence": 0.609,
+   "confidence_bucket": "med",
+   "evidence": {
+    "route_on_dNLL": 0.0386,
+    "route_off_dNLL": 0.0,
+    "contrib_on_dNLL": 0.0084,
+    "contrib_on_dCorr": -0.0333,
+    "swap_on_dNLL": 0.0422,
+    "coverage": 1.0,
+    "sign_stability": 0.3,
+    "contrib_route_sign_agree": 1.0,
+    "on_off_contrast": 0.436
+   },
+   "summaries": {
+    "contrib_on": {
+     "n_items": 10,
+     "n_pos": 15,
+     "dNLL_mean": 0.0084,
+     "dNLL_ci": [
+      -0.0151,
+      0.0358
+     ],
+     "dMargin_mean": -0.0417,
+     "KL_mean": 0.0167,
+     "dCorr_mean": -0.0333,
+     "sign_stability": 0.2
+    },
+    "contrib_off": {
+     "n_items": 8,
+     "n_pos": 14,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "route_on": {
+     "n_items": 10,
+     "n_pos": 15,
+     "dNLL_mean": 0.0386,
+     "dNLL_ci": [
+      -0.004,
+      0.0852
+     ],
+     "dMargin_mean": -0.0808,
+     "KL_mean": 0.0091,
+     "dCorr_mean": -0.0333,
+     "sign_stability": 0.3
+    },
+    "route_off": {
+     "n_items": 8,
+     "n_pos": 14,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "swap_on": {
+     "n_items": 10,
+     "n_pos": 15,
+     "dNLL_mean": 0.0422,
+     "dNLL_ci": [
+      0.0089,
+      0.0865
+     ],
+     "dMargin_mean": -0.076,
+     "KL_mean": 0.0233,
+     "dCorr_mean": -0.0333,
+     "sign_stability": 0.4
+    }
+   }
+  },
+  {
+   "cell": "main|70|222",
+   "stratum": "control_rare",
+   "candidate_kind": "none",
+   "primary_domain": null,
+   "events_total": 39,
+   "routing_confidence": 0.039,
+   "label": "SAFE-TO-DROP",
+   "causal_confidence": 0.57,
+   "confidence_bucket": "med",
+   "evidence": {
+    "route_on_dNLL": 0.0193,
+    "route_off_dNLL": 0.0,
+    "contrib_on_dNLL": 0.0406,
+    "contrib_on_dCorr": 0,
+    "swap_on_dNLL": null,
+    "coverage": 1.0,
+    "sign_stability": 0.2,
+    "contrib_route_sign_agree": 1.0,
+    "on_off_contrast": 0.278
+   },
+   "summaries": {
+    "contrib_on": {
+     "n_items": 10,
+     "n_pos": 10,
+     "dNLL_mean": 0.0406,
+     "dNLL_ci": [
+      -0.0472,
+      0.175
+     ],
+     "dMargin_mean": -0.029,
+     "KL_mean": 0.0057,
+     "dCorr_mean": 0,
+     "sign_stability": 0.1
+    },
+    "contrib_off": {
+     "n_items": 8,
+     "n_pos": 8,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "route_on": {
+     "n_items": 10,
+     "n_pos": 10,
+     "dNLL_mean": 0.0193,
+     "dNLL_ci": [
+      -0.0083,
+      0.0496
+     ],
+     "dMargin_mean": -0.0197,
+     "KL_mean": -0.0032,
+     "dCorr_mean": 0,
+     "sign_stability": 0.2
+    },
+    "route_off": {
+     "n_items": 8,
+     "n_pos": 8,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    }
+   }
+  },
+  {
+   "cell": "main|63|204",
+   "stratum": "lead_copy",
+   "candidate_kind": "copy",
+   "primary_domain": "copy",
+   "events_total": 295,
+   "routing_confidence": 0.703,
+   "label": "SAFE-TO-DROP",
+   "causal_confidence": 0.564,
+   "confidence_bucket": "med",
+   "evidence": {
+    "route_on_dNLL": 0.0173,
+    "route_off_dNLL": 0.0,
+    "contrib_on_dNLL": 0.0087,
+    "contrib_on_dCorr": 0,
+    "swap_on_dNLL": 0.0235,
+    "coverage": 1.0,
+    "sign_stability": 0.4,
+    "contrib_route_sign_agree": 1.0,
+    "on_off_contrast": 0.257
+   },
+   "summaries": {
+    "contrib_on": {
+     "n_items": 10,
+     "n_pos": 13,
+     "dNLL_mean": 0.0087,
+     "dNLL_ci": [
+      -0.0722,
+      0.0762
+     ],
+     "dMargin_mean": 0.0388,
+     "KL_mean": 0.0062,
+     "dCorr_mean": 0,
+     "sign_stability": 0.5
+    },
+    "contrib_off": {
+     "n_items": 8,
+     "n_pos": 11,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "route_on": {
+     "n_items": 10,
+     "n_pos": 13,
+     "dNLL_mean": 0.0173,
+     "dNLL_ci": [
+      -0.0625,
+      0.0927
+     ],
+     "dMargin_mean": 0.0398,
+     "KL_mean": 0.0098,
+     "dCorr_mean": 0,
+     "sign_stability": 0.4
+    },
+    "route_off": {
+     "n_items": 8,
+     "n_pos": 11,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "swap_on": {
+     "n_items": 10,
+     "n_pos": 13,
+     "dNLL_mean": 0.0235,
+     "dNLL_ci": [
+      -0.0684,
+      0.1061
+     ],
+     "dMargin_mean": 0.0556,
+     "KL_mean": 0.0021,
+     "dCorr_mean": 0,
+     "sign_stability": 0.6
+    }
+   }
+  },
+  {
+   "cell": "main|46|250",
+   "stratum": "control_rare",
+   "candidate_kind": "none",
+   "primary_domain": null,
+   "events_total": 35,
+   "routing_confidence": 0.124,
+   "label": "SAFE-TO-DROP",
+   "causal_confidence": 0.546,
+   "confidence_bucket": "med",
+   "evidence": {
+    "route_on_dNLL": 0.0113,
+    "route_off_dNLL": 0.0,
+    "contrib_on_dNLL": 0.0337,
+    "contrib_on_dCorr": 0,
+    "swap_on_dNLL": null,
+    "coverage": 1.0,
+    "sign_stability": 0.3,
+    "contrib_route_sign_agree": 1.0,
+    "on_off_contrast": 0.184
+   },
+   "summaries": {
+    "contrib_on": {
+     "n_items": 10,
+     "n_pos": 16,
+     "dNLL_mean": 0.0337,
+     "dNLL_ci": [
+      -0.0406,
+      0.1014
+     ],
+     "dMargin_mean": -0.0515,
+     "KL_mean": 0.0038,
+     "dCorr_mean": 0,
+     "sign_stability": 0.5
+    },
+    "contrib_off": {
+     "n_items": 8,
+     "n_pos": 14,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "route_on": {
+     "n_items": 10,
+     "n_pos": 16,
+     "dNLL_mean": 0.0113,
+     "dNLL_ci": [
+      -0.0749,
+      0.0902
+     ],
+     "dMargin_mean": -0.0387,
+     "KL_mean": -0.001,
+     "dCorr_mean": 0,
+     "sign_stability": 0.3
+    },
+    "route_off": {
+     "n_items": 8,
+     "n_pos": 14,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    }
+   }
+  },
+  {
+   "cell": "main|60|196",
+   "stratum": "control_rare",
+   "candidate_kind": "none",
+   "primary_domain": null,
+   "events_total": 53,
+   "routing_confidence": 0.128,
+   "label": "SAFE-TO-DROP",
+   "causal_confidence": 0.509,
+   "confidence_bucket": "med",
+   "evidence": {
+    "route_on_dNLL": 0.0018,
+    "route_off_dNLL": 0.0,
+    "contrib_on_dNLL": 0.0231,
+    "contrib_on_dCorr": 0,
+    "swap_on_dNLL": null,
+    "coverage": 1.0,
+    "sign_stability": 0.5,
+    "contrib_route_sign_agree": 1.0,
+    "on_off_contrast": 0.035
+   },
+   "summaries": {
+    "contrib_on": {
+     "n_items": 10,
+     "n_pos": 18,
+     "dNLL_mean": 0.0231,
+     "dNLL_ci": [
+      -0.0196,
+      0.0595
+     ],
+     "dMargin_mean": -0.0791,
+     "KL_mean": 0.0022,
+     "dCorr_mean": 0,
+     "sign_stability": 0.5
+    },
+    "contrib_off": {
+     "n_items": 8,
+     "n_pos": 27,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "route_on": {
+     "n_items": 10,
+     "n_pos": 18,
+     "dNLL_mean": 0.0018,
+     "dNLL_ci": [
+      -0.0485,
+      0.0393
+     ],
+     "dMargin_mean": -0.0307,
+     "KL_mean": 0.0053,
+     "dCorr_mean": 0,
+     "sign_stability": 0.5
+    },
+    "route_off": {
+     "n_items": 8,
+     "n_pos": 27,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    }
+   }
+  },
+  {
+   "cell": "main|63|217",
+   "stratum": "lead_format",
+   "candidate_kind": "format",
+   "primary_domain": "structured",
+   "events_total": 108,
+   "routing_confidence": 0.639,
+   "label": "SAFE-TO-DROP",
+   "causal_confidence": 0.504,
+   "confidence_bucket": "med",
+   "evidence": {
+    "route_on_dNLL": 0.0008,
+    "route_off_dNLL": 0.0,
+    "contrib_on_dNLL": 0.0088,
+    "contrib_on_dCorr": 0,
+    "swap_on_dNLL": 0.0795,
+    "coverage": 1.0,
+    "sign_stability": 0.4,
+    "contrib_route_sign_agree": 1.0,
+    "on_off_contrast": 0.016
+   },
+   "summaries": {
+    "contrib_on": {
+     "n_items": 10,
+     "n_pos": 42,
+     "dNLL_mean": 0.0088,
+     "dNLL_ci": [
+      -0.0016,
+      0.0207
+     ],
+     "dMargin_mean": 0.0059,
+     "KL_mean": 0.0132,
+     "dCorr_mean": 0,
+     "sign_stability": 0.4
+    },
+    "contrib_off": {
+     "n_items": 8,
+     "n_pos": 8,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "route_on": {
+     "n_items": 10,
+     "n_pos": 42,
+     "dNLL_mean": 0.0008,
+     "dNLL_ci": [
+      -0.0408,
+      0.0337
+     ],
+     "dMargin_mean": 0.0291,
+     "KL_mean": 0.0207,
+     "dCorr_mean": 0.0167,
+     "sign_stability": 0.4
+    },
+    "route_off": {
+     "n_items": 8,
+     "n_pos": 8,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "swap_on": {
+     "n_items": 10,
+     "n_pos": 42,
+     "dNLL_mean": 0.0795,
+     "dNLL_ci": [
+      -0.0018,
+      0.2212
+     ],
+     "dMargin_mean": -0.0366,
+     "KL_mean": 0.0303,
+     "dCorr_mean": 0.0167,
+     "sign_stability": 0.3
+    }
+   }
+  },
+  {
+   "cell": "main|16|108",
+   "stratum": "generalist",
+   "candidate_kind": "none",
+   "primary_domain": null,
+   "events_total": 3170,
+   "routing_confidence": 0.57,
+   "label": "SAFE-TO-DROP",
+   "causal_confidence": 0.461,
+   "confidence_bucket": "med",
+   "evidence": {
+    "route_on_dNLL": -0.1546,
+    "route_off_dNLL": -0.0231,
+    "contrib_on_dNLL": 0.0691,
+    "contrib_on_dCorr": 0,
+    "swap_on_dNLL": null,
+    "coverage": 1.0,
+    "sign_stability": 0.6,
+    "contrib_route_sign_agree": 0.0,
+    "on_off_contrast": 0.643
+   },
+   "summaries": {
+    "contrib_on": {
+     "n_items": 10,
+     "n_pos": 13,
+     "dNLL_mean": 0.0691,
+     "dNLL_ci": [
+      -0.1161,
+      0.2603
+     ],
+     "dMargin_mean": -0.1607,
+     "KL_mean": 0.0531,
+     "dCorr_mean": 0,
+     "sign_stability": 0.6
+    },
+    "contrib_off": {
+     "n_items": 8,
+     "n_pos": 9,
+     "dNLL_mean": -0.045,
+     "dNLL_ci": [
+      -0.1111,
+      0.0214
+     ],
+     "dMargin_mean": 0.358,
+     "KL_mean": 0.0436,
+     "dCorr_mean": 0,
+     "sign_stability": 0.5
+    },
+    "route_on": {
+     "n_items": 10,
+     "n_pos": 13,
+     "dNLL_mean": -0.1546,
+     "dNLL_ci": [
+      -0.392,
+      0.069
+     ],
+     "dMargin_mean": 0.1364,
+     "KL_mean": 0.0668,
+     "dCorr_mean": 0,
+     "sign_stability": 0.6
+    },
+    "route_off": {
+     "n_items": 8,
+     "n_pos": 9,
+     "dNLL_mean": -0.0231,
+     "dNLL_ci": [
+      -0.0942,
+      0.0541
+     ],
+     "dMargin_mean": 0.5356,
+     "KL_mean": 0.0462,
+     "dCorr_mean": 0,
+     "sign_stability": 0.75
+    }
+   }
+  },
+  {
+   "cell": "main|61|193",
+   "stratum": "specialist_science",
+   "candidate_kind": "semantic_lookup",
+   "primary_domain": "science",
+   "events_total": 173,
+   "routing_confidence": 0.734,
+   "label": "SAFE-TO-DROP",
+   "causal_confidence": 0.392,
+   "confidence_bucket": "low",
+   "evidence": {
+    "route_on_dNLL": 0.0292,
+    "route_off_dNLL": 0.0,
+    "contrib_on_dNLL": -0.0201,
+    "contrib_on_dCorr": 0,
+    "swap_on_dNLL": null,
+    "coverage": 1.0,
+    "sign_stability": 0.6,
+    "contrib_route_sign_agree": 0.0,
+    "on_off_contrast": 0.369
+   },
+   "summaries": {
+    "contrib_on": {
+     "n_items": 10,
+     "n_pos": 18,
+     "dNLL_mean": -0.0201,
+     "dNLL_ci": [
+      -0.1214,
+      0.0803
+     ],
+     "dMargin_mean": 0.0165,
+     "KL_mean": 0.0345,
+     "dCorr_mean": 0,
+     "sign_stability": 0.5
+    },
+    "contrib_off": {
+     "n_items": 8,
+     "n_pos": 9,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "route_on": {
+     "n_items": 10,
+     "n_pos": 18,
+     "dNLL_mean": 0.0292,
+     "dNLL_ci": [
+      -0.1468,
+      0.2218
+     ],
+     "dMargin_mean": -0.1078,
+     "KL_mean": 0.0391,
+     "dCorr_mean": 0,
+     "sign_stability": 0.6
+    },
+    "route_off": {
+     "n_items": 8,
+     "n_pos": 9,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    }
+   }
+  },
+  {
+   "cell": "main|45|245",
+   "stratum": "lead_arithmetic",
+   "candidate_kind": "arithmetic",
+   "primary_domain": "math",
+   "events_total": 136,
+   "routing_confidence": 0.761,
+   "label": "SAFE-TO-DROP",
+   "causal_confidence": 0.369,
+   "confidence_bucket": "low",
+   "evidence": {
+    "route_on_dNLL": -0.0455,
+    "route_off_dNLL": 0.0,
+    "contrib_on_dNLL": 0.0019,
+    "contrib_on_dCorr": 0,
+    "swap_on_dNLL": 0.0051,
+    "coverage": 1.0,
+    "sign_stability": 0.5,
+    "contrib_route_sign_agree": 0.0,
+    "on_off_contrast": 0.476
+   },
+   "summaries": {
+    "contrib_on": {
+     "n_items": 10,
+     "n_pos": 16,
+     "dNLL_mean": 0.0019,
+     "dNLL_ci": [
+      -0.0411,
+      0.0461
+     ],
+     "dMargin_mean": 0.1236,
+     "KL_mean": 0.022,
+     "dCorr_mean": 0,
+     "sign_stability": 0.6
+    },
+    "contrib_off": {
+     "n_items": 8,
+     "n_pos": 15,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "route_on": {
+     "n_items": 10,
+     "n_pos": 16,
+     "dNLL_mean": -0.0455,
+     "dNLL_ci": [
+      -0.1002,
+      0.0028
+     ],
+     "dMargin_mean": 0.221,
+     "KL_mean": 0.0193,
+     "dCorr_mean": 0,
+     "sign_stability": 0.5
+    },
+    "route_off": {
+     "n_items": 8,
+     "n_pos": 15,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "swap_on": {
+     "n_items": 10,
+     "n_pos": 16,
+     "dNLL_mean": 0.0051,
+     "dNLL_ci": [
+      -0.044,
+      0.055
+     ],
+     "dMargin_mean": -0.0675,
+     "KL_mean": 0.0207,
+     "dCorr_mean": 0,
+     "sign_stability": 0.5
+    }
+   }
+  },
+  {
+   "cell": "main|15|131",
+   "stratum": "specialist_multiling",
+   "candidate_kind": "none",
+   "primary_domain": "multiling",
+   "events_total": 107,
+   "routing_confidence": 0.715,
+   "label": "SAFE-TO-DROP",
+   "causal_confidence": 0.342,
+   "confidence_bucket": "low",
+   "evidence": {
+    "route_on_dNLL": 0.029,
+    "route_off_dNLL": 0.0,
+    "contrib_on_dNLL": -0.2826,
+    "contrib_on_dCorr": 0,
+    "swap_on_dNLL": null,
+    "coverage": 1.0,
+    "sign_stability": 0.4,
+    "contrib_route_sign_agree": 0.0,
+    "on_off_contrast": 0.367
+   },
+   "summaries": {
+    "contrib_on": {
+     "n_items": 10,
+     "n_pos": 12,
+     "dNLL_mean": -0.2826,
+     "dNLL_ci": [
+      -0.8204,
+      0.0785
+     ],
+     "dMargin_mean": 0.1263,
+     "KL_mean": -0.0033,
+     "dCorr_mean": 0,
+     "sign_stability": 0.4
+    },
+    "contrib_off": {
+     "n_items": 8,
+     "n_pos": 14,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "route_on": {
+     "n_items": 10,
+     "n_pos": 12,
+     "dNLL_mean": 0.029,
+     "dNLL_ci": [
+      -0.0899,
+      0.1729
+     ],
+     "dMargin_mean": -0.146,
+     "KL_mean": 0.0004,
+     "dCorr_mean": 0,
+     "sign_stability": 0.4
+    },
+    "route_off": {
+     "n_items": 8,
+     "n_pos": 14,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    }
+   }
+  },
+  {
+   "cell": "main|15|48",
+   "stratum": "generalist",
+   "candidate_kind": "none",
+   "primary_domain": null,
+   "events_total": 2483,
+   "routing_confidence": 0.641,
+   "label": "SAFE-TO-DROP",
+   "causal_confidence": 0.311,
+   "confidence_bucket": "low",
+   "evidence": {
+    "route_on_dNLL": 0.0012,
+    "route_off_dNLL": 0.0035,
+    "contrib_on_dNLL": -0.0044,
+    "contrib_on_dCorr": 0,
+    "swap_on_dNLL": null,
+    "coverage": 1.0,
+    "sign_stability": 0.6,
+    "contrib_route_sign_agree": 0.0,
+    "on_off_contrast": 0.045
+   },
+   "summaries": {
+    "contrib_on": {
+     "n_items": 10,
+     "n_pos": 15,
+     "dNLL_mean": -0.0044,
+     "dNLL_ci": [
+      -0.0637,
+      0.0619
+     ],
+     "dMargin_mean": 0.0036,
+     "KL_mean": -0.0051,
+     "dCorr_mean": 0,
+     "sign_stability": 0.5
+    },
+    "contrib_off": {
+     "n_items": 8,
+     "n_pos": 31,
+     "dNLL_mean": 0.0506,
+     "dNLL_ci": [
+      -0.0715,
+      0.2337
+     ],
+     "dMargin_mean": -0.0636,
+     "KL_mean": 0.0349,
+     "dCorr_mean": 0.0179,
+     "sign_stability": 0.375
+    },
+    "route_on": {
+     "n_items": 10,
+     "n_pos": 15,
+     "dNLL_mean": 0.0012,
+     "dNLL_ci": [
+      -0.033,
+      0.0323
+     ],
+     "dMargin_mean": -0.0875,
+     "KL_mean": -0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 0.6
+    },
+    "route_off": {
+     "n_items": 8,
+     "n_pos": 31,
+     "dNLL_mean": 0.0035,
+     "dNLL_ci": [
+      -0.0508,
+      0.063
+     ],
+     "dMargin_mean": 0.0695,
+     "KL_mean": 0.0108,
+     "dCorr_mean": 0,
+     "sign_stability": 0.5
+    }
+   }
+  },
+  {
+   "cell": "main|36|239",
+   "stratum": "lead_arithmetic",
+   "candidate_kind": "arithmetic",
+   "primary_domain": "math",
+   "events_total": 183,
+   "routing_confidence": 0.676,
+   "label": "SAFE-TO-DROP",
+   "causal_confidence": 0.27,
+   "confidence_bucket": "low",
+   "evidence": {
+    "route_on_dNLL": 0.0043,
+    "route_off_dNLL": 0.0,
+    "contrib_on_dNLL": -0.0005,
+    "contrib_on_dCorr": 0,
+    "swap_on_dNLL": 0.0025,
+    "coverage": 1.0,
+    "sign_stability": 0.3,
+    "contrib_route_sign_agree": 0.0,
+    "on_off_contrast": 0.079
+   },
+   "summaries": {
+    "contrib_on": {
+     "n_items": 10,
+     "n_pos": 22,
+     "dNLL_mean": -0.0005,
+     "dNLL_ci": [
+      -0.0062,
+      0.0058
+     ],
+     "dMargin_mean": 0.2328,
+     "KL_mean": 0.0086,
+     "dCorr_mean": 0,
+     "sign_stability": 0.7
+    },
+    "contrib_off": {
+     "n_items": 8,
+     "n_pos": 21,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "route_on": {
+     "n_items": 10,
+     "n_pos": 22,
+     "dNLL_mean": 0.0043,
+     "dNLL_ci": [
+      -0.003,
+      0.0128
+     ],
+     "dMargin_mean": 0.2165,
+     "KL_mean": 0.0106,
+     "dCorr_mean": 0,
+     "sign_stability": 0.3
+    },
+    "route_off": {
+     "n_items": 8,
+     "n_pos": 21,
+     "dNLL_mean": 0.0,
+     "dNLL_ci": [
+      0.0,
+      0.0
+     ],
+     "dMargin_mean": 0.0,
+     "KL_mean": 0.0,
+     "dCorr_mean": 0,
+     "sign_stability": 1.0
+    },
+    "swap_on": {
+     "n_items": 10,
+     "n_pos": 22,
+     "dNLL_mean": 0.0025,
+     "dNLL_ci": [
+      -0.0043,
+      0.0092
+     ],
+     "dMargin_mean": 0.1201,
+     "KL_mean": 0.0096,
+     "dCorr_mean": 0,
+     "sign_stability": 0.4
+    }
+   }
+  }
+ ]
+}

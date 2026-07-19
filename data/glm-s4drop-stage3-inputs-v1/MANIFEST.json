@@ -1,0 +1,16 @@
+{
+ "_schema": "kot-s4inputs-manifest/1",
+ "atlas_caveat": "the Wave-A atlas FAILED its Stage-2 coverage gates (routing-mass 0.825<0.95, held-out Spearman 0.63<0.8); its label_class field is used ONLY as an unvalidated ranking heuristic inside the SEM-D tier-2 extension, which the experiment itself prices (see registry record glm-s4drop-0, ASM-2388)",
+ "date": "2026-07-16",
+ "files": {
+  "expert_atlas_index.json": {
+   "sha256": "3adfba0f3615ea97c9a88f9e1651f1b44fd262807c1089629409504c85d022b6",
+   "source": "poc/glm52-probe/wave-a/atlas/expert_atlas_index.json"
+  },
+  "stage3_analysis.json": {
+   "sha256": "0cd31210883d0035a1fc7c9780105114559975eb2859bd34baee44fd63679d8a",
+   "source": "poc/glm52-probe/stage3/results/full/stage3_analysis.json"
+  }
+ },
+ "purpose": "Byte-frozen copies of the two committed selection-side inputs the glm-s4drop-0 mask builder (poc/glm52-probe/stage4/build_masks.py) consumes: the Stage-3 causal analysis (16-cell skiplist + per-cell labels) and the Wave-A atlas per-cell index (label_class used by the SEM-D tier-2 ranking). Copied 2026-07-16 from their committed source paths; byte-identity to source is re-verified at bring-up (fail closed)."
+}

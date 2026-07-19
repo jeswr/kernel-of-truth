@@ -1,0 +1,25 @@
+{
+ "_schema": "kot-s4decode-manifest/1",
+ "authored_by": "designer-15",
+ "date": "2026-07-16",
+ "decode_config": {
+  "cache_config": "RAM_GB=55, same estate + cache settings as the Stage-3 GO-FULL-GLM52 backend; EXPERT_BUDGET off; CACHE_ROUTE off",
+  "draft": 0,
+  "note": "identical across every arm; only S4_TABLE differs",
+  "sampling": "greedy",
+  "topk_experts": 8
+ },
+ "disjointness": "prompts authored fresh for glm-s4drop-0; zero overlap with the 244 stage-3 selection items, the 480 wave-A probes, and the 300-item quality suite (free-decode prompts, no teacher-forced targets)",
+ "splits": {
+  "T-build": {
+   "file": "tbuild.json",
+   "max_new_tokens": 192,
+   "n_prompts": 16
+  },
+  "T-eval": {
+   "file": "teval.json",
+   "max_new_tokens": 96,
+   "n_prompts": 8
+  }
+ }
+}
