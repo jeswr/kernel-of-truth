@@ -1,0 +1,17 @@
+[08:47:46] PIN_GB=40.0 OMP=8 tok_sha=19e773648cb4
+[kot-f1k-tok/1] tokenizer /mnt/nvme/glm52_i4/tokenizer.json sha256=19e773648cb4e65de8660ea6365e10acca112d42a854923df93db4a6f333a82d
+[kot-f1k-tok/1] tokenizer /mnt/nvme/glm52_i4/tokenizer.json sha256=19e773648cb4e65de8660ea6365e10acca112d42a854923df93db4a6f333a82d
+[kot-f1k-tok/1] tokenizer /mnt/nvme/glm52_i4/tokenizer.json sha256=19e773648cb4e65de8660ea6365e10acca112d42a854923df93db4a6f333a82d
+[08:47:49] batches built: pinsrc T=[34, 51, 66, 56, 24, 35, 45, 51] | c0 T=[13, 43, 49, 14, 44, 50, 22, 52, 58, 21] | eval T=[78, 92, 90, 67, 62, 95, 100, 106, 119, 112]
+[08:47:49] RUN pinsrc: rows=8 pin=False stats=True
+[09:07:01]   -> pinsrc boundaries=[(5, 701.3, 6)] overall_spp=140.26 warm_spp=None hit=6%
+[09:07:01] pinfile rc=0 out={"pin_file": "/home/ec2-user/f1k-pinmeas/pin.stats", "experts": 2157, "gb_used": 39.99, "pin_gb": 40.0, "derivation": {"n_stats_files": 2, "per_file": [{"file": "stats_pinsrc.txt", "sha256": "b1dcbb36efd7387bd1f423ebbb5423e83026b12c3ef7d75455dc0231b0ebbdde", "lines": 15951}, {"file": ".stats-s001.QR err=
+[09:07:01] RUN c0_pinned: rows=10 pin=True stats=False
+[09:25:51]   -> c0_pinned boundaries=[(5, 505.5, 23), (10, 1084.0, 23)] overall_spp=108.4 warm_spp=115.7 hit=23%
+[09:25:51] RUN c0_unpinned: rows=10 pin=False stats=True
+[09:46:10]   -> c0_unpinned boundaries=[(5, 568.9, 8), (10, 1203.7, 9)] overall_spp=120.37 warm_spp=126.96 hit=9%
+[09:46:10] RUN ev_pinned: rows=10 pin=True stats=False
+[10:19:28]   -> ev_pinned boundaries=[(5, 895.7, 16), (10, 1951.9, 16)] overall_spp=195.19 warm_spp=211.24 hit=16%
+[10:19:28] RUN ev_unpinned: rows=10 pin=False stats=True
+[10:55:55]   -> ev_unpinned boundaries=[(5, 1002.1, 1), (10, 2170.7, 1)] overall_spp=217.07 warm_spp=233.72 hit=1%
+[10:55:55] DONE. results at /home/ec2-user/f1k-pinmeas/results.json

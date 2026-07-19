@@ -1,0 +1,206 @@
+{
+  "meta": {
+    "pin_gb": 40.0,
+    "omp": "8",
+    "cont_tokens": 8,
+    "tokenizer_sha256": "19e773648cb4e65de8660ea6365e10acca112d42a854923df93db4a6f333a82d",
+    "engine": "/home/ec2-user/colibri-score/c/glm",
+    "estate": "/mnt/nvme/glm52_i4",
+    "started": "2026-07-19T08:47:46Z",
+    "batch_token_lengths": {
+      "pinsrc_construction_c1-8_with_k": [
+        34,
+        51,
+        66,
+        56,
+        24,
+        35,
+        45,
+        51
+      ],
+      "c0_construction_concept_wrong": [
+        13,
+        43,
+        49,
+        14,
+        44,
+        50,
+        22,
+        52,
+        58,
+        21
+      ],
+      "eval_cluster_wrong_template": [
+        78,
+        92,
+        90,
+        67,
+        62,
+        95,
+        100,
+        106,
+        119,
+        112
+      ]
+    },
+    "pin": {
+      "pin_file": "/home/ec2-user/f1k-pinmeas/pin.stats",
+      "experts": 2157,
+      "gb_used": 39.99,
+      "pin_gb": 40.0,
+      "derivation": {
+        "n_stats_files": 2,
+        "per_file": [
+          {
+            "file": "stats_pinsrc.txt",
+            "sha256": "b1dcbb36efd7387bd1f423ebbb5423e83026b12c3ef7d75455dc0231b0ebbdde",
+            "lines": 15951
+          },
+          {
+            "file": ".stats-s001.QRsQAP.tmp",
+            "sha256": "7060c604be4e894c300061c857ed03267bcc979848604923e154e64b6789f539",
+            "lines": 6861
+          }
+        ],
+        "manifest_rows_sha256": "c1763b735c33d787ba872f29b90cbf4c5a3eac2d47ec58316e62e5af98f3222a",
+        "manifest_file_sha256": "8ed27585a501726f5e305c90143cadc4b724323868872dfe5e4bb0fdf71c0829",
+        "aggregation": "sum of counts per (layer, expert) over ALL per-item T1 stats files [REV-B F1; fail-closed on any missing/empty/malformed file]"
+      },
+      "sha256": "210d500173eb301b93d26d62a9969f254becf871b59edda584c2273a36d4d0ae",
+      "stats_manifest": [
+        "/home/ec2-user/f1k-pinmeas/stats_pinsrc.txt",
+        "/home/ec2-user/f1k-gate/t1-stats/.stats-s001.QRsQAP.tmp"
+      ]
+    },
+    "finished": "2026-07-19T10:55:55Z"
+  },
+  "phases": {
+    "pinsrc": {
+      "rows": 8,
+      "wall_s": 1152.1,
+      "timed_out": false,
+      "boundaries": [
+        {
+          "n": 5,
+          "cum_s": 701.3,
+          "rss_gb": 47.11,
+          "hit_pct": 6
+        }
+      ],
+      "pin_evidence": [],
+      "cap_line": [
+        "[RAM_GB=56.5 auto] resident 10.4 GB + reserve 6.1 GB (ws 1.2, KV 1x4096 0.7, kvb 0.5), experts 18.9 MB x 77 layers -> cap lowered 64->27 (projected peak 55.8 GB)"
+      ],
+      "overall_s_per_prefill": 140.26,
+      "final_hit_pct": 6
+    },
+    "c0_pinned": {
+      "rows": 10,
+      "wall_s": 1129.6,
+      "timed_out": false,
+      "boundaries": [
+        {
+          "n": 5,
+          "cum_s": 505.5,
+          "rss_gb": 49.95,
+          "hit_pct": 23
+        },
+        {
+          "n": 10,
+          "cum_s": 1084.0,
+          "rss_gb": 49.96,
+          "hit_pct": 23
+        }
+      ],
+      "pin_evidence": [
+        "[PIN] hot store: 2114 experts in RAM (40.0 GB) loaded in 29s from /home/ec2-user/f1k-pinmeas/pin.stats"
+      ],
+      "cap_line": [
+        "[RAM_GB=56.7 auto] resident 50.4 GB + reserve 6.1 GB (ws 1.2, KV 1x4096 0.7, kvb 0.5), experts 18.9 MB x 77 layers -> cap lowered 64->1 (projected peak 58.0 GB)"
+      ],
+      "overall_s_per_prefill": 108.4,
+      "final_hit_pct": 23,
+      "warm_s_per_prefill": 115.7
+    },
+    "c0_unpinned": {
+      "rows": 10,
+      "wall_s": 1219.5,
+      "timed_out": false,
+      "boundaries": [
+        {
+          "n": 5,
+          "cum_s": 568.9,
+          "rss_gb": 47.1,
+          "hit_pct": 8
+        },
+        {
+          "n": 10,
+          "cum_s": 1203.7,
+          "rss_gb": 47.1,
+          "hit_pct": 9
+        }
+      ],
+      "pin_evidence": [],
+      "cap_line": [
+        "[RAM_GB=56.9 auto] resident 10.4 GB + reserve 6.1 GB (ws 1.2, KV 1x4096 0.7, kvb 0.5), experts 18.9 MB x 77 layers -> cap lowered 64->27 (projected peak 55.8 GB)"
+      ],
+      "overall_s_per_prefill": 120.37,
+      "final_hit_pct": 9,
+      "warm_s_per_prefill": 126.96
+    },
+    "ev_pinned": {
+      "rows": 10,
+      "wall_s": 1997.7,
+      "timed_out": false,
+      "boundaries": [
+        {
+          "n": 5,
+          "cum_s": 895.7,
+          "rss_gb": 49.97,
+          "hit_pct": 16
+        },
+        {
+          "n": 10,
+          "cum_s": 1951.9,
+          "rss_gb": 50.01,
+          "hit_pct": 16
+        }
+      ],
+      "pin_evidence": [
+        "[PIN] hot store: 2114 experts in RAM (40.0 GB) loaded in 29s from /home/ec2-user/f1k-pinmeas/pin.stats"
+      ],
+      "cap_line": [
+        "[RAM_GB=56.9 auto] resident 50.4 GB + reserve 6.1 GB (ws 1.2, KV 1x4096 0.7, kvb 0.5), experts 18.9 MB x 77 layers -> cap lowered 64->1 (projected peak 58.0 GB)"
+      ],
+      "overall_s_per_prefill": 195.19,
+      "final_hit_pct": 16,
+      "warm_s_per_prefill": 211.24
+    },
+    "ev_unpinned": {
+      "rows": 10,
+      "wall_s": 2186.9,
+      "timed_out": false,
+      "boundaries": [
+        {
+          "n": 5,
+          "cum_s": 1002.1,
+          "rss_gb": 47.12,
+          "hit_pct": 1
+        },
+        {
+          "n": 10,
+          "cum_s": 2170.7,
+          "rss_gb": 47.13,
+          "hit_pct": 1
+        }
+      ],
+      "pin_evidence": [],
+      "cap_line": [
+        "[RAM_GB=56.9 auto] resident 10.4 GB + reserve 6.1 GB (ws 1.2, KV 1x4096 0.7, kvb 0.5), experts 18.9 MB x 77 layers -> cap lowered 64->27 (projected peak 55.8 GB)"
+      ],
+      "overall_s_per_prefill": 217.07,
+      "final_hit_pct": 1,
+      "warm_s_per_prefill": 233.72
+    }
+  }
+}
