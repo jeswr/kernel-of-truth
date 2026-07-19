@@ -1603,6 +1603,23 @@ PIN_GB="${KOT_F1K_PIN_GB:-$(( MEM_AVAIL_GB - 8 ))}"
 [ "$PIN_GB" -ge 24 ] || die "PIN_GB headroom $PIN_GB GB < 24 (MemAvailable ${MEM_AVAIL_GB} GB) — outside the M4-measured 40-50 GB band's floor; STOP"
 
 GATE_MAX_S="${KOT_F1K_GATE_MAX_S:-10800}"   # fail-closed timing budget (3 h)
+# [TIMER-FIX] The GLM scoring engine (glm.c run_score) prints its OWN
+# model-load-EXCLUDED cumulative timer ("[score N req | Xs") ONLY at nreq%5==0
+# boundaries (glm.c run_score, ~:1917 `if(++nreq%5==0) fprintf(...)`; t0 is set
+# AFTER model load so the seconds exclude the ~11.7 s load). A per-sid manifest
+# is ONE request, so nreq never reaches a boundary and NO timer line is emitted
+# — the old single-line run always died in run_gate_sample ("no scoring timer").
+# Each item is therefore timed over a TIMER_REP-replicate manifest (>=5 so one
+# boundary fires) and the cumulative seconds are divided by the fired req count
+# to give the per-item, load-excluded s. MUST be a multiple of 5 (only %5==0
+# fires); default 5. COST NOTE: this multiplies per-sid timing wall-time by
+# ~TIMER_REP — with the frozen 31+8-sid sample (single-pass ~3 h already at
+# GATE_MAX_S) a REP of 5 needs ~15 h, which exceeds any Spot window; the
+# coordinator must raise KOT_F1K_GATE_MAX_S, shrink the sample, or adopt a
+# batched-distinct-item redesign (see report). Correctness fix only.
+TIMER_REP="${KOT_F1K_TIMER_REP:-5}"
+{ [ "$TIMER_REP" -ge 5 ] && [ $(( TIMER_REP % 5 )) -eq 0 ]; } \
+  || die "KOT_F1K_TIMER_REP=$TIMER_REP invalid — must be a multiple of 5 (the engine timer fires only at nreq%5==0; glm.c run_score)"
 GATE_T0=$(date +%s)
 BOOT_ID=$(tr -d '\n' < /proc/sys/kernel/random/boot_id)
 [ -n "$BOOT_ID" ] || die "cannot read boot_id for timing result binding"
@@ -1613,18 +1630,31 @@ run_gate_sample() {   # $1=phase $2=sample_id $3=result dir $4..=extra env
   local run_err="$GATE/gate-run-$phase-$sid.err"
   [ $(( $(date +%s) - GATE_T0 )) -lt "$GATE_MAX_S" ] \
     || die "gate timing exceeded KOT_F1K_GATE_MAX_S=$GATE_MAX_S s (fail-closed: no silent truncation — raise the budget or STOP)"
+  # [TIMER-FIX] Score a TIMER_REP-replicate of THIS sid's canonical line so the
+  # engine reaches a nreq%5==0 boundary and emits its own load-excluded timer.
+  # The canonical sample-$sid.score stays ONE line for collect's REV-B F2
+  # structural check (it read_text().split()s the WHOLE file); replicas live
+  # only in this throwaway timing manifest. STATS/pin ranking is invariant to
+  # the uniform REP scaling (routing is deterministic per token).
+  local tman rr
+  tman=$(mktemp "$GATE/.timing-$phase-$sid.XXXXXX.score")
+  for rr in $(seq "$TIMER_REP"); do cat "$man"; done > "$tman"
   env -u KAE -u KAE_G -u KAE_SCORE -u KAE_DUMP -u KAE_CARRIER -u KAE_SPANS \
       -u KAE_MODE -u KAE_SEED -u KAE_DUMP_LAYERS \
-      SNAP="$ESTATE_DIR" SCORE="$man" \
+      SNAP="$ESTATE_DIR" SCORE="$tman" \
       OMP_NUM_THREADS="$FUNC_OMP" OMP_DYNAMIC=FALSE OMP_PROC_BIND=close \
       OMP_WAIT_POLICY=active COLI_OMP_TUNED=1 "$@" \
       "$SCORE_ENGINE" 64 4 8 > "$run_out" 2> "$run_err" \
-    || die "gate timing run $phase/$sid FAILED (see $run_err)"
-  local timer n s pin_ev result_tmp
+    || { rm -f "$tman"; die "gate timing run $phase/$sid FAILED (see $run_err)"; }
+  rm -f "$tman"
+  local timer n cum s pin_ev result_tmp
   timer=$(grep -oE '\[score [0-9]+ req \| [0-9.]+s' "$run_err" | tail -1 || true)
   n=$(echo "$timer" | grep -oE '[0-9]+ req' | grep -oE '[0-9]+' || true)
-  s=$(echo "$timer" | grep -oE '\| [0-9.]+s' | grep -oE '[0-9.]+' || true)
-  { [ -n "$s" ] && [ "${n:-0}" -ge 1 ]; } || die "gate run $phase/$sid: engine emitted no scoring timer (see $run_err)"
+  cum=$(echo "$timer" | grep -oE '\| [0-9.]+s' | grep -oE '[0-9.]+' || true)
+  { [ -n "$cum" ] && [ "${n:-0}" -ge 5 ]; } \
+    || die "gate run $phase/$sid: engine emitted no scoring timer over the ${TIMER_REP}-replicate timing manifest (see $run_err)"
+  # per-item, model-load-EXCLUDED seconds = cumulative timer / fired req count
+  s=$(python3 -c "import sys;print(round(float(sys.argv[1])/int(sys.argv[2]),4))" "$cum" "$n")
   # [REV-B F3] engagement evidence VERBATIM: the [PIN] banner/marker lines
   # (armed banner grammar = the LANDED driver's PIN_ARMED_RE, ASM-2513;
   # wording fetch-grade ASM-1971 — a real-engine divergence is aligned in
