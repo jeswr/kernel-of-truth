@@ -3,40 +3,40 @@
  "subtype": "success",
  "is_error": false,
  "api_error_status": null,
- "duration_ms": 9694,
- "duration_api_ms": 7973,
- "ttft_ms": 8946,
- "ttft_stream_ms": 5050,
- "time_to_request_ms": 4050,
+ "duration_ms": 5109,
+ "duration_api_ms": 5965,
+ "ttft_ms": 4994,
+ "ttft_stream_ms": 818,
+ "time_to_request_ms": 57,
  "num_turns": 1,
- "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"when someone feels something bad, another someone does or says something; after this, the first someone feels something less bad.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomeoneRef\"},{\"index\":3,\"refKind\":\"ClauseRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"prime\",\"prime\":\"BAD\"},\"bind\":3}},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"kind\":\"ref\",\"index\":3},{\"type\":\"op\",\"op\":\"CAN\",\"args\":[{\"type\":\"op\",\"op\":\"OR\",\"args\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":2},\"undergoer\":{\"kind\":\"ref\",\"index\":1}}},{\"type\":\"pred\",\"pred\":\"SAY\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":2},\"addressee\":{\"kind\":\"ref\",\"index\":1}}}]}}]}},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"kind\":\"ref\",\"index\":3},{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"BAD\"},\"quant\":\"LITTLE~FEW\"}}}]}]}}\n```",
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"when someone is sad, another someone does something that makes the first person feel good; because of this, the first person does not want to be sad anymore.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomeoneRef\"},{\"index\":3,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"prime\",\"prime\":\"BAD\"},\"time\":{\"kind\":\"prime\",\"prime\":\"NOW\"}}},{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":2},\"undergoer\":{\"kind\":\"ref\",\"index\":3},\"comitative\":{\"kind\":\"ref\",\"index\":1}}},{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"prime\",\"prime\":\"GOOD\"}}},{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":2},\"undergoer\":{\"kind\":\"ref\",\"index\":3}}},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"WANT\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"prime\",\"prime\":\"BAD\"}}}}}}}]}]}}\n```",
  "stop_reason": "end_turn",
- "session_id": "49fd8ff3-810b-4c29-af63-caac5c329725",
- "total_cost_usd": 0.005695,
+ "session_id": "73590565-80f9-4cec-8452-023c0b5f3702",
+ "total_cost_usd": 0.005874999999999999,
  "usage": {
-  "input_tokens": 2,
-  "cache_creation_input_tokens": 1370,
+  "input_tokens": 3,
+  "cache_creation_input_tokens": 1367,
   "cache_read_input_tokens": 4550,
-  "output_tokens": 366,
+  "output_tokens": 405,
   "server_tool_use": {
    "web_search_requests": 0,
    "web_fetch_requests": 0
   },
   "service_tier": "standard",
   "cache_creation": {
-   "ephemeral_1h_input_tokens": 1370,
+   "ephemeral_1h_input_tokens": 1367,
    "ephemeral_5m_input_tokens": 0
   },
   "inference_geo": "not_available",
   "iterations": [
    {
-    "input_tokens": 2,
-    "output_tokens": 366,
+    "input_tokens": 3,
+    "output_tokens": 405,
     "cache_read_input_tokens": 4550,
-    "cache_creation_input_tokens": 1370,
+    "cache_creation_input_tokens": 1367,
     "cache_creation": {
      "ephemeral_5m_input_tokens": 0,
-     "ephemeral_1h_input_tokens": 1370
+     "ephemeral_1h_input_tokens": 1367
     },
     "type": "message"
    }
@@ -45,12 +45,12 @@
  },
  "modelUsage": {
   "claude-haiku-4-5-20251001": {
-   "inputTokens": 595,
-   "outputTokens": 381,
+   "inputTokens": 596,
+   "outputTokens": 418,
    "cacheReadInputTokens": 4550,
-   "cacheCreationInputTokens": 1370,
+   "cacheCreationInputTokens": 1367,
    "webSearchRequests": 0,
-   "costUSD": 0.005695,
+   "costUSD": 0.005874999999999999,
    "contextWindow": 200000,
    "maxOutputTokens": 32000
   }
@@ -58,5 +58,5 @@
  "permission_denials": [],
  "terminal_reason": "completed",
  "fast_mode_state": "off",
- "uuid": "cf25f39f-7431-475d-9e92-8c945e572f9b"
+ "uuid": "422da673-a967-4cfd-8dfb-fcdb829321a5"
 }

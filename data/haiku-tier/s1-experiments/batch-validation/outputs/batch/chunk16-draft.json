@@ -3,40 +3,40 @@
  "subtype": "success",
  "is_error": false,
  "api_error_status": null,
- "duration_ms": 16825,
- "duration_api_ms": 16057,
- "ttft_ms": 16386,
- "ttft_stream_ms": 4951,
- "time_to_request_ms": 3340,
+ "duration_ms": 7169,
+ "duration_api_ms": 8581,
+ "ttft_ms": 7149,
+ "ttft_stream_ms": 924,
+ "time_to_request_ms": 52,
  "num_turns": 1,
- "result": "<<<KOT:subcontractor>>>>\n{\"kind\":\"molecule\",\"gloss\":\"a person or business that does work for another contractor; the other contractor is paid by the customer.\",\"groundingNote\":\"a person or business that does work for another {urn:kernel-v0:make|maker} [m]; the other {urn:kernel-v0:maker|maker} [m] is paid by a someone who wants the work done; this person or business is paid by the other {urn:kernel-v0:maker|maker} [m], not by the someone who wants the work done.\",\"groundingRefs\":[\"urn:kernel-v0:make\"]}\n<<<END:subcontractor>>>>\n\n<<<KOT:supinely>>>>\n{\"kind\":\"explication\",\"gloss\":\"someone's head faces up and the body is in a way of one kind.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"partFrame\",\"of\":{\"kind\":\"ref\",\"index\":1}},\"restrictedBy\":{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"BODY\"}}}}},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SIDE\"},\"det\":\"THIS\"}}},{\"type\":\"pred\",\"pred\":\"MOVE\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"BODY\"}},\"manner\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WAY~WAYS\"},\"det\":\"ONE\"}}}]}}\n<<<END:supinely>>>>\n\n<<<KOT:taconite>>>>\n{\"kind\":\"cannot-formalise\",\"why\":\"Taconite is a geological substance defined by its mineralogical composition (iron minerals interlayered with quartz and chert), its percentage iron content (20\u201330%), and its origin in specific rock formations. These identity conditions require technical mineralogy and stratigraphy beyond the prime lexicon. The substance is tied to a particular geological epoch and geographic formation (Biwabik Iron Formation, Mesabi Range). It belongs to the earth-science sector, not this tier.\"}\n<<<END:taconite>>>>\n\n<<<KOT:tendencious>>>>\n{\"kind\":\"explication\",\"gloss\":\"someone says words about something in a way that is not true because this someone wants people to believe something bad or good about it.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"SAY\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"topic\":{\"kind\":\"ref\",\"index\":2},\"quote\":{\"kind\":\"quote\",\"clauses\":[{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"TRUE\",\"roles\":{\"undergoer\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"}}}}}}}]}]}}},{\"type\":\"pred\",\"pred\":\"WANT\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"BELIEVE\",\"roles\":{\"experiencer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"mods\":[{\"mod\":\"BAD\",\"intensifier\":\"VERY\"}]}}}}}}}}},{\"type\":\"pred\",\"pred\":\"WANT\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"BELIEVE\",\"roles\":{\"experiencer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"mods\":[{\"mod\":\"GOOD\",\"intensifier\":\"VERY\"}]}}}}}}}}]}}\n<<<END:tendencious>>>>",
+ "result": "<<<KOT:subcontractor>>>>\n{\"kind\":\"molecule\",\"gloss\":\"someone who does work for another someone who has a {urn:kernel-v0:promise|promise} [m] to do work; the first someone does not do work for the one who asked for the work.\",\"groundingNote\":\"someone who does work for another someone who has a {urn:kernel-v0:promise|promise} [m] to do work; the first someone does not do work for the one who asked for the work.\",\"groundingRefs\":[\"urn:kernel-v0:promise\"]}\n<<<END:subcontractor>>>>\n\n<<<KOT:supinely>>>>\n{\"kind\":\"cannot-formalise\",\"why\":\"supinely is an adverbial manner modifier describing body orientation (head facing up). Its core sense requires a specific spatial-anatomical relation (the head's position relative to the rest of the body and gravity) that cannot be adequately expressed using the prime lexicon. The concept of 'facing up' or 'head upward orientation' requires technical spatial primitives not available in the allowed lexicon.\"}\n<<<END:supinely>>>>\n\n<<<KOT:taconite>>>>\n{\"kind\":\"cannot-formalise\",\"why\":\"taconite is a technical mineralogical and geological kind defined by its specific composition (banded iron formation with iron minerals interlayered with quartz and chert) and geological provenance (Precambrian Biwabik Iron Formation). Its identity conditions require technical chemistry and geology (iron oxide percentages, mineral phases, stratigraphic context) that lie outside the scope of the everyday prime lexicon and cannot be grounded in the available catalog.\"}\n<<<END:taconite>>>>\n\n<<<KOT:tendencious>>>>\n{\"kind\":\"cannot-formalise\",\"why\":\"tendencious is marked as an obsolete spelling variant of tendentious in the source. As such, it has no current dominant everyday sense; it belongs to historical orthography rather than active lexicon. The modern form (tendentious, meaning biased or promoting a particular tendency) would be the appropriate target, but the user has requested the obsolete spelling specifically, which cannot be responsibly formalized as a living concept.\"}\n<<<END:tendencious>>>>",
  "stop_reason": "end_turn",
- "session_id": "800d4df3-5b31-4142-82a1-77aa0707582a",
- "total_cost_usd": 0.0111937,
+ "session_id": "10077fdf-f8c0-4750-aad7-621e0d76be62",
+ "total_cost_usd": 0.0080337,
  "usage": {
-  "input_tokens": 2,
-  "cache_creation_input_tokens": 1915,
+  "input_tokens": 3,
+  "cache_creation_input_tokens": 1912,
   "cache_read_input_tokens": 4837,
-  "output_tokens": 1136,
+  "output_tokens": 505,
   "server_tool_use": {
    "web_search_requests": 0,
    "web_fetch_requests": 0
   },
   "service_tier": "standard",
   "cache_creation": {
-   "ephemeral_1h_input_tokens": 1915,
+   "ephemeral_1h_input_tokens": 1912,
    "ephemeral_5m_input_tokens": 0
   },
   "inference_geo": "not_available",
   "iterations": [
    {
-    "input_tokens": 2,
-    "output_tokens": 1136,
+    "input_tokens": 3,
+    "output_tokens": 505,
     "cache_read_input_tokens": 4837,
-    "cache_creation_input_tokens": 1915,
+    "cache_creation_input_tokens": 1912,
     "cache_creation": {
      "ephemeral_5m_input_tokens": 0,
-     "ephemeral_1h_input_tokens": 1915
+     "ephemeral_1h_input_tokens": 1912
     },
     "type": "message"
    }
@@ -45,12 +45,12 @@
  },
  "modelUsage": {
   "claude-haiku-4-5-20251001": {
-   "inputTokens": 1140,
-   "outputTokens": 1148,
+   "inputTokens": 1141,
+   "outputTokens": 517,
    "cacheReadInputTokens": 4837,
-   "cacheCreationInputTokens": 1915,
+   "cacheCreationInputTokens": 1912,
    "webSearchRequests": 0,
-   "costUSD": 0.0111937,
+   "costUSD": 0.0080337,
    "contextWindow": 200000,
    "maxOutputTokens": 32000
   }
@@ -58,5 +58,5 @@
  "permission_denials": [],
  "terminal_reason": "completed",
  "fast_mode_state": "off",
- "uuid": "0a9dc42c-a0de-4eb9-b5a6-47998e2cd91b"
+ "uuid": "d8385de4-c983-4246-a9fd-c5d5aee9ea2e"
 }

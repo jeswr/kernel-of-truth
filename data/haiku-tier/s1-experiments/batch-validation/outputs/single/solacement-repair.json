@@ -3,40 +3,40 @@
  "subtype": "success",
  "is_error": false,
  "api_error_status": null,
- "duration_ms": 12479,
- "duration_api_ms": 7233,
- "ttft_ms": 11253,
- "ttft_stream_ms": 9831,
- "time_to_request_ms": 8619,
+ "duration_ms": 5690,
+ "duration_api_ms": 6689,
+ "ttft_ms": 5667,
+ "ttft_stream_ms": 860,
+ "time_to_request_ms": 63,
  "num_turns": 1,
- "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"when someone feels something bad, another someone does or says something; after this, the first someone feels something less bad.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomeoneRef\"},{\"index\":3,\"refKind\":\"ClauseRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"prime\",\"prime\":\"BAD\"},\"bind\":3}},{\"type\":\"op\",\"op\":\"AFTER\",\"anchor\":{\"kind\":\"ref\",\"index\":3},\"scope\":{\"type\":\"op\",\"op\":\"CAN\",\"args\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":2},\"undergoer\":{\"kind\":\"ref\",\"index\":1}}},{\"type\":\"pred\",\"pred\":\"SAY\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":2},\"addressee\":{\"kind\":\"ref\",\"index\":1}}}]}},{\"type\":\"op\",\"op\":\"AFTER\",\"anchor\":{\"kind\":\"ref\",\"index\":3},\"scope\":{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"BAD\"},\"quant\":\"LITTLE~FEW\"}}}}]}}\n```",
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"when someone feels sad, another someone does something that makes the first person feel good instead.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"prime\",\"prime\":\"BAD\"}}},{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":2},\"undergoer\":{\"kind\":\"ref\",\"index\":1}}},{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"prime\",\"prime\":\"GOOD\"}}},{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":2},\"undergoer\":{\"kind\":\"ref\",\"index\":1}}},{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"prime\",\"prime\":\"GOOD\"}}}]}]}}\n```\n\n**Repairs made:**\n\n1. **JSON syntax**: Fixed mismatched braces in the nested BECAUSE clause. The original had an extra closing brace after the NOT operator that broke array syntax.\n2. **Simplified structure**: Removed the redundant third referent (SomethingRef for an unspecified action), the first temporal NOW modifier, and the double negation. The core sense is: someone sad + another does something to them \u2192 they feel good *because* of that act.\n3. **Cleaner BECAUSE frame**: Now properly has two clause arguments: the DO predicate (cause) and the resulting FEEL-GOOD (effect), with both properly closed.\n4. **Gate compliance**: All predicates, operators, roles, and prime names are exact matches to the spec; no stray words; proper nesting depth.",
  "stop_reason": "end_turn",
- "session_id": "4dba7b2b-b161-4449-8761-b393c98cbdfa",
- "total_cost_usd": 0.014286,
+ "session_id": "3735996a-c4f0-40b9-9e9a-c7fbef9fadd0",
+ "total_cost_usd": 0.015059,
  "usage": {
-  "input_tokens": 2,
-  "cache_creation_input_tokens": 5706,
+  "input_tokens": 3,
+  "cache_creation_input_tokens": 5744,
   "cache_read_input_tokens": 0,
-  "output_tokens": 356,
+  "output_tokens": 486,
   "server_tool_use": {
    "web_search_requests": 0,
    "web_fetch_requests": 0
   },
   "service_tier": "standard",
   "cache_creation": {
-   "ephemeral_1h_input_tokens": 5706,
+   "ephemeral_1h_input_tokens": 5744,
    "ephemeral_5m_input_tokens": 0
   },
   "inference_geo": "not_available",
   "iterations": [
    {
-    "input_tokens": 2,
-    "output_tokens": 356,
+    "input_tokens": 3,
+    "output_tokens": 486,
     "cache_read_input_tokens": 0,
-    "cache_creation_input_tokens": 5706,
+    "cache_creation_input_tokens": 5744,
     "cache_creation": {
      "ephemeral_5m_input_tokens": 0,
-     "ephemeral_1h_input_tokens": 5706
+     "ephemeral_1h_input_tokens": 5744
     },
     "type": "message"
    }
@@ -45,12 +45,12 @@
  },
  "modelUsage": {
   "claude-haiku-4-5-20251001": {
-   "inputTokens": 1029,
-   "outputTokens": 369,
+   "inputTokens": 1071,
+   "outputTokens": 500,
    "cacheReadInputTokens": 0,
-   "cacheCreationInputTokens": 5706,
+   "cacheCreationInputTokens": 5744,
    "webSearchRequests": 0,
-   "costUSD": 0.014286,
+   "costUSD": 0.015059,
    "contextWindow": 200000,
    "maxOutputTokens": 32000
   }
@@ -58,5 +58,5 @@
  "permission_denials": [],
  "terminal_reason": "completed",
  "fast_mode_state": "off",
- "uuid": "13fd50c1-f02a-4537-80f4-a71b71f98435"
+ "uuid": "ec351110-9db5-457c-9705-d0604c947726"
 }

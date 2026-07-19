@@ -3,40 +3,40 @@
  "subtype": "success",
  "is_error": false,
  "api_error_status": null,
- "duration_ms": 11575,
- "duration_api_ms": 11586,
- "ttft_ms": 11340,
- "ttft_stream_ms": 3272,
- "time_to_request_ms": 2271,
+ "duration_ms": 7116,
+ "duration_api_ms": 8197,
+ "ttft_ms": 7083,
+ "ttft_stream_ms": 945,
+ "time_to_request_ms": 53,
  "num_turns": 1,
- "result": "<<<KOT:uncomprehended>>>>\n{\"kind\":\"explication\",\"gloss\":\"someone cannot know this something; the words about it are not clear to someone.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"topic\":{\"kind\":\"ref\",\"index\":2}}}]},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"},\"restrictedBy\":{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"attribute\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"}}}},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"THING\"},\"mods\":[{\"mod\":\"BAD\"}]}}}]}}\n<<<END:uncomprehended>>>>\n\n<<<KOT:unfearing>>>>\n{\"kind\":\"explication\",\"gloss\":\"someone does not feel fear.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"concept\",\"id\":\"urn:kernel-v0:afraid\"}}}}]}}\n<<<END:unfearing>>>>\n\n<<<KOT:unmoving>>>>\n{\"kind\":\"explication\",\"gloss\":\"this something does not move; it stays in the same place.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"MOVE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}}]},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"THING\"},\"mods\":[{\"mod\":\"BAD\"}]}}}]}}\n<<<END:unmoving>>>>\n\n<<<KOT:unsex>>>>\n{\"kind\":\"explication\",\"gloss\":\"someone does something to another someone; after this, that someone cannot make new people.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2}}},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"CAN\",\"args\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":2},\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}}}}}]}}]}]}}\n<<<END:unsex>>>>",
+ "result": "<<<KOT:uncomprehended>>>>\n{\"kind\":\"explication\",\"gloss\":\"someone does not know this thing; it is not true that someone can think about it in a way.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}},\"topic\":{\"kind\":\"ref\",\"index\":1}}}}]},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"THINK\",\"roles\":{\"experiencer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}},\"topic\":{\"kind\":\"ref\",\"index\":1}}}}]}}\n<<<END:uncomprehended>>>>\n\n<<<KOT:unfearing>>>>\n{\"kind\":\"explication\",\"gloss\":\"this someone does not feel the thing that is bad; it is not true that they are afraid.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"concept\",\"id\":\"urn:kernel-v0:afraid\"}}}]}]}}\n<<<END:unfearing>>>>\n\n<<<KOT:unmoving>>>>\n{\"kind\":\"explication\",\"gloss\":\"this something is not moving at this time; the body or side does not move.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"MOVE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"time\":{\"kind\":\"prime\",\"prime\":\"NOW\"}}}]}]}}\n<<<END:unmoving>>>>\n\n<<<KOT:unsex>>>>\n{\"kind\":\"explication\",\"gloss\":\"someone does this to one something: after, it is not the same; it cannot make one very like itself.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2}}},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"THE-SAME\"}}}}]}]},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":2},\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"}},\"manner\":{\"kind\":\"sp\",\"det\":\"THE-SAME\"},\"comitative\":{\"kind\":\"ref\",\"index\":2}}}]}]}}\n<<<END:unsex>>>>",
  "stop_reason": "end_turn",
- "session_id": "44412a45-56aa-46bf-98d1-e970f949599e",
- "total_cost_usd": 0.0090817,
+ "session_id": "91434446-b029-4176-9230-ce83e80b0d5a",
+ "total_cost_usd": 0.009051700000000001,
  "usage": {
-  "input_tokens": 2,
-  "cache_creation_input_tokens": 1696,
+  "input_tokens": 3,
+  "cache_creation_input_tokens": 1693,
   "cache_read_input_tokens": 4837,
-  "output_tokens": 840,
+  "output_tokens": 835,
   "server_tool_use": {
    "web_search_requests": 0,
    "web_fetch_requests": 0
   },
   "service_tier": "standard",
   "cache_creation": {
-   "ephemeral_1h_input_tokens": 1696,
+   "ephemeral_1h_input_tokens": 1693,
    "ephemeral_5m_input_tokens": 0
   },
   "inference_geo": "not_available",
   "iterations": [
    {
-    "input_tokens": 2,
-    "output_tokens": 840,
+    "input_tokens": 3,
+    "output_tokens": 835,
     "cache_read_input_tokens": 4837,
-    "cache_creation_input_tokens": 1696,
+    "cache_creation_input_tokens": 1693,
     "cache_creation": {
      "ephemeral_5m_input_tokens": 0,
-     "ephemeral_1h_input_tokens": 1696
+     "ephemeral_1h_input_tokens": 1693
     },
     "type": "message"
    }
@@ -45,12 +45,12 @@
  },
  "modelUsage": {
   "claude-haiku-4-5-20251001": {
-   "inputTokens": 921,
-   "outputTokens": 857,
+   "inputTokens": 922,
+   "outputTokens": 852,
    "cacheReadInputTokens": 4837,
-   "cacheCreationInputTokens": 1696,
+   "cacheCreationInputTokens": 1693,
    "webSearchRequests": 0,
-   "costUSD": 0.0090817,
+   "costUSD": 0.009051700000000001,
    "contextWindow": 200000,
    "maxOutputTokens": 32000
   }
@@ -58,5 +58,5 @@
  "permission_denials": [],
  "terminal_reason": "completed",
  "fast_mode_state": "off",
- "uuid": "937322c1-fdd8-4b8d-9c47-e61658c23018"
+ "uuid": "919d69c9-f1c2-4a83-91ed-b916f218fe8b"
 }

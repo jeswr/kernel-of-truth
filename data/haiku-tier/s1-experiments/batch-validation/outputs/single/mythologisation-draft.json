@@ -3,40 +3,40 @@
  "subtype": "success",
  "is_error": false,
  "api_error_status": null,
- "duration_ms": 11979,
- "duration_api_ms": 5416,
- "ttft_ms": 11590,
- "ttft_stream_ms": 9137,
- "time_to_request_ms": 8269,
+ "duration_ms": 11503,
+ "duration_api_ms": 12530,
+ "ttft_ms": 11102,
+ "ttft_stream_ms": 1025,
+ "time_to_request_ms": 109,
  "num_turns": 1,
- "result": "```json\n{\"kind\":\"cannot-formalise\",\"why\":\"mythologisation is a process of transformation (converting historical fact or ordinary narrative into myth\u2014ascribing supernatural agency, timeless significance, or archetypal meaning). Its identity depends on culturally-bound concepts (myth, sacred narrative, collective belief) and on metalinguistic operations (reinterpreting, reframing) that exceed the prime lexicon. The everyday sense requires understanding 'myth' as a socio-cultural kind with normative force, not a concrete perceivable thing or simple event. This belongs to the anthropology/semiotics sector, not the tier of molecules and explications grounded in perception and basic action.\"}\n```",
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"people say words about something; because of these words, other people come to think of it in a way of one kind; this way is not true; it is like a story from a very long time.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"},{\"index\":2,\"refKind\":\"SomeoneRef\"},{\"index\":3,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"SAY\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":2},\"topic\":{\"kind\":\"ref\",\"index\":1},\"quote\":{\"kind\":\"quote\",\"clauses\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"SOME\"}}}]}}},{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[{\"type\":\"pred\",\"pred\":\"SAY\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":2},\"topic\":{\"kind\":\"ref\",\"index\":1}}},{\"type\":\"pred\",\"pred\":\"THINK\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":3},\"topic\":{\"kind\":\"ref\",\"index\":1},\"quote\":{\"kind\":\"quote\",\"clauses\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"SOME\",\"bind\":4}}}}]}}},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"TRUE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":4}}}]},{\"type\":\"op\",\"op\":\"LIKE\",\"args\":[{\"kind\":\"ref\",\"index\":1},{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"SOME\",\"mods\":[{\"mod\":\"GOOD\"}],\"restrictedBy\":{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"},\"mods\":[{\"mod\":\"GOOD\"}],\"restrictedBy\":{\"type\":\"pred\",\"pred\":\"HAPPEN\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"}},\"time\":{\"kind\":\"prime\",\"prime\":\"A-LONG-TIME\"}}}}}}}]}}]}}\n```",
  "stop_reason": "end_turn",
- "session_id": "b1f63ab4-01b4-4b1b-ac34-f1bf453336d0",
- "total_cost_usd": 0.004633,
+ "session_id": "c00f27ac-39ac-4be8-904f-00c17f0aa52a",
+ "total_cost_usd": 0.0071330000000000005,
  "usage": {
-  "input_tokens": 2,
-  "cache_creation_input_tokens": 1371,
+  "input_tokens": 3,
+  "cache_creation_input_tokens": 1368,
   "cache_read_input_tokens": 4550,
-  "output_tokens": 154,
+  "output_tokens": 655,
   "server_tool_use": {
    "web_search_requests": 0,
    "web_fetch_requests": 0
   },
   "service_tier": "standard",
   "cache_creation": {
-   "ephemeral_1h_input_tokens": 1371,
+   "ephemeral_1h_input_tokens": 1368,
    "ephemeral_5m_input_tokens": 0
   },
   "inference_geo": "not_available",
   "iterations": [
    {
-    "input_tokens": 2,
-    "output_tokens": 154,
+    "input_tokens": 3,
+    "output_tokens": 655,
     "cache_read_input_tokens": 4550,
-    "cache_creation_input_tokens": 1371,
+    "cache_creation_input_tokens": 1368,
     "cache_creation": {
      "ephemeral_5m_input_tokens": 0,
-     "ephemeral_1h_input_tokens": 1371
+     "ephemeral_1h_input_tokens": 1368
     },
     "type": "message"
    }
@@ -45,12 +45,12 @@
  },
  "modelUsage": {
   "claude-haiku-4-5-20251001": {
-   "inputTokens": 596,
-   "outputTokens": 168,
+   "inputTokens": 597,
+   "outputTokens": 669,
    "cacheReadInputTokens": 4550,
-   "cacheCreationInputTokens": 1371,
+   "cacheCreationInputTokens": 1368,
    "webSearchRequests": 0,
-   "costUSD": 0.004633,
+   "costUSD": 0.0071330000000000005,
    "contextWindow": 200000,
    "maxOutputTokens": 32000
   }
@@ -58,5 +58,5 @@
  "permission_denials": [],
  "terminal_reason": "completed",
  "fast_mode_state": "off",
- "uuid": "5543bca1-f578-4fef-9af6-76c7704df650"
+ "uuid": "57207e9b-ef97-48b5-b5dd-4bce87090beb"
 }

@@ -3,40 +3,40 @@
  "subtype": "success",
  "is_error": false,
  "api_error_status": null,
- "duration_ms": 20107,
- "duration_api_ms": 17714,
- "ttft_ms": 19862,
- "ttft_stream_ms": 6745,
- "time_to_request_ms": 5559,
+ "duration_ms": 12138,
+ "duration_api_ms": 13294,
+ "ttft_ms": 12123,
+ "ttft_stream_ms": 969,
+ "time_to_request_ms": 125,
  "num_turns": 1,
- "result": "<<<KOT:groenendael>>>>\n{\"kind\":\"molecule\",\"gloss\":\"a {urn:molecule-v0:dog|dog} [m] of one kind; it is from a place; it has long {urn:molecule-v0:hair|hair} [m] of one color; people use it to help move other animals\",\"groundingNote\":\"a {urn:molecule-v0:dog|dog} [m] of one kind; it is from a place; it has long {urn:molecule-v0:hair|hair} [m]; the color is black; people do something with it: they move other animals because of it\",\"groundingRefs\":[\"urn:molecule-v0:dog\",\"urn:molecule-v0:hair\"]}\n<<<END:groenendael>>>>\n\n<<<KOT:haloperidol>>>>\n{\"kind\":\"cannot-formalise\",\"why\":\"haloperidol is a specific synthetic pharmaceutical compound identified by its chemical structure and neurochemical mechanism of action (dopamine D2 receptor antagonism). Its identity and therapeutic effects depend on precise molecular pharmacology \u2014 receptor binding, neurotransmitter dynamics, and clinical outcomes in psychiatric conditions \u2014 none of which are expressible in the prime lexicon or in grounding notes over the current catalog. It belongs to the technical-medical/chemical sector.\"}\n<<<END:haloperidol>>>>\n\n<<<KOT:hematocrit>>>>\n{\"kind\":\"cannot-formalise\",\"why\":\"hematocrit is a quantitative biomedical measurement \u2014 a ratio (percentage by volume) of red blood cells in a blood sample, determined by centrifugation. Its identity and clinical meaning rest on cellular biology, blood physiology, and laboratory measurement standards. These cannot be grounded in the prime lexicon or catalog concepts; it belongs to the medical-laboratory science sector.\"}\n<<<END:hematocrit>>>>\n\n<<<KOT:holometabolous>>>>\n{\"kind\":\"explication\",\"gloss\":\"this something is a kind of animal; when it begins its life, it is one kind; after some time it becomes another kind; after more time it becomes yet another kind; after more time it becomes the final kind; each kind does different things.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"},{\"index\":2,\"refKind\":\"TimeRef\"},{\"index\":3,\"refKind\":\"TimeRef\"},{\"index\":4,\"refKind\":\"TimeRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"kindFrame\",\"of\":{\"kind\":\"concept\",\"id\":\"urn:kernel-v0:animal\"}}}}},{\"type\":\"op\",\"op\":\"WHEN\",\"args\":[{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHEN~TIME\"},\"det\":\"THE-SAME\",\"bind\":2},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"quant\":\"ONE\"}}}]},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"kind\":\"ref\",\"index\":2},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"ANOTHER~ELSE~OTHER\"},\"det\":\"THE-SAME\"}}}]},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"kind\":\"ref\",\"index\":3},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"ANOTHER~ELSE~OTHER\"},\"det\":\"THE-SAME\"}}}]},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"kind\":\"ref\",\"index\":4},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"ANOTHER~ELSE~OTHER\"},\"det\":\"THE-SAME\"}}}]}]}}\n<<<END:holometabolous>>>>",
+ "result": "<<<KOT:groenendael>>>>\n{\"kind\":\"molecule\",\"gloss\":\"a {urn:molecule-v0:dog|dog} [m] of one kind: it is from belgium; it is big; it is black; its hair is long; people use it to help move {urn:molecule-v0:animal|animals} [m] of one kind from one place to another place\",\"groundingNote\":\"a {urn:molecule-v0:dog|dog} [m] of one kind: it is from belgium; it is big; it is black; its hair is long; people use it to help move {urn:molecule-v0:animal|animals} [m] of one kind from one place to another place\",\"groundingRefs\":[\"urn:molecule-v0:dog\",\"urn:molecule-v0:animal\"]}\n<<<END:groenendael>>>>\n\n<<<KOT:haloperidol>>>>\n{\"kind\":\"cannot-formalise\",\"why\":\"haloperidol is a specific synthetic pharmaceutical compound with a precise chemical structure and neuropharmacological mechanism of action (dopamine antagonism at D2 receptors). Its therapeutic effects depend on technical pharmacology and neuroscience that cannot be grounded in the prime lexicon or catalog concepts. The difference between haloperidol and other antipsychotics is a matter of molecular structure and binding kinetics, not everyday perception or action.\"}\n<<<END:haloperidol>>>>\n\n<<<KOT:hematocrit>>>>\n{\"kind\":\"cannot-formalise\",\"why\":\"hematocrit is a quantified clinical measurement (volume percentage of red blood cells in blood) requiring specialized knowledge of blood physiology, centrifugation, and numerical ranges that fall outside the scope of everyday embodied concepts. The measurement itself depends on laboratory technology and medical interpretation that the prime lexicon cannot express.\"}\n<<<END:hematocrit>>>>\n\n<<<KOT:holometabolous>>>>\n{\"kind\":\"explication\",\"gloss\":\"this {urn:molecule-v0:animal|animal} [m] goes through four different {urn:kernel-v0:change|changes}; at each time, its form is very different; because of this, what it does is different at each time.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"},{\"index\":2,\"refKind\":\"TimeRef\"},{\"index\":3,\"refKind\":\"TimeRef\"},{\"index\":4,\"refKind\":\"TimeRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"conceptHead\",\"id\":\"urn:kernel-v0:animal\"}}}},{\"type\":\"op\",\"op\":\"CAN\",\"args\":[{\"type\":\"op\",\"op\":\"WHEN\",\"args\":[{\"type\":\"pred\",\"pred\":\"HAPPEN\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHEN~TIME\"},\"quant\":\"FOUR\",\"bind\":2}}},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"mods\":[{\"mod\":\"GOOD\",\"intensifier\":\"VERY\"}]}}}]}}]},{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"conceptHead\",\"id\":\"urn:kernel-v0:change\"}}}},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"THIS\",\"restrictedBy\":{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1}}},\"bind\":4},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"OTHER\",\"restrictedBy\":{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":4},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHEN~TIME\"}}}}}}}}]}}]}}\n<<<END:holometabolous>>>>",
  "stop_reason": "end_turn",
- "session_id": "0ffab1c8-1655-4a3f-8b89-dc2a4e4f73cb",
- "total_cost_usd": 0.0117987,
+ "session_id": "b058bad6-936a-4903-8dff-c657277dd676",
+ "total_cost_usd": 0.011888700000000002,
  "usage": {
-  "input_tokens": 2,
-  "cache_creation_input_tokens": 2300,
+  "input_tokens": 3,
+  "cache_creation_input_tokens": 2297,
   "cache_read_input_tokens": 4837,
-  "output_tokens": 1024,
+  "output_tokens": 1043,
   "server_tool_use": {
    "web_search_requests": 0,
    "web_fetch_requests": 0
   },
   "service_tier": "standard",
   "cache_creation": {
-   "ephemeral_1h_input_tokens": 2300,
+   "ephemeral_1h_input_tokens": 2297,
    "ephemeral_5m_input_tokens": 0
   },
   "inference_geo": "not_available",
   "iterations": [
    {
-    "input_tokens": 2,
-    "output_tokens": 1024,
+    "input_tokens": 3,
+    "output_tokens": 1043,
     "cache_read_input_tokens": 4837,
-    "cache_creation_input_tokens": 2300,
+    "cache_creation_input_tokens": 2297,
     "cache_creation": {
      "ephemeral_5m_input_tokens": 0,
-     "ephemeral_1h_input_tokens": 2300
+     "ephemeral_1h_input_tokens": 2297
     },
     "type": "message"
    }
@@ -45,12 +45,12 @@
  },
  "modelUsage": {
   "claude-haiku-4-5-20251001": {
-   "inputTokens": 1525,
-   "outputTokens": 1038,
+   "inputTokens": 1526,
+   "outputTokens": 1057,
    "cacheReadInputTokens": 4837,
-   "cacheCreationInputTokens": 2300,
+   "cacheCreationInputTokens": 2297,
    "webSearchRequests": 0,
-   "costUSD": 0.0117987,
+   "costUSD": 0.011888700000000002,
    "contextWindow": 200000,
    "maxOutputTokens": 32000
   }
@@ -58,5 +58,5 @@
  "permission_denials": [],
  "terminal_reason": "completed",
  "fast_mode_state": "off",
- "uuid": "7c3b8243-cdd7-40d3-978f-50c70726e6e4"
+ "uuid": "64cb4ffd-7a2a-4034-9b6c-8cf7dfc7e902"
 }

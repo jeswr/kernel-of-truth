@@ -3,40 +3,40 @@
  "subtype": "success",
  "is_error": false,
  "api_error_status": null,
- "duration_ms": 11122,
- "duration_api_ms": 10203,
- "ttft_ms": 10264,
- "ttft_stream_ms": 3667,
- "time_to_request_ms": 2505,
+ "duration_ms": 3929,
+ "duration_api_ms": 5623,
+ "ttft_ms": 3910,
+ "ttft_stream_ms": 996,
+ "time_to_request_ms": 53,
  "num_turns": 1,
- "result": "<<<KOT:dissociate>>>>\n{\"kind\":\"explication\",\"gloss\":\"someone or something stops being together with another; they are no longer one thing; after this, they can be in different places or do different things.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"THIS\",\"bind\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"SOME\",\"bind\":2}}},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2}}}]},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"kind\":\"prime\",\"prime\":\"NOW\"},{\"type\":\"op\",\"op\":\"CAN\",\"args\":[{\"type\":\"pred\",\"pred\":\"BE-SOMEWHERE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"locus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHERE~PLACE\"},\"det\":\"OTHER~ELSE~ANOTHER\"}}}]}]}]}}\n<<<END:dissociate>>>>\n\n<<<KOT:dripstone>>>>\n{\"kind\":\"molecule\",\"gloss\":\"a thing made for a building; it is above an opening; water moves on it and away from the structure below\",\"groundingNote\":\"a thing made for a building; it is above an opening; {urn:molecule-v0:water|water} [m] moves on it and away from the structure below\",\"groundingRefs\":[\"urn:molecule-v0:water\"]}\n<<<END:dripstone>>>>\n\n<<<KOT:eellike>>>>\n{\"kind\":\"explication\",\"gloss\":\"this something has a long body and moves in a curving way like a kind of animal that lives in water.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"mods\":[{\"mod\":\"BIG\"}]}}},{\"type\":\"pred\",\"pred\":\"MOVE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"manner\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WAY~WAYS\"},\"det\":\"THIS\"}}}]}}\n<<<END:eellike>>>>\n\n<<<KOT:endocervicitis>>>>\n{\"kind\":\"cannot-formalise\",\"why\":\"endocervicitis is a medical pathological condition specific to human reproductive anatomy and requires technical medical terminology (uterine cervix, mucous membrane, inflammation as a clinical diagnosis) that cannot be grounded in everyday semantic primitives or the available lexicon. It belongs to clinical medicine, not the tier of everyday concepts.\"}\n<<<END:endocervicitis>>>>",
+ "result": "<<<KOT:dripstone>>>>\n{\"kind\":\"molecule\",\"gloss\":\"a thing above a place where water goes in; it is made to keep water from a {urn:molecule-v0:house|house} [m].\",\"groundingNote\":\"a thing above a place where {urn:molecule-v0:water|water} [m] goes in; it is made to keep water from a {urn:molecule-v0:house|house} [m].\",\"groundingRefs\":[\"urn:molecule-v0:water\",\"urn:molecule-v0:house\"]}\n<<<END:dripstone>>>>\n\n<<<KOT:eellike>>>>\n{\"kind\":\"explication\",\"gloss\":\"resembling an eel in shape or how it moves.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"partFrame\",\"of\":{\"kind\":\"ref\",\"index\":1}}},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"mods\":[{\"mod\":\"BIG\"},{\"mod\":\"SMALL\"}]}}},{\"type\":\"pred\",\"pred\":\"MOVE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"manner\":{\"kind\":\"sp\",\"quant\":\"ONE\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WAY~PLACE\"}}}}]}}\n<<<END:eellike>>>>",
  "stop_reason": "end_turn",
- "session_id": "e3b16f8b-f6c8-4e9b-bfa7-d0d5c442ccf0",
- "total_cost_usd": 0.0126755,
+ "session_id": "4b27d912-d162-4c76-bc00-47e3bbc95ab5",
+ "total_cost_usd": 0.0087995,
  "usage": {
-  "input_tokens": 2,
-  "cache_creation_input_tokens": 2991,
+  "input_tokens": 3,
+  "cache_creation_input_tokens": 2386,
   "cache_read_input_tokens": 4275,
-  "output_tokens": 794,
+  "output_tokens": 378,
   "server_tool_use": {
    "web_search_requests": 0,
    "web_fetch_requests": 0
   },
   "service_tier": "standard",
   "cache_creation": {
-   "ephemeral_1h_input_tokens": 2991,
+   "ephemeral_1h_input_tokens": 2386,
    "ephemeral_5m_input_tokens": 0
   },
   "inference_geo": "not_available",
   "iterations": [
    {
-    "input_tokens": 2,
-    "output_tokens": 794,
+    "input_tokens": 3,
+    "output_tokens": 378,
     "cache_read_input_tokens": 4275,
-    "cache_creation_input_tokens": 2991,
+    "cache_creation_input_tokens": 2386,
     "cache_creation": {
      "ephemeral_5m_input_tokens": 0,
-     "ephemeral_1h_input_tokens": 2991
+     "ephemeral_1h_input_tokens": 2386
     },
     "type": "message"
    }
@@ -45,12 +45,12 @@
  },
  "modelUsage": {
   "claude-haiku-4-5-20251001": {
-   "inputTokens": 2216,
-   "outputTokens": 810,
+   "inputTokens": 1615,
+   "outputTokens": 397,
    "cacheReadInputTokens": 4275,
-   "cacheCreationInputTokens": 2991,
+   "cacheCreationInputTokens": 2386,
    "webSearchRequests": 0,
-   "costUSD": 0.0126755,
+   "costUSD": 0.0087995,
    "contextWindow": 200000,
    "maxOutputTokens": 32000
   }
@@ -58,5 +58,5 @@
  "permission_denials": [],
  "terminal_reason": "completed",
  "fast_mode_state": "off",
- "uuid": "f6356bfb-817c-483c-96a5-e3bd9b714987"
+ "uuid": "2b6680eb-94a0-444e-919e-ad7bc930f727"
 }

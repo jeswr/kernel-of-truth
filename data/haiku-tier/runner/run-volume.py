@@ -236,12 +236,17 @@ def extract_blocks(result_text, lemmas):
     A missing/mangled block yields None for that lemma only — one bad block
     can never poison its batch siblings, because every lemma's block is
     regex-located by its own sentinels and gated separately. A missing END
-    sentinel falls back to the next KOT sentinel or end-of-text."""
+    sentinel falls back to the next KOT sentinel or end-of-text.
+    The sentinel's closing angle-bracket run is matched as `>+` (not literal
+    `>>>`): Haiku reliably emits `<<<KOT:lemma>>>>` with a 4th `>`, and matching
+    only 3 left a stray `>` prefixing the JSON so EVERY block parse-failed
+    (batch-validation NO-GO 2026-07-07 was this bug, not a quality result).
+    `>+` consumes the whole run for any bracket count the model produces."""
     padded = (result_text or '') + '\n<<<KOT:'
     out = {}
     for lemma in lemmas:
         esc = re.escape(lemma)
-        m = re.search(r'<<<KOT:' + esc + r'>>>\s*([\s\S]*?)\s*<<<(?:END:' + esc + r'>>>|KOT:)',
+        m = re.search(r'<<<KOT:' + esc + r'>+\s*([\s\S]*?)\s*<<<(?:END:' + esc + r'>+|KOT:)',
                       padded)
         out[lemma] = m.group(1).strip() if m else None
     return out

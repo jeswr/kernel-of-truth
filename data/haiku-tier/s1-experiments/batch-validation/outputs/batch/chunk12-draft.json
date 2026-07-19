@@ -3,40 +3,40 @@
  "subtype": "success",
  "is_error": false,
  "api_error_status": null,
- "duration_ms": 13803,
- "duration_api_ms": 12733,
- "ttft_ms": 13602,
- "ttft_stream_ms": 4873,
- "time_to_request_ms": 3945,
+ "duration_ms": 15473,
+ "duration_api_ms": 16500,
+ "ttft_ms": 15251,
+ "ttft_stream_ms": 1928,
+ "time_to_request_ms": 55,
  "num_turns": 1,
- "result": "<<<KOT:postmodernist>>>>\n{\"kind\":\"cannot-formalise\",\"why\":\"postmodernist denotes a follower or advocate of postmodernism, which is a meta-philosophical and meta-artistic stance (skepticism toward grand narratives, rejection of universal truth, emphasis on social construction of meaning). These are second-order epistemological and cultural positions that require formal philosophical vocabulary and reference to belief systems about knowledge and interpretation. The prime lexicon contains no predicates for philosophical stance, meta-narrative critique, or cultural movement affiliation. It cannot be grounded in concrete actions, percepts, or kinds of people identifiable by bodily features or ordinary activities.\"}\n<<<END:postmodernist>>>>\n\n<<<KOT:pricy>>>>\n{\"kind\":\"molecule\",\"gloss\":\"something costs much {urn:molecule-v0:money|money} [m]; because of this, it is not good for someone to get it.\",\"groundingNote\":\"something costs much {urn:molecule-v0:money|money} [m]; because of this, it is not good for someone to get it.\",\"groundingRefs\":[\"urn:molecule-v0:money\"]}\n<<<END:pricy>>>>\n\n<<<KOT:protractible>>>>\n{\"kind\":\"explication\",\"gloss\":\"it can be the case that something is a thing of one kind; after some time, it is a thing of the same kind, but more.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"CAN\",\"args\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"kindFrame\",\"of\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"quant\":\"ONE\"}}}}},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHEN~TIME\"}},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"mods\":[{\"mod\":\"GOOD\",\"intensifier\":\"VERY\"}]}}}]}]}]}}\n<<<END:protractible>>>>\n\n<<<KOT:pyrene>>>>\n{\"kind\":\"cannot-formalise\",\"why\":\"pyrene is a polycyclic aromatic hydrocarbon defined by its precise molecular structure (C\u2081\u2086H\u2081\u2080, four fused benzene rings, peri-fused arrangement) and chemical identity. Its individuation depends entirely on organic chemistry: molecular formula, ring topology, and spectroscopic properties. The prime lexicon has no terms for chemical compounds, molecular structure, atoms, bonds, or the periodic table. Pyrene cannot be distinguished from other PAHs or identified by sensory or macroscopic properties alone; it requires technical chemical knowledge. This belongs to the chemistry sector, not the everyday perception tier.\"}\n<<<END:pyrene>>>>",
+ "result": "<<<KOT:postmodernist>>>>\n{\"kind\":\"cannot-formalise\",\"why\":\"postmodernist names a philosophical-cultural stance defined by rejection of grand narratives, skepticism toward universal truth, and claims about the socially constructed nature of knowledge. These are not grounded in perception, bodily action, concrete artefacts, or simple relations expressible in the prime lexicon. The concept requires meta-level discourse about meaning and epistemology that lies outside the scope of kernel primitives.\"}\n<<<END:postmodernist>>>>\n\n<<<KOT:pricy>>>>\n{\"kind\":\"explication\",\"gloss\":\"this something costs much money; someone wants to take it from another someone, but because it costs much money, the first someone does not want to do this.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"},{\"index\":2,\"refKind\":\"SomeoneRef\"},{\"index\":3,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"concept\",\"id\":\"urn:kernel-v0:give\"},\"attribute\":{\"kind\":\"sp\",\"mods\":[{\"mod\":\"GOOD\",\"intensifier\":\"MUCH\"}],\"head\":{\"kind\":\"primeHead\",\"prime\":\"MONEY\"}}}},{\"type\":\"pred\",\"pred\":\"WANT\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":2},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":2},\"undergoer\":{\"kind\":\"ref\",\"index\":1}}}}}},{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"mods\":[{\"mod\":\"GOOD\",\"intensifier\":\"MUCH\"}],\"head\":{\"kind\":\"primeHead\",\"prime\":\"MONEY\"}}}},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"WANT\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":2},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":2},\"undergoer\":{\"kind\":\"ref\",\"index\":1}}}}}}]}]}]}}\n<<<END:pricy>>>>\n\n<<<KOT:protractible>>>>\n{\"kind\":\"explication\",\"gloss\":\"this something can be extended; because of this, it can happen for a very long time.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"CAN\",\"args\":[{\"type\":\"pred\",\"pred\":\"CHANGE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}}]},{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[{\"type\":\"op\",\"op\":\"CAN\",\"args\":[{\"type\":\"pred\",\"pred\":\"CHANGE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}}]},{\"type\":\"op\",\"op\":\"CAN\",\"args\":[{\"type\":\"pred\",\"pred\":\"HAPPEN\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"duration\":{\"kind\":\"prime\",\"prime\":\"A-LONG-TIME\"}}}]}]}]}}\n<<<END:protractible>>>>\n\n<<<KOT:pyrene>>>>\n{\"kind\":\"cannot-formalise\",\"why\":\"pyrene is a specific polycyclic aromatic hydrocarbon defined by its molecular structure (four fused benzene rings, formula C16H10) and origin in incomplete combustion. This is a technical chemistry concept requiring knowledge of molecular composition, atomic bonding, and chemical nomenclature\u2014a physics-chemistry domain far outside the scope of kernel primitives. It cannot be grounded in the allowed lexicon or catalog.\"}\n<<<END:pyrene>>>>",
  "stop_reason": "end_turn",
- "session_id": "ca2d5784-4970-4b31-99c5-cb24911c6150",
- "total_cost_usd": 0.0091157,
+ "session_id": "98a15b69-f17d-416c-a917-ccdb8eee6142",
+ "total_cost_usd": 0.010130700000000001,
  "usage": {
-  "input_tokens": 2,
-  "cache_creation_input_tokens": 1884,
+  "input_tokens": 3,
+  "cache_creation_input_tokens": 1881,
   "cache_read_input_tokens": 4837,
-  "output_tokens": 739,
+  "output_tokens": 943,
   "server_tool_use": {
    "web_search_requests": 0,
    "web_fetch_requests": 0
   },
   "service_tier": "standard",
   "cache_creation": {
-   "ephemeral_1h_input_tokens": 1884,
+   "ephemeral_1h_input_tokens": 1881,
    "ephemeral_5m_input_tokens": 0
   },
   "inference_geo": "not_available",
   "iterations": [
    {
-    "input_tokens": 2,
-    "output_tokens": 739,
+    "input_tokens": 3,
+    "output_tokens": 943,
     "cache_read_input_tokens": 4837,
-    "cache_creation_input_tokens": 1884,
+    "cache_creation_input_tokens": 1881,
     "cache_creation": {
      "ephemeral_5m_input_tokens": 0,
-     "ephemeral_1h_input_tokens": 1884
+     "ephemeral_1h_input_tokens": 1881
     },
     "type": "message"
    }
@@ -45,12 +45,12 @@
  },
  "modelUsage": {
   "claude-haiku-4-5-20251001": {
-   "inputTokens": 1109,
-   "outputTokens": 751,
+   "inputTokens": 1110,
+   "outputTokens": 955,
    "cacheReadInputTokens": 4837,
-   "cacheCreationInputTokens": 1884,
+   "cacheCreationInputTokens": 1881,
    "webSearchRequests": 0,
-   "costUSD": 0.0091157,
+   "costUSD": 0.010130700000000001,
    "contextWindow": 200000,
    "maxOutputTokens": 32000
   }
@@ -58,5 +58,5 @@
  "permission_denials": [],
  "terminal_reason": "completed",
  "fast_mode_state": "off",
- "uuid": "a0b8f386-eb83-484f-bb77-1211b7a5f52e"
+ "uuid": "51736691-1e1e-406e-8f86-122271fd79bf"
 }

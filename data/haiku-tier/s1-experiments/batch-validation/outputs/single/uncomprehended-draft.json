@@ -3,40 +3,40 @@
  "subtype": "success",
  "is_error": false,
  "api_error_status": null,
- "duration_ms": 13620,
- "duration_api_ms": 7941,
- "ttft_ms": 12208,
- "ttft_stream_ms": 9634,
- "time_to_request_ms": 8445,
+ "duration_ms": 3964,
+ "duration_api_ms": 4967,
+ "ttft_ms": 3858,
+ "ttft_stream_ms": 904,
+ "time_to_request_ms": 55,
  "num_turns": 1,
- "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"someone does not know this something; this something is not understood by people.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMEONE\"}},\"topic\":{\"kind\":\"ref\",\"index\":1}}}}]},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}},\"topic\":{\"kind\":\"ref\",\"index\":1}}}}]}}\n```",
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"someone does not know this something; this someone cannot think about it in a true way.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"topic\":{\"kind\":\"ref\",\"index\":2}}}]},{\"type\":\"op\",\"op\":\"CAN\",\"args\":[{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"THINK\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"topic\":{\"kind\":\"ref\",\"index\":2},\"quote\":{\"kind\":\"quote\",\"clauses\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"attribute\":{\"kind\":\"prime\",\"prime\":\"GOOD\"}}}]}}}]}]}]}}\n```",
  "stop_reason": "end_turn",
- "session_id": "c4e2b72b-d009-414c-9c6b-9bd622ffaed7",
- "total_cost_usd": 0.0048839999999999995,
+ "session_id": "094455ae-333c-4db1-a5e4-0ebc8daed82c",
+ "total_cost_usd": 0.005199,
  "usage": {
-  "input_tokens": 2,
-  "cache_creation_input_tokens": 1373,
+  "input_tokens": 3,
+  "cache_creation_input_tokens": 1370,
   "cache_read_input_tokens": 4550,
-  "output_tokens": 201,
+  "output_tokens": 266,
   "server_tool_use": {
    "web_search_requests": 0,
    "web_fetch_requests": 0
   },
   "service_tier": "standard",
   "cache_creation": {
-   "ephemeral_1h_input_tokens": 1373,
+   "ephemeral_1h_input_tokens": 1370,
    "ephemeral_5m_input_tokens": 0
   },
   "inference_geo": "not_available",
   "iterations": [
    {
-    "input_tokens": 2,
-    "output_tokens": 201,
+    "input_tokens": 3,
+    "output_tokens": 266,
     "cache_read_input_tokens": 4550,
-    "cache_creation_input_tokens": 1373,
+    "cache_creation_input_tokens": 1370,
     "cache_creation": {
      "ephemeral_5m_input_tokens": 0,
-     "ephemeral_1h_input_tokens": 1373
+     "ephemeral_1h_input_tokens": 1370
     },
     "type": "message"
    }
@@ -45,12 +45,12 @@
  },
  "modelUsage": {
   "claude-haiku-4-5-20251001": {
-   "inputTokens": 598,
-   "outputTokens": 217,
+   "inputTokens": 599,
+   "outputTokens": 281,
    "cacheReadInputTokens": 4550,
-   "cacheCreationInputTokens": 1373,
+   "cacheCreationInputTokens": 1370,
    "webSearchRequests": 0,
-   "costUSD": 0.0048839999999999995,
+   "costUSD": 0.005199,
    "contextWindow": 200000,
    "maxOutputTokens": 32000
   }
@@ -58,5 +58,5 @@
  "permission_denials": [],
  "terminal_reason": "completed",
  "fast_mode_state": "off",
- "uuid": "7329930f-b952-4bd1-a33a-95f39237e08b"
+ "uuid": "b8923428-53a7-4a2b-9c03-d107789d9414"
 }

@@ -3,40 +3,40 @@
  "subtype": "success",
  "is_error": false,
  "api_error_status": null,
- "duration_ms": 9513,
- "duration_api_ms": 8490,
- "ttft_ms": 9274,
- "ttft_stream_ms": 6264,
- "time_to_request_ms": 5434,
+ "duration_ms": 3559,
+ "duration_api_ms": 4484,
+ "ttft_ms": 3501,
+ "ttft_stream_ms": 997,
+ "time_to_request_ms": 208,
  "num_turns": 1,
- "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"this something does not move now; it is not happening that this something moves.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"MOVE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"time\":{\"kind\":\"prime\",\"prime\":\"NOW\"}}}]},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"HAPPEN\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"mods\":[{\"mod\":\"GOOD\"}],\"restrictedBy\":{\"type\":\"pred\",\"pred\":\"MOVE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}}}}}]}]}}\n```",
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"this someone or something does not move; it is not happening now.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"MOVE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}}]},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"mods\":[{\"mod\":\"GOOD\"}]},\"time\":{\"kind\":\"prime\",\"prime\":\"NOW\"}}}]}}\n```",
  "stop_reason": "end_turn",
- "session_id": "340c362d-5628-4d30-a572-f2f04d8396f0",
- "total_cost_usd": 0.005065,
+ "session_id": "575d2431-743f-434e-b7c8-76c47de4e9f4",
+ "total_cost_usd": 0.004895,
  "usage": {
-  "input_tokens": 2,
-  "cache_creation_input_tokens": 1390,
+  "input_tokens": 3,
+  "cache_creation_input_tokens": 1387,
   "cache_read_input_tokens": 4550,
-  "output_tokens": 228,
+  "output_tokens": 195,
   "server_tool_use": {
    "web_search_requests": 0,
    "web_fetch_requests": 0
   },
   "service_tier": "standard",
   "cache_creation": {
-   "ephemeral_1h_input_tokens": 1390,
+   "ephemeral_1h_input_tokens": 1387,
    "ephemeral_5m_input_tokens": 0
   },
   "inference_geo": "not_available",
   "iterations": [
    {
-    "input_tokens": 2,
-    "output_tokens": 228,
+    "input_tokens": 3,
+    "output_tokens": 195,
     "cache_read_input_tokens": 4550,
-    "cache_creation_input_tokens": 1390,
+    "cache_creation_input_tokens": 1387,
     "cache_creation": {
      "ephemeral_5m_input_tokens": 0,
-     "ephemeral_1h_input_tokens": 1390
+     "ephemeral_1h_input_tokens": 1387
     },
     "type": "message"
    }
@@ -45,12 +45,12 @@
  },
  "modelUsage": {
   "claude-haiku-4-5-20251001": {
-   "inputTokens": 615,
-   "outputTokens": 243,
+   "inputTokens": 616,
+   "outputTokens": 210,
    "cacheReadInputTokens": 4550,
-   "cacheCreationInputTokens": 1390,
+   "cacheCreationInputTokens": 1387,
    "webSearchRequests": 0,
-   "costUSD": 0.005065,
+   "costUSD": 0.004895,
    "contextWindow": 200000,
    "maxOutputTokens": 32000
   }
@@ -58,5 +58,5 @@
  "permission_denials": [],
  "terminal_reason": "completed",
  "fast_mode_state": "off",
- "uuid": "d4847926-08c6-46d8-9a00-70c31badb24d"
+ "uuid": "b95d6eb8-e6a3-4ca8-a366-244358d0dbe0"
 }

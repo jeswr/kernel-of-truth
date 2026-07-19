@@ -3,40 +3,40 @@
  "subtype": "success",
  "is_error": false,
  "api_error_status": null,
- "duration_ms": 11623,
- "duration_api_ms": 10023,
- "ttft_ms": 10967,
- "ttft_stream_ms": 5494,
- "time_to_request_ms": 4487,
+ "duration_ms": 6407,
+ "duration_api_ms": 7359,
+ "ttft_ms": 6376,
+ "ttft_stream_ms": 955,
+ "time_to_request_ms": 93,
  "num_turns": 1,
- "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"someone feels something very good about another someone; because of this, the first someone thinks about the second one very much; the first someone wants to be near the second one; but this feeling is not based on true knowing of the second one.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"GOOD\"},\"mods\":[{\"mod\":\"GOOD\",\"intensifier\":\"VERY\"}]}}},{\"type\":\"pred\",\"pred\":\"THINK\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"topic\":{\"kind\":\"ref\",\"index\":2},\"time\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHEN~TIME\"},\"quant\":\"MUCH~MANY\"}}},{\"type\":\"pred\",\"pred\":\"WANT\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"BE-SOMEWHERE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"locus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHERE~PLACE\"},\"det\":\"THE-SAME\",\"restrictedBy\":{\"type\":\"pred\",\"pred\":\"BE-SOMEWHERE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2}}}}}}}}}},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"topic\":{\"kind\":\"ref\",\"index\":2},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"TRUE\",\"roles\":{\"undergoer\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2}}}}}}}}}]}]}}\n```",
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"someone wants someone else very much; this wanting is because of feeling something good about them; but someone does not know good things about this other someone; because of this wanting, someone does not think good about other things.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"WANT\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"sp\",\"head\":{\"kind\":\"refHead\",\"index\":2},\"mods\":[{\"mod\":\"GOOD\",\"intensifier\":\"VERY\"}]}}},{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"prime\",\"prime\":\"GOOD\"},\"time\":{\"kind\":\"temporal\",\"op\":\"BEFORE\",\"anchor\":{\"kind\":\"ref\",\"index\":2}}}},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"topic\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"mods\":[{\"mod\":\"GOOD\"}],\"restrictedBy\":{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2}}}}}}}]},{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[{\"type\":\"pred\",\"pred\":\"WANT\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"sp\",\"head\":{\"kind\":\"refHead\",\"index\":2},\"mods\":[{\"mod\":\"GOOD\",\"intensifier\":\"VERY\"}]}}},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"THINK\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"topic\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"OTHER\"},\"mods\":[{\"mod\":\"GOOD\"}]}}}]}]}}\n```",
  "stop_reason": "end_turn",
- "session_id": "030aac9e-e152-46a7-a96c-301e824369f2",
- "total_cost_usd": 0.006769999999999999,
+ "session_id": "80ba874d-b0ab-46d3-b9b1-ee414d0b9193",
+ "total_cost_usd": 0.0068,
  "usage": {
-  "input_tokens": 2,
-  "cache_creation_input_tokens": 1485,
+  "input_tokens": 3,
+  "cache_creation_input_tokens": 1482,
   "cache_read_input_tokens": 4550,
-  "output_tokens": 512,
+  "output_tokens": 519,
   "server_tool_use": {
    "web_search_requests": 0,
    "web_fetch_requests": 0
   },
   "service_tier": "standard",
   "cache_creation": {
-   "ephemeral_1h_input_tokens": 1485,
+   "ephemeral_1h_input_tokens": 1482,
    "ephemeral_5m_input_tokens": 0
   },
   "inference_geo": "not_available",
   "iterations": [
    {
-    "input_tokens": 2,
-    "output_tokens": 512,
+    "input_tokens": 3,
+    "output_tokens": 519,
     "cache_read_input_tokens": 4550,
-    "cache_creation_input_tokens": 1485,
+    "cache_creation_input_tokens": 1482,
     "cache_creation": {
      "ephemeral_5m_input_tokens": 0,
-     "ephemeral_1h_input_tokens": 1485
+     "ephemeral_1h_input_tokens": 1482
     },
     "type": "message"
    }
@@ -45,12 +45,12 @@
  },
  "modelUsage": {
   "claude-haiku-4-5-20251001": {
-   "inputTokens": 710,
-   "outputTokens": 527,
+   "inputTokens": 711,
+   "outputTokens": 534,
    "cacheReadInputTokens": 4550,
-   "cacheCreationInputTokens": 1485,
+   "cacheCreationInputTokens": 1482,
    "webSearchRequests": 0,
-   "costUSD": 0.006769999999999999,
+   "costUSD": 0.0068,
    "contextWindow": 200000,
    "maxOutputTokens": 32000
   }
@@ -58,5 +58,5 @@
  "permission_denials": [],
  "terminal_reason": "completed",
  "fast_mode_state": "off",
- "uuid": "fac4a59c-0cac-4744-b590-09dd123f72a3"
+ "uuid": "fd8e267b-8872-4d3a-bf62-3b051dba8448"
 }

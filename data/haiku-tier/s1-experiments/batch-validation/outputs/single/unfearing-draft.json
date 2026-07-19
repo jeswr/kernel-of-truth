@@ -3,40 +3,40 @@
  "subtype": "success",
  "is_error": false,
  "api_error_status": null,
- "duration_ms": 11817,
- "duration_api_ms": 7713,
- "ttft_ms": 10769,
- "ttft_stream_ms": 8267,
- "time_to_request_ms": 6364,
+ "duration_ms": 2855,
+ "duration_api_ms": 4194,
+ "ttft_ms": 2831,
+ "ttft_stream_ms": 897,
+ "time_to_request_ms": 66,
  "num_turns": 1,
- "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"this someone does not feel afraid; when this someone sees something that causes fear, they do not feel it.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"concept\",\"id\":\"urn:kernel-v0:afraid\"}}}]},{\"type\":\"op\",\"op\":\"WHEN\",\"args\":[{\"type\":\"pred\",\"pred\":\"SEE\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"stimulus\":{\"kind\":\"ref\",\"index\":2,\"bind\":2}}},[{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"concept\",\"id\":\"urn:kernel-v0:afraid\"}}}]}]]}]}}\n```",
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"this someone does not feel afraid now.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"concept\",\"id\":\"urn:kernel-v0:afraid\"},\"time\":{\"kind\":\"prime\",\"prime\":\"NOW\"}}}]}]}}\n```",
  "stop_reason": "end_turn",
- "session_id": "bd8f30f6-927c-4dd3-b52f-833189ffadc9",
- "total_cost_usd": 0.005229000000000001,
+ "session_id": "3928251a-58be-4aac-9852-5a1785c91f30",
+ "total_cost_usd": 0.004549,
  "usage": {
-  "input_tokens": 2,
-  "cache_creation_input_tokens": 1368,
+  "input_tokens": 3,
+  "cache_creation_input_tokens": 1365,
   "cache_read_input_tokens": 4550,
-  "output_tokens": 275,
+  "output_tokens": 140,
   "server_tool_use": {
    "web_search_requests": 0,
    "web_fetch_requests": 0
   },
   "service_tier": "standard",
   "cache_creation": {
-   "ephemeral_1h_input_tokens": 1368,
+   "ephemeral_1h_input_tokens": 1365,
    "ephemeral_5m_input_tokens": 0
   },
   "inference_geo": "not_available",
   "iterations": [
    {
-    "input_tokens": 2,
-    "output_tokens": 275,
+    "input_tokens": 3,
+    "output_tokens": 140,
     "cache_read_input_tokens": 4550,
-    "cache_creation_input_tokens": 1368,
+    "cache_creation_input_tokens": 1365,
     "cache_creation": {
      "ephemeral_5m_input_tokens": 0,
-     "ephemeral_1h_input_tokens": 1368
+     "ephemeral_1h_input_tokens": 1365
     },
     "type": "message"
    }
@@ -45,12 +45,12 @@
  },
  "modelUsage": {
   "claude-haiku-4-5-20251001": {
-   "inputTokens": 593,
-   "outputTokens": 289,
+   "inputTokens": 594,
+   "outputTokens": 154,
    "cacheReadInputTokens": 4550,
-   "cacheCreationInputTokens": 1368,
+   "cacheCreationInputTokens": 1365,
    "webSearchRequests": 0,
-   "costUSD": 0.005229000000000001,
+   "costUSD": 0.004549,
    "contextWindow": 200000,
    "maxOutputTokens": 32000
   }
@@ -58,5 +58,5 @@
  "permission_denials": [],
  "terminal_reason": "completed",
  "fast_mode_state": "off",
- "uuid": "8efb8179-52c3-4e95-b265-1eb6bbf52a2d"
+ "uuid": "bd284cb9-5723-49d8-93dc-89e604b4d676"
 }

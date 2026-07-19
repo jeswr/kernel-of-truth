@@ -3,40 +3,40 @@
  "subtype": "success",
  "is_error": false,
  "api_error_status": null,
- "duration_ms": 19347,
- "duration_api_ms": 14815,
- "ttft_ms": 18731,
- "ttft_stream_ms": 8091,
- "time_to_request_ms": 6727,
+ "duration_ms": 4888,
+ "duration_api_ms": 5932,
+ "ttft_ms": 4742,
+ "ttft_stream_ms": 1053,
+ "time_to_request_ms": 125,
  "num_turns": 1,
- "result": "I'll repair this draft step by step.\n\n**Diagnosis:** The JSON has a structural error. Let me trace through the clauses:\n\n1. First clause: `BE-SPEC` with undergoer ref:1, attribute (SP for PEOPLE, ONE) \u2014 OK\n2. Second clause: `DO` with agent ref:1, undergoer (SP, OTHER, bind:2) \u2014 but the adjuncts structure is broken. The `\"manner\"` key has a quote with nested clauses, but the quote structure expects `{\"kind\":\"quote\",\"clauses\":[...]}` and the clauses inside are malformed.\n3. The BEFORE/AFTER operators are trying to use temporal anchors incorrectly.\n\n**Core problem:** The draft is over-structured and uses constructs (quote as manner adjunct, nested temporal ops) that don't match the grammar. Let me simplify to the core everyday sense: **someone stops being with/connected to someone else.**\n\n**Repair strategy:**\n- Use a simpler RelationalSchema (two people, implicit referents 1 and 2)\n- Express \"stops being with\" as a relational change: they WERE together, NOW they are not\n- Use BECAUSE or simple sequential clauses, not nested quotes\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"one person stops being together with another person\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"RelationalSchema\",\"referents\":[{\"index\":3,\"refKind\":\"TimeRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"det\":\"OTHER\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMEONE\"}}},\"adjuncts\":{\"time\":{\"kind\":\"temporal\",\"op\":\"BEFORE\",\"anchor\":{\"kind\":\"ref\",\"index\":3}}}},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"det\":\"THE-SAME\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMEONE\"}}},\"adjuncts\":{\"time\":{\"kind\":\"temporal\",\"op\":\"AFTER\",\"anchor\":{\"kind\":\"ref\",\"index\":3}}}}]}]}}\n```\n\nWait \u2014 this still has issues. Let me reconsider: the frame is RelationalSchema, so referents 1 and 2 are implicit. I should NOT use bind:n on them. Let me use a WhenTrue frame instead (property of a pair).\n\nActually, simpler: use InstanceSchema with a clear action. \"To dissociate\" = to do the act of separating from someone.\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"to separate oneself from another person\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":2,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2,\"bind\":2}}},{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2}}},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"det\":\"THE-SAME\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMEONE\"}}}}]}]}]}}\n```\n\nHmm, still awkward. Letest use the simplest form: DO (stop being with) encoded as NOT BE-SPEC.\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"to stop being together with another person\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":2,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"det\":\"THE-SAME\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMEONE\"},\"bind\":2}}}]}]}}\n```\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"to stop being together with another person\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":2,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"det\":\"THE-SAME\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMEONE\"},\"bind\":2}}}]}]}}\n```",
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"someone stops being together with another someone.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"sp\",\"det\":\"THE-SAME\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"}}}},{\"type\":\"op\",\"op\":\"BEFORE\",\"anchor\":{\"kind\":\"temporal\",\"op\":\"BEFORE\",\"anchor\":{\"kind\":\"prime\",\"prime\":\"NOW\"}},\"scope\":{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"quant\":\"SOME\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"},\"restrictedBy\":{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}}}}}}}},{\"type\":\"op\",\"op\":\"AFTER\",\"anchor\":{\"kind\":\"prime\",\"prime\":\"NOW\"},\"scope\":{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"quant\":\"SOME\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"},\"restrictedBy\":{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"attribute\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}}}}}}]}}]}}\n```",
  "stop_reason": "end_turn",
- "session_id": "1d38caee-584c-4425-b9e0-0be2e538ed09",
- "total_cost_usd": 0.01953,
+ "session_id": "af96ae2b-1f27-48a6-b631-df4b9306b1e4",
+ "total_cost_usd": 0.015325,
  "usage": {
-  "input_tokens": 2,
-  "cache_creation_input_tokens": 6089,
+  "input_tokens": 3,
+  "cache_creation_input_tokens": 5911,
   "cache_read_input_tokens": 0,
-  "output_tokens": 1173,
+  "output_tokens": 439,
   "server_tool_use": {
    "web_search_requests": 0,
    "web_fetch_requests": 0
   },
   "service_tier": "standard",
   "cache_creation": {
-   "ephemeral_1h_input_tokens": 6089,
+   "ephemeral_1h_input_tokens": 5911,
    "ephemeral_5m_input_tokens": 0
   },
   "inference_geo": "not_available",
   "iterations": [
    {
-    "input_tokens": 2,
-    "output_tokens": 1173,
+    "input_tokens": 3,
+    "output_tokens": 439,
     "cache_read_input_tokens": 0,
-    "cache_creation_input_tokens": 6089,
+    "cache_creation_input_tokens": 5911,
     "cache_creation": {
      "ephemeral_5m_input_tokens": 0,
-     "ephemeral_1h_input_tokens": 6089
+     "ephemeral_1h_input_tokens": 5911
     },
     "type": "message"
    }
@@ -45,12 +45,12 @@
  },
  "modelUsage": {
   "claude-haiku-4-5-20251001": {
-   "inputTokens": 1412,
-   "outputTokens": 1188,
+   "inputTokens": 1238,
+   "outputTokens": 453,
    "cacheReadInputTokens": 0,
-   "cacheCreationInputTokens": 6089,
+   "cacheCreationInputTokens": 5911,
    "webSearchRequests": 0,
-   "costUSD": 0.01953,
+   "costUSD": 0.015325,
    "contextWindow": 200000,
    "maxOutputTokens": 32000
   }
@@ -58,5 +58,5 @@
  "permission_denials": [],
  "terminal_reason": "completed",
  "fast_mode_state": "off",
- "uuid": "e824d4ef-6c12-48a3-bb69-ee132eeb5e74"
+ "uuid": "66159644-df8e-4bcd-bd2b-d4dbf1007679"
 }

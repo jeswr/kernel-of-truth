@@ -3,40 +3,40 @@
  "subtype": "success",
  "is_error": false,
  "api_error_status": null,
- "duration_ms": 9614,
- "duration_api_ms": 11222,
- "ttft_ms": 8795,
- "ttft_stream_ms": 5244,
- "time_to_request_ms": 4025,
+ "duration_ms": 8764,
+ "duration_api_ms": 9752,
+ "ttft_ms": 8747,
+ "ttft_stream_ms": 3720,
+ "time_to_request_ms": 139,
  "num_turns": 1,
- "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"someone is the one who another someone examines; the examiner wants to know something about this someone.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomeoneRef\"},{\"index\":3,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":2},\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"instrument\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"},\"det\":\"SOME\"}}},{\"type\":\"pred\",\"pred\":\"WANT\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":2},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":2},\"topic\":{\"kind\":\"ref\",\"index\":3},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"}}}}}}}}}}]}}\n```",
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"someone sits for an examination; another someone asks this someone questions or gives this someone tasks; this someone does these tasks or says answers; after, the other someone knows how well this someone did.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"SOME\",\"bind\":3},\"manner\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"MOMENT\"},\"det\":\"SOME\"}}},{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":2},\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"}},\"addressee\":{\"kind\":\"ref\",\"index\":1},\"manner\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"MOMENT\"},\"det\":\"SOME\"}}},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"kind\":\"ref\",\"index\":3},{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":2},\"topic\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"THIS\"},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"GOOD\"}}}}}}}]}]}}\n```",
  "stop_reason": "end_turn",
- "session_id": "2057e6e5-8175-4540-9bc8-7430aca36b54",
- "total_cost_usd": 0.005510999999999999,
+ "session_id": "145c1916-102e-4d3c-86cb-ecd1e7bfb1dc",
+ "total_cost_usd": 0.006096,
  "usage": {
-  "input_tokens": 2,
-  "cache_creation_input_tokens": 1387,
+  "input_tokens": 3,
+  "cache_creation_input_tokens": 1384,
   "cache_read_input_tokens": 4550,
-  "output_tokens": 318,
+  "output_tokens": 436,
   "server_tool_use": {
    "web_search_requests": 0,
    "web_fetch_requests": 0
   },
   "service_tier": "standard",
   "cache_creation": {
-   "ephemeral_1h_input_tokens": 1387,
+   "ephemeral_1h_input_tokens": 1384,
    "ephemeral_5m_input_tokens": 0
   },
   "inference_geo": "not_available",
   "iterations": [
    {
-    "input_tokens": 2,
-    "output_tokens": 318,
+    "input_tokens": 3,
+    "output_tokens": 436,
     "cache_read_input_tokens": 4550,
-    "cache_creation_input_tokens": 1387,
+    "cache_creation_input_tokens": 1384,
     "cache_creation": {
      "ephemeral_5m_input_tokens": 0,
-     "ephemeral_1h_input_tokens": 1387
+     "ephemeral_1h_input_tokens": 1384
     },
     "type": "message"
    }
@@ -45,12 +45,12 @@
  },
  "modelUsage": {
   "claude-haiku-4-5-20251001": {
-   "inputTokens": 612,
-   "outputTokens": 334,
+   "inputTokens": 613,
+   "outputTokens": 452,
    "cacheReadInputTokens": 4550,
-   "cacheCreationInputTokens": 1387,
+   "cacheCreationInputTokens": 1384,
    "webSearchRequests": 0,
-   "costUSD": 0.005510999999999999,
+   "costUSD": 0.006096,
    "contextWindow": 200000,
    "maxOutputTokens": 32000
   }
@@ -58,5 +58,5 @@
  "permission_denials": [],
  "terminal_reason": "completed",
  "fast_mode_state": "off",
- "uuid": "3c7da1db-1845-4cba-8b3e-f936b8ec42c0"
+ "uuid": "8f555e38-d101-403c-b3fb-1afde56cd4d4"
 }

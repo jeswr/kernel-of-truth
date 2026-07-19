@@ -3,40 +3,40 @@
  "subtype": "success",
  "is_error": false,
  "api_error_status": null,
- "duration_ms": 6900,
- "duration_api_ms": 6520,
- "ttft_ms": 6831,
- "ttft_stream_ms": 3206,
- "time_to_request_ms": 2151,
+ "duration_ms": 6103,
+ "duration_api_ms": 7165,
+ "ttft_ms": 6055,
+ "ttft_stream_ms": 2922,
+ "time_to_request_ms": 282,
  "num_turns": 1,
- "result": "<<<KOT:danaid>>>>\n{\"kind\":\"cannot-formalise\",\"why\":\"Danaid has two senses: (1) a taxonomic zoological term (butterfly subfamily Danainae) requiring technical biology grounding; (2) a proper mythological referent (the fifty daughters of Danaus in Greek myth). The first is technical-biological and not expressible in the prime lexicon. The second is a mythological proper name denoting a specific group from ancient narrative tradition, not an everyday concept with stable modern semantic content independent of that narrative. Neither sense belongs to this tier.\"}\n<<<END:danaid>>>>\n\n<<<KOT:deixis>>>>\n{\"kind\":\"cannot-formalise\",\"why\":\"Deixis is a technical linguistic concept denoting a system-level phenomenon: the use of context-dependent expressions (pronouns, particles, demonstratives) to refer to entities, times, or places relative to the utterance context. Its identity rests on formal properties of language structure and indexical reference that are not expressible in the prime lexicon. It requires apparatus from formal semantics and linguistic anthropology that the kernel does not support.\"}\n<<<END:deixis>>>>\n\n<<<KOT:despondently>>>>\n{\"kind\":\"explication\",\"gloss\":\"in the manner of someone who feels very bad\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"prime\",\"prime\":\"BAD\"},\"manner\":{\"kind\":\"sp\",\"mods\":[{\"mod\":\"VERY\"}],\"head\":{\"kind\":\"primeHead\",\"prime\":\"WAY\"}}}}]}}\n<<<END:despondently>>>>\n\n<<<KOT:diminuendo>>>>\n{\"kind\":\"molecule\",\"gloss\":\"a way of making {urn:molecule-v0:music|music} [m] sound less loud gradually\",\"groundingNote\":\"a way of making {urn:molecule-v0:music|music} [m]; the sound becomes less loud; this happens for some time.\",\"groundingRefs\":[\"urn:molecule-v0:music\"]}\n<<<END:diminuendo>>>>",
+ "result": "<<<KOT:despondently>>>>\n{\"kind\":\"explication\",\"gloss\":\"when someone does something, they move in a way that shows they feel bad.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"manner\":{\"kind\":\"sp\",\"det\":\"SOME\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"THING\"},\"restrictedBy\":{\"type\":\"pred\",\"pred\":\"SHOW\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"topic\":{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"prime\",\"prime\":\"BAD\"}}}}}}}]}}\n<<<END:despondently>>>>\n\n<<<KOT:diminuendo>>>>\n{\"kind\":\"molecule\",\"gloss\":\"a way of {urn:molecule-v0:music|music} [m]; people do this; after some time the thing becomes very little.\",\"groundingNote\":\"a way of {urn:molecule-v0:music|music} [m]; people do this; after some time the thing becomes very little.\",\"groundingRefs\":[\"urn:molecule-v0:music\"]}\n<<<END:diminuendo>>>>",
  "stop_reason": "end_turn",
- "session_id": "51967bbd-2814-499e-86e3-f4af6e83f236",
- "total_cost_usd": 0.011029500000000001,
+ "session_id": "90c092c6-ad38-43cd-ac61-304414cd1f03",
+ "total_cost_usd": 0.0090195,
  "usage": {
-  "input_tokens": 2,
-  "cache_creation_input_tokens": 2899,
+  "input_tokens": 3,
+  "cache_creation_input_tokens": 2546,
   "cache_read_input_tokens": 4275,
-  "output_tokens": 521,
+  "output_tokens": 330,
   "server_tool_use": {
    "web_search_requests": 0,
    "web_fetch_requests": 0
   },
   "service_tier": "standard",
   "cache_creation": {
-   "ephemeral_1h_input_tokens": 2899,
+   "ephemeral_1h_input_tokens": 2546,
    "ephemeral_5m_input_tokens": 0
   },
   "inference_geo": "not_available",
   "iterations": [
    {
-    "input_tokens": 2,
-    "output_tokens": 521,
+    "input_tokens": 3,
+    "output_tokens": 330,
     "cache_read_input_tokens": 4275,
-    "cache_creation_input_tokens": 2899,
+    "cache_creation_input_tokens": 2546,
     "cache_creation": {
      "ephemeral_5m_input_tokens": 0,
-     "ephemeral_1h_input_tokens": 2899
+     "ephemeral_1h_input_tokens": 2546
     },
     "type": "message"
    }
@@ -45,12 +45,12 @@
  },
  "modelUsage": {
   "claude-haiku-4-5-20251001": {
-   "inputTokens": 2124,
-   "outputTokens": 536,
+   "inputTokens": 1775,
+   "outputTokens": 345,
    "cacheReadInputTokens": 4275,
-   "cacheCreationInputTokens": 2899,
+   "cacheCreationInputTokens": 2546,
    "webSearchRequests": 0,
-   "costUSD": 0.011029500000000001,
+   "costUSD": 0.0090195,
    "contextWindow": 200000,
    "maxOutputTokens": 32000
   }
@@ -58,5 +58,5 @@
  "permission_denials": [],
  "terminal_reason": "completed",
  "fast_mode_state": "off",
- "uuid": "6fbf7dea-03c4-4ab4-9dc4-ece969acc79b"
+ "uuid": "6bc95d25-8e61-4c36-a794-2b3477c73a4a"
 }

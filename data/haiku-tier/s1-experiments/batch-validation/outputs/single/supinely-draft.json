@@ -3,40 +3,40 @@
  "subtype": "success",
  "is_error": false,
  "api_error_status": null,
- "duration_ms": 7677,
- "duration_api_ms": 6693,
- "ttft_ms": 7149,
- "ttft_stream_ms": 5635,
- "time_to_request_ms": 4522,
+ "duration_ms": 3667,
+ "duration_api_ms": 4745,
+ "ttft_ms": 3641,
+ "ttft_stream_ms": 1206,
+ "time_to_request_ms": 108,
  "num_turns": 1,
- "result": "```json\n{\"kind\":\"molecule\",\"gloss\":\"someone lies with the body above the {urn:molecule-v0:ground|ground} [m] and the face toward the {urn:molecule-v0:sky|sky} [m]\",\"groundingNote\":\"someone lies with the body above the {urn:molecule-v0:ground|ground} [m] and the face toward the {urn:molecule-v0:sky|sky} [m]\",\"groundingRefs\":[\"urn:molecule-v0:ground\",\"urn:molecule-v0:sky\"]}\n```",
+ "result": "```json\n{\"kind\":\"cannot-formalise\",\"why\":\"Supinely is an adverbial modifier describing manner-of-body-position (head facing up while lying down). While the underlying posture is concrete, the adverbial form requires either (1) a predicate that takes manner adjuncts (e.g. MOVE, DO, LIE) to anchor it, or (2) expression as a property of a body state. The everyday sense is fully parasitic on context\u2014it modifies an action or state but has no independent referent. The prime lexicon lacks a dedicated LIE predicate and cannot express pure manner without a governing verb. This is a grammatical modifier, not a concept with stable identity conditions across contexts.\"}\n```",
  "stop_reason": "end_turn",
- "session_id": "be4123f3-3202-4006-b0b6-3bcf3de25545",
- "total_cost_usd": 0.004562,
+ "session_id": "54052f7b-7b2f-4386-afe7-ed3362735c37",
+ "total_cost_usd": 0.0047020000000000005,
  "usage": {
-  "input_tokens": 2,
-  "cache_creation_input_tokens": 1374,
+  "input_tokens": 3,
+  "cache_creation_input_tokens": 1371,
   "cache_read_input_tokens": 4550,
-  "output_tokens": 137,
+  "output_tokens": 166,
   "server_tool_use": {
    "web_search_requests": 0,
    "web_fetch_requests": 0
   },
   "service_tier": "standard",
   "cache_creation": {
-   "ephemeral_1h_input_tokens": 1374,
+   "ephemeral_1h_input_tokens": 1371,
    "ephemeral_5m_input_tokens": 0
   },
   "inference_geo": "not_available",
   "iterations": [
    {
-    "input_tokens": 2,
-    "output_tokens": 137,
+    "input_tokens": 3,
+    "output_tokens": 166,
     "cache_read_input_tokens": 4550,
-    "cache_creation_input_tokens": 1374,
+    "cache_creation_input_tokens": 1371,
     "cache_creation": {
      "ephemeral_5m_input_tokens": 0,
-     "ephemeral_1h_input_tokens": 1374
+     "ephemeral_1h_input_tokens": 1371
     },
     "type": "message"
    }
@@ -45,12 +45,12 @@
  },
  "modelUsage": {
   "claude-haiku-4-5-20251001": {
-   "inputTokens": 599,
-   "outputTokens": 152,
+   "inputTokens": 600,
+   "outputTokens": 181,
    "cacheReadInputTokens": 4550,
-   "cacheCreationInputTokens": 1374,
+   "cacheCreationInputTokens": 1371,
    "webSearchRequests": 0,
-   "costUSD": 0.004562,
+   "costUSD": 0.0047020000000000005,
    "contextWindow": 200000,
    "maxOutputTokens": 32000
   }
@@ -58,5 +58,5 @@
  "permission_denials": [],
  "terminal_reason": "completed",
  "fast_mode_state": "off",
- "uuid": "91942a63-128c-48c9-98f1-a20b75468ec5"
+ "uuid": "0bdd64dc-c005-4345-b7f2-e54c4a7a1d21"
 }

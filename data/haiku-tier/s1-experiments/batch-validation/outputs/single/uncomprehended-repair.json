@@ -3,40 +3,40 @@
  "subtype": "success",
  "is_error": false,
  "api_error_status": null,
- "duration_ms": 7729,
- "duration_api_ms": 4645,
- "ttft_ms": 7218,
- "ttft_stream_ms": 6683,
- "time_to_request_ms": 5605,
+ "duration_ms": 8876,
+ "duration_api_ms": 9907,
+ "ttft_ms": 8855,
+ "ttft_stream_ms": 2163,
+ "time_to_request_ms": 92,
  "num_turns": 1,
- "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"something that people do not know or understand\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}},\"topic\":{\"kind\":\"ref\",\"index\":1}}}]}]}}\n```",
+ "result": "I need to repair this explication. The error is that referent 2 is used in the first clause without being introduced. In a WhenTrue frame, referent 1 (the thing the property holds of) is frame-implicit, but referent 2 needs an introducing occurrence with \"bind\":2.\n\nThe intended meaning is: \"someone does not know/understand something\" \u2014 the core sense of \"uncomprehended\". The second clause about thinking in a true way is redundant and creates scope issues; I'll drop it to keep a simpler, gate-legal record.\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"someone does not know or understand something.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"topic\":{\"kind\":\"sp\",\"det\":\"THE-SAME\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"bind\":2}}, \"negate\":true}]}}\n```\n\nWait, I need to check the pred clause syntax more carefully. The NOT operator wraps a clause; I shouldn't use \"negate\":true. Let me fix this properly:\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"someone does not know or understand something.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"topic\":{\"kind\":\"sp\",\"head\":{\"kind\":\"refHead\",\"index\":2},\"bind\":2}}}]}]}}\n```\n\nActually, the introduce-and-bind should happen together on first mention. Let me reconsider: in the SP that introduces referent 2, I add \"bind\":2, and thereafter use {\"kind\":\"ref\",\"index\":2}. But here there's only one clause, so I can introduce it directly:\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"someone does not know or understand something.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"topic\":{\"kind\":\"sp\",\"quant\":\"SOME\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"bind\":2}}}]}]}}\n```",
  "stop_reason": "end_turn",
- "session_id": "f2e21ad0-2788-45a1-8d73-dc4bdf1ae64e",
- "total_cost_usd": 0.012695,
+ "session_id": "46f214d5-5d87-4c0e-8f46-35a42981d9b1",
+ "total_cost_usd": 0.015728,
  "usage": {
-  "input_tokens": 2,
-  "cache_creation_input_tokens": 5544,
+  "input_tokens": 3,
+  "cache_creation_input_tokens": 5627,
   "cache_read_input_tokens": 0,
-  "output_tokens": 132,
+  "output_tokens": 688,
   "server_tool_use": {
    "web_search_requests": 0,
    "web_fetch_requests": 0
   },
   "service_tier": "standard",
   "cache_creation": {
-   "ephemeral_1h_input_tokens": 5544,
+   "ephemeral_1h_input_tokens": 5627,
    "ephemeral_5m_input_tokens": 0
   },
   "inference_geo": "not_available",
   "iterations": [
    {
-    "input_tokens": 2,
-    "output_tokens": 132,
+    "input_tokens": 3,
+    "output_tokens": 688,
     "cache_read_input_tokens": 0,
-    "cache_creation_input_tokens": 5544,
+    "cache_creation_input_tokens": 5627,
     "cache_creation": {
      "ephemeral_5m_input_tokens": 0,
-     "ephemeral_1h_input_tokens": 5544
+     "ephemeral_1h_input_tokens": 5627
     },
     "type": "message"
    }
@@ -45,12 +45,12 @@
  },
  "modelUsage": {
   "claude-haiku-4-5-20251001": {
-   "inputTokens": 867,
-   "outputTokens": 148,
+   "inputTokens": 954,
+   "outputTokens": 704,
    "cacheReadInputTokens": 0,
-   "cacheCreationInputTokens": 5544,
+   "cacheCreationInputTokens": 5627,
    "webSearchRequests": 0,
-   "costUSD": 0.012695,
+   "costUSD": 0.015728,
    "contextWindow": 200000,
    "maxOutputTokens": 32000
   }
@@ -58,5 +58,5 @@
  "permission_denials": [],
  "terminal_reason": "completed",
  "fast_mode_state": "off",
- "uuid": "c3ef84e8-f45c-4263-a000-d1058489d0ce"
+ "uuid": "8eecc347-a09d-4534-b545-38c6c99274d1"
 }

@@ -3,40 +3,40 @@
  "subtype": "success",
  "is_error": false,
  "api_error_status": null,
- "duration_ms": 10559,
- "duration_api_ms": 9471,
- "ttft_ms": 10042,
- "ttft_stream_ms": 5128,
- "time_to_request_ms": 3806,
+ "duration_ms": 8241,
+ "duration_api_ms": 9238,
+ "ttft_ms": 8202,
+ "ttft_stream_ms": 957,
+ "time_to_request_ms": 62,
  "num_turns": 1,
- "result": "<<<KOT:saltshaker>>>>\n{\"kind\":\"molecule\",\"gloss\":\"a thing for putting salt on food\",\"groundingNote\":\"a thing; people put it above {urn:molecule-v0:food|food} [m]; inside it there is salt; when someone moves it, small parts come out of it.\",\"groundingRefs\":[\"urn:molecule-v0:food\"]}\n<<<END:saltshaker>>>>\n\n<<<KOT:schmear>>>>\n{\"kind\":\"molecule\",\"gloss\":\"something people spread on food\",\"groundingNote\":\"something; someone moves it with a part of the body onto {urn:molecule-v0:food|food} [m]; after this, the food; something are together.\",\"groundingRefs\":[\"urn:molecule-v0:food\"]}\n<<<END:schmear>>>>\n\n<<<KOT:seminiferous>>>>\n{\"kind\":\"cannot-formalise\",\"why\":\"This adjective describes a biological property of reproductive tissues defined by their role in meiosis and gamete production. The underlying mechanisms \u2014 germ-cell division, gamete formation, and sex-specific reproductive anatomy \u2014 require technical biological grounding (cells, meiosis, spermatozoa) that lies outside the available prime lexicon and catalog. It belongs to the specialized biology sector.\"}\n<<<END:seminiferous>>>>\n\n<<<KOT:shelflike>>>>\n{\"kind\":\"cannot-formalise\",\"why\":\"This adjective expresses resemblance to a shelf through a comparative-form modifier. While shelf itself might be definable, the relational predicate of resemblance or structural analogy \u2014 requiring LIKE or similar comparative operators applied across object-types \u2014 exceeds what the prime lexicon and frame grammar are designed to ground independently. The concept is fundamentally definitional by reference to another artefact, not by intrinsic everyday sensory or functional properties.\"}\n<<<END:shelflike>>>>",
+ "result": "<<<KOT:saltshaker>>>>\n{\"kind\":\"molecule\",\"gloss\":\"a thing people use to move small things onto food\",\"groundingNote\":\"a thing with parts; people touch one part; small things come out of another part onto {urn:molecule-v0:food|food} [m]; these small things make {urn:molecule-v0:food|food} [m] taste good\",\"groundingRefs\":[\"urn:molecule-v0:food\"]}\n<<<END:saltshaker>>>>\n\n<<<KOT:schmear>>>>\n{\"kind\":\"molecule\",\"gloss\":\"a thing that people move onto food; it is small\",\"groundingNote\":\"a thing of one kind; people move it on {urn:molecule-v0:food|food} [m] with a thing or parts of their body; when this happens, it becomes like {urn:molecule-v0:food|food} [m]; after, people can do something with the {urn:molecule-v0:food|food} [m]\",\"groundingRefs\":[\"urn:molecule-v0:food\"]}\n<<<END:schmear>>>>\n\n<<<KOT:seminiferous>>>>\n{\"kind\":\"explication\",\"gloss\":\"this something has a part where very small new things are made\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"},{\"index\":3,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"partFrame\",\"of\":{\"kind\":\"ref\",\"index\":1}},\"bind\":2},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"}}}},{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":2},\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"mods\":[{\"mod\":\"SMALL\",\"intensifier\":\"VERY\"}],\"bind\":3}}}]}}\n<<<END:seminiferous>>>>\n\n<<<KOT:shelflike>>>>\n{\"kind\":\"explication\",\"gloss\":\"this something is like a small thing; people can put things on it\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"LIKE\",\"args\":[{\"kind\":\"ref\",\"index\":1},{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"mods\":[{\"mod\":\"SMALL\"}]}]},{\"type\":\"op\",\"op\":\"CAN\",\"args\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}},\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"}},\"place\":{\"kind\":\"sp\",\"det\":\"THIS\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SIDE\"},\"restrictedBy\":{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"prime\",\"prime\":\"ABOVE\"}}}}}}}]}}\n<<<END:shelflike>>>>",
  "stop_reason": "end_turn",
- "session_id": "b8f08cd7-e557-4ad2-8113-20478b74d175",
- "total_cost_usd": 0.009556499999999999,
+ "session_id": "1895d7fd-9d0a-4d66-90de-149444bd561e",
+ "total_cost_usd": 0.0153645,
  "usage": {
-  "input_tokens": 2,
-  "cache_creation_input_tokens": 2558,
+  "input_tokens": 3,
+  "cache_creation_input_tokens": 3846,
   "cache_read_input_tokens": 4275,
-  "output_tokens": 431,
+  "output_tokens": 819,
   "server_tool_use": {
    "web_search_requests": 0,
    "web_fetch_requests": 0
   },
   "service_tier": "standard",
   "cache_creation": {
-   "ephemeral_1h_input_tokens": 2558,
+   "ephemeral_1h_input_tokens": 3846,
    "ephemeral_5m_input_tokens": 0
   },
   "inference_geo": "not_available",
   "iterations": [
    {
-    "input_tokens": 2,
-    "output_tokens": 431,
+    "input_tokens": 3,
+    "output_tokens": 819,
     "cache_read_input_tokens": 4275,
-    "cache_creation_input_tokens": 2558,
+    "cache_creation_input_tokens": 3846,
     "cache_creation": {
      "ephemeral_5m_input_tokens": 0,
-     "ephemeral_1h_input_tokens": 2558
+     "ephemeral_1h_input_tokens": 3846
     },
     "type": "message"
    }
@@ -45,12 +45,12 @@
  },
  "modelUsage": {
   "claude-haiku-4-5-20251001": {
-   "inputTokens": 1783,
-   "outputTokens": 446,
+   "inputTokens": 3075,
+   "outputTokens": 834,
    "cacheReadInputTokens": 4275,
-   "cacheCreationInputTokens": 2558,
+   "cacheCreationInputTokens": 3846,
    "webSearchRequests": 0,
-   "costUSD": 0.009556499999999999,
+   "costUSD": 0.0153645,
    "contextWindow": 200000,
    "maxOutputTokens": 32000
   }
@@ -58,5 +58,5 @@
  "permission_denials": [],
  "terminal_reason": "completed",
  "fast_mode_state": "off",
- "uuid": "9e228171-8045-4026-a161-93c8919ee07f"
+ "uuid": "7c13f3bd-c12d-44ef-b610-31cacf6c9739"
 }

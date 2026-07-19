@@ -3,40 +3,40 @@
  "subtype": "success",
  "is_error": false,
  "api_error_status": null,
- "duration_ms": 11226,
- "duration_api_ms": 9193,
- "ttft_ms": 10877,
- "ttft_stream_ms": 5754,
- "time_to_request_ms": 4946,
+ "duration_ms": 6087,
+ "duration_api_ms": 7254,
+ "ttft_ms": 5888,
+ "ttft_stream_ms": 1102,
+ "time_to_request_ms": 64,
  "num_turns": 1,
- "result": "<<<KOT:uncomprehended>>>>\n{\"kind\":\"explication\",\"gloss\":\"someone does not know this something.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"topic\":{\"kind\":\"ref\",\"index\":2}}}]}]}}\n<<<END:uncomprehended>>>>\n\n<<<KOT:unfearing>>>>\n{\"kind\":\"explication\",\"gloss\":\"someone does not feel afraid.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"concept\",\"id\":\"urn:kernel-v0:afraid\"}}}]}]}}\n<<<END:unfearing>>>>\n\n<<<KOT:unmoving>>>>\n{\"kind\":\"explication\",\"gloss\":\"this something does not move.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"MOVE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}}]}]}}\n<<<END:unmoving>>>>\n\n<<<KOT:unsex>>>>\n{\"kind\":\"explication\",\"gloss\":\"someone does something to another someone so that one cannot make new people after.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2}}},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"type\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2}}}},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"CAN\",\"args\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":2},\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}}}}]}]}]}]}}\n<<<END:unsex>>>>",
+ "result": "<<<KOT:uncomprehended>>>>\n{\"kind\":\"explication\",\"gloss\":\"not known; not thought about.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}},\"topic\":{\"kind\":\"ref\",\"index\":1}}}]}]}}\n<<<END:uncomprehended>>>>\n\n<<<KOT:unfearing>>>>\n{\"kind\":\"explication\",\"gloss\":\"not feeling afraid.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"prime\",\"prime\":\"BAD\"}}}]}]}}\n<<<END:unfearing>>>>\n\n<<<KOT:unsex>>>>\n{\"kind\":\"explication\",\"gloss\":\"someone does this to something; after, it is not the same; it cannot do what it did before in the same way.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2}}},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"type\":\"pred\",\"pred\":\"HAPPEN\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2}}},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":2}}}]}]}]}}\n<<<END:unsex>>>>",
  "stop_reason": "end_turn",
- "session_id": "b0246df2-522d-4939-9356-b6e83177b238",
- "total_cost_usd": 0.0112275,
+ "session_id": "1cbe2728-0dad-4580-8f16-019e06362fd2",
+ "total_cost_usd": 0.0096685,
  "usage": {
-  "input_tokens": 2,
-  "cache_creation_input_tokens": 2705,
+  "input_tokens": 3,
+  "cache_creation_input_tokens": 2479,
   "cache_read_input_tokens": 4275,
-  "output_tokens": 677,
+  "output_tokens": 500,
   "server_tool_use": {
    "web_search_requests": 0,
    "web_fetch_requests": 0
   },
   "service_tier": "standard",
   "cache_creation": {
-   "ephemeral_1h_input_tokens": 2705,
+   "ephemeral_1h_input_tokens": 2479,
    "ephemeral_5m_input_tokens": 0
   },
   "inference_geo": "not_available",
   "iterations": [
    {
-    "input_tokens": 2,
-    "output_tokens": 677,
+    "input_tokens": 3,
+    "output_tokens": 500,
     "cache_read_input_tokens": 4275,
-    "cache_creation_input_tokens": 2705,
+    "cache_creation_input_tokens": 2479,
     "cache_creation": {
      "ephemeral_5m_input_tokens": 0,
-     "ephemeral_1h_input_tokens": 2705
+     "ephemeral_1h_input_tokens": 2479
     },
     "type": "message"
    }
@@ -45,12 +45,12 @@
  },
  "modelUsage": {
   "claude-haiku-4-5-20251001": {
-   "inputTokens": 1930,
-   "outputTokens": 692,
+   "inputTokens": 1708,
+   "outputTokens": 515,
    "cacheReadInputTokens": 4275,
-   "cacheCreationInputTokens": 2705,
+   "cacheCreationInputTokens": 2479,
    "webSearchRequests": 0,
-   "costUSD": 0.0112275,
+   "costUSD": 0.0096685,
    "contextWindow": 200000,
    "maxOutputTokens": 32000
   }
@@ -58,5 +58,5 @@
  "permission_denials": [],
  "terminal_reason": "completed",
  "fast_mode_state": "off",
- "uuid": "d2e453fe-0d0d-4b2a-9b87-8d9d8af9df3e"
+ "uuid": "346252cb-ac24-4828-84c7-e2508325b5ee"
 }

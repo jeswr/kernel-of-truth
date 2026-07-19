@@ -3,40 +3,40 @@
  "subtype": "success",
  "is_error": false,
  "api_error_status": null,
- "duration_ms": 19235,
- "duration_api_ms": 11209,
- "ttft_ms": 17847,
- "ttft_stream_ms": 14697,
- "time_to_request_ms": 13203,
+ "duration_ms": 4073,
+ "duration_api_ms": 5133,
+ "ttft_ms": 4006,
+ "ttft_stream_ms": 1521,
+ "time_to_request_ms": 61,
  "num_turns": 1,
- "result": "<<<KOT:focalisation>>>>\n{\"kind\":\"cannot-formalise\",\"why\":\"focalisation is a narratological concept about narrative perspective and representation\u2014how a story is told and who perceives events. It requires metalanguage about storytelling, knowledge, narrators, and readers that cannot be built from the prime lexicon of concrete actions, perceptions, and feelings, nor grounded in the available catalog.\"}\n<<<END:focalisation>>>>\n\n<<<KOT:frontiersman>>>>\n{\"kind\":\"molecule\",\"gloss\":\"a someone who lives far from many people, in a place that is wild and not governed.\",\"groundingNote\":\"a someone who lives in a place far from where many people live; the place is wild; the place is not governed.\",\"groundingRefs\":[]}\n<<<END:frontiersman>>>>\n\n<<<KOT:gaumless>>>>\n{\"kind\":\"explication\",\"gloss\":\"this someone does not think well; does not know what to do.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"THINK\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"topic\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"mods\":[{\"mod\":\"GOOD\"}]}}}]},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1}}}}}}}]}}\n<<<END:gaumless>>>>\n\n<<<KOT:glucinium>>>>\n{\"kind\":\"cannot-formalise\",\"why\":\"glucinium is a deprecated chemistry name for the element beryllium. Its definition depends on atomic number, crystal structure, and chemical properties belonging to physics and chemistry. These cannot be grounded in the prime lexicon of action, sensation, and everyday perception.\"}\n<<<END:glucinium>>>>",
+ "result": "<<<KOT:frontiersman>>>>\n{\"kind\":\"molecule\",\"gloss\":\"a {urn:molecule-v0:man|man} [m] who lives far from where many people live, at the side of where people live.\",\"groundingNote\":\"a {urn:molecule-v0:man|man} [m] who lives far from where many people live, at the side of where people live.\",\"groundingRefs\":[\"urn:molecule-v0:man\"]}\n<<<END:frontiersman>>>>\n\n<<<KOT:gaumless>>>>\n{\"kind\":\"explication\",\"gloss\":\"unable to think well or understand what others say.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"THINK\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"prime\",\"prime\":\"BAD\"},\"adjuncts\":{\"manner\":{\"type\":\"op\",\"op\":\"NOT\"}}}},{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"topic\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"}}}}]}}\n<<<END:gaumless>>>>",
  "stop_reason": "end_turn",
- "session_id": "17191d53-9fc7-4749-8a9f-12ffff15aaec",
- "total_cost_usd": 0.010768499999999999,
+ "session_id": "6f2fc4b4-cc6c-4e2c-81ee-c8610338a837",
+ "total_cost_usd": 0.0079135,
  "usage": {
-  "input_tokens": 2,
-  "cache_creation_input_tokens": 2842,
+  "input_tokens": 3,
+  "cache_creation_input_tokens": 2204,
   "cache_read_input_tokens": 4275,
-  "output_tokens": 503,
+  "output_tokens": 309,
   "server_tool_use": {
    "web_search_requests": 0,
    "web_fetch_requests": 0
   },
   "service_tier": "standard",
   "cache_creation": {
-   "ephemeral_1h_input_tokens": 2842,
+   "ephemeral_1h_input_tokens": 2204,
    "ephemeral_5m_input_tokens": 0
   },
   "inference_geo": "not_available",
   "iterations": [
    {
-    "input_tokens": 2,
-    "output_tokens": 503,
+    "input_tokens": 3,
+    "output_tokens": 309,
     "cache_read_input_tokens": 4275,
-    "cache_creation_input_tokens": 2842,
+    "cache_creation_input_tokens": 2204,
     "cache_creation": {
      "ephemeral_5m_input_tokens": 0,
-     "ephemeral_1h_input_tokens": 2842
+     "ephemeral_1h_input_tokens": 2204
     },
     "type": "message"
    }
@@ -45,12 +45,12 @@
  },
  "modelUsage": {
   "claude-haiku-4-5-20251001": {
-   "inputTokens": 2067,
-   "outputTokens": 518,
+   "inputTokens": 1433,
+   "outputTokens": 329,
    "cacheReadInputTokens": 4275,
-   "cacheCreationInputTokens": 2842,
+   "cacheCreationInputTokens": 2204,
    "webSearchRequests": 0,
-   "costUSD": 0.010768499999999999,
+   "costUSD": 0.0079135,
    "contextWindow": 200000,
    "maxOutputTokens": 32000
   }
@@ -58,5 +58,5 @@
  "permission_denials": [],
  "terminal_reason": "completed",
  "fast_mode_state": "off",
- "uuid": "9ce475ad-01a9-4b9d-a1d5-6f8cfa526a44"
+ "uuid": "49e82136-5fa8-42b1-a174-eb238dccaf2f"
 }

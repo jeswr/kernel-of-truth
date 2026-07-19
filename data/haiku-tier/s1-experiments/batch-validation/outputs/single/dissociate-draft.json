@@ -3,40 +3,40 @@
  "subtype": "success",
  "is_error": false,
  "api_error_status": null,
- "duration_ms": 8952,
- "duration_api_ms": 8625,
- "ttft_ms": 8862,
- "ttft_stream_ms": 3423,
- "time_to_request_ms": 2053,
+ "duration_ms": 5113,
+ "duration_api_ms": 6777,
+ "ttft_ms": 5090,
+ "ttft_stream_ms": 1109,
+ "time_to_request_ms": 128,
  "num_turns": 1,
- "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"someone stops being with another someone; before this, they were together; after this, they are not together.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"},\"quant\":\"ONE\"}}},{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"OTHER\",\"bind\":2}},\"adjuncts\":{\"manner\":{\"kind\":\"quote\",\"clauses\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}}}},{\"type\":\"pred\",\"pred\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"HAPPEN\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}}]}]}}},{\"type\":\"op\",\"op\":\"BEFORE\",\"args\":[{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHEN~TIME\"}},{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2}},\"adjuncts\":{\"manner\":{\"kind\":\"quote\",\"clauses\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}}}},{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1}}}]}}}]},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHEN~TIME\"}},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2}}}}]}]}}\n```",
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"someone stops being with another someone; before this, they were together; after this, they are not together.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"bind\":3}}},{\"type\":\"op\",\"op\":\"BEFORE\",\"args\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"},\"mods\":[{\"mod\":\"GOOD\"}]}}},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"},\"mods\":[{\"mod\":\"GOOD\"}]}}}]},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"kind\":\"prime\",\"prime\":\"NOW\"},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"},\"mods\":[{\"mod\":\"GOOD\"}]}}}]}]}]}}\n```",
  "stop_reason": "end_turn",
- "session_id": "dbb49f30-6cc0-4406-88ad-d379081660dc",
- "total_cost_usd": 0.007263,
+ "session_id": "47cc6887-31ad-4616-8dd6-6692e5856254",
+ "total_cost_usd": 0.0063230000000000005,
  "usage": {
-  "input_tokens": 2,
-  "cache_creation_input_tokens": 1536,
+  "input_tokens": 3,
+  "cache_creation_input_tokens": 1533,
   "cache_read_input_tokens": 4550,
-  "output_tokens": 581,
+  "output_tokens": 394,
   "server_tool_use": {
    "web_search_requests": 0,
    "web_fetch_requests": 0
   },
   "service_tier": "standard",
   "cache_creation": {
-   "ephemeral_1h_input_tokens": 1536,
+   "ephemeral_1h_input_tokens": 1533,
    "ephemeral_5m_input_tokens": 0
   },
   "inference_geo": "not_available",
   "iterations": [
    {
-    "input_tokens": 2,
-    "output_tokens": 581,
+    "input_tokens": 3,
+    "output_tokens": 394,
     "cache_read_input_tokens": 4550,
-    "cache_creation_input_tokens": 1536,
+    "cache_creation_input_tokens": 1533,
     "cache_creation": {
      "ephemeral_5m_input_tokens": 0,
-     "ephemeral_1h_input_tokens": 1536
+     "ephemeral_1h_input_tokens": 1533
     },
     "type": "message"
    }
@@ -45,12 +45,12 @@
  },
  "modelUsage": {
   "claude-haiku-4-5-20251001": {
-   "inputTokens": 761,
-   "outputTokens": 595,
+   "inputTokens": 762,
+   "outputTokens": 408,
    "cacheReadInputTokens": 4550,
-   "cacheCreationInputTokens": 1536,
+   "cacheCreationInputTokens": 1533,
    "webSearchRequests": 0,
-   "costUSD": 0.007263,
+   "costUSD": 0.0063230000000000005,
    "contextWindow": 200000,
    "maxOutputTokens": 32000
   }
@@ -58,5 +58,5 @@
  "permission_denials": [],
  "terminal_reason": "completed",
  "fast_mode_state": "off",
- "uuid": "1757788b-da7c-431f-9045-52f20e302c50"
+ "uuid": "4840c506-1488-40ac-ae43-04533dfadd1e"
 }

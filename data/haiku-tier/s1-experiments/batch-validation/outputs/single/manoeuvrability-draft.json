@@ -3,40 +3,40 @@
  "subtype": "success",
  "is_error": false,
  "api_error_status": null,
- "duration_ms": 9097,
- "duration_api_ms": 7487,
- "ttft_ms": 8546,
- "ttft_stream_ms": 4548,
- "time_to_request_ms": 3412,
+ "duration_ms": 6136,
+ "duration_api_ms": 7408,
+ "ttft_ms": 6051,
+ "ttft_stream_ms": 1365,
+ "time_to_request_ms": 156,
  "num_turns": 1,
- "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"this something can move in many ways; someone can make it move toward different places; because of this, someone can do what they want with it.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"},{\"index\":2,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"CAN\",\"args\":[{\"type\":\"pred\",\"pred\":\"MOVE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"manner\":{\"kind\":\"sp\",\"quant\":\"MANY\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"THING\"}}}}]},{\"type\":\"op\",\"op\":\"CAN\",\"args\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":2},\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"manner\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WAY\"}},\"adjuncts\":{\"direction\":{\"kind\":\"sp\",\"quant\":\"SOME\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PLACE\"}}}}]},{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[{\"type\":\"op\",\"op\":\"CAN\",\"args\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":2},\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"manner\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WAY\"}}}}]},{\"type\":\"pred\",\"pred\":\"WANT\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":2}}}]}}]}}\n```",
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"someone or something can move in ways of many kinds; because of this, it can be in different places and do different things.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"CAN\",\"args\":[{\"type\":\"pred\",\"pred\":\"MOVE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"manner\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"quant\":\"MUCH~MANY\"}}}]},{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[{\"type\":\"pred\",\"pred\":\"MOVE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"manner\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"quant\":\"MUCH~MANY\"}}},{\"type\":\"op\",\"op\":\"CAN\",\"args\":[{\"type\":\"pred\",\"pred\":\"BE-SOMEWHERE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"locus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHERE~PLACE\"},\"det\":\"OTHER~ELSE~ANOTHER\"}}}]}]},{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[{\"type\":\"pred\",\"pred\":\"MOVE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"manner\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"quant\":\"MUCH~MANY\"}}},{\"type\":\"op\",\"op\":\"CAN\",\"args\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"topic\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"quant\":\"MUCH~MANY\"}}}]}]}]}}\n```",
  "stop_reason": "end_turn",
- "session_id": "7612dfff-fe7f-4fc1-beaa-97acadf2d1c4",
- "total_cost_usd": 0.006014,
+ "session_id": "b4e041c6-b643-472e-9f6a-6b79ef8353df",
+ "total_cost_usd": 0.006354,
  "usage": {
-  "input_tokens": 2,
-  "cache_creation_input_tokens": 1408,
+  "input_tokens": 3,
+  "cache_creation_input_tokens": 1405,
   "cache_read_input_tokens": 4550,
-  "output_tokens": 404,
+  "output_tokens": 474,
   "server_tool_use": {
    "web_search_requests": 0,
    "web_fetch_requests": 0
   },
   "service_tier": "standard",
   "cache_creation": {
-   "ephemeral_1h_input_tokens": 1408,
+   "ephemeral_1h_input_tokens": 1405,
    "ephemeral_5m_input_tokens": 0
   },
   "inference_geo": "not_available",
   "iterations": [
    {
-    "input_tokens": 2,
-    "output_tokens": 404,
+    "input_tokens": 3,
+    "output_tokens": 474,
     "cache_read_input_tokens": 4550,
-    "cache_creation_input_tokens": 1408,
+    "cache_creation_input_tokens": 1405,
     "cache_creation": {
      "ephemeral_5m_input_tokens": 0,
-     "ephemeral_1h_input_tokens": 1408
+     "ephemeral_1h_input_tokens": 1405
     },
     "type": "message"
    }
@@ -45,12 +45,12 @@
  },
  "modelUsage": {
   "claude-haiku-4-5-20251001": {
-   "inputTokens": 633,
-   "outputTokens": 422,
+   "inputTokens": 634,
+   "outputTokens": 491,
    "cacheReadInputTokens": 4550,
-   "cacheCreationInputTokens": 1408,
+   "cacheCreationInputTokens": 1405,
    "webSearchRequests": 0,
-   "costUSD": 0.006014,
+   "costUSD": 0.006354,
    "contextWindow": 200000,
    "maxOutputTokens": 32000
   }
@@ -58,5 +58,5 @@
  "permission_denials": [],
  "terminal_reason": "completed",
  "fast_mode_state": "off",
- "uuid": "7a695b40-e3fb-4761-95e8-9b1159aaea42"
+ "uuid": "1b40a018-0366-4a78-9219-110f329e32d8"
 }

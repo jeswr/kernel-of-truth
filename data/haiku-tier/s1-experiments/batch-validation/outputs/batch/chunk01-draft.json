@@ -3,40 +3,40 @@
  "subtype": "success",
  "is_error": false,
  "api_error_status": null,
- "duration_ms": 15911,
- "duration_api_ms": 13772,
- "ttft_ms": 14875,
- "ttft_stream_ms": 6311,
- "time_to_request_ms": 5251,
+ "duration_ms": 11982,
+ "duration_api_ms": 12927,
+ "ttft_ms": 11958,
+ "ttft_stream_ms": 1154,
+ "time_to_request_ms": 295,
  "num_turns": 1,
- "result": "<<<KOT:dissociate>>>>\n{\"kind\":\"explication\",\"gloss\":\"someone or something stops being together with another; they are no longer one thing; after this, they can be in different places or do different things.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"THIS\",\"bind\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"SOME\",\"bind\":2}}},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2}}}]},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"kind\":\"prime\",\"prime\":\"NOW\"},{\"type\":\"op\",\"op\":\"CAN\",\"args\":[{\"type\":\"pred\",\"pred\":\"BE-SOMEWHERE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"locus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHERE~PLACE\"},\"det\":\"OTHER\"}}}]}]}]}}\n<<<END:dissociate>>>>\n\n<<<KOT:dripstone>>>>\n{\"kind\":\"molecule\",\"gloss\":\"a thing of one kind made for a house or building; it is above a {urn:molecule-v0:door|door} or {urn:molecule-v0:water|water} [m] opening; {urn:molecule-v0:water|water} [m] or {urn:molecule-v0:rain|rain} [m] moves on it and away from the structure below\",\"groundingNote\":\"a thing of one kind made for a house; it is above a door opening or a place for {urn:molecule-v0:water|water} [m]; {urn:molecule-v0:water|water} [m] moves on it and down away from the structure below\",\"groundingRefs\":[\"urn:molecule-v0:water\"]}\n<<<END:dripstone>>>>\n\n<<<KOT:eellike>>>>\n{\"kind\":\"explication\",\"gloss\":\"this something has a shape or way of moving like one {urn:kernel-v0:kind|kind} of {urn:molecule-v0:animal|animal} [m]; it is long and can move in a curving way.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"mods\":[{\"mod\":\"BIG\",\"intensifier\":\"VERY\"}],\"quant\":\"ONE\"}}},{\"type\":\"pred\",\"pred\":\"MOVE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"manner\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WAY~WAYS\"},\"det\":\"THIS\"}}}]}}\n<<<END:eellike>>>>\n\n<<<KOT:endocervicitis>>>>\n{\"kind\":\"cannot-formalise\",\"why\":\"endocervicitis is a medical pathological condition specific to human reproductive anatomy and requires technical medical/anatomical terminology (uterine cervix, mucous membrane, inflammation as a clinical sign) that cannot be grounded in the available prime lexicon or catalog concepts. The condition is not perceivable through ordinary everyday bodily experience and belongs to clinical medicine, not the tier of everyday semantic primitives.\"}\n<<<END:endocervicitis>>>>",
+ "result": "<<<KOT:dissociate>>>>\n{\"kind\":\"explication\",\"gloss\":\"this someone does something; because of this, two things that were together become not together; they are now in different places or not touching.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"},{\"index\":3,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"bind\":2}}},{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1}}},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"OTHER~ELSE~ANOTHER\",\"bind\":3}}}]},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"quant\":\"SOME\",\"mods\":[{\"mod\":\"GOOD\"}]}}}]}]}}\n<<<END:dissociate>>>>\n\n<<<KOT:dripstone>>>>\n{\"kind\":\"molecule\",\"gloss\":\"a thing of one kind; it is above a door or a window; when water comes down from above, because of this thing, it touches the thing and then moves away from the house; people make this to keep water from the house.\",\"groundingNote\":\"a thing of one kind; it is above a door or a window; when {urn:molecule-v0:water|water} [m] comes down from above, because of this thing, it touches the thing and then moves away from the {urn:molecule-v0:house|house} [m]; people make this to keep water from the house.\",\"groundingRefs\":[\"urn:molecule-v0:water\",\"urn:molecule-v0:house\"]}\n<<<END:dripstone>>>>\n\n<<<KOT:eellike>>>>\n{\"kind\":\"explication\",\"gloss\":\"this something is like one {urn:molecule-v0:fish|fish} [m] of one kind; it moves in the way this fish kind moves; its body is long and thin.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"LIKE\",\"args\":[{\"kind\":\"ref\",\"index\":1},{\"kind\":\"sp\",\"head\":{\"kind\":\"kindFrame\",\"of\":{\"kind\":\"concept\",\"id\":\"urn:molecule-v0:fish\"}},\"quant\":\"ONE\"}]},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"partFrame\",\"of\":{\"kind\":\"ref\",\"index\":1}}},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"quant\":\"ONE\",\"mods\":[{\"mod\":\"BIG\",\"intensifier\":\"MORE\"},{\"mod\":\"SMALL\",\"intensifier\":\"MORE\"}]}}}]}}\n<<<END:eellike>>>>\n\n<<<KOT:endocervicitis>>>>\n{\"kind\":\"cannot-formalise\",\"why\":\"this is a medical diagnosis term denoting inflammation of the endocervix, which is a specific anatomical site inside a female body. while the semantic core (inflammation = unwanted change in a body part toward badness) can be explicated, 'endocervix' itself is a technical anatomy term not expressible in the prime lexicon or available catalog; the concept requires specialized biomedical grounding (histology, anatomy) outside the everyday semantic tier.\"}\n<<<END:endocervicitis>>>>",
  "stop_reason": "end_turn",
- "session_id": "983b788c-74ac-429f-ad94-a5d8cd814854",
- "total_cost_usd": 0.010128700000000001,
+ "session_id": "9584ee9f-1728-46ef-bb57-36584427adb0",
+ "total_cost_usd": 0.019534000000000003,
  "usage": {
-  "input_tokens": 2,
-  "cache_creation_input_tokens": 1890,
-  "cache_read_input_tokens": 4837,
-  "output_tokens": 938,
+  "input_tokens": 3,
+  "cache_creation_input_tokens": 6724,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 982,
   "server_tool_use": {
    "web_search_requests": 0,
    "web_fetch_requests": 0
   },
   "service_tier": "standard",
   "cache_creation": {
-   "ephemeral_1h_input_tokens": 1890,
+   "ephemeral_1h_input_tokens": 6724,
    "ephemeral_5m_input_tokens": 0
   },
   "inference_geo": "not_available",
   "iterations": [
    {
-    "input_tokens": 2,
-    "output_tokens": 938,
-    "cache_read_input_tokens": 4837,
-    "cache_creation_input_tokens": 1890,
+    "input_tokens": 3,
+    "output_tokens": 982,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 6724,
     "cache_creation": {
      "ephemeral_5m_input_tokens": 0,
-     "ephemeral_1h_input_tokens": 1890
+     "ephemeral_1h_input_tokens": 6724
     },
     "type": "message"
    }
@@ -45,12 +45,12 @@
  },
  "modelUsage": {
   "claude-haiku-4-5-20251001": {
-   "inputTokens": 1115,
-   "outputTokens": 950,
-   "cacheReadInputTokens": 4837,
-   "cacheCreationInputTokens": 1890,
+   "inputTokens": 1116,
+   "outputTokens": 994,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 6724,
    "webSearchRequests": 0,
-   "costUSD": 0.010128700000000001,
+   "costUSD": 0.019534000000000003,
    "contextWindow": 200000,
    "maxOutputTokens": 32000
   }
@@ -58,5 +58,5 @@
  "permission_denials": [],
  "terminal_reason": "completed",
  "fast_mode_state": "off",
- "uuid": "875792a7-ddca-4282-ab84-25fceab14ade"
+ "uuid": "b246c46f-97ed-43fd-bdb1-b645d78b7c4f"
 }

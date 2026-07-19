@@ -3,40 +3,40 @@
  "subtype": "success",
  "is_error": false,
  "api_error_status": null,
- "duration_ms": 9691,
- "duration_api_ms": 8330,
- "ttft_ms": 8979,
- "ttft_stream_ms": 5611,
- "time_to_request_ms": 4074,
+ "duration_ms": 5151,
+ "duration_api_ms": 6383,
+ "ttft_ms": 4824,
+ "ttft_stream_ms": 1061,
+ "time_to_request_ms": 220,
  "num_turns": 1,
- "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"someone does something; at the time, this someone feels something bad; because this someone thinks something bad will happen, or something bad happened before.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2}}},{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"prime\",\"prime\":\"BAD\"},\"time\":{\"kind\":\"prime\",\"prime\":\"NOW\"}}},{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[{\"type\":\"op\",\"op\":\"OR\",\"args\":[{\"type\":\"pred\",\"pred\":\"THINK\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"topic\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"SOME\",\"mods\":[{\"mod\":\"BAD\"}]},\"time\":{\"kind\":\"temporal\",\"op\":\"AFTER\",\"anchor\":{\"kind\":\"prime\",\"prime\":\"NOW\"}}}},{\"type\":\"pred\",\"pred\":\"HAPPEN\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"SOME\",\"mods\":[{\"mod\":\"BAD\"}]},\"time\":{\"kind\":\"temporal\",\"op\":\"BEFORE\",\"anchor\":{\"kind\":\"prime\",\"prime\":\"NOW\"}}}}]},{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"prime\",\"prime\":\"BAD\"}}}]}]}\n```",
+ "result": "```json\n{\"kind\":\"cannot-formalise\",\"why\":\"'Despondently' is an adverb denoting manner of action or emotional bearing\u2014how someone does something while experiencing despondency (loss of hope, deep discouragement). While the underlying emotion (sadness, hopelessness) could be grounded in kernel concepts like {urn:kernel-v0:sad}, the manner adverbial itself requires either (1) a predicate that takes a manner adjunct (which the prime lexicon supports), or (2) a characterization of the emotional state during action. The everyday sense conflates two things: the emotional state and its behavioral manifestation. Formalizing this requires either a way to say 'someone does X in manner Y while feeling Z' that goes beyond the available adjunct system, or a separate explication of despondency as a state (possible) plus a relational claim about how actions are performed during it (which exceeds the explication grammar's expressive power for manner). The concept belongs to phenomenology/psychology rather than to concrete or simple relational ground.\"}\n```",
  "stop_reason": "end_turn",
- "session_id": "4cef6b88-b01c-4391-8530-beee9537e258",
- "total_cost_usd": 0.006043,
+ "session_id": "71fb3620-3f52-4f99-ae7b-4e0b7152772f",
+ "total_cost_usd": 0.005073,
  "usage": {
-  "input_tokens": 2,
-  "cache_creation_input_tokens": 1371,
+  "input_tokens": 3,
+  "cache_creation_input_tokens": 1368,
   "cache_read_input_tokens": 4550,
-  "output_tokens": 436,
+  "output_tokens": 241,
   "server_tool_use": {
    "web_search_requests": 0,
    "web_fetch_requests": 0
   },
   "service_tier": "standard",
   "cache_creation": {
-   "ephemeral_1h_input_tokens": 1371,
+   "ephemeral_1h_input_tokens": 1368,
    "ephemeral_5m_input_tokens": 0
   },
   "inference_geo": "not_available",
   "iterations": [
    {
-    "input_tokens": 2,
-    "output_tokens": 436,
+    "input_tokens": 3,
+    "output_tokens": 241,
     "cache_read_input_tokens": 4550,
-    "cache_creation_input_tokens": 1371,
+    "cache_creation_input_tokens": 1368,
     "cache_creation": {
      "ephemeral_5m_input_tokens": 0,
-     "ephemeral_1h_input_tokens": 1371
+     "ephemeral_1h_input_tokens": 1368
     },
     "type": "message"
    }
@@ -45,12 +45,12 @@
  },
  "modelUsage": {
   "claude-haiku-4-5-20251001": {
-   "inputTokens": 596,
-   "outputTokens": 450,
+   "inputTokens": 597,
+   "outputTokens": 257,
    "cacheReadInputTokens": 4550,
-   "cacheCreationInputTokens": 1371,
+   "cacheCreationInputTokens": 1368,
    "webSearchRequests": 0,
-   "costUSD": 0.006043,
+   "costUSD": 0.005073,
    "contextWindow": 200000,
    "maxOutputTokens": 32000
   }
@@ -58,5 +58,5 @@
  "permission_denials": [],
  "terminal_reason": "completed",
  "fast_mode_state": "off",
- "uuid": "db431c59-e5d7-4989-b95d-4ff79d625e83"
+ "uuid": "34248046-7e3f-443b-8947-4682afc903b3"
 }
