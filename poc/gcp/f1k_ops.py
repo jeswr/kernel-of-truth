@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Fork-independent F1-K operational foundations.
 
-This module intentionally excludes the governance layer pending issue #53.
-Its selftest is pure/local and never contacts GCP or another network service.
+Includes the option-B lean provider-native spend-cap backstop (maintainer
+ruling #53: build B, not the full-rigor option-A durable-ledger controller).
+Its selftests are pure/local and never contact GCP or another network service.
 """
 from __future__ import annotations
 
@@ -4792,11 +4793,1146 @@ def selftest() -> int:
     return 0 if passed == total else 2
 
 
+# ----------------------------------------------------------------------------
+# Option-B governance layer — lean provider-native construction spend backstop.
+#
+# Maintainer ruling #53 (2026-07-19): build B, NOT the full-rigor option-A
+# durable ledger/lease/attestation-CAS controller. The governance job is a HARD
+# SPEND CAP, nothing more (pinning was refuted on #55 so speed is irrelevant).
+# The hard bound is achieved provider-side: the VM self-deletes at the 900 h
+# wall-clock cap, and because a GCP Spot instance resumes as the SAME instance,
+# instance-hours <= wall-clock <= cap. A $300 billing budget and a pre-spend
+# live-rate guard are backstops. No bespoke ledger/lease/CAS lives here.
+#
+# All transports are injectable. Every transport-bearing entry point either
+# fails closed when its transport is absent (write_launch_epoch, verify/assure,
+# guard, preflight) or is an explicitly-named local recovery read
+# (read_elapsed_hours with mirror_transport=None). Nothing here reaches a
+# network at import or during selftest_b1 (pure/local, $0).
+#
+# Revised 2026-07-19 after the GPT-5.6 cross-vendor review returned MUST-FIX:
+# deadline now derives from the persisted epoch (not a caller value); the
+# rate*s product is computed exactly; guard/preflight fail closed on an absent
+# catalog transport; the $300 ceiling is not caller-overridable; the timer
+# verifier binds Persistent + triggered Unit + the delete ExecStart target;
+# transport/parse failures normalize to F1K_B_* and preflight fails closed on
+# any error. Residual single-writer/durable-mirror assumptions are documented.
+# ----------------------------------------------------------------------------
+
+# Frozen anchors (do not edit without the frozen record). The 900 h wall-clock
+# cap is the upper bound of instance_hours in [260.6, 900] h
+# (analysis/f1k.py, pinned) and registry/experiments/f1k.json (ASM-2405 context).
+SELFDELETE_CAP_HOURS = Decimal("900")
+# $300 is the maintainer's protective GCE billing ceiling (a superset of the
+# $155 frozen construction-compute cap, ASM-2374). NOT caller-overridable.
+BILLING_CEILING_USD = "300"
+# Spot rate window (poc/gcp/f1k_gcp.py): [$0.081, $0.595]/h.
+RATE_MIN_USD_PER_HOUR = Decimal("0.081")
+RATE_MAX_USD_PER_HOUR = Decimal("0.595")
+# Two-sided construction gate (poc/gcp/f1k_gcp.py): s/prefill in [47.0, 162.3] s
+# AND s/prefill * rate in [13.16, 27.95] $*s/h.
+SPP_MIN_SECONDS = Decimal("47.0")
+SPP_MAX_SECONDS = Decimal("162.3")
+RATE_SPP_PRODUCT_MIN = Decimal("13.16")
+RATE_SPP_PRODUCT_MAX = Decimal("27.95")
+
+LAUNCH_EPOCH_SCHEMA = "kot-f1k-launch-epoch/1"
+LAUNCH_EPOCH_KEY = "launch-epoch/%s" % LAUNCH_EPOCH_SCHEMA
+SELFDELETE_TIMER_UNIT = "f1k-selfdelete.timer"
+SELFDELETE_SERVICE_UNIT = "f1k-selfdelete.service"
+
+
+def _utc_datetime(value, *, field: str, code: str) -> datetime:
+    """Validate an RFC3339 value and return an aware UTC datetime.
+
+    Reuses _utc_timestamp for validation/normalization, then parses the
+    canonical Z form for arithmetic. No binary float is involved. Rejects
+    sub-microsecond precision rather than silently truncating it.
+    """
+    normalized = _utc_timestamp(value, field=field, code=code)
+    body = normalized[:-1]  # drop trailing Z
+    if "." in body:
+        base, fraction = body.split(".", 1)
+        if len(fraction) > 6:
+            raise F1KOpsError(
+                code,
+                "%s has sub-microsecond precision: %r" % (field, value),
+            )
+        micro = int((fraction + "000000")[:6])
+    else:
+        base, micro = body, 0
+    parsed = datetime.strptime(base, "%Y-%m-%dT%H:%M:%S")
+    return parsed.replace(microsecond=micro, tzinfo=timezone.utc)
+
+
+def _elapsed_hours(start: datetime, end: datetime) -> Decimal:
+    """Exact Decimal hours between two aware datetimes (end - start).
+
+    The numerator is an exact integer count of microseconds; the quotient is
+    taken at high precision (ample for the whole-hour 900 h cap comparison).
+    """
+    delta = end - start
+    total_us = (
+        (delta.days * 86400 + delta.seconds) * 1_000_000
+        + delta.microseconds
+    )
+    with localcontext() as ctx:
+        ctx.prec = 50
+        return Decimal(total_us) / Decimal(3_600_000_000)
+
+
+def _exact_product(a: Decimal, b: Decimal) -> Decimal:
+    """Return a*b with no context rounding (exact for any finite operands)."""
+    need = len(a.as_tuple().digits) + len(b.as_tuple().digits) + 2
+    with localcontext() as ctx:
+        ctx.prec = max(need, 28)
+        return a * b
+
+
+def _build_launch_epoch(launch_utc_z: str) -> dict:
+    record = {
+        "schema": LAUNCH_EPOCH_SCHEMA,
+        "launch_utc": launch_utc_z,
+    }
+    record["sha256"] = hashlib.sha256(
+        canonical_json_bytes(record)
+    ).hexdigest()
+    return record
+
+
+def _parse_launch_epoch(record, *, source: str) -> str:
+    """Validate a launch-epoch record and return its normalized launch_utc.
+
+    The SHA is an integrity check against accidental corruption / unrecomputed
+    edits; it is not authentication (anyone able to rewrite the record can
+    recompute it). Durability, not authenticity, is B's threat model.
+    """
+    if not isinstance(record, dict):
+        raise F1KOpsError(
+            "F1K_B_EPOCH_SHAPE", "%s epoch is not an object" % source
+        )
+    if set(record) != {"schema", "launch_utc", "sha256"}:
+        raise F1KOpsError(
+            "F1K_B_EPOCH_SHAPE", "%s epoch has unexpected keys" % source
+        )
+    if record["schema"] != LAUNCH_EPOCH_SCHEMA:
+        raise F1KOpsError(
+            "F1K_B_EPOCH_SCHEMA", "%s epoch has wrong schema" % source
+        )
+    unhashed = {
+        "schema": record["schema"],
+        "launch_utc": record["launch_utc"],
+    }
+    expected = hashlib.sha256(
+        canonical_json_bytes(unhashed)
+    ).hexdigest()
+    if not isinstance(record["sha256"], str) or record["sha256"] != expected:
+        raise F1KOpsError(
+            "F1K_B_EPOCH_SHA", "%s epoch sha256 does not recompute" % source
+        )
+    return _utc_timestamp(
+        record["launch_utc"],
+        field="%s launch_utc" % source,
+        code="F1K_B_EPOCH_TIME",
+    )
+
+
+def _load_epoch_bytes(data, *, source: str) -> str:
+    try:
+        record = json.loads(data.decode("utf-8"))
+    except (ValueError, AttributeError, UnicodeDecodeError) as exc:
+        raise F1KOpsError(
+            "F1K_B_EPOCH_SHAPE",
+            "%s epoch is not JSON: %s" % (source, exc),
+        ) from exc
+    return _parse_launch_epoch(record, source=source)
+
+
+def _mirror_get(mirror_transport):
+    """Fetch the durable epoch blob, normalizing transport failure."""
+    try:
+        return mirror_transport(action="get", key=LAUNCH_EPOCH_KEY)
+    except F1KOpsError:
+        raise
+    except Exception as exc:  # noqa: BLE001 — normalize to fail-closed
+        raise F1KOpsError(
+            "F1K_B_MIRROR_TRANSPORT", "mirror get failed: %s" % exc
+        ) from exc
+
+
+def write_launch_epoch(
+    *, launch_utc, local_path, mirror_transport=None
+) -> dict:
+    """Persist the launch timestamp durably; write-once.
+
+    Writes the epoch to a local file AND a durable mirror (injectable
+    mirror_transport). A GCP Spot instance loses Local SSD contents on a
+    preemption stop, so the mirror (e.g. GCS) is the authoritative copy that
+    survives preemption; the local file is a fast-path cache. A resume must
+    NOT reset the clock, so an existing epoch with a different launch is
+    refused. Re-writing the identical epoch is idempotent.
+
+    LIMITATION (documented, not enforceable here): write-once holds only while
+    at least one durable source survives. If BOTH the mirror and local copy
+    are gone, there is no record to compare against and a fresh launch will set
+    a new clock — this is why the mirror must be genuinely durable (GCS). The
+    get-then-put is non-atomic, so write-once also assumes a single writer.
+
+    mirror_transport(action, key, data=None):
+        action="get" -> bytes or None (absent)
+        action="put" -> persist data bytes durably; raise on failure
+    """
+    normalized = _utc_timestamp(
+        launch_utc, field="launch_utc", code="F1K_B_EPOCH_TIME"
+    )
+    if mirror_transport is None:
+        raise F1KOpsError(
+            "F1K_B_MIRROR",
+            "write_launch_epoch requires a durable mirror_transport",
+        )
+    record = _build_launch_epoch(normalized)
+    payload = canonical_json_bytes(record)
+
+    existing = _mirror_get(mirror_transport)
+    if existing is not None:
+        prior = _load_epoch_bytes(existing, source="mirror")
+        if prior != normalized:
+            raise F1KOpsError(
+                "F1K_B_EPOCH_OVERWRITE",
+                "refusing to reset the launch clock: mirror holds %r"
+                % prior,
+            )
+    if os.path.exists(local_path):
+        try:
+            with open(local_path, "rb") as handle:
+                prior_local = _load_epoch_bytes(
+                    handle.read(), source="local"
+                )
+        except OSError as exc:
+            raise F1KOpsError(
+                "F1K_B_EPOCH_SHAPE",
+                "cannot read existing local epoch: %s" % exc,
+            ) from exc
+        if prior_local != normalized:
+            raise F1KOpsError(
+                "F1K_B_EPOCH_OVERWRITE",
+                "refusing to reset the launch clock: local holds %r"
+                % prior_local,
+            )
+
+    local_sha = atomic_write_json(local_path, record)
+    try:
+        mirror_transport(action="put", key=LAUNCH_EPOCH_KEY, data=payload)
+    except F1KOpsError:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        raise F1KOpsError(
+            "F1K_B_MIRROR_TRANSPORT", "mirror put failed: %s" % exc
+        ) from exc
+    return {
+        "launch_utc": normalized,
+        "sha256": record["sha256"],
+        "local_sha256": local_sha,
+        "mirror_key": LAUNCH_EPOCH_KEY,
+    }
+
+
+def _resolve_epoch_launch(*, local_path, mirror_transport) -> str:
+    """Return the single authoritative launch_utc from the durable sources.
+
+    The mirror (when supplied) is authoritative because it survives Spot
+    preemption; a present local copy must agree with it. Fails closed if no
+    durable source exists or the sources disagree.
+    """
+    launches = {}
+    if mirror_transport is not None:
+        data = _mirror_get(mirror_transport)
+        if data is not None:
+            launches["mirror"] = _load_epoch_bytes(data, source="mirror")
+    if os.path.exists(local_path):
+        try:
+            with open(local_path, "rb") as handle:
+                launches["local"] = _load_epoch_bytes(
+                    handle.read(), source="local"
+                )
+        except OSError as exc:
+            raise F1KOpsError(
+                "F1K_B_EPOCH_SHAPE", "cannot read local epoch: %s" % exc
+            ) from exc
+    if not launches:
+        raise F1KOpsError(
+            "F1K_B_EPOCH_MISSING", "no durable launch epoch is available"
+        )
+    if len(set(launches.values())) != 1:
+        raise F1KOpsError(
+            "F1K_B_EPOCH_SPLIT",
+            "launch epoch sources disagree: %r" % (launches,),
+        )
+    return next(iter(launches.values()))
+
+
+def read_elapsed_hours(
+    *, now_utc, local_path, mirror_transport=None
+) -> Decimal:
+    """Return exact wall-clock hours since the persisted launch epoch.
+
+    With mirror_transport=None this is an explicitly local-only recovery read;
+    the preflight gate always supplies the mirror so its cap is anchored to the
+    preemption-surviving copy. Fails closed on a future epoch.
+    """
+    now_dt = _utc_datetime(now_utc, field="now_utc", code="F1K_B_NOW_TIME")
+    launch = _resolve_epoch_launch(
+        local_path=local_path, mirror_transport=mirror_transport
+    )
+    launch_dt = _utc_datetime(
+        launch, field="launch_utc", code="F1K_B_EPOCH_TIME"
+    )
+    if now_dt < launch_dt:
+        raise F1KOpsError(
+            "F1K_B_EPOCH_FUTURE",
+            "launch epoch is in the future relative to now",
+        )
+    return _elapsed_hours(launch_dt, now_dt)
+
+
+def compute_selfdelete_deadline(*, launch_utc) -> str:
+    """Return the 900 h wall-clock self-delete deadline as a UTC Z timestamp."""
+    launch_dt = _utc_datetime(
+        launch_utc, field="launch_utc", code="F1K_B_EPOCH_TIME"
+    )
+    # 900 h cap; second granularity (systemd OnCalendar is second-resolved). A
+    # fractional-second launch is floored, so the deadline is at most one second
+    # early — conservative for a spend cap.
+    deadline = launch_dt.replace(microsecond=0) + timedelta(
+        hours=int(SELFDELETE_CAP_HOURS)
+    )
+    return deadline.strftime("%Y-%m-%dT%H:%M:%S") + "Z"
+
+
+def _oncalendar(deadline_utc: str) -> str:
+    dt = _utc_datetime(
+        deadline_utc, field="deadline_utc", code="F1K_B_DEADLINE_TIME"
+    )
+    return dt.strftime("%Y-%m-%d %H:%M:%S UTC")
+
+
+def _selfdelete_exec_start(name, zone_text, project_id) -> str:
+    # A retry loop tolerates a delete that fires before networking is up (a
+    # missed timer firing during boot) without a single-shot failure being
+    # final. --project binds the deletion target explicitly.
+    return (
+        "/bin/bash -c 'for i in 1 2 3 4 5 6; do "
+        "/usr/bin/gcloud compute instances delete %s "
+        "--zone %s --project %s --quiet && exit 0; sleep 30; "
+        "done; exit 1'" % (name, zone_text, project_id)
+    )
+
+
+def render_selfdelete_unit(
+    *, instance_name, zone, project_id, deadline_utc
+) -> dict:
+    """Render the on-VM systemd timer+service that self-deletes at the cap.
+
+    Persistent=true catches a deadline missed across a preemption/reboot on the
+    next boot; AccuracySec=1s keeps the fire time tight against the cap. The
+    delete is bound to instance + zone + project and wrapped in a retry loop
+    with network-online ordering. Nothing is executed here.
+    """
+    name = _strict_string(
+        instance_name, field="instance_name", pattern=_INSTANCE_NAME_RE
+    )
+    zone_text = _strict_string(zone, field="zone", pattern=_ZONE_RE)
+    project = _strict_string(
+        project_id, field="project_id", pattern=_PROJECT_ID_RE
+    )
+    oncalendar = _oncalendar(deadline_utc)
+    exec_start = _selfdelete_exec_start(name, zone_text, project)
+    service_text = (
+        "[Unit]\n"
+        "Description=F1-K wall-clock spend-cap self-delete "
+        "(900 h hard cap)\n"
+        "Wants=network-online.target\n"
+        "After=network-online.target\n"
+        "[Service]\n"
+        "Type=oneshot\n"
+        "ExecStart=%s\n" % exec_start
+    )
+    timer_text = (
+        "[Unit]\n"
+        "Description=F1-K wall-clock spend-cap self-delete timer\n"
+        "[Timer]\n"
+        "OnCalendar=%s\n"
+        "Persistent=true\n"
+        "AccuracySec=1s\n"
+        "Unit=%s\n"
+        "[Install]\n"
+        "WantedBy=timers.target\n" % (oncalendar, SELFDELETE_SERVICE_UNIT)
+    )
+    return {
+        "timer_unit": SELFDELETE_TIMER_UNIT,
+        "timer_path": "/etc/systemd/system/%s" % SELFDELETE_TIMER_UNIT,
+        "timer_text": timer_text,
+        "service_unit": SELFDELETE_SERVICE_UNIT,
+        "service_path": "/etc/systemd/system/%s" % SELFDELETE_SERVICE_UNIT,
+        "service_text": service_text,
+        "exec_start": exec_start,
+        "deadline_utc": _utc_timestamp(
+            deadline_utc, field="deadline_utc", code="F1K_B_DEADLINE_TIME"
+        ),
+        "oncalendar": oncalendar,
+    }
+
+
+def _systemctl_query(systemctl_transport, *, action, unit) -> str:
+    try:
+        value = systemctl_transport(action=action, unit=unit)
+    except F1KOpsError:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        raise F1KOpsError(
+            "F1K_B_SYSTEMCTL_TRANSPORT",
+            "systemctl %s failed: %s" % (action, exc),
+        ) from exc
+    if not isinstance(value, str):
+        raise F1KOpsError(
+            "F1K_B_SYSTEMCTL_TRANSPORT",
+            "systemctl %s did not return a string" % action,
+        )
+    return value
+
+
+def verify_selfdelete_armed(
+    *, deadline_utc, instance_name, zone, project_id,
+    systemctl_transport=None,
+) -> dict:
+    """Confirm the self-delete timer is active, persistent, armed at the exact
+    deadline, and that its triggered service actually deletes THIS instance.
+
+    systemctl_transport(action, unit) -> str:
+        action="is-active"      -> "active" iff running
+        action="oncalendar"     -> the timer's OnCalendar string
+        action="persistent"     -> "yes"/"true"/"1" iff Persistent set
+        action="triggered-unit" -> the service the timer triggers
+        action="exec-start"     -> the service's ExecStart command line
+    """
+    if systemctl_transport is None:
+        raise F1KOpsError(
+            "F1K_B_SYSTEMCTL",
+            "verify_selfdelete_armed requires a systemctl_transport",
+        )
+    name = _strict_string(
+        instance_name, field="instance_name", pattern=_INSTANCE_NAME_RE
+    )
+    zone_text = _strict_string(zone, field="zone", pattern=_ZONE_RE)
+    project = _strict_string(
+        project_id, field="project_id", pattern=_PROJECT_ID_RE
+    )
+    expected = _oncalendar(deadline_utc)
+
+    active = _systemctl_query(
+        systemctl_transport, action="is-active", unit=SELFDELETE_TIMER_UNIT
+    )
+    if active.strip() != "active":
+        raise F1KOpsError(
+            "F1K_B_SELFDELETE_INACTIVE",
+            "self-delete timer is not active: %r" % (active,),
+        )
+    armed = _systemctl_query(
+        systemctl_transport, action="oncalendar", unit=SELFDELETE_TIMER_UNIT
+    )
+    if armed.strip() != expected:
+        raise F1KOpsError(
+            "F1K_B_SELFDELETE_DRIFT",
+            "self-delete armed at %r, expected %r" % (armed, expected),
+        )
+    persistent = _systemctl_query(
+        systemctl_transport, action="persistent", unit=SELFDELETE_TIMER_UNIT
+    )
+    if persistent.strip().lower() not in ("yes", "true", "1"):
+        raise F1KOpsError(
+            "F1K_B_SELFDELETE_NOT_PERSISTENT",
+            "self-delete timer is not Persistent: %r" % (persistent,),
+        )
+    triggered = _systemctl_query(
+        systemctl_transport,
+        action="triggered-unit", unit=SELFDELETE_TIMER_UNIT,
+    )
+    if triggered.strip() != SELFDELETE_SERVICE_UNIT:
+        raise F1KOpsError(
+            "F1K_B_SELFDELETE_UNIT",
+            "self-delete timer triggers %r, expected %r"
+            % (triggered, SELFDELETE_SERVICE_UNIT),
+        )
+    exec_start = _systemctl_query(
+        systemctl_transport,
+        action="exec-start", unit=SELFDELETE_SERVICE_UNIT,
+    )
+    # Exact match against the re-rendered command — a substring check would
+    # accept a confusable superstring target (kot-f1k-run-other) or a
+    # non-gcloud command that merely contains the tokens.
+    expected_exec = _selfdelete_exec_start(name, zone_text, project)
+    if exec_start.strip() != expected_exec:
+        raise F1KOpsError(
+            "F1K_B_SELFDELETE_TARGET",
+            "self-delete ExecStart is not the exact bound delete of "
+            "%s/%s/%s: %r" % (project, zone_text, name, exec_start),
+        )
+    return {
+        "armed": True,
+        "deadline_utc": _utc_timestamp(
+            deadline_utc, field="deadline_utc", code="F1K_B_DEADLINE_TIME"
+        ),
+        "oncalendar": expected,
+        "target": "%s/%s/%s" % (project, zone_text, name),
+    }
+
+
+def assure_billing_budget(*, billing_account, budget_transport=None) -> dict:
+    """Verify a $300 Cloud Billing budget with alert thresholds exists.
+
+    Billing data lags hours, so this is a last-resort backstop, NOT a
+    real-time cap (the wall-clock self-delete is the real bound). The $300
+    ceiling is fixed (BILLING_CEILING_USD), not caller-overridable.
+
+    budget_transport(action="get", billing_account=...) ->
+        {"amount_usd": "300", "threshold_rules": [ {..}, ... ]} or None
+    """
+    if budget_transport is None:
+        raise F1KOpsError(
+            "F1K_B_BUDGET",
+            "assure_billing_budget requires a budget_transport",
+        )
+    _strict_string(billing_account, field="billing_account")
+    expected = canonical_decimal(
+        BILLING_CEILING_USD, field="billing ceiling"
+    )
+    try:
+        budget = budget_transport(
+            action="get", billing_account=billing_account
+        )
+    except F1KOpsError:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        raise F1KOpsError(
+            "F1K_B_BUDGET_TRANSPORT", "budget get failed: %s" % exc
+        ) from exc
+    if budget is None:
+        raise F1KOpsError(
+            "F1K_B_BUDGET_ABSENT", "no billing budget is configured"
+        )
+    if not isinstance(budget, dict):
+        raise F1KOpsError("F1K_B_BUDGET_SHAPE", "budget is not an object")
+    try:
+        amount = canonical_decimal(
+            budget.get("amount_usd"), field="budget amount_usd"
+        )
+    except (ValueError, TypeError) as exc:
+        raise F1KOpsError(
+            "F1K_B_BUDGET_AMOUNT",
+            "budget amount_usd is malformed: %s" % exc,
+        ) from exc
+    if amount != expected:
+        raise F1KOpsError(
+            "F1K_B_BUDGET_AMOUNT",
+            "budget amount %s != required %s" % (amount, expected),
+        )
+    thresholds = budget.get("threshold_rules")
+    if not isinstance(thresholds, list) or not thresholds:
+        raise F1KOpsError(
+            "F1K_B_BUDGET_ALERT", "budget has no alert thresholds"
+        )
+    for rule in thresholds:
+        if not isinstance(rule, dict):
+            raise F1KOpsError(
+                "F1K_B_BUDGET_ALERT",
+                "budget alert rule is not an object: %r" % (rule,),
+            )
+    return {
+        "present": True,
+        "amount_usd": amount,
+        "threshold_count": len(thresholds),
+    }
+
+
+def _check_rate_window(rate_value, spp_value) -> tuple:
+    """Refuse (fail closed) unless rate, s/prefill, and their EXACT product are
+    all inside the frozen two-sided construction window. Accept-at-equal."""
+    try:
+        rate = _decimal_value(rate_value, field="rate")
+        spp = _decimal_value(spp_value, field="s_per_prefill")
+    except ValueError as exc:
+        raise F1KOpsError(
+            "F1K_B_RATE_INPUT", "rate/s_per_prefill malformed: %s" % exc
+        ) from exc
+    if not (RATE_MIN_USD_PER_HOUR <= rate <= RATE_MAX_USD_PER_HOUR):
+        raise F1KOpsError(
+            "F1K_B_RATE_WINDOW",
+            "rate %s outside [%s, %s]/h"
+            % (rate, RATE_MIN_USD_PER_HOUR, RATE_MAX_USD_PER_HOUR),
+        )
+    if not (SPP_MIN_SECONDS <= spp <= SPP_MAX_SECONDS):
+        raise F1KOpsError(
+            "F1K_B_SPP_WINDOW",
+            "s/prefill %s outside [%s, %s] s"
+            % (spp, SPP_MIN_SECONDS, SPP_MAX_SECONDS),
+        )
+    product = _exact_product(rate, spp)
+    if not (RATE_SPP_PRODUCT_MIN <= product <= RATE_SPP_PRODUCT_MAX):
+        raise F1KOpsError(
+            "F1K_B_PRODUCT_WINDOW",
+            "rate*s %s outside [%s, %s] $*s/h"
+            % (product, RATE_SPP_PRODUCT_MIN, RATE_SPP_PRODUCT_MAX),
+        )
+    return rate, spp, product
+
+
+def guard_rate_within_window(
+    *, project_id, zone, machine_type, local_ssd_count, s_per_prefill,
+    catalog_transport, observed_at_utc=None,
+) -> dict:
+    """Quote the live all-in Spot rate and refuse if it would bust the window.
+
+    catalog_transport is REQUIRED (no default): the guard must not silently
+    fall through to resolve_live_rate's live HTTP path; production passes the
+    live catalog transport explicitly, tests pass a fake. This is the pre-spend
+    guard: it must PASS before any construction dollar.
+    """
+    if catalog_transport is None:
+        raise F1KOpsError(
+            "F1K_B_RATE_TRANSPORT",
+            "guard_rate_within_window requires an explicit catalog_transport",
+        )
+    try:
+        rate_str, evidence = resolve_live_rate(
+            project_id=project_id,
+            zone=zone,
+            machine_type=machine_type,
+            local_ssd_count=local_ssd_count,
+            observed_at_utc=observed_at_utc,
+            catalog_transport=catalog_transport,
+        )
+    except F1KOpsError as exc:
+        # Normalize any live-quote failure into the B namespace so the guard
+        # and preflight surface a single fail-closed error family.
+        raise F1KOpsError(
+            "F1K_B_RATE_QUOTE", "live rate quote failed (%s)" % exc.code
+        ) from exc
+    except Exception as exc:  # noqa: BLE001
+        raise F1KOpsError(
+            "F1K_B_RATE_QUOTE", "live rate quote failed: %s" % exc
+        ) from exc
+    rate, spp, product = _check_rate_window(rate_str, s_per_prefill)
+    return {
+        "pass": True,
+        "rate_usd_per_hour": rate_str,
+        "s_per_prefill": canonical_decimal(spp, field="s_per_prefill"),
+        "rate_spp_product": canonical_decimal(product, field="product"),
+        "rate_evidence_sha256": evidence["sha256"],
+    }
+
+
+def preflight_launch_gate(
+    *, now_utc, local_epoch_path, instance_name, zone, project_id,
+    deadline_utc, billing_account, machine_type, local_ssd_count,
+    s_per_prefill, mirror_transport=None, systemctl_transport=None,
+    budget_transport=None, catalog_transport=None, observed_at_utc=None,
+) -> dict:
+    """Single pre-spend gate: GO only if EVERY provider-native check passes.
+
+    Fails closed on ANY error (returns NO-GO, never raises). Checks:
+    (1) the durable launch epoch resolves and elapsed wall-clock < 900 h;
+    (2) deadline_utc == launch(from the PERSISTED epoch) + 900 h — the deadline
+        is derived from the durable epoch, never from a caller value;
+    (3) the self-delete timer is active + persistent + triggers a service that
+        deletes THIS instance, armed at exactly that deadline;
+    (4) the $300 billing budget exists; (5) the live Spot rate is in-window.
+    """
+    result = {}
+    try:
+        launch = _resolve_epoch_launch(
+            local_path=local_epoch_path, mirror_transport=mirror_transport
+        )
+        launch_dt = _utc_datetime(
+            launch, field="launch_utc", code="F1K_B_EPOCH_TIME"
+        )
+        now_dt = _utc_datetime(
+            now_utc, field="now_utc", code="F1K_B_NOW_TIME"
+        )
+        if now_dt < launch_dt:
+            raise F1KOpsError(
+                "F1K_B_EPOCH_FUTURE", "launch epoch is in the future"
+            )
+        elapsed = _elapsed_hours(launch_dt, now_dt)
+        if elapsed >= SELFDELETE_CAP_HOURS:
+            raise F1KOpsError(
+                "F1K_B_CAP_ELAPSED",
+                "elapsed wall-clock %s h has reached the 900 h cap"
+                % elapsed,
+            )
+        expected_deadline = compute_selfdelete_deadline(launch_utc=launch)
+        if _utc_timestamp(
+            deadline_utc, field="deadline_utc", code="F1K_B_DEADLINE_TIME"
+        ) != expected_deadline:
+            raise F1KOpsError(
+                "F1K_B_DEADLINE_MISMATCH",
+                "deadline %r != persisted-launch+900h %r"
+                % (deadline_utc, expected_deadline),
+            )
+        selfdelete = verify_selfdelete_armed(
+            deadline_utc=deadline_utc,
+            instance_name=instance_name,
+            zone=zone,
+            project_id=project_id,
+            systemctl_transport=systemctl_transport,
+        )
+        budget = assure_billing_budget(
+            billing_account=billing_account,
+            budget_transport=budget_transport,
+        )
+        rate = guard_rate_within_window(
+            project_id=project_id,
+            zone=zone,
+            machine_type=machine_type,
+            local_ssd_count=local_ssd_count,
+            s_per_prefill=s_per_prefill,
+            catalog_transport=catalog_transport,
+            observed_at_utc=observed_at_utc,
+        )
+        result = {
+            "elapsed_hours": canonical_decimal(
+                elapsed, field="elapsed_hours"
+            ) if elapsed > 0 else "0",
+            "deadline_utc": selfdelete["deadline_utc"],
+            "selfdelete_target": selfdelete["target"],
+            "budget_amount_usd": budget["amount_usd"],
+            "rate_usd_per_hour": rate["rate_usd_per_hour"],
+        }
+    except F1KOpsError as exc:
+        return {"go": False, "reason": str(exc)}
+    except Exception as exc:  # noqa: BLE001 — a spend gate fails closed on ANY error
+        return {"go": False, "reason": "ERR_F1K_B_GATE: %s" % exc}
+
+    out = {"go": True}
+    out.update(result)
+    return out
+
+
+def selftest_b1() -> int:
+    """Run the $0 pure/local option-B spend-cap oracle."""
+    print(
+        "SELFTEST-B1 SCOPE: $0 pure/local option-B spend-cap "
+        "backstop; injectable fakes only; NO network, gcloud, "
+        "GCP resources, or spend."
+    )
+    passed = 0
+    total = 0
+
+    def check(label, function):
+        nonlocal passed, total
+        total += 1
+        try:
+            ok = bool(function())
+            detail = ""
+        except Exception as exc:  # noqa: BLE001 — oracle reports all failures
+            ok = False
+            detail = " (%s: %s)" % (type(exc).__name__, exc)
+        print("  %s%s%s" % ("ok:  " if ok else "FAIL: ", label, detail))
+        passed += int(ok)
+
+    def refuses(code, function):
+        try:
+            function()
+        except F1KOpsError as exc:
+            return exc.code == code
+        return False
+
+    class FakeMirror:
+        def __init__(self):
+            self.store = {}
+
+        def __call__(self, *, action, key, data=None):
+            if action == "put":
+                self.store[key] = data
+                return None
+            if action == "get":
+                return self.store.get(key)
+            raise AssertionError("bad mirror action %r" % action)
+
+    launch = "2026-07-20T00:00:00Z"
+    deadline = compute_selfdelete_deadline(launch_utc=launch)
+
+    def fake_systemctl(
+        active="active", oncal=None, persistent="yes",
+        triggered=None, exec_start=None,
+    ):
+        t_oncal = oncal if oncal is not None else _oncalendar(deadline)
+        t_trig = triggered if triggered is not None else SELFDELETE_SERVICE_UNIT
+        t_exec = exec_start if exec_start is not None else _selfdelete_exec_start(
+            "kot-f1k-run", "us-central1-a", "test-project"
+        )
+
+        def transport(*, action, unit):
+            return {
+                "is-active": active,
+                "oncalendar": t_oncal,
+                "persistent": persistent,
+                "triggered-unit": t_trig,
+                "exec-start": t_exec,
+            }[action]
+        return transport
+
+    def budget(amount="300", rules=None):
+        rules = ({"threshold_percent": "1.0"},) if rules is None else rules
+
+        def transport(*, action, billing_account):
+            if action != "get":
+                raise AssertionError("bad budget action")
+            if amount is None:
+                return None
+            obj = {"threshold_rules": list(rules)}
+            if amount is not False:
+                obj["amount_usd"] = amount
+            return obj
+        return transport
+
+    def min_catalog():
+        def make_sku(sku_id, desc, fam, grp, usage, unit, nanos):
+            return {
+                "name": "%s/skus/%s" % (_COMPUTE_SERVICE, sku_id),
+                "skuId": sku_id, "description": desc,
+                "category": {
+                    "serviceDisplayName": "Compute Engine",
+                    "resourceFamily": fam, "resourceGroup": grp,
+                    "usageType": usage,
+                },
+                "serviceRegions": ["us-central1"],
+                "serviceProviderName": "Google",
+                "geoTaxonomy": {
+                    "type": "MULTI_REGIONAL", "regions": ["us-central1"]
+                },
+                "pricingInfo": [{
+                    "effectiveTime": "2026-07-01T00:00:00Z",
+                    "currencyConversionRate": 1,
+                    "pricingExpression": {
+                        "usageUnit": unit,
+                        "tieredRates": [{
+                            "startUsageAmount": 0,
+                            "unitPrice": {
+                                "currencyCode": "USD",
+                                "units": "0", "nanos": nanos,
+                            },
+                        }],
+                    },
+                }],
+            }
+        skus = [
+            make_sku("1111-AAAA-0001", "Spot Preemptible N2D AMD Instance "
+                     "Core running in Americas", "Compute", "N2DAMDCore",
+                     "Preemptible", "h", 10000000),
+            make_sku("2222-BBBB-0002", "Spot Preemptible N2D AMD Instance "
+                     "Ram running in Americas", "Compute", "N2DAMDram",
+                     "Preemptible", "GiBy.h", 1000000),
+            make_sku("3333-CCCC-0003", "SSD backed Local Storage attached "
+                     "to Spot Preemptible VMs", "Storage", "LocalSSD",
+                     "Preemptible", "GiBy.h", 100000),
+        ]
+
+        def catalog(**kwargs):
+            return {"skus": copy.deepcopy(skus)}
+        return catalog
+
+    # --- B1: launch epoch -------------------------------------------------
+    def b1_happy():
+        mirror = FakeMirror()
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "launch-epoch.json")
+            write_launch_epoch(
+                launch_utc=launch, local_path=path, mirror_transport=mirror,
+            )
+            return read_elapsed_hours(
+                now_utc="2026-07-20T12:00:00Z", local_path=path,
+                mirror_transport=mirror,
+            ) == Decimal("12")
+    check("B1 persist epoch + read elapsed = 12 h", b1_happy)
+
+    def b1_idempotent():
+        mirror = FakeMirror()
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "e.json")
+            write_launch_epoch(launch_utc=launch, local_path=path,
+                               mirror_transport=mirror)
+            write_launch_epoch(launch_utc=launch, local_path=path,
+                               mirror_transport=mirror)
+            return True
+    check("B1 re-write identical epoch is idempotent", b1_idempotent)
+
+    def b1_overwrite():
+        mirror = FakeMirror()
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "e.json")
+            write_launch_epoch(launch_utc=launch, local_path=path,
+                               mirror_transport=mirror)
+            return refuses("F1K_B_EPOCH_OVERWRITE", lambda: write_launch_epoch(
+                launch_utc="2026-07-21T00:00:00Z", local_path=path,
+                mirror_transport=mirror,
+            ))
+    check("B1 refuses resetting the clock (overwrite)", b1_overwrite)
+
+    check("B1 write refuses without a durable mirror", lambda: refuses(
+        "F1K_B_MIRROR",
+        lambda: write_launch_epoch(
+            launch_utc=launch, local_path="/tmp/never", mirror_transport=None),
+    ))
+
+    def b1_missing():
+        with tempfile.TemporaryDirectory() as tmp:
+            return refuses("F1K_B_EPOCH_MISSING", lambda: read_elapsed_hours(
+                now_utc="2026-07-20T12:00:00Z",
+                local_path=os.path.join(tmp, "absent.json"),
+                mirror_transport=FakeMirror(),
+            ))
+    check("B1 read refuses when no epoch exists", b1_missing)
+
+    def b1_future():
+        mirror = FakeMirror()
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "e.json")
+            write_launch_epoch(launch_utc=launch, local_path=path,
+                               mirror_transport=mirror)
+            return refuses("F1K_B_EPOCH_FUTURE", lambda: read_elapsed_hours(
+                now_utc="2026-07-19T00:00:00Z", local_path=path,
+                mirror_transport=mirror,
+            ))
+    check("B1 read refuses a future epoch", b1_future)
+
+    def b1_split():
+        mirror = FakeMirror()
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "e.json")
+            write_launch_epoch(launch_utc=launch, local_path=path,
+                               mirror_transport=mirror)
+            other = FakeMirror()
+            other.store[LAUNCH_EPOCH_KEY] = canonical_json_bytes(
+                _build_launch_epoch("2026-07-25T00:00:00Z")
+            )
+            return refuses("F1K_B_EPOCH_SPLIT", lambda: read_elapsed_hours(
+                now_utc="2026-07-26T00:00:00Z", local_path=path,
+                mirror_transport=other,
+            ))
+    check("B1 read refuses local/mirror disagreement", b1_split)
+
+    def b1_tamper():
+        mirror = FakeMirror()
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "e.json")
+            write_launch_epoch(launch_utc=launch, local_path=path,
+                               mirror_transport=mirror)
+            with open(path, "r+b") as handle:
+                blob = json.loads(handle.read())
+                blob["launch_utc"] = "2026-07-25T00:00:00Z"
+                handle.seek(0)
+                handle.truncate()
+                handle.write(canonical_json_bytes(blob))
+            return refuses("F1K_B_EPOCH_SHA", lambda: read_elapsed_hours(
+                now_utc="2026-07-26T00:00:00Z", local_path=path,
+                mirror_transport=None,
+            ))
+    check("B1 read refuses a tampered epoch (sha mismatch)", b1_tamper)
+
+    check("B1 refuses sub-microsecond epoch precision", lambda: refuses(
+        "F1K_B_EPOCH_TIME",
+        lambda: compute_selfdelete_deadline(
+            launch_utc="2026-07-20T00:00:00.0000001Z")))
+
+    # --- B2: self-delete --------------------------------------------------
+    check("B2 deadline = launch + exactly 900 h", lambda: (
+        compute_selfdelete_deadline(launch_utc="2026-07-20T00:00:00Z")
+        == "2026-08-26T12:00:00Z"))
+
+    check("B2 render binds instance/zone/project + persistent + accuracy",
+          lambda: (
+        "Persistent=true" in render_selfdelete_unit(
+            instance_name="kot-f1k-run", zone="us-central1-a",
+            project_id="test-project", deadline_utc=deadline)["timer_text"]
+        and "AccuracySec=1s" in render_selfdelete_unit(
+            instance_name="kot-f1k-run", zone="us-central1-a",
+            project_id="test-project", deadline_utc=deadline)["timer_text"]
+        and "instances delete kot-f1k-run" in render_selfdelete_unit(
+            instance_name="kot-f1k-run", zone="us-central1-a",
+            project_id="test-project", deadline_utc=deadline)["service_text"]
+        and "--project test-project" in render_selfdelete_unit(
+            instance_name="kot-f1k-run", zone="us-central1-a",
+            project_id="test-project", deadline_utc=deadline)["service_text"]))
+
+    def verify(**kw):
+        return verify_selfdelete_armed(
+            deadline_utc=deadline, instance_name="kot-f1k-run",
+            zone="us-central1-a", project_id="test-project",
+            systemctl_transport=fake_systemctl(**kw),
+        )
+    check("B2 verify accepts a fully-armed timer",
+          lambda: verify()["armed"] is True)
+    check("B2 verify refuses an inactive timer", lambda: refuses(
+        "F1K_B_SELFDELETE_INACTIVE", lambda: verify(active="inactive")))
+    check("B2 verify refuses a drifted deadline", lambda: refuses(
+        "F1K_B_SELFDELETE_DRIFT",
+        lambda: verify(oncal="2030-01-01 00:00:00 UTC")))
+    check("B2 verify refuses a non-persistent timer", lambda: refuses(
+        "F1K_B_SELFDELETE_NOT_PERSISTENT", lambda: verify(persistent="no")))
+    check("B2 verify refuses a wrong triggered unit", lambda: refuses(
+        "F1K_B_SELFDELETE_UNIT", lambda: verify(triggered="harmless.service")))
+    check("B2 verify refuses an unbound delete target", lambda: refuses(
+        "F1K_B_SELFDELETE_TARGET",
+        lambda: verify(exec_start=_selfdelete_exec_start(
+            "some-other-vm", "us-central1-a", "test-project"))))
+    check("B2 verify refuses a confusable superstring instance name",
+          lambda: refuses(
+        "F1K_B_SELFDELETE_TARGET",
+        lambda: verify(exec_start=_selfdelete_exec_start(
+            "kot-f1k-run-other", "us-central1-a", "test-project"))))
+    check("B2 verify refuses a non-gcloud delete command", lambda: refuses(
+        "F1K_B_SELFDELETE_TARGET",
+        lambda: verify(exec_start=(
+            "/bin/true instances delete kot-f1k-run "
+            "--zone us-central1-a --project test-project"))))
+    check("B2 verify refuses without a systemctl transport", lambda: refuses(
+        "F1K_B_SYSTEMCTL",
+        lambda: verify_selfdelete_armed(
+            deadline_utc=deadline, instance_name="kot-f1k-run",
+            zone="us-central1-a", project_id="test-project",
+            systemctl_transport=None)))
+
+    # --- B3: billing budget ----------------------------------------------
+    def assure(**kw):
+        return assure_billing_budget(
+            billing_account="billingAccounts/X", budget_transport=budget(**kw))
+    check("B3 accepts a $300 budget with alerts",
+          lambda: assure()["present"] is True)
+    check("B3 refuses an absent budget", lambda: refuses(
+        "F1K_B_BUDGET_ABSENT", lambda: assure(amount=None)))
+    check("B3 refuses a wrong-amount budget", lambda: refuses(
+        "F1K_B_BUDGET_AMOUNT", lambda: assure(amount="500")))
+    check("B3 refuses a missing amount", lambda: refuses(
+        "F1K_B_BUDGET_AMOUNT", lambda: assure(amount=False)))
+    check("B3 refuses a budget with no alert thresholds", lambda: refuses(
+        "F1K_B_BUDGET_ALERT", lambda: assure(rules=())))
+    check("B3 refuses a malformed (non-object) alert rule", lambda: refuses(
+        "F1K_B_BUDGET_ALERT", lambda: assure(rules=(None,))))
+    check("B3 refuses without a budget transport", lambda: refuses(
+        "F1K_B_BUDGET",
+        lambda: assure_billing_budget(
+            billing_account="billingAccounts/X", budget_transport=None)))
+
+    # --- B4: rate window --------------------------------------------------
+    check("B4 window accepts interior rate/spp", lambda: (
+        _check_rate_window("0.219", "100")[2] == Decimal("21.9")))
+    check("B4 accept-at-equal at spp-min + product-min", lambda: (
+        _check_rate_window("0.28", "47.0")[2] == Decimal("13.16")))
+    check("B4 accept-at-equal at product-max", lambda: (
+        _check_rate_window("0.2", "139.75")[2] == Decimal("27.95")))
+    check("B4 accept-at-equal at spp-max", lambda: (
+        _check_rate_window("0.12", "162.3")[1] == Decimal("162.3")))
+    check("B4 refuses rate just under $0.081", lambda: refuses(
+        "F1K_B_RATE_WINDOW", lambda: _check_rate_window("0.0809", "100")))
+    check("B4 refuses rate just over $0.595", lambda: refuses(
+        "F1K_B_RATE_WINDOW", lambda: _check_rate_window("0.5951", "50")))
+    check("B4 refuses spp just under 47.0", lambda: refuses(
+        "F1K_B_SPP_WINDOW", lambda: _check_rate_window("0.28", "46.9")))
+    check("B4 refuses spp just over 162.3", lambda: refuses(
+        "F1K_B_SPP_WINDOW", lambda: _check_rate_window("0.12", "162.4")))
+    check("B4 refuses product just over 27.95", lambda: refuses(
+        "F1K_B_PRODUCT_WINDOW", lambda: _check_rate_window("0.2", "140")))
+    check("B4 refuses product just under 13.16", lambda: refuses(
+        "F1K_B_PRODUCT_WINDOW", lambda: _check_rate_window("0.27", "48")))
+    # Exact-product regression (the reviewer's rounding false-accept).
+    check("B4 refuses a product that only ROUNDS into range", lambda: refuses(
+        "F1K_B_PRODUCT_WINDOW",
+        lambda: _check_rate_window(
+            "0.2", "139.750000000000000000000000001")))
+
+    def b4_end_to_end():
+        result = guard_rate_within_window(
+            project_id="test-project", zone="us-central1-a",
+            machine_type="n2d-highmem-8", local_ssd_count=2,
+            s_per_prefill="120", observed_at_utc="2026-07-18T00:00:00Z",
+            catalog_transport=min_catalog(),
+        )
+        return (result["pass"] is True
+                and result["rate_usd_per_hour"] == "0.219"
+                and result["rate_spp_product"] == "26.28")
+    check("B4 guard passes end-to-end through resolve_live_rate", b4_end_to_end)
+    check("B4 guard refuses an absent catalog transport", lambda: refuses(
+        "F1K_B_RATE_TRANSPORT",
+        lambda: guard_rate_within_window(
+            project_id="test-project", zone="us-central1-a",
+            machine_type="n2d-highmem-8", local_ssd_count=2,
+            s_per_prefill="120", catalog_transport=None)))
+    check("B4 guard normalizes a raising catalog to F1K_B_RATE_QUOTE",
+          lambda: refuses(
+        "F1K_B_RATE_QUOTE",
+        lambda: guard_rate_within_window(
+            project_id="test-project", zone="us-central1-a",
+            machine_type="n2d-highmem-8", local_ssd_count=2,
+            s_per_prefill="120",
+            catalog_transport=lambda **k: (_ for _ in ()).throw(
+                OSError("catalog down")))))
+
+    # --- B5: preflight gate ----------------------------------------------
+    def b5_gate(**overrides):
+        mirror = FakeMirror()
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "epoch.json")
+            write_launch_epoch(launch_utc=launch, local_path=path,
+                               mirror_transport=mirror)
+            common = dict(
+                now_utc="2026-07-20T06:00:00Z", local_epoch_path=path,
+                instance_name="kot-f1k-run", zone="us-central1-a",
+                project_id="test-project", deadline_utc=deadline,
+                billing_account="billingAccounts/X",
+                machine_type="n2d-highmem-8", local_ssd_count=2,
+                s_per_prefill="120", mirror_transport=mirror,
+                systemctl_transport=fake_systemctl(),
+                budget_transport=budget(), catalog_transport=min_catalog(),
+                observed_at_utc="2026-07-18T00:00:00Z",
+            )
+            common.update(overrides)
+            return preflight_launch_gate(**common)
+
+    check("B5 gate GO when all checks pass", lambda: (
+        b5_gate()["go"] is True
+        and b5_gate()["rate_usd_per_hour"] == "0.219"
+        and b5_gate()["selfdelete_target"]
+        == "test-project/us-central1-a/kot-f1k-run"))
+    check("B5 NO-GO on an inactive timer", lambda: (
+        b5_gate(systemctl_transport=fake_systemctl(active="inactive"))["go"]
+        is False))
+    check("B5 NO-GO on a wrong self-delete deadline (derived from epoch)",
+          lambda: (
+        "F1K_B_DEADLINE_MISMATCH" in b5_gate(
+            deadline_utc="2030-01-01T00:00:00Z")["reason"]))
+    check("B5 NO-GO on an unbound delete target", lambda: (
+        "F1K_B_SELFDELETE_TARGET" in b5_gate(
+            systemctl_transport=fake_systemctl(
+                exec_start=_selfdelete_exec_start(
+                    "other-vm", "us-central1-a", "test-project")))["reason"]))
+    check("B5 NO-GO (fail-closed) on a raising budget transport", lambda: (
+        b5_gate(budget_transport=lambda **k: (_ for _ in ()).throw(
+            OSError("api down")))["go"] is False))
+    check("B5 NO-GO on an absent catalog transport", lambda: (
+        b5_gate(catalog_transport=None)["go"] is False))
+    check("B5 NO-GO (fail-closed) on a raising catalog transport", lambda: (
+        b5_gate(catalog_transport=lambda **k: (_ for _ in ()).throw(
+            OSError("catalog down")))["go"] is False))
+
+    print("SELFTEST-B1: %d/%d PASS" % (passed, total))
+    return 0 if passed == total else 2
+
+
 def _main() -> int:
     if len(sys.argv) < 2:
         _die(
             "F1K_OPS_USAGE",
-            "usage: f1k_ops.py selftest | selftest-b0",
+            "usage: f1k_ops.py selftest | selftest-b0 | selftest-b1",
         )
 
     command = sys.argv[1]
@@ -4812,11 +5948,17 @@ def _main() -> int:
         )
         parser.parse_args(sys.argv[2:])
         return selftest_b0()
+    if command == "selftest-b1":
+        parser = argparse.ArgumentParser(
+            prog="f1k_ops.py selftest-b1"
+        )
+        parser.parse_args(sys.argv[2:])
+        return selftest_b1()
 
     _die(
         "F1K_OPS_USAGE",
         "unknown command %r "
-        "(expected selftest or selftest-b0)"
+        "(expected selftest, selftest-b0, or selftest-b1)"
         % command,
     )
     return 2

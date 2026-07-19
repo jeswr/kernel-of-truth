@@ -1,0 +1,23 @@
+1. **RESOLVED** — `preflight_launch_gate` has no caller `launch_utc`; elapsed and expected deadline derive from the same resolved epoch. A caller-anchored alternate deadline returns `F1K_B_DEADLINE_MISMATCH`.
+
+2. **RESOLVED** — `_exact_product` has sufficient coefficient precision. `0.2 × 139.750000000000000000000000001` evaluates exactly to `27.9500000000000000000000000002` and refuses with `F1K_B_PRODUCT_WINDOW`.
+
+3. **RESOLVED** — `None` catalog transport raises `F1K_B_RATE_TRANSPORT`; preflight returns NO-GO. No live-HTTP fallback is reachable.
+
+4. **RESOLVED** — no `expected_usd` parameter remains; the required amount is fixed at `300`. Every threshold entry must be a dict, and `[None]` refuses.
+
+5. **PARTIAL** — persistence, triggered unit, rendering, project binding, network ordering, accuracy, and retries are present. However, ExecStart validation uses substrings at [f1k_ops.py](/home/ec2-user/css/kernel/kernel-of-truth/poc/gcp/f1k_ops.py:5270). Concrete false accept:
+
+   `gcloud ... instances delete kot-f1k-run-other --zone us-central1-a --project test-project`
+
+   is accepted as armed for `kot-f1k-run`. Even `/bin/true instances delete kot-f1k-run ...` passes. Compare against the exact rendered command or parse command arguments with token boundaries.
+
+6. **PARTIAL** — raising budget/systemctl/mirror transports all produce `F1K_B_*` NO-GO results, and unexpected exceptions are caught fail-closed. But a raising catalog transport still produces `ERR_F1K_RATE_QUOTE`, not `F1K_B_*`, because [guard_rate_within_window](/home/ec2-user/css/kernel/kernel-of-truth/poc/gcp/f1k_ops.py:5406) does not normalize `resolve_live_rate` failures.
+
+7. **RESOLVED** — `_utc_datetime` rejects fractional precision beyond six digits.
+
+Frozen anchors are unchanged, intended window equalities remain inclusive, and no defect appeared in exact multiplication, the broad exception catch, or epoch-authoritative valid cases. The 44/44 oracle passed using an in-memory filesystem because the review sandbox forbids temporary-file writes.
+
+Residuals (a)–(c) are acceptable under the stated single-writer/one-VM assumptions. Residual (d) is fail-closed but operationally blocking: provisioning requests STOP at [f1k_gcp.py](/home/ec2-user/css/kernel/kernel-of-truth/poc/gcp/f1k_gcp.py:579), while handoff validation requires DELETE at [f1k_ops.py](/home/ec2-user/css/kernel/kernel-of-truth/poc/gcp/f1k_ops.py:2990). It must be reconciled before deployment.
+
+**Overall: not sound to commit now.** Fix the ExecStart false acceptance and normalize catalog failures to `F1K_B_*`; add regressions for both.

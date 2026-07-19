@@ -1,0 +1,103 @@
+## Verdict
+
+**Must fix before commit.** The frozen constants and nominal comparisons are correct, but there are concrete false-GO paths and the timer verification is insufficient to establish a hard 900-hour bound.
+
+## Part A — conformance
+
+The public signatures and normal success return shapes are reasonable and keyword-only. Import and `selftest_b1` are network-free by inspection. The frozen values are transcribed correctly:
+
+- `900`, `$300`, `[$0.081,$0.595]`, `[47.0,162.3]`, and `[13.16,27.95]`.
+- Nominal comparisons are inclusive, so equality is accepted.
+- Floats are refused; ordinary money/rate paths use `Decimal`.
+
+Conformance deltas:
+
+- `guard_rate_within_window(catalog_transport=None)` is not closed: it inherits `resolve_live_rate`’s live `_catalog_http_list` default at [f1k_ops.py:1278](/home/ec2-user/css/kernel/kernel-of-truth/poc/gcp/f1k_ops.py:1278).
+- Malformed decimals and transport failures frequently escape as `ValueError`, `RuntimeError`, or `OSError`, not stable `F1K_B_*` errors. `preflight_launch_gate` only catches `F1KOpsError`.
+- `render_selfdelete_unit` returns `F1K_IDENTITY`, not `F1K_B_*`, for malformed names/zones.
+- `read_elapsed_hours(None mirror)` is deliberately local-only rather than default-refusing.
+- The module-level docstring still says the governance layer is excluded.
+- `expected_usd` makes the frozen `$300` requirement caller-overridable.
+
+## Part B — correctness
+
+1. **Elapsed time:** Day/month boundaries and ordinary fractional seconds are handled correctly using an integer-microsecond numerator and no float. The Decimal quotient is rounded to 40 digits for non-terminating fractions, which is ample for the 900-hour comparison but not literally exact as a rational number.
+
+   However, RFC3339 permits more than six fractional digits and `_utc_datetime` silently truncates them. For example, `.0000009Z` to `.0000010Z` is actually `0.1 µs`, but is parsed as `0 µs` to `1 µs`. Either reject precision beyond microseconds or parse it exactly.
+
+   Future, wholly missing, and disagreeing sources correctly refuse. Mirror-absent fallback is discussed below.
+
+2. **Write-once epoch:** The enumerated states behave as follows:
+
+   - Mirror present/local absent: identical launch repairs local; different launch refuses.
+   - Local present/mirror absent: identical launch recreates mirror; different launch refuses.
+   - Both present/disagreeing: refuses.
+   - Identical rewrite: idempotent.
+   - Corrupt mirror: refuses before overwrite.
+
+   But write-once is not unconditional. After an interruption with local data lost, if the mirror also reports absent, `write_launch_epoch(launch_utc=now)` treats that as first launch and resets the clock. It also uses a non-atomic get-then-put, so semantic write-once assumes a single writer and a non-disappearing mirror.
+
+   The SHA detects accidental corruption or unrecomputed alteration; it is not authentication. Anyone able to change the record can recompute it.
+
+3. **Deadline/timer:** `launch + 900 h` is correct for whole-second launches, including month crossings. Fractional launches are floored, producing a deadline up to one second early, which is conservative but not exact.
+
+   `Persistent=true` is rendered correctly, but the installed timer is not proven safe:
+
+   - systemd defaults `AccuracySec` to one minute, so an exact-900h `OnCalendar` may be triggered as late as 900h + 1 minute;
+   - `verify_selfdelete_armed` checks only `is-active` and `OnCalendar`;
+   - an active timer with the correct date but `Persistent=false`, `Unit=noop.service`, or an altered/missing delete service passes;
+   - the rendered delete command does not bind `--project`;
+   - a missed timer can fire during boot before networking is available, and the one-shot delete has no retry.
+
+   Concrete false accept: transport reports `"active"` and the expected calendar while the installed timer has `Persistent=false` and `Unit=harmless.service`; `verify_selfdelete_armed` returns `{"armed": True, ...}`.
+
+4. **Rate window:** The three comparison directions and ordinary equality behavior are correct. Ordinary too-cheap/fast or too-expensive/slow values refuse.
+
+   The product is not exact because multiplication uses the ambient Decimal context. Under the default context:
+
+   ```text
+   rate = 0.2
+   s/prefill = 139.750000000000000000000000001
+   exact product = 27.9500000000000000000000000002  # outside
+   computed product = 27.95000000000000000000000000  # accepted
+   ```
+
+   This is a real false accept at [f1k_ops.py:5213](/home/ec2-user/css/kernel/kernel-of-truth/poc/gcp/f1k_ops.py:5213).
+
+5. **Budget:** With the default expected amount, absent, non-object, wrong amount, empty alert list, and missing transport refuse. Deviations:
+
+   - `expected_usd="500"` plus a `$500` budget passes.
+   - `threshold_rules=[None]` passes as an alert.
+   - Missing/malformed `amount_usd` raises raw `ValueError`.
+   - Transport failure escapes raw.
+
+6. **Preflight:** The load-bearing defect is that elapsed time comes from the persisted epoch, while the deadline is derived from an unrelated caller-supplied `launch_utc` at [f1k_ops.py:5271](/home/ec2-user/css/kernel/kernel-of-truth/poc/gcp/f1k_ops.py:5271).
+
+   Concrete false GO:
+
+   ```text
+   persisted epoch = 2026-07-20T00:00:00Z
+   now             = 2026-07-24T04:00:00Z  # elapsed = 100 h
+   supplied launch = 2026-07-24T04:00:00Z
+   deadline        = 2026-08-30T16:00:00Z  # supplied launch + 900 h
+   ```
+
+   With the other checks passing, the gate returns GO even though the deadline is persisted launch + **1000 hours**. Deadline derivation must use the resolved persisted epoch, or require exact equality between it and `launch_utc`.
+
+   Further issues:
+
+   - Malformed budget amounts and transport failures escape instead of returning NO-GO.
+   - Invalid alert entries, `$500` override, rounded-over-limit products, and the insufficient timer state can be swallowed into GO.
+   - `instance_name` is unused, so the gate does not bind the verified timer to its deletion target.
+
+## Part C — seams
+
+1. **Mirror/local read path — must-fix for launch use.** Local-only reading can remain as an explicitly named diagnostic/recovery mode, but preflight should require the mirror. When a mirror transport is supplied and returns absent, accepting local contradicts “mirror authoritative.”
+
+2. **Identity outside this gate — accept with integration fix.** Avoiding duplicate identity/handoff validation is reasonable if the launch script performs it immediately before this gate. However, the timer’s actual delete target still needs binding. Also reconcile the surrounding code: current `validate_handoff` requires termination action `DELETE`, while provisioning currently requests `STOP` at [f1k_gcp.py:579](/home/ec2-user/css/kernel/kernel-of-truth/poc/gcp/f1k_gcp.py:579), conflicting with the same-instance-resume premise.
+
+3. **Transport ABIs — must-fix.** The keyword-action shapes are understandable, but the systemctl ABI cannot verify `Persistent`, `Unit`, or `ExecStart`; budget alert contents are undefined; and transport exceptions are not normalized. The mirror ABI is acceptable under a documented single-writer/durable-put assumption.
+
+4. **Deploy installs/enables units — acceptable division, conditional on stronger read-back.** Installation can remain outside this module, but preflight must verify the critical installed properties and deletion target, not merely activity and calendar time.
+
+The oracle misses the epoch/deadline split, Decimal rounding, budget override/malformed alerts, mirror-loss reset, and altered installed-unit cases. I could not rerun its filesystem cases in this read-only environment because `TemporaryDirectory` was unavailable; import, focused in-memory probes, and `git diff --check` succeeded. No files were modified.
