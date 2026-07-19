@@ -1,10 +1,23 @@
 # Kernel construction methodology — GPT-5.6 PROPOSAL (bead 99a)
 
-> **STATUS: UNREVIEWED GPT-5.6 PROPOSAL — NOT ADOPTED.** Produced 2026-07-19 via the overflow-Fable
-> lane (Fable capped). Pending: (1) coordinator review gate; (2) Fable adversarial critique when back;
-> (3) literature-researcher source-verification of every `[SV]`-tagged claim (Harnad minimum-grounding-set,
-> FCA uniqueness, SAE non-identifiability) before load-bearing use. Do NOT treat as the ratified methodology.
-> Surfaced to the maintainer as a GitHub issue. Source: poc/gpt56-review/99a-kernel-methodology/.
+> **STATUS: REVIEWED (NEEDS-FIX) GPT-5.6 PROPOSAL — NOT ADOPTED, NOT YET maintainer-ready.** Produced
+> 2026-07-19 via the overflow-Fable lane (Fable capped). Review-gate lens completed 2026-07-19
+> (`poc/gpt56-review/99a-proposal-review/last-message.json`): verdict **NEEDS-FIX — send to Fable as a
+> draft, NOT to the maintainer as the recommended path**. The "semantic-record-first; vector-derived"
+> reframing is SOUND and should be retained. MINIMUM FIXES before it is maintainer-ready: (1) operationalise
+> "independent endorsement" (independence from constructor/sources/host/gold/beneficiary; competence/COI;
+> sampling/threshold/uncertainty; disagreement handling); separate canonical vs evidence-adequate vs
+> empirically-grounded; soften criterion-4 reproducibility (stochastic LLMs → captured-output+stability, not
+> byte-identical). (2) DEMOTE the graph constraint from recommendation to a pre-registered HYPOTHESIS (its own
+> strongest objection dominates; K-NULL shows plain text equivalent/cheaper). (3) KBUILD-0: add a
+> citation-only-no-graph arm (the decisive graph ablation) + a human/expert-from-evidence arm; add a
+> PACKET-IDENTIFIABILITY gate + template/lexical-leakage audits; make EXACT construction-fidelity (record
+> denotation vs the hidden rule) PRIMARY and host-BA secondary; fix the statistical thresholds (8-balanced-
+> across-3-labels impossible; N/T point-thresholds need CIs; coverage conflates evaluator vs constructor
+> failure; independence-gate wording; selection bias) + a preregistered precedence/ambiguity matrix. The three
+> `[SV]` lit claims are correctly NON-load-bearing (illustrative). NEXT: revise (Fable when back, or a
+> deliberate overflow cycle) → Fable adversarial critique → literature-researcher verifies [SV] → THEN
+> maintainer. Do NOT treat as ratified. Source proposal: poc/gpt56-review/99a-kernel-methodology/.
 
 ---
 
