@@ -1,9 +1,15 @@
-# Kernel construction methodology — proposal 99a, REVISION 1
+# Kernel construction methodology — proposal 99a, REVISION 2
 
 > **REVISED PROPOSAL — NOT A MAINTAINER SUBMISSION AND NOT A PREREG FREEZE.
-> NEXT = Fable independent critique → source-verify [SV] the load-bearing lit → THEN maintainer.**
+> NEXT = source-verify [SV] → maintainer.**
 >
-> Revision 1 produced 2026-07-20 (Fable), applying the independent GPT-5.6 soundness review
+> Revision 2 produced 2026-07-20 (Fable), applying the independent adversarial critique of
+> Rev1 (`docs/next/design/99a-rev1-fable-critique.md`, verdict
+> **NEEDS-REV2-THEN-SOURCE-VERIFY**; 1 CRITICAL, 7 MAJOR, 5 MINOR — all 13 findings
+> applied, itemised in "## Revision 2 — critique fixes applied" below). Rev2 completes the
+> prescribed critique loop; the next stage is source verification, not another critique.
+>
+> Revision 1 was produced 2026-07-20 (Fable), applying the independent GPT-5.6 soundness review
 > (`poc/gpt56-review/99a-proposal-review/last-message.json`, verdict **NEEDS-FIX**) to the
 > original overflow-lane draft of 2026-07-19 (`poc/gpt56-review/99a-kernel-methodology/`).
 > The review's core rulings, all applied here: the **semantic-record-first / vector-derived
@@ -16,7 +22,8 @@
 > the `[SV]` literature is marked supporting-only, never load-bearing.
 >
 > Nothing here is registered, frozen, scheduled, or committed by this revision. All prereg
-> rows are PROPOSED only, labelled `PROPOSED-PREREG-ROW-99A-R1a…j`; **no `ASM-<number>` ids
+> rows are PROPOSED only, labelled `PROPOSED-PREREG-ROW-99A-R1a…j` (Rev1) and
+> `PROPOSED-PREREG-ROW-99A-R2a…m` (Rev2, one per critique finding); **no `ASM-<number>` ids
 > are minted** (ids are assigned at prereg-freeze; sibling Phase-1 revisions use the same
 > convention). Review packaging note, acknowledged: the review file `last-message.json` is
 > Markdown content in a `.json` wrapper — cosmetic only.
@@ -28,14 +35,15 @@ Tag discipline (applies to every load-bearing claim below):
   (source-verification pending) and is **supporting-only, never load-bearing** (§5 / fix 5).
 - **[STIPULATED]** — a design or policy choice. Every design choice in this document is
   [STIPULATED], never [MEASURED].
-- **[EXTRAPOLATION]** — direction-only; never used as a premise for any conclusion or gate.
+- **[EXTRAPOLATION]** — direction-only; may motivate a *hypothesis* (§3.2) but is never
+  used as a premise for any conclusion, verdict, or gate.
 
 ---
 
 # Methodology proposal: build the canon from evidence, not from a model
 
-This is a revised draft for Fable's independent critique, not a final ruling and not a
-recommendation packet for the maintainer.
+This is a revised draft completing the critique loop — next stage source-verify [SV],
+then maintainer. It is not a final ruling and not yet a maintainer submission.
 
 **Bottom line (retained from the original, per review §1):** choose a specific hybrid
 *governance architecture*, but change what is called "canonical." The canonical object is an
@@ -87,22 +95,46 @@ choice, not a canonical-authority change**. [STIPULATED]
   `data/haiku-tier/s1-experiments/s1-report.md`, `data/haiku-tier/modelauthored-schema.md`]
 - The programme's own dictionary-grounding test found 50/51 evaluable NSM primes in the
   WordNet Core, but a frequency-matched null was already ~97% Core; enrichment ≈1.01,
-  p≈0.58. Dictionary structure did **not** independently ratify NSM primes. [MEASURED:
-  `reports/lit-primitives-grounding-priorart.md` §6]
+  p≈0.58. Dictionary structure did **not** independently ratify NSM primes — **with the
+  source's own limitation carried inline (Rev2, critique Finding 4):** the source report
+  reads this null as a ceiling/saturation artifact (when ~97% of eligible content words
+  are already in the Core, no subset can be "enriched") and classes it
+  INSTRUMENT-LIMITED; the instrument could not have detected ratification, so this is a
+  weak datum, not a refutation. [MEASURED: `reports/lit-primitives-grounding-priorart.md`
+  §6 and its summary table]
 - E8 found kernel–SAE correspondence for GPT-2↔Pythia-160M (primary ρ=.386, partial ρ=.360,
   both permutation p=.0001) but the two SmolLM2-involving pairs did not replicate. One
   positive pair, not a model-independent canonical geometry (hook-site mismatch is a real
   confound). [MEASURED: `poc/e8/results-incoming/20260707-131303-modal/verdict-e8.md`,
   `poc/e8/results-incoming/20260707-143903-ext1-modal/results-e8-ext1.json`]
-- **K-NULL is directly load-bearing for §3:** kernel and aligned plain-dictionary stores
-  were equivalent within the registered margin; the concise plain store was nominally more
-  accurate and used ~0.565× the verifier-side FLOPs. The tested mechanism consumed aligned
-  answer strings, not vectors or explication structure. [MEASURED:
+- **K-NULL sets the deflationary prior for §3 — within its mechanism envelope:** kernel
+  and aligned plain-dictionary stores were equivalent within the registered margin; the
+  concise plain store was nominally more accurate and used ~0.565× the verifier-side
+  FLOPs (a figure that is **descriptive by design** in the pinned reconcile record, not
+  a registered endpoint — caveat carried inline per critique Finding 4). The tested
+  mechanism consumed aligned answer strings, not vectors or explication structure, and
+  the reconcile explicitly says nothing about mechanisms that *consume* content
+  (entailment-style checking, rules-line inference, transfer). [MEASURED:
+  `docs/next/analysis/knull-ufo-dual-model-reconcile-fable.md`]
+- **RULES-2 is the repository's one MEASURED "content-matters" datum and belongs in this
+  prior (added in Rev2; critique Finding 4):** verdict PASS, cross-vendor audit
+  CONFIRMED (2026-07-12); primary lift lower bound +0.316; the content-drivenness
+  secondary passed (a forced-flip deranged closure did not retain the lift). Its own
+  permanent claim cap is carried with it and caps it here too: any rules-2 result is
+  "engine-materialised entailments (derivable from EITHER rules source on this closed
+  inventory) are internalisable by a small host", **NEVER** "kernel-specific value"
+  (registered-cap wording quoted with its registry ids elided). So RULES-2 shows content
+  can matter on the rules line while vindicating nothing kernel-specific — and the
+  K-NULL reconcile itself states that the "content can matter" half of the programme's
+  evidence is carried entirely by RULES-2. [MEASURED: `registry/verdicts/rules-2.json`;
   `docs/next/analysis/knull-ufo-dual-model-reconcile-fable.md`]
 
 These results do not say "the kernel is useless." They say determinism, source provenance,
 graph convergence, and model alignment are **four different properties** and must not
-masquerade as semantic grounding. [STIPULATED — interpretation of the [MEASURED] rows above]
+masquerade as semantic grounding — and the evidence base is two-sided: the deflationary
+rows (K-NULL, X1-as-limited, E8) coexist with the one capped content-matters row
+(RULES-2), and a prior set from only one side would be curated, not honest. [STIPULATED —
+interpretation of the [MEASURED] rows above]
 
 ## 1. Canonicality and grounding criteria (operationalised)
 
@@ -113,15 +145,24 @@ operational test; a record can hold any subset, and the record's status field mu
 which:
 
 1. **Canonical** — *selected as the normative record by a declared authority and
-   procedure.* Operational test: given (authority A, profile P, version t, sense s), a
-   public, pinned selection procedure returns exactly one record, and re-running the
-   procedure on the pinned inputs returns the same record identity (per the softened
-   reproducibility rule, §1.3). Canonicality is a **governance fact**; it makes no claim
+   procedure.* Operational test (generation/selection split — Rev2, critique Finding 3):
+   the *generation* of candidate records may be stochastic and is held only to §1.3
+   criterion 4 (captured-reproducible, measured-stable). The *selection/promotion* step
+   — the map from (candidate set, evidence packet, endorsement objects) to the one
+   normative record for (authority A, profile P, version t, sense s) — must be a
+   **deterministic, replayable function**: re-running it on the same pinned candidates
+   and endorsement objects returns the byte-identical selected record, and changing any
+   input changes the selection identity. This test can fail — a selection procedure with
+   discretion, hidden state, or non-replayable tie-breaks is not canonical-capable — and
+   it is *not* satisfied merely by hash-pinning whatever output was accepted.
+   Canonicality is a **governance fact**; it makes no claim
    about truth. A legal or institutional definition can be fully canonical when "true" is
-   not even the appropriate test.
+   not even the appropriate test. `[PROPOSED-PREREG-ROW-99A-R2c]`
 2. **Evidence-adequate** — *faithful to specified independent evidence.* Operational test:
    every semantic clause of the record cites resolvable evidence anchors; an
-   evaluator-run (never constructor-self-scored) audit finds no unsupported clause, no
+   evaluator-run (never constructor-self-scored) audit — the auditor being a **bound
+   role**: cross-family with the drafter and evidence-blind to downstream test material,
+   per §1.2 condition 6 (Rev2, critique Finding 8) — finds no unsupported clause, no
    contradicted clause, and abstention wherever the pinned evidence underdetermines the
    content. Scored as: unsupported-clause rate, contradicted-clause rate, calibrated
    abstention.
@@ -134,6 +175,12 @@ which:
 
 No claim in this programme may use one property's test as evidence for another property.
 [STIPULATED]
+
+**Enforcement (Rev2, critique Finding 13):** the no-cross-evidencing rule is not left as
+an exhortation. Every promotion or status assertion must carry a machine-checkable
+`property-test-cited` field naming the §1.1 test it relies on, and a registry lint flags
+any status change citing a test that does not match the property claimed.
+[STIPULATED — PROPOSED-PREREG-ROW-99A-R2m]
 
 ### 1.2 Independent endorsement, operationalised `[STIPULATED — review-1 fix 2; PROPOSED-PREREG-ROW-99A-R1a]`
 
@@ -161,9 +208,28 @@ object:
    (record stays `ModelAuthored`), **appeal** (one recorded round to a pre-named
    adjudicator), or **authority ruling** (for institutionally-anchored sectors only). No
    silent averaging or synthesis of disagreeing endorsements.
-5. **Model-as-reviewer conditions:** a model may endorse only under (1)'s cross-family and
-   evidence-blind conditions, and a model endorsement can never be the sole endorsement
-   for promotion above `ModelAuthored`. [STIPULATED]
+5. **Model-as-reviewer conditions (strengthened — Rev2, critique Finding 2):** a model
+   may endorse only under (1)'s cross-family and evidence-blind conditions. Model
+   endorsements can raise confidence and can force abstention, but **can never jointly
+   suffice for promotion above `ModelAuthored`, in any number**. Cross-family separation
+   buys role and idiom independence, not *prior* independence: frontier model families
+   are trained on heavily overlapping corpora, so the §2 row (c) caveat — cross-model
+   consensus can still reflect shared training data — applies here, at the decisive
+   gate; "two cross-family models agree" is exactly the maintainer's circularity worry
+   one level up. Promotion above `ModelAuthored` therefore additionally requires **at
+   least one qualified human or sector-authority endorsement**, or — for formal-sector
+   records only — a machine-checked proof/model-check against the record's pinned
+   axioms. [STIPULATED — PROPOSED-PREREG-ROW-99A-R2b]
+6. **Bound adjacent roles (new — Rev2, critique Finding 8):** the same role-independence
+   discipline binds two production roles that are neither endorsers nor gold authors:
+   (i) the **evidence-packet assembler** — the assembly procedure is pinned, the
+   assembler is not the drafter model or its family, and selection provenance is
+   recorded including candidate sources considered and *rejected* (evidence selection is
+   the widest circularity channel: a model or model-assisted operator choosing which
+   quotes enter the packet imports the model's prior even when every selected source is
+   human-authored); (ii) the **evidence-adequacy auditor** (§1.1 test 2) — cross-family
+   with the drafter and evidence-blind to downstream test material, exactly as endorsers
+   are. [STIPULATED — PROPOSED-PREREG-ROW-99A-R2h]
 
 ### 1.3 The nine criteria (revised)
 
@@ -249,7 +315,7 @@ rests on them (§5).
 | **(a) LLM-generated NSM explications** | Weak version: the model's learned distribution. Current repository version: pinned dictionary prose plus the model's translation of it. Neither is an independent referential anchor. | A pinned prompt/model makes the procedure inspectable, but semantic output is sensitive to sense choice, prompt, model revision, stochasticity, and repair. Mechanical legality does not imply adequacy. | Potentially broad and cheap per draft. Framework G yielded only 26% legal records in its 50-concept test [MEASURED]; semantic review becomes the likely dominant cost. | Strong if evaluated on post-cutoff nonce concepts, held-out authorities, humans, or deterministic gold. Weak or circular if a correlated LLM endorses fluent NSM-shaped output. | Fluent completion can overwrite source meaning, hide unsupported distinctions, or thin out during gate repair; the same model family can "recognise" its own idiom and fabricate validation. | **Salvageable as a compiler/proposal generator — a verified proposer. Not admissible as the canonical authority.** `ModelAuthored` is the right status (unchanged by #56, §0). |
 | **(b) Dictionary graph + convergence/FCA** | Human-authored dictionary definitions and relations extracted from them: source convention, not objects or observations. | Highly reproducible once dictionaries, sense segmentation, extraction rules, edge direction, convergence rule, and tie policy are pinned — but conditional on those choices. Published dictionary studies reportedly find a ~10% Grounding Kernel and many alternative ~1% MinSets (non-uniqueness matters) [LIT-BACKED][SV — supporting-only]. An FCA lattice is unique up to isomorphism given a fixed formal context, but prose-to-incidence mapping and attribute scaling remain construction choices [LIT-BACKED][SV — supporting-only]. | Excellent lexical coverage after source/licensing and word-sense work. Deterministic recomputation cheap; high-quality relation extraction and source reconciliation are not. | Good: source holdouts, edge perturbations, alternative dictionaries, sense-level replication, downstream claim tasks. Self-reconstruction of the originating dictionary is not a valid external test. | A fixpoint can make circular prose stable without making it grounded; shared dictionary conventions or errors can converge. SCCs and MinSets identify compressibility and dependencies, not meaning or truth. | **Use for sense inventory, stable-relation discovery, molecule prioritisation, conflict detection, cycle auditing. As a *construction constraint*: a pre-registered HYPOTHESIS only (§3), not the final semantic authority and not a recommended requirement.** |
 | **(c) Extract from model internals / SAEs** | The model's training data, objectives, architecture, and behaviour: grounded in what the model represents, not in what is correct. | Poor as a universal canon: learned dictionaries are subject to permutations, rotations, feature splitting/absorption, seed and site dependence; the recent SAE literature reports substantial non-identifiability and instability [LIT-BACKED][SV — supporting-only; the repository's own E8 one-positive-pair-two-nulls picture is the [MEASURED] basis]. | Broad implicit coverage, but requires model access, activations, SAE fitting, feature matching, labels. Per-model extraction scales poorly as a universal registry. | Strong if tested cross-seed, cross-site, cross-family, on held-out models and causal downstream tasks. Weak if an SAE from the target model certifies that same model's claims. | It can canonise the model's own errors and biases; "faithful to this model" confused with "true"; cross-model consensus can still reflect shared training data. | **Behavioural validation and adapter target; ALSO admissible upstream for sense discovery, coverage-gap detection, candidate generation, and causal diagnostics — provided external evidence governs promotion** (review §2 softening). **Never** use target-model internals to author or certify the definition that will verify that same model. |
-| **(d) Principled hybrid (governance architecture)** | Multiple pinned human sources plus at least one operational, observational, institutional, formal, or usage anchor; an LLM compiles; independent endorsement (§1.2) decides. Whether a *graph constraint* belongs in the loop is the §3 hypothesis. | Canonical relative to a named authority/profile/version. Deterministic stages byte-reproducible; stochastic stages captured-reproducible + measured-stable (§1.3 crit. 4); disagreements become explicit forks or revisions, never hidden averaging. | More expensive per promoted record because review is real. Scale comes from tiering: unreviewed bulk stays `AxiomsOnly`/`ModelAuthored`; only reviewed records enter the canon. | Best of the four: source holdout, graph perturbation, nonce concepts, counterexamples, reviewer agreement, text nulls, shuffles, held-out-model validation attack different links. | Consensus can launder shared source bias; governance can become slow or political; review cost may erase any compression benefit — and **plain pinned text may dominate the whole construction on K-NULL evidence** (§3). | **Adopted as the governance architecture** (evidence-anchored + independently endorsed). The graph-constrained variant is **not recommended — it is hypothesis H-GRAPH (§3), to be tested against the citation-only and plain-text controls.** |
+| **(d) Principled hybrid (governance architecture)** | Multiple pinned human sources plus at least one operational, observational, institutional, formal, or usage anchor; an LLM compiles; independent endorsement (§1.2) decides. Whether a *graph constraint* belongs in the loop is the §3 hypothesis. | Canonical relative to a named authority/profile/version. Deterministic stages byte-reproducible; stochastic stages captured-reproducible + measured-stable (§1.3 crit. 4); disagreements become explicit forks or revisions, never hidden averaging. | More expensive per promoted record because review is real. Scale comes from tiering: unreviewed bulk stays `AxiomsOnly`/`ModelAuthored`; only reviewed records enter the canon. | Best of the four: source holdout, graph perturbation, nonce concepts, counterexamples, reviewer agreement, text nulls, shuffles, held-out-model validation attack different links. | Consensus can launder shared source bias; governance can become slow or political; review cost may erase any compression benefit — and **plain pinned text may dominate the whole construction on K-NULL evidence** (§3). | **Adopted as the governance architecture on stated non-empirical governance grounds; the constructed-record store is only conditionally adopted pending H-TEXT (§3.1 — Rev2, critique Finding 7).** The graph-constrained variant is **not recommended — it is hypothesis H-GRAPH (§3), to be tested against the citation-only and plain-text controls.** |
 
 Two direct answers follow (unchanged in substance):
 
@@ -267,15 +333,35 @@ Two direct answers follow (unchanged in substance):
 
 ## 3. Adopted governance architecture; graph constraint DEMOTED to hypothesis `[STIPULATED — review-1 fix 3; PROPOSED-PREREG-ROW-99A-R1d]`
 
-### 3.1 What is adopted (as a proposal for critique, not a registration)
+### 3.1 What is adopted, and on what grounds (a proposal, not a registration)
 
-Adopt **an evidence-anchored, independently endorsed governance architecture**:
+Adopt **an evidence-anchored, independently endorsed governance architecture** — with the
+basis of adoption made explicit (Rev2, critique Finding 7), so §3.2's demotion logic is
+applied to this section symmetrically rather than only to the graph:
+
+- The **governance architecture itself** (records with provenance, independent
+  endorsement, explicit forks, evidence-release pinning) is adopted on **non-empirical
+  governance grounds** — auditability, provenance, fork-governance, and licensing
+  hygiene — which hold regardless of any efficiency verdict. [STIPULATED]
+- The **constructed-record store as what the canon ships** (versus a hash-pinned
+  plain-text store governed by the *same* endorsement machinery) is only **conditionally
+  adopted pending the H-TEXT outcome**. On §1.3 criterion-8 efficiency grounds it
+  currently stands **unearned**: K-NULL found the kernel store weakly dominated by a
+  plain dictionary at its tested scope [MEASURED: §0b]. If precedence row 3 fires for a
+  sector — or the text control remains unheard (row 4, §4.8) — adoption of constructed
+  records is withheld for that sector and the endorsement machinery governs the text
+  store instead. [STIPULATED — PROPOSED-PREREG-ROW-99A-R2g]
+
+The six steps of the architecture:
 
 1. **Declare the unit.** Records per sense; profile, domain, language, authority, and
    intended verification scope fixed first.
 2. **Assemble an evidence packet.** Multiple independently pinned sources where available,
    plus at least one non-constructor anchor appropriate to the sector; record source
-   conflicts instead of silently synthesising them.
+   conflicts instead of silently synthesising them. **Packet assembly is a bound role
+   per §1.2 condition 6 (Rev2, critique Finding 8):** pinned assembly procedure,
+   assembler not of the drafter's family, and full selection provenance recorded —
+   including candidate sources considered and rejected.
 3. **Use the pinned drafter as a compiler** (per #56 currently Sol/largekern-10k; §0). The
    drafter may propose the `kot-ast` record; every semantic clause must cite one or more
    evidence anchors; unsupported clauses fail; source conflicts force abstention or an
@@ -304,10 +390,18 @@ be a recommendation, because **its own strongest objection plausibly dominates i
 
 - The original conceded that matched-review direct LLM construction may be equivalent and
   cheaper, in which case the graph should be removed. [STIPULATED — original §3 objection]
-- **K-NULL strengthens that objection with repository data:** plain aligned text was
-  equivalent within the registered margin, nominally more accurate, at ~0.565× verifier
-  FLOPs [MEASURED]. A plain-text-equivalent-cheaper control therefore plausibly dominates
-  the graph-constrained construction on the graph's *own* efficiency-and-adequacy terms.
+- **K-NULL *motivates* that objection — as a tagged extrapolation, not as measurement
+  (Rev2, critique Finding 4):** the figures are [MEASURED] (plain aligned text
+  equivalent within the registered margin, nominally more accurate, ~0.565× verifier
+  FLOPs — descriptive-by-design in the pinned reconcile record, §0b), but K-NULL's
+  tested mechanism consumed aligned answer strings only, and its own reconcile
+  quarantines it from mechanisms that *consume* content (entailment-style checking) —
+  which is exactly what KBUILD-0 scores. Carrying K-NULL's dominance conclusion across
+  that mechanism envelope into the *construction* setting is therefore
+  **[EXTRAPOLATION]** — legitimate for motivating the demotion of a recommendation to a
+  hypothesis, never usable as support for any verdict or gate. RULES-2 (§0b) stands as
+  the capped counterweight: content can matter, never kernel-specifically.
+  (PROPOSED-PREREG-ROW-99A-R2d)
 - KBUILD-0 as originally designed could not even isolate the graph: H differed from A1 by
   the graph AND clause-level citation discipline AND changed prompting/abstention, so any
   H−A1 advantage was confounded (review §2). The decisive ablation is citation-only
@@ -318,16 +412,31 @@ graph constraint a pre-registered empirical hypothesis*:
 
 > **H-GRAPH [PROPOSED-PREREG-ROW-99A-R1d, hypothesis — NOT a recommendation]:** relative
 > to citation-constrained direct-drafter construction (arm A2) under the identical
-> endorsement protocol, adding the deterministic sense-graph constraint (arm H) improves
-> exact construction fidelity (primary endpoint, §4.5) or reduces semantic error or
-> blinded-review cost, by the pre-registered margins — **tested against, and subordinate
-> to, the K-NULL-style plain-text controls (arms T and T′): if the plain-text control is
-> equivalent to the best constructed arm and cheaper end-to-end, text deflation dominates
-> any graph result** (precedence matrix, §4.8).
+> endorsement protocol, adding the deterministic **packet-local** graph constraint
+> (arm H) improves exact construction fidelity (primary endpoint, §4.5) or reduces
+> semantic error or blinded-review cost, by the pre-registered margins — **tested
+> against, and subordinate to, the K-NULL-style plain-text controls (arms T and T′): if
+> the plain-text control is equivalent to the best constructed arm and lower on the
+> lifecycle-cost composite (LCC, §4.8), text deflation dominates any graph result; if
+> the text contrast is inconclusive, constructed-arm adoption is blocked** (precedence
+> matrix, §4.8, rows 3–4).
 
-Direction-of-travel note: if H-GRAPH fails but citation discipline alone (A2 vs A1) shows
-the benefit, the programme keeps citation-constrained drafting and drops graph
-construction entirely. [EXTRAPOLATION — direction-only, decides nothing]
+**Scope of H-GRAPH (Rev2, critique Finding 5):** on the nonce stratum, arm B/H's graph
+is necessarily a **packet-local relation digest**, not dictionary-scale convergence: a
+KBUILD-0 packet contains three renderings of one micro-world rule, with none of the
+large-N convergence, cycle-census, or cross-source-reconciliation structure that makes
+methodology (b) interesting. H-GRAPH's verdict is therefore worded as "does a
+packet-local graph constraint during compilation help," and only the natural stratum
+(where real dictionary structure exists) speaks — confirmatorily, never rescuing a
+failed primary — to dictionary-scale constraint. Methodology (b)'s
+discovery/inventory/audit roles (§2 row b, "Proposed role") are **untouched by any
+KBUILD-0 outcome**. [STIPULATED — PROPOSED-PREREG-ROW-99A-R2e]
+
+Direction-of-travel note (rescoped in Rev2 per critique Finding 5c): if H-GRAPH fails but
+citation discipline alone (A2 vs A1) shows the benefit, the programme keeps
+citation-constrained drafting and drops the graph constraint **from the compilation loop
+for the tested sectors** — (b)'s discovery, inventory, and audit roles are unaffected.
+[EXTRAPOLATION — direction-only, decides nothing]
 
 ## 4. KBUILD-0 (revised): cheap, decisive construction experiment
 
@@ -345,14 +454,19 @@ host model at all**; the host/compression evaluation runs only if Stage 1 earns 
   gate's value independent of any graph.
 - **H-TEXT (deflation, dominant):** the best constructed arm under the pre-registered
   hierarchy (§4.6) is TOST-equivalent to the content-matched plain rendering T′ and/or
-  hash-pinned source text T within ±0.03 while costing more end-to-end. If supported,
-  adopt the text store for this scope — this outcome **dominates** all constructed-arm
-  contrasts (§4.8).
+  hash-pinned source text T within the registered ±0.03 margin while scoring higher on
+  the lifecycle-cost composite (LCC, §4.8). **Because it is the dominant hypothesis it
+  is powered like one (Rev2, critique Finding 1a):** the §4.6 power rule requires ≥90%
+  power for this TOST at its registered margin, under the same `INSTRUMENT-INVALID`
+  consequence as the superiority contrast; and an *inconclusive* T/T′ equivalence
+  **blocks constructed-arm adoption** (§4.8 row 4). If supported, adopt the text store
+  for this scope — this outcome **dominates** all constructed-arm contrasts (§4.8).
 - **H-SHUFFLE (assignment):** correctly assigned representations beat within-stratum
   shuffled representations; failure kills all construction-specific content claims at
   this scope.
 - **H-HUMAN (cost realism):** neither drafter nor graph reduces blinded expert review time
-  or lifecycle cost relative to the human-from-evidence arm E at matched fidelity.
+  or the lifecycle-cost composite (LCC, §4.8) relative to the human-from-evidence arm E
+  at matched fidelity.
 
 All margins are [STIPULATED] smallest-effects-of-interest, to be justified against
 calibration data before any freeze; nothing here is frozen.
@@ -406,15 +520,32 @@ schema. "Drafter" = the pinned drafter of record (§0).
   unsupported-clause rejection, and the identical conflict/abstention rules as H — but no
   evidence graph. Same endorsement protocol as A1/H. **H vs A2 is the only contrast that
   isolates the graph** (review §2).
-- **B — dictionary graph only:** deterministic sense graph; source-supported signed
-  relations under a frozen rule; frozen closure/fixpoint; rendered without generative
-  semantic additions.
+- **B — graph only (packet-local on the nonce stratum — Rev2, critique Finding 5a):**
+  on nonce packets the graph is constructed by a **frozen extraction rule over the
+  packet's shared typed IR** (§4.7 gate 1): nodes are the IR's predicates, molecule
+  references, and exemplar entities; edges are the IR's typed relations, negation, and
+  scope operators; frozen closure/fixpoint; rendered without generative semantic
+  additions. On the natural stratum, B is the real dictionary sense-graph
+  (source-supported signed relations under a frozen rule). B's nonce-stratum verdict is
+  explicitly a packet-local-digest verdict, never a dictionary-convergence verdict
+  (§3.2 scope; PROPOSED-PREREG-ROW-99A-R2e).
 - **H — graph-constrained hybrid:** B's evidence graph → drafter compilation with
   clause-level evidence pointers → the matched endorsement protocol.
 - **E — human/expert-from-evidence (new):** blinded human experts author the typed record
   from the identical packet under the same time budget. Since endorsement may dominate
   cost, the study must test whether the drafter or the graph actually reduces expert
-  work; E also anchors the achievable-fidelity ceiling and lifecycle-cost comparison.
+  work; E also anchors the achievable-fidelity ceiling and the LCC comparison.
+  **Schema-familiarity counter-measure (structural, NOT deferrable — Rev2, critique
+  Finding 10):** the drafter is pipeline-tuned to the record schema; humans authoring it
+  cold would be scored down for tooling unfamiliarity, not semantic ability — and
+  precedence row 5 (human baseline) sits above the graph row, so this bias could flip
+  the headline verdict in either direction. Therefore: pre-registered schema training
+  plus calibration exercises to a **pinned proficiency bar** before any scored
+  authoring; E fidelity reported both raw and post-calibration; and "expert" for nonce
+  micro-worlds is **defined as demonstrated calibration performance, not domain
+  credentials** (§1.2 sector competence has no meaning for synthetic nonce concepts).
+  Recruitment logistics remain deferrable to pre-freeze; this counter-measure does not.
+  (PROPOSED-PREREG-ROW-99A-R2j)
 - **T — source-text null:** hash-pinned source definitions retrieved directly; no graph,
   AST, vector, or generated explication.
 - **T′ — content-matched plain rendering (new):** a deterministic plain-prose rendering of
@@ -432,10 +563,12 @@ after construction, per §3.1 step 6.
 ### 4.4 Stage sequencing and consumer `[STIPULATED — review-1 fix 4]`
 
 - **Stage 1 (primary, no host):** score every arm's typed records directly against the
-  exact hidden rules (§4.5). Co-primary observables: construction fidelity, lifecycle
-  cost, blinded-review metrics (agreement with CI, edit distance, review minutes,
-  adjudication rate). A **pre-registered sequential futility/superiority boundary**
-  allows stopping arms early.
+  exact hidden rules (§4.5). Co-primary observables: construction fidelity, the
+  lifecycle-cost composite (LCC, §4.8), blinded-review metrics (agreement with CI, edit
+  distance, review minutes, adjudication rate). A **pre-registered sequential
+  futility/superiority boundary** allows stopping arms early. Stage 1 is itself entered
+  via the machine-only Rung 0 screen (§7 — Rev2, critique Finding 12), which can kill
+  the branch before the human endorsement apparatus is stood up.
 - **Stage 2 (secondary, conditional):** the host/text-compression evaluation runs **only
   if** Stage 1 shows the relevant constructed arm has incremental semantic fidelity or
   review-cost benefit. Host: smallest model from a preregistered local ladder passing the
@@ -485,33 +618,67 @@ each vs its shuffle, and E vs the best machine arm (cost realism).
   the original (N ≤0.40; T−shuffled-T ≥0.20) become **pre-registered one-sided 95%
   confidence-bound tests** (e.g. upper bound of N's BA below the leakage bound; lower
   bound of the T−S(T) difference above the sensitivity bound).
-- **Power:** simulate before freeze from calibration data; ≥90% power for the +0.08
-  effect; the simulation must include **model-seed, renderer, reviewer, and discrete
-  within-concept measurement variance** — not concept variance alone. One preregistered
-  escalation to a maximum of 160 nonce concepts; if 90% power is unreachable at the
-  maximum, the experiment is `INSTRUMENT-INVALID`, not run-and-hope.
+- **Power (symmetric — Rev2, critique Finding 1a):** simulate before freeze from
+  calibration data; ≥90% power for the +0.08 superiority effect **and ≥90% power for
+  every registered TOST at its registered margin — explicitly including the dominant
+  H-TEXT deflation TOST (±0.03) and the ±0.05 retention/human-parity TOSTs**. A ±0.03
+  equivalence margin generically demands more information than a +0.08 superiority
+  margin at matched error rates, so the *dominant* hypothesis must never be the only
+  unpowered one. The simulation must include **model-seed, renderer, reviewer, and
+  discrete within-concept measurement variance** — not concept variance alone. One
+  preregistered escalation to a maximum of 160 nonce concepts; if 90% power is
+  unreachable at the maximum, the experiment is `INSTRUMENT-INVALID`, not run-and-hope.
+  The same rule applies per-TOST: if a registered TOST cannot reach 90% power at the
+  160-concept maximum, either its margin is re-justified **pre-freeze** (widening to at
+  most ±0.05, with the loss of margin symmetry stated openly in the freeze record) or
+  the experiment is `INSTRUMENT-INVALID`. (PROPOSED-PREREG-ROW-99A-R2a)
 - **Generality over the pipeline, not one draw:** multiple author seeds/model snapshots
   per arm (count pinned pre-freeze); conclusions attach to the pinned pipeline
   *distribution* per §1.3 criterion 4, not to a single stochastic draw.
-- **Selection-bias fix:** "best constructed arm" for H-TEXT is determined by a **fixed
-  pre-registered comparison hierarchy** (H → A2 → A1, first that clears its own
-  superiority bar; simultaneous confidence intervals reported), never selected post hoc
-  on the same outcomes.
+- **Selection-bias fix (hierarchy fully specified — Rev2, critique Finding 9):** "best
+  constructed arm" for H-TEXT is determined by a **fixed pre-registered comparison
+  hierarchy** with each rung's bar and comparator defined: H clears iff the H−A2 lower
+  95% confidence bound exceeds +0.08 (the primary rule); otherwise A2 clears iff the
+  A2−A1 lower bound exceeds its pinned citation-increment margin; otherwise A1 clears
+  iff the A1−A0 lower bound exceeds its pinned review-increment margin (both increment
+  margins pinned pre-freeze from calibration — values deferrable, structure not).
+  **Fallback:** if no arm clears any bar, best-arm := A1 and T′ renders A1's endorsed
+  records — the deflation contrast **still runs**, so H-TEXT cannot silently vanish
+  exactly when construction is weakest, the case where deflation is most likely true.
+  Simultaneous confidence intervals reported; never selected post hoc on the same
+  outcomes. (PROPOSED-PREREG-ROW-99A-R2i)
 
 ### 4.7 Instrument gates `[STIPULATED — review-1 fix 4; PROPOSED-PREREG-ROW-99A-R1f]`
 
 Failure of any gate yields `INSTRUMENT-INVALID`, not a substantive null:
 
-1. **PACKET-IDENTIFIABILITY gate (new; decisive):** every scored label must be logically
-   determined by the published packet alone. A deterministic checker verifies, per claim,
-   that the packet's rendered evidence entails/contradicts/underdetermines the claim
-   **as the gold label says** — with `UNDERDETERMINED` defined **relative to what the
-   packet supports, not what the concealed rule says**. Claims failing the check are
-   regenerated before freeze; a post-freeze failure invalidates the instrument. Without
-   this gate a model can earn credit by guessing the hidden generator from prior/template
-   cues.
+1. **PACKET-IDENTIFIABILITY gate (operating level specified — Rev2, critique Finding
+   6):** every scored label must be logically determined by the published packet alone,
+   with `UNDERDETERMINED` defined **relative to what the packet supports, not what the
+   concealed rule says**. A deterministic checker of entailment over free natural
+   language does not exist, and no LLM may fill the role (gate 8), so the checker's
+   operating level is stated: **a shared typed IR consumed by all renderer families**.
+   Per claim, the deterministic checker verifies over the IR that the packet's evidence
+   entails/contradicts/underdetermines the claim **as the gold label says**. The
+   semantics→text step is then guarded not by sampling but by a **100% machine-verified
+   round-trip on all claim-bearing evidence: render → deterministic parse-back →
+   IR-equality**; any round-trip failure is an `INSTRUMENT-INVALID` rendering defect
+   (this closes the gap where a rendering-loss item is semantically identifiable yet
+   textually underdetermined and a constructor is scored wrong for correct
+   packet-relative abstention). Gate 2's human paraphrase audit is retained for
+   **naturalness only**, no longer as the identifiability guard. Gate 3's
+   renderer-family separation and motif-overlap bounds are constraints on renderers
+   **given** round-trip success: renderers must vary surface form while preserving
+   parse-back, and a renderer family that can satisfy round-trip only through template
+   rigidity that busts the gate-3 bounds **fails gate 3** — the gates compose,
+   identifiability wins any declared conflict, and the conflict itself is reported.
+   Claims failing the IR check are regenerated before freeze; a post-freeze failure
+   invalidates the instrument. Without this gate a model can earn credit by guessing the
+   hidden generator from prior/template cues. (PROPOSED-PREREG-ROW-99A-R2f)
 2. **Gold gate:** the micro-world engine passes exhaustive rule/claim self-tests; a
-   blinded 10% paraphrase audit reaches ≥95% correct interpretation.
+   blinded 10% human paraphrase audit reaches ≥95% — scoring **naturalness/readability
+   only** (identifiability is gate 1's 100% round-trip, not this sample — Rev2,
+   critique Finding 6).
 3. **Template/lexical-leakage audits (new):** evidence renderers and claim renderers come
    from **separate renderer families**; pre-registered lexical-overlap and template-motif
    statistics between packet text and claim text must stay under pinned bounds (the
@@ -533,10 +700,14 @@ Failure of any gate yields `INSTRUMENT-INVALID`, not a substantive null:
    Broken evaluator parsing/rendering is instrument failure** (≥99% evaluator-side
    parse/render success required, else `INSTRUMENT-INVALID` for the affected cells).
    Self-scoring of coverage by the constructing arm is prohibited.
-8. **Independence gate (rewritten):** no LLM supplies **gold labels or endorsement
-   decisions**; the Stage-2 host supplies predictions only (that is its role, not a
-   breach); drafter model, host model, and auditing model are from pairwise different
-   families; reviewer independence per §1.2.
+8. **Independence gate (rewritten; extended in Rev2):** no LLM supplies **gold labels or
+   endorsement decisions**; the Stage-2 host supplies predictions only (that is its
+   role, not a breach); drafter model, host model, and auditing model are from pairwise
+   different families; **and every renderer family (evidence and claim renderers alike)
+   is disjoint from both the drafter family and the host family** (critique Finding 11
+   — otherwise A-arms get a free same-family-idiom leak, exactly the "recognise its own
+   idiom" failure mode §2 row (a) warns about; PROPOSED-PREREG-ROW-99A-R2k); reviewer
+   independence per §1.2.
 9. **Reviewer-reliability gate (new):** chance-corrected reviewer agreement on
    calibration records must clear a pinned bound with its CI, else the endorsement
    instrument — not the constructions — is invalid.
@@ -546,6 +717,20 @@ Failure of any gate yields `INSTRUMENT-INVALID`, not a substantive null:
 
 ### 4.8 Kill rules, ambiguity handling, and precedence matrix `[STIPULATED — review-1 fix 4; PROPOSED-PREREG-ROW-99A-R1i]`
 
+**Lifecycle-cost composite (LCC) — replaces the four-axis cheapness conjunction (Rev2,
+critique Finding 1c):** a single pre-pinned composite, every component **measurable
+within the study**: authoring cost (drafter tokens/calls or human minutes at a pinned
+rate), review cost (blinded minutes + adjudication events), consumer cost (rendered
+tokens and, in Stage 2 only, verifier FLOPs), storage bytes, and **maintenance
+operationalised as the measured cost of one pinned revision cycle** (a pre-registered
+single-edit source change propagated through each arm's pipeline to a re-endorsed
+record). Component weights are pinned pre-freeze from calibration (the *weighting* is a
+named deferrable; the composite's *structure* is not). Any maintenance consideration
+beyond the revision-cycle proxy is reported descriptively and is **excluded from every
+decision rule** — a conjunction containing an unmeasurable axis can block deflation
+forever and is abolished. "Cheaper"/"lower cost" in this section always means "lower
+LCC". [STIPULATED — PROPOSED-PREREG-ROW-99A-R2a]
+
 Kill/selection rules (revised to the new endpoint and arms):
 
 - **Kill H-GRAPH** if H fails to beat A2 by the primary rule; retain citation-constrained
@@ -554,15 +739,20 @@ Kill/selection rules (revised to the new endpoint and arms):
   confidence bound +0.05, or if its unsupported-constraint precision has a 95% lower
   bound below 0.95; `ModelAuthored` candidate role survives.
 - **Retain direct compilation** if A2/A1 and H are TOST-equivalent within ±0.05 and the
-  direct arm has lower measured lifecycle cost.
+  direct arm has lower measured LCC.
 - **Deflate to text** if T′ (first) or T is TOST-equivalent to the hierarchy winner
-  within ±0.03 and cheaper in authoring, tokens, FLOPs, and maintenance.
+  within the registered ±0.03 margin and has lower LCC (single composite — the
+  four-axis conjunction is abolished, Rev2 critique Finding 1c).
+- **Adoption-blocking rule (new — Rev2, critique Finding 1b):** an *inconclusive* T/T′
+  equivalence blocks **adoption** of any constructed arm (precedence row 4): fidelity
+  contrasts are reported as findings, adoption is withheld, and the single preregistered
+  escalation (§4.6) is triggered with the T-contrast's power as its primary target.
 - **Kill all construction-specific content claims at this scope** if correctly assigned
   structured arms are equivalent to their shuffles.
 - **Efficiency verdict is separate** and passes only under the end-to-end Pareto rule of
   §1.3 criterion 8.
-- **Human-cost verdict:** if E matches machine-arm fidelity within ±0.05 at lower
-  lifecycle cost, neither drafter nor graph has earned its complexity for this sector.
+- **Human-cost verdict:** if E matches machine-arm fidelity within ±0.05 at lower LCC,
+  neither drafter nor graph has earned its complexity for this sector.
 
 **Precedence matrix (pre-registered; resolves every previously-unhandled ambiguous
 outcome):** ordered highest-precedence first — a higher row's verdict dominates any
@@ -572,15 +762,21 @@ lower row's.
 |---|---|---|
 | 1 | Any gate of §4.7 fails | `INSTRUMENT-INVALID` — no substantive claim in either direction |
 | 2 | Structured arms ≈ their shuffles | Representations carry no concept-specific evidence at this scope; all construction claims die |
-| 3 | **T′/T TOST-equivalent to hierarchy winner and cheaper** | **Text deflation. Dominates every constructed-arm victory — explicitly including "H beats A2 but T′ ≈ H and cheaper"** |
-| 4 | E matches machines within ±0.05, cheaper lifecycle | Human-from-evidence baseline verdict; machine construction unearned for this sector |
-| 5 | H beats A2 by primary rule AND lifecycle cost non-dominated | H-GRAPH supported (scoped to tested sectors) |
-| 6 | H beats A2 semantically but is dominated on lifecycle cost | Split verdict: fidelity supported, adoption unearned; graph stays hypothesis pending cost reduction |
-| 7 | Graph reduces error but increases review time | Split verdict per pre-pinned fidelity-vs-review-cost trade rule (pinned pre-freeze from calibration) |
-| 8 | H−A2 lower CI ≤ +0.08 AND ±0.05 TOST also fails | **Indeterminate — reported as indeterminate**; no adoption, no kill; one preregistered escalation (§4.6) or verdict stands as indeterminate |
-| 9 | T/T′ equivalence inconclusive | No deflation claim; efficiency verdict withheld; constructed-arm verdicts stand scoped |
+| 3 | **T′/T TOST-equivalent to hierarchy winner and lower LCC** | **Text deflation. Dominates every constructed-arm victory — explicitly including "H beats A2 but T′ ≈ H and lower LCC"** |
+| 4 | **T/T′ equivalence inconclusive** (moved above all constructed-arm rows — Rev2, critique Finding 1b) | **Constructed-arm ADOPTION BLOCKED.** No deflation claim; fidelity contrasts are reported as findings only; no constructed arm is adopted; the single preregistered escalation (§4.6) is triggered with the T-contrast's power as its primary target; if still inconclusive after escalation, adoption stays withheld. An unheard text control never reroutes to "constructed-arm verdicts stand" |
+| 5 | E matches machines within ±0.05, lower LCC | Human-from-evidence baseline verdict; machine construction unearned for this sector |
+| 6 | H beats A2 by primary rule AND LCC non-dominated | H-GRAPH supported **and adoptable** (scoped to tested sectors, packet-local per §3.2; reachable only below rows 3–4, i.e. the text control spoke and did not win) |
+| 7 | H beats A2 semantically but is dominated on LCC | Split verdict: fidelity supported, adoption unearned; graph stays hypothesis pending cost reduction |
+| 8 | Graph reduces error but increases review time | Split verdict per pre-pinned fidelity-vs-review-cost trade rule (pinned pre-freeze from calibration) |
+| 9 | H−A2 lower CI ≤ +0.08 AND ±0.05 TOST also fails | **Indeterminate — reported as indeterminate**; no adoption, no kill; one preregistered escalation (§4.6) or verdict stands as indeterminate |
 | 10 | Nonce and natural strata disagree | Primary (nonce) verdict stands **scoped to evidence-compilation**; natural-stratum disagreement is a pre-registered generalisation failure, blocking any natural-language scope claim |
 | 11 | Effects reverse across concept types or reviewers | Heterogeneity verdict: report per-stratum with interaction CI; no pooled adoption claim |
+
+Row ordering is load-bearing (Rev2): the inconclusive-text row sat at position 9 in
+Rev1, *below* the constructed-arm verdict rows, so an underpowered text control let "H
+beats A2" advance via row 5 — the exact back-door the demotion was supposed to close. It
+now sits at position 4, above every constructed-arm verdict. [STIPULATED —
+PROPOSED-PREREG-ROW-99A-R2a]
 
 Cost: deterministic preprocessing, a few hundred drafter calls, a bounded human review and
 human-authoring exercise, and — only if Stage 2 triggers — under a GPU-day of small-model
@@ -606,17 +802,25 @@ repository results plus [STIPULATED] design choices. Specifically:
 - **Harnad symbol-grounding distinction** [LIT-BACKED][SV]: conceptually important to the
   vocabulary; no gate or margin depends on it.
 
-The `[SV]` verifications are queued for the literature-researcher **after** Fable's
-independent critique (see NEXT banner); until verified they cannot be promoted to
-load-bearing use.
+The `[SV]` verifications are now the **next stage** (the critique loop is complete; see
+NEXT banner); until verified the citations cannot be promoted to load-bearing use. Per
+critique Finding 4, Rev2 changed *which* claims are load-bearing, so the source-verify
+sweep's scope also includes re-confirming at source the newly prior-setting repository
+citations: the RULES-2 verdict and its verbatim claim cap
+(`registry/verdicts/rules-2.json`) and the K-NULL reconcile's mechanism-envelope and
+descriptive-by-design sentences
+(`docs/next/analysis/knull-ufo-dual-model-reconcile-fable.md`).
 
 ## 6. Honest uncertainty map
 
 - **Settled by repository measurement [MEASURED]:** representation determinism ≠ semantic
   correctness (encoder); dictionary Core membership does not enrich NSM primes over a
-  frequency-matched null; plain aligned text matched the kernel store at ~0.565× verifier
-  FLOPs in K-NULL's tested mechanism; E8 has one positive cross-model pair and two
-  non-replications; Framework-G legal yield was 13/50.
+  frequency-matched null (an INSTRUMENT-LIMITED ceiling null per its own source, §0b);
+  plain aligned text matched the kernel store at ~0.565× verifier FLOPs (descriptive by
+  design) in K-NULL's tested answer-string mechanism; **RULES-2's rules-line lift is
+  content-driven (PASS, audit CONFIRMED, primary LB +0.316) under its permanent
+  never-kernel-specific cap (§0b — Rev2, critique Finding 4)**; E8 has one positive
+  cross-model pair and two non-replications; Framework-G legal yield was 13/50.
 - **Settled by literature (pending [SV], supporting-only):** dictionary grounding-kernel
   non-uniqueness; FCA conditional uniqueness; SAE instability reports.
 - **Open empirical (this is what KBUILD-0 buys):** H-GRAPH (graph increment over citation
@@ -633,7 +837,19 @@ load-bearing use.
 Each rung: question / method / pass-fail / cost / decision-unblocked. Rungs are
 [STIPULATED] proposals; none is registered.
 
-1. **Rung 1 — KBUILD-0 Stage 1 (construction fidelity, no host).** Q: does graph or
+0. **Rung 0 — machine-only screen (new — Rev2, critique Finding 12).** Q: do the two
+   cheapest potential branch-killers fire before any human apparatus exists?
+   "Cheapest-first" must count the human machinery, not GPU cost only. M: arms A0,
+   unreviewed-A2 (A2 minus endorsement), B, T, S, N — evaluator-scored against the exact
+   rules; no reviewers, no endorsement protocol, no arm E; pre-registered sequential
+   futility boundary. P/F: preliminary forms of precedence rows 2 (structured ≈
+   shuffles) and 3 (text-deflation signal) — Rung 0 can **KILL** the branch (futility)
+   but can never support adoption (its arms are unreviewed). Cost: drafter calls +
+   deterministic evaluation only; no humans, no GPU. Unblocks: standing up the
+   endorsement apparatus (reviewer calibration, crossed review, arm E training) only if
+   the branch survives. [STIPULATED — PROPOSED-PREREG-ROW-99A-R2l]
+1. **Rung 1 — KBUILD-0 Stage 1 (construction fidelity, no host; entered only via
+   Rung 0).** Q: does graph or
    citation discipline or review improve exact record fidelity over the pinned drafter,
    and does anything beat text/human baselines? M: §4.3 arms, §4.5 primary, §4.7 gates,
    §4.8 matrix, sequential boundary. P/F: §4.8. Cost: drafter calls + bounded human
@@ -661,11 +877,13 @@ All rows are PROPOSED only — nothing is registered, frozen, or scheduled by th
 **no `ASM-<number>` ids are minted** (ids are assigned at prereg-freeze). Labels are
 `99A`-prefixed to stay disjoint from the sibling revisions (THR-, GU-, VL-, H-PS rows).
 
-- **PROPOSED-PREREG-ROW-99A-R1a:** independent-endorsement law — an endorsement counts
-  for promotion only under §1.2's five recorded conditions (role independence incl.
-  cross-family/evidence-blind model reviewers; competence/COI; pre-fixed sampling,
-  number, threshold, uncertainty; fork/abstain/appeal/authority-ruling disagreement
-  handling; model-endorsement never sole). [STIPULATED]
+- **PROPOSED-PREREG-ROW-99A-R1a (amended in Rev2):** independent-endorsement law — an
+  endorsement counts for promotion only under §1.2's six recorded conditions (role
+  independence incl. cross-family/evidence-blind model reviewers; competence/COI;
+  pre-fixed sampling, number, threshold, uncertainty;
+  fork/abstain/appeal/authority-ruling disagreement handling; model endorsements never
+  jointly sufficient with a human/authority floor per R2b; bound
+  packet-assembler/adequacy-auditor roles per R2h). [STIPULATED]
 - **PROPOSED-PREREG-ROW-99A-R1b:** three-property separation law — canonical,
   evidence-adequate, and empirically-grounded are distinct record statuses with the
   distinct operational tests of §1.1; no property's test may evidence another. [STIPULATED]
@@ -703,6 +921,73 @@ All rows are PROPOSED only — nothing is registered, frozen, or scheduled by th
   supporting-only; no gate, margin, or verdict may rest solely on an unverified
   citation; [EXTRAPOLATION] is direction-only and never a premise. [STIPULATED]
 
+Rev2 rows (one per critique finding, in finding order):
+
+- **PROPOSED-PREREG-ROW-99A-R2a:** deflation-enforcement law (Finding 1) — every
+  registered TOST (the dominant H-TEXT ±0.03 first) is powered ≥90% at its registered
+  margin under the same `INSTRUMENT-INVALID` rule as the superiority contrast;
+  inconclusive T/T′ equivalence BLOCKS constructed-arm adoption (§4.8 row 4, placed
+  above every constructed-arm verdict row); the deflation decision uses the single
+  measurable lifecycle-cost composite (LCC), never a multi-axis conjunction containing
+  an unmeasurable axis. [STIPULATED]
+- **PROPOSED-PREREG-ROW-99A-R2b:** human-floor endorsement law (Finding 2) — promotion
+  above `ModelAuthored` requires at least one qualified human or sector-authority
+  endorsement (or, for formal-sector records, a machine-checked proof/model-check
+  against pinned axioms); model endorsements are never jointly sufficient in any
+  number. [STIPULATED]
+- **PROPOSED-PREREG-ROW-99A-R2c:** canonical-selection law (Finding 3) — candidate
+  generation may be stochastic (captured-reproducible per R1c); the selection/promotion
+  map from (candidates, evidence packet, endorsement objects) to the one normative
+  record is a deterministic, replayable, byte-checked function; §1.1's canonicality
+  test applies to that function and can fail. [STIPULATED]
+- **PROPOSED-PREREG-ROW-99A-R2d:** two-sided-evidence law (Finding 4) — the
+  prior-setting evidence base includes RULES-2 with its never-kernel-specific cap
+  alongside the deflationary rows; the K-NULL→construction bridge is tagged
+  [EXTRAPOLATION] across the mechanism envelope and may motivate hypotheses only;
+  instrument-limited nulls (the X1 ceiling) and descriptive-by-design figures (0.565×)
+  carry their limitations inline. [STIPULATED]
+- **PROPOSED-PREREG-ROW-99A-R2e:** graph-scope law (Finding 5) — on the nonce stratum,
+  arm B/H is a packet-local relation digest over the shared typed IR under a frozen
+  extraction rule; H-GRAPH verdicts are worded packet-local; dictionary-scale
+  methodology-(b) claims are confined to the natural stratum; (b)'s
+  discovery/inventory/audit roles are untouched by any KBUILD-0 outcome. [STIPULATED]
+- **PROPOSED-PREREG-ROW-99A-R2f:** identifiability-mechanism law (Finding 6) — the
+  PACKET-IDENTIFIABILITY checker operates on the shared typed IR; all claim-bearing
+  evidence passes a 100% machine-verified render→parse-back→IR-equality round-trip
+  (failure = `INSTRUMENT-INVALID` rendering defect); the human paraphrase audit scores
+  naturalness only; gate-3 overlap bounds constrain renderers given round-trip success,
+  with identifiability winning declared conflicts. [STIPULATED]
+- **PROPOSED-PREREG-ROW-99A-R2g:** symmetric-adoption law (Finding 7) — the governance
+  architecture is adopted on stated non-empirical governance grounds; the
+  constructed-record store is conditionally adopted pending H-TEXT, stands unearned on
+  criterion-8 efficiency grounds, and is withheld per sector wherever §4.8 rows 3–4
+  fire. [STIPULATED]
+- **PROPOSED-PREREG-ROW-99A-R2h:** production-role law (Finding 8) — evidence-packet
+  assembler and evidence-adequacy auditor are bound roles: pinned assembly procedure,
+  assembler not of the drafter family, selection provenance recorded incl. rejected
+  sources; auditor cross-family and evidence-blind, as endorsers. [STIPULATED]
+- **PROPOSED-PREREG-ROW-99A-R2i:** hierarchy-completeness law (Finding 9) — each
+  comparison-hierarchy rung has a defined bar and comparator (H−A2 > +0.08; A2−A1 and
+  A1−A0 against pinned pre-freeze increment margins); on no-clear the fallback is
+  best-arm := A1 with T′ rendering A1's records, and the deflation contrast always
+  runs. [STIPULATED]
+- **PROPOSED-PREREG-ROW-99A-R2j:** human-arm-fairness law (Finding 10) — arm E receives
+  pre-registered schema training and calibration to a pinned proficiency bar before any
+  scored authoring; E fidelity is reported raw and post-calibration; nonce-sector
+  "expert" is defined as demonstrated calibration performance, not domain credentials.
+  [STIPULATED]
+- **PROPOSED-PREREG-ROW-99A-R2k:** renderer-disjointness law (Finding 11) — every
+  renderer family is disjoint from both the drafter family and the host family
+  (extends gate 8's pairwise-disjointness rule). [STIPULATED]
+- **PROPOSED-PREREG-ROW-99A-R2l:** machine-first law (Finding 12) — Rung 0 (machine-only
+  arms, evaluator-scored, sequential futility boundary) precedes standing up the
+  endorsement apparatus; Rung 0 can kill the branch but can never support adoption.
+  [STIPULATED]
+- **PROPOSED-PREREG-ROW-99A-R2m:** property-test-enforcement law (Finding 13) — every
+  promotion/status assertion carries a machine-checkable `property-test-cited` field;
+  a registry lint flags any status change citing a test that does not match the
+  property claimed. [STIPULATED]
+
 ## Revision 1 — review fixes applied
 
 Itemisation against the five review fixes (authoritative fix text:
@@ -712,7 +997,8 @@ Itemisation against the five review fixes (authoritative fix text:
    verbatim in intent (§ "Bottom line", §1.3 definition, §3.1); the review's confirmation
    that it matches the implemented encoder architecture is recorded in §0b.
 2. **Operationalise the criteria — ADOPTED.** Independent endorsement operationalised
-   with five recorded conditions (§1.2, 99A-R1a); canonical vs evidence-adequate vs
+   with five recorded conditions (§1.2, 99A-R1a; Rev2 strengthened condition 5 and added
+   a sixth — see "Revision 2" items 2 and 8); canonical vs evidence-adequate vs
    grounded separated with three distinct operational tests and a no-cross-evidencing
    rule (§1.1, 99A-R1b); criterion-4 reproducibility softened to captured-output +
    derivation hashes + measured stability for stochastic steps, byte-identity retained
@@ -749,39 +1035,126 @@ Itemisation against the five review fixes (authoritative fix text:
 Consistency with #56 is handled in §0: Sol as drafter is a draft-step choice; Sol output
 remains `ModelAuthored`; the independent gate and the full methodology question stand.
 
+## Revision 2 — critique fixes applied
+
+Itemisation against the 13 findings of the independent adversarial critique
+(`docs/next/design/99a-rev1-fable-critique.md`, verdict NEEDS-REV2-THEN-SOURCE-VERIFY;
+1 CRITICAL, 7 MAJOR, 5 MINOR). The surviving architecture — three-property split, A2
+citation-only ablation, precedence-matrix concept, verified-proposer frame — is retained
+unchanged; every item below is a targeted repair, not a redesign.
+
+1. **(CRITICAL) Deflation dominance unenforced — ADOPTED, all three parts.** (a) §4.6:
+   ≥90% power required for *every* registered TOST at its registered margin — the
+   dominant H-TEXT ±0.03 first — under the same `INSTRUMENT-INVALID` rule as the +0.08
+   superiority contrast (pre-freeze widening to at most ±0.05 permitted only with the
+   symmetry loss stated openly). (b) Inconclusive T/T′ equivalence now BLOCKS
+   constructed-arm adoption: the row moved from precedence position 9 to position 4,
+   above every constructed-arm verdict row; escalation retargeted at the T-contrast;
+   "constructed-arm verdicts stand" deleted. (c) The four-axis cheapness conjunction is
+   replaced by the single measurable lifecycle-cost composite (LCC, §4.8), maintenance
+   operationalised as one pinned revision cycle, everything beyond it descriptive-only.
+   (R2a)
+2. **Model-only promotion loophole — ADOPTED.** §1.2 condition 5: promotion above
+   `ModelAuthored` requires ≥1 qualified human or sector-authority endorsement
+   (formal sector: mechanical proof/model-check); model endorsements never jointly
+   suffice in any number; the §2(c) shared-training-corpus caveat is carried into §1.2
+   where it matters. (R2b)
+3. **Canonicality test vacuous-or-false — ADOPTED.** §1.1 test 1 splits generation
+   (stochastic, captured-reproducible per §1.3 crit. 4) from selection/promotion (a
+   deterministic, replayable, byte-checked function); the test applies to the selection
+   function and can now fail. (R2c)
+4. **One-sided §0b curation + untagged K-NULL bridge — ADOPTED.** RULES-2 added to §0b
+   and §6 with its never-kernel-specific cap; the §3.2 K-NULL→construction bridge
+   re-worded from "strengthens with repository data" to "motivates" and tagged
+   [EXTRAPOLATION] across knull-v2's mechanism envelope; 0.565× carries its
+   descriptive-by-design status; the X1 null carries its source's
+   ceiling/INSTRUMENT-LIMITED caveat inline. (R2d)
+5. **H-GRAPH cannot test methodology (b); arm B under-defined — ADOPTED.** Arm B's
+   nonce-stratum extraction rule specified (frozen rule over the shared typed IR of
+   §4.7 gate 1); H-GRAPH verdicts re-worded packet-local; dictionary-scale (b) confined
+   to the natural stratum; (b)'s discovery/inventory/audit roles declared untouched by
+   any KBUILD-0 outcome; the "drops graph construction entirely" direction note
+   rescoped. (R2e)
+6. **PACKET-IDENTIFIABILITY checker under-specified — ADOPTED.** Checker operates on a
+   shared typed IR; 100% machine-verified render→parse-back→IR-equality round-trip on
+   all claim-bearing evidence (failure = `INSTRUMENT-INVALID`); gate-2 paraphrase audit
+   demoted to naturalness-only; gate-3 bounds restated as given-round-trip constraints
+   with identifiability winning declared conflicts. (R2f)
+7. **Asymmetric demotion logic — ADOPTED WITH MODIFICATION (both halves of the
+   critique's either/or fix).** §3.1 states the non-empirical governance grounds on
+   which the architecture is adopted regardless of the efficiency verdict (option b),
+   concedes the constructed-record store stands unearned on criterion-8 grounds, AND
+   makes constructed-record adoption conditional on the H-TEXT outcome per sector
+   (option a's conditional element) — both are needed because Finding 1b independently
+   requires adoption to be blockable by the text control. §2 row (d) re-worded to
+   match. (R2g)
+8. **Production circularity channels — ADOPTED.** §1.2 condition 6 binds the
+   evidence-packet assembler (pinned procedure, non-drafter-family, provenance incl.
+   rejected sources) and the adequacy auditor (cross-family, evidence-blind); §3.1
+   step 2 and §1.1 test 2 carry the binding. (R2h)
+9. **Comparison hierarchy under-specified — ADOPTED.** Each rung's bar and comparator
+   defined (H−A2 > +0.08; A2−A1 and A1−A0 against pinned pre-freeze increment margins);
+   fallback best-arm := A1 with T′ rendering A1's records; the deflation contrast
+   always runs. (R2i)
+10. **Arm-E schema-familiarity confound — ADOPTED.** The structural counter-measure is
+    in §4.3 and marked non-deferrable: pinned-bar schema training/calibration before
+    scored authoring; raw + post-calibration reporting; nonce "expert" defined as
+    demonstrated calibration performance. Recruitment logistics remain deferred. (R2j)
+11. **Renderer families vs drafter family — ADOPTED.** Gate 8 extended: every renderer
+    family disjoint from both the drafter family and the host family. (R2k)
+12. **Machine-only Rung 0 — ADOPTED.** §7 Rung 0 added (A0, unreviewed-A2, B, T, S, N;
+    evaluator-scored; sequential futility boundary; can kill, never adopt) ahead of
+    standing up the endorsement apparatus; §4.4 references it. (R2l)
+13. **R1b enforcement — ADOPTED.** Machine-checkable `property-test-cited` field on
+    every promotion/status assertion plus a registry lint for mismatches (§1.1). (R2m)
+
+No finding is rebutted. The single modification of detail is finding 7, where Rev2 takes
+both halves of the critique's either/or fix for consistency with finding 1b.
+
+**Named deferral list (pre-freeze, per the critique's own ruling; nothing on this list
+blocks Rev2):** the specific margin *values* (+0.08 / ±0.03 / ±0.05) pending
+calibration; the fidelity-composite *weighting*; the LCC component *weighting*; the
+row-8 (Rev1 row-7) fidelity-vs-review-cost trade rule; arm-E *recruitment logistics*.
+NOT deferred (structural, landed in this revision): the per-TOST power requirement, the
+row-4 adoption block, the LCC structure, and the arm-E calibration counter-measure.
+
 ## Mandatory self-check (final section)
 
-1. **All 5 fixes addressed?** YES — itemised in "Revision 1" above with section anchors:
-   (1) Bottom line/§1.3/§3.1; (2) §1.1/§1.2/§1.3-crit-4; (3) §3.2 + §2 rewording;
-   (4) §4.2–§4.8; (5) §5.
-2. **Graph-constraint DEMOTED to a hypothesis tested against the K-NULL cheaper-plain-text
-   control?** YES — H-GRAPH (§3.2, 99A-R1d); tested via H-vs-A2; subordinate to arms
-   T/T′ under precedence row 3, which explicitly dominates an H-beats-A2 victory; the
-   [MEASURED] K-NULL 0.565×-FLOPs result is cited as the motivating evidence.
-3. **Canonical / evidence-adequate / grounded separated with distinct operational
-   tests?** YES — §1.1 gives one test per property (public selection procedure;
-   evaluator-audited clause-evidence faithfulness; non-constructor operational/
-   observational contact) plus the no-cross-evidencing rule (99A-R1b).
-4. **KBUILD-0 has citation-only-no-graph ablation + construction-fidelity PRIMARY + fixed
-   stats + precedence matrix?** YES — arm A2 (§4.3); §4.5 primary endpoint
-   (denotational, evaluator-scored); §4.6 repaired statistics (3/3/3, CI-bound gates,
-   power components, seeds, crossed reviewers, fixed hierarchy); §4.8 eleven-row
-   precedence matrix covering every ambiguous outcome the review listed.
-5. **Every load-bearing claim tagged?** YES — [MEASURED] for repository results (with
-   file citations), [STIPULATED] for every design choice/criterion/gate/margin,
-   [LIT-BACKED][SV] supporting-only for literature, [EXTRAPOLATION] used once (§3.2
-   direction note) and marked direction-only, never a premise.
-6. **No [MEASURED] on a choice?** YES — checked: every [MEASURED] tag anchors a
-   repository result file; all criteria, arms, gates, margins, laws, and rungs carry
-   [STIPULATED].
-7. **No @handle/account strings?** YES — models and roles are referred to by
-   model/pipeline names (Sol/GPT-5.6, largekern-10k, Haiku Framework-G) and role names
-   only; no @-handles or account identifiers appear.
-8. **No `ASM-<number>` minted?** YES — only `PROPOSED-PREREG-ROW-99A-R1a…j` labels; §8
-   states ids are assigned at prereg-freeze; sibling rows referenced by their PROPOSED
-   labels only.
+1. **All 13 critique findings addressed?** YES — itemised in "Revision 2" above with
+   section anchors and row labels R2a…m (one per finding); none rebutted; the deferral
+   list contains only the critique's own legitimately-deferrable items.
+2. **Finding-1 three-part fix landed?** YES — (a) §4.6: every registered TOST, the
+   dominant H-TEXT ±0.03 first, powered ≥90% under the same `INSTRUMENT-INVALID` rule
+   as the superiority contrast; (b) §4.8 row 4: inconclusive T/T′ equivalence BLOCKS
+   constructed-arm adoption, placed above every constructed-arm verdict row, escalation
+   retargeted at the T-contrast; (c) §4.8 LCC: single measurable lifecycle composite
+   replaces the four-axis conjunction, maintenance operationalised as one pinned
+   revision cycle, the remainder descriptive-only and excluded from decision rules.
+3. **§1.2 no longer promotes on model-only endorsements?** YES — condition 5 requires
+   ≥1 qualified human or sector-authority endorsement (or formal-sector mechanical
+   proof/model-check); model endorsements are never jointly sufficient in any number
+   (R2b), with the shared-corpus caveat stated at the gate.
+4. **RULES-2 in the evidence base + K-NULL bridge tagged [EXTRAPOLATION]?** YES — §0b
+   and §6 carry RULES-2 (PASS, audit CONFIRMED, primary LB +0.316) with its
+   never-kernel-specific cap; §3.2's K-NULL→construction bridge is tagged
+   [EXTRAPOLATION] across the mechanism envelope and demoted from "strengthens with
+   repository data" to "motivates".
+5. **Every load-bearing claim tagged?** YES — [MEASURED] only with repository file
+   citations; [STIPULATED] on every design choice/criterion/gate/margin/law/rung;
+   [LIT-BACKED][SV] supporting-only; [EXTRAPOLATION] appears twice (§3.2 K-NULL bridge;
+   §3.2 direction note) — both motivation-/direction-only, never a premise for any
+   verdict or gate.
+6. **No [MEASURED] on a choice?** YES — re-checked after every Rev2 edit: each
+   [MEASURED] tag anchors a repository result file; the K-NULL→construction bridge
+   specifically is now [EXTRAPOLATION], repairing the Rev1 defect the critique caught;
+   all new Rev2 laws, gates, and composites carry [STIPULATED].
+7. **No @handle/account strings?** YES — models, pipelines, and roles are referred to
+   by model/pipeline/role names only (Sol/GPT-5.6, largekern-10k, Haiku Framework-G);
+   no @-handles or account identifiers appear.
+8. **No `ASM-<number>` minted?** YES — only `PROPOSED-PREREG-ROW-99A-R1a…j` and
+   `…-R2a…m` labels; §8 states ids are assigned at prereg-freeze; the RULES-2 cap is
+   quoted with its registry ids elided rather than reproduced.
 9. **Nothing committed / registered / frozen?** YES — this is an in-place edit of the
    design document only; no git operations, no registry writes, no prereg-freeze, no
    runs launched; the top banner marks it NOT a maintainer submission and NOT a prereg
-   freeze, with the required NEXT sequence (Fable independent critique →
-   source-verify [SV] → THEN maintainer).
+   freeze, with NEXT = source-verify [SV] → maintainer (the critique loop is complete).
