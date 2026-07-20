@@ -1,19 +1,24 @@
-# KOT-FAIR/2 measurement + fair-comparison framework — REVISED DRAFT, Revision 1 (bead P3-MF-0)
+# KOT-FAIR/2 measurement + fair-comparison framework — REVISED DRAFT, Revision 2 (bead P3-MF-0)
 
-> **STATUS: REVISED DRAFT — NOT FREEZE-READY; Part-B technical edits applied; Part C (correctness
-> instrument) + re-review + Fable critique pending before any prereg-freeze; freeze also gated on the
-> #57 a/b/c decision.** Revision 1 (2026-07-20, Programme-3 Phase-1, overflow-Fable lane) applies the
-> **12 ordered Part-B reconciliation edits** from the freeze-readiness review
+> **STATUS: REVISED DRAFT — NOT FREEZE-READY; Part-B technical edits applied (Rev1) and the Rev1
+> adversarial-critique repairs applied (Rev2); Part C (correctness instrument) + re-review + the #57
+> a/b/c decision + P3-D-THREAT ratification (with its freeze-time content-hash pin) + P3-E-CAL GREEN
+> + the empirical ratifications all pending before any prereg-freeze.** Revision 2 (2026-07-20,
+> Programme-3 Phase-1, Fable lane) applies ALL findings of the independent adversarial critique
+> ([kot-fair-2-rev1-fable-critique.md](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/kot-fair-2-rev1-fable-critique.md) — verdict NEEDS-REV2-THEN-REREVIEW; 3 CRITICAL + 10 MAJOR +
+> 7 MINOR; fixes `PROPOSED-CRIT-1..13`) to Revision 1, which itself applied the **12 ordered Part-B
+> reconciliation edits** from the freeze-readiness review
 > ([kot-fair-2-review1-freeze-readiness.md](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/kot-fair-2-review1-freeze-readiness.md) — GPT-5.6 review reconciled against the 10 completed
 > Phase-0 lit-reviews; verdict NOT-freeze-ready) to the 2026-07-19 GPT-5.6 draft. This CONCRETISES
 > docs/next/programme-3-neurosymbolic-architecture.md §1-§2. All `[STIPULATED — coordinator/Fable to
 > ratify]` values remain PROPOSED, not fixed. The review's **Part C (the correctness-instrument gap) is
 > deliberately NOT applied** — it is a MAINTAINER/Fable strategic decision tied to the #57 a/b/c
 > framework-adjudication crux; see "## Part C — correctness instrument — DEFERRED pending #57" below.
-> NEXT: (1) re-review of this revision; (2) Fable adversarial critique; (3) the #57 decision + the
-> Part-C correctness-instrument decision; (4) only then freeze via P3-D-INDEX (also needs P3-D-THREAT
-> ratification). Do NOT treat as frozen. Itemised changes: "## Revision 1 — Part-B reconciliation
-> edits applied". Source: poc/gpt56-review/p3mf0-kotfair-spec/ + review-1 Part-B fixes.
+> NEXT: (1) re-review of this Revision 2; (2) the #57 decision + the Part-C correctness-instrument
+> decision; (3) only then freeze via P3-D-INDEX (also needs P3-D-THREAT ratification, content-hash
+> pinned at freeze per §5.4). Do NOT treat as frozen. Itemised changes: "## Revision 1 — Part-B
+> reconciliation edits applied" and "## Revision 2 — critique fixes applied".
+> Source: poc/gpt56-review/p3mf0-kotfair-spec/ + review-1 Part-B fixes + rev1-critique fixes.
 
 > **Tags:** four-tag scheme per programme discipline — `[MEASURED: ref]` observed fact with source;
 > `[LIT-BACKED: ref]` literature-dependent choice with a resolvable backing; `[STIPULATED]` design
@@ -24,7 +29,7 @@
 
 # KOT-FAIR/2 — measurement and fair-comparison framework
 
-> **Status:** `KOT-FAIR/2-rc1` (REVISED DRAFT, Part-B edits applied), PROPOSAL for re-review and Fable critique. It is not frozen, preregistered, scheduled, or evidence. No Phase-2/G4/W1 work may freeze until every unresolved pin below is filled, the #57 a/b/c decision and the Part-C correctness-instrument decision land, P3-E-CAL is GREEN, and the resulting manifest is content-hashed.
+> **Status:** `KOT-FAIR/2-rc2` (REVISED DRAFT, Part-B edits + Rev1-critique repairs applied), PROPOSAL for re-review. It is not frozen, preregistered, scheduled, or evidence. No Phase-2/G4/W1 work may freeze until every unresolved pin below is filled, the #57 a/b/c decision and the Part-C correctness-instrument decision land, P3-D-THREAT is ratified AND content-hash pinned (§5.4), P3-E-CAL is GREEN (including the per-rung census of §7.2), and the resulting manifest is content-hashed.
 >
 > **Authority:** Programme-3 [§1.1–§1.4](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/programme-3-neurosymbolic-architecture.md:222) and [§2.0–§2.5](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/programme-3-neurosymbolic-architecture.md:445).
 >
@@ -46,13 +51,19 @@ B_k=(\text{max packed bytes},\text{max p95 latency},
 LCB95(INDEX(S)-INDEX(C))>\delta_k,
 \]
 
-**and additionally** (Revision 1, per review Part-B edit #1) `[PROPOSED-PREREG-ROW-MF0-R1a]`: for every scalar-eligible domain \(d\) in the rung's frozen core-domain set and its preregistered **per-domain frontier comparator** \(C^{d}\) (the strongest admissible comparator on domain \(d\), pinned at roster closure),
+**and additionally** (Revision 1, per review Part-B edit #1) `[PROPOSED-PREREG-ROW-MF0-R1a]`: for every domain \(d\) in the rung's frozen core-domain set and its preregistered **per-domain frontier comparator** \(C^{d}\),
 
 \[
 LCB95\left(D_d(S)-D_d(C^{d})\right)>-\delta_{NI},
 \]
 
-a simultaneous one-sided per-domain NON-INFERIORITY condition with preregistered margin \(\delta_{NI}\) (default `0.02`, §6.2), carried inside the same predeclared multiplicity family. **W1 is scalar superiority AND per-domain non-inferiority**: a system may not buy a large single-domain gain with regressions elsewhere and still pass. "No regression" means this frozen one-sided non-inferiority margin, not an impossible demand that every point estimate increase.
+a simultaneous one-sided per-domain NON-INFERIORITY condition with preregistered margin \(\delta_{NI}\) (default `0.02`; positive-margin convention, one-sided condition \(> -\delta_{NI}\), stated ONCE here and cross-referenced by §6.2 — Revision 2, per critique m-3), carried inside the same predeclared multiplicity family. **W1 is scalar superiority AND per-domain non-inferiority**: a system may not buy a large single-domain gain with regressions elsewhere and still pass. "No regression" means this frozen one-sided non-inferiority margin, not an impossible demand that every point estimate increase.
+
+**\(C^{d}\) definition (Revision 2, per critique M-6 / `PROPOSED-CRIT-9`)** `[STIPULATED]` `[PROPOSED-PREREG-ROW-MF0-R2g]`: \(C^{d}\) = the argmax, over admissible members of the closed comparator roster, of the frozen **dev** domain score \(D_d\) (point estimate, on the dev split pinned by hash in the frontier record; never the test suite, never a bound). \(C^{d}\) is pinned at roster closure and **recomputed before prereg-freeze on any frontier rebuild or challenger admission** — a blinded challenger that is admitted (or that triggers the `0.01`-regret rebuild of §5.3) enters the \(C^{d}\) argmax like any roster member. The dev-selection caveat (winner's-curse on the selection statistic; unbiased evaluation at test) is recorded in the §6.2 analysis plan. \(C^{d}\) never references S.
+
+**Core-set/eligibility collision rule (Revision 2, per critique M-4 / `PROPOSED-CRIT-7`)** `[STIPULATED]` `[PROPOSED-PREREG-ROW-MF0-R2f]`: the NI family may never silently shrink. If any member of the rung's frozen core-domain set has no scalar-eligible component at that rung (census/variance/saturation, §1.4), the NI condition for that domain does NOT evaporate; instead the frozen fallback applies: that domain's NI bound runs on the preregistered VECTOR column — the domain's unclipped \(\tilde{s}\) mean over its manifest components at that rung — inside the same multiplicity family. If that vector column is itself undefined at the rung (no manifest component at all), **W1 is not available at that rung**. The choice of fallback (vector-column NI, with W1-unavailable as the terminal case) is fixed here, before any architecture output exists.
+
+**Construct-map dependency (Revision 2, per critique M-5 / `PROPOSED-CRIT-8`)** `[STIPULATED]`: the NI family is defined over the **frozen construct map** — the domain-assignment and benchmark-family clustering frozen in ratification item 4 together with the core-domain set, with the review-requested grouping-sensitivity report attached at ratification. Because which per-domain NI constraints exist, and what each \(C^{d}\) is strongest at, are functions of benchmark→domain grouping, the construct-map freeze is a **load-bearing dependency of this edit, NOT a separable OPEN Part-A deferral** (the Revision-1 log said otherwise; corrected in the Revision-2 log). Merging or splitting constructs after ratification is an index VERSION change.
 
 [LIT-BACKED: reports/lit-p3-eval.md §2, §7] This answers the construct-validity objection to any stand-alone scalar: the composite-index review returned a defensibility NULL for a bare scalar on this programme's suite. Consequently **the metric VECTOR (per-domain and per-benchmark scores, plus the mandatory refusal/coverage/risk columns) is the primary descriptive object of every KOT-FAIR/2 report**; the scalar exists for ranking inside the W1 decision rule and may never be quoted without the vector one link away.
 
@@ -60,7 +71,9 @@ a simultaneous one-sided per-domain NON-INFERIORITY condition with preregistered
 
 The claim licensed is only:
 
-> “S exceeds every pre-registered, reproducible open comparator and baseline family searched under budget \(B_k\) by at least \(\delta_k\) on KOT-AI-INDEX/2-vN, with no preregistered domain regression beyond \(\delta_{NI}\).”
+> “S exceeds every pre-registered, reproducible open comparator and baseline family searched under budget \(B_k\) by at least \(\delta_k\) on KOT-AI-INDEX/2-vN, with no core domain more than \(\delta_{NI}\) below its preregistered per-domain frontier comparator.”
+
+(Wording per critique m-4: the NI gate is vs \(C^{d}\) only, not vs every comparator; the licensed sentence may not overstate it.)
 
 It never licenses “better than all models of the same size and compute.”
 
@@ -123,7 +136,9 @@ A release name without `canonical_item_sha256` is not a frozen pin.
 
 MMLU-cloze is excluded. RuleTaker is not separately scored as a headline component because ProofWriter is the selected successor; depth-stratified RuleTaker splits are R0/R1 continuity-diagnostic candidates alongside shallow ProofWriter, subject to the same LCB floor census. BBEH is excluded below R4 because of expected floor effects. `[SV]`
 
-**Rung-membership rule (Revision 1, per review edit #3).** [LIT-BACKED: reports/lit-p3-eval.md §6] The rung columns above are the pre-calibration hypothesis: low-floor components — BLiMP, the EWoK domains that pass the floor census, low-hop CLUTRR, and shallow/depth-stratified ProofWriter–RuleTaker — anchor R0/R1; FOLIO and GSM8K sit at R2+ unless the rung-specific **LCB floor census** (§1.4) proves discrimination lower; MMLU-Pro and BBH remain R3+. Final per-rung membership is fixed by that census on each rung's anchor BEFORE any architecture output exists; a membership shift after census is an index VERSION change.
+**Rung-membership rule (Revision 1, per review edit #3; executing instrument named in Revision 2, per critique C-2 / `PROPOSED-CRIT-2`).** [LIT-BACKED: reports/lit-p3-eval.md §6] The rung columns above are the pre-calibration hypothesis: low-floor components — BLiMP, the EWoK domains that pass the floor census, low-hop CLUTRR, and shallow/depth-stratified ProofWriter–RuleTaker — anchor R0/R1; FOLIO and GSM8K sit at R2+ unless the rung-specific **LCB floor census** (§1.4) proves discrimination lower; MMLU-Pro and BBH are hypothesised R3+, and (Revision 2, per critique m-5) that placement is **census-confirmable in both directions like every other row**: a passing LCB floor census on a lower rung's anchor moves them down exactly as FOLIO/GSM8K may move, so no row's placement rests on flat assertion. Final per-rung membership is fixed by that census on each rung's anchor BEFORE any architecture output exists; a membership shift after census is an index VERSION change.
+
+**Executing instrument (Revision 2)** `[STIPULATED]` `[PROPOSED-PREREG-ROW-MF0-R2b]`: the per-rung census is EXECUTED by the extended P3-E-CAL protocol — §7.2 step 3 now runs the §1.4 floor and saturation rules on **every rung's anchor (R0, R1 = 135M, R2 = 360M, R3 = 1.7B)** over that rung's candidate component set, and §7.3 GREEN is conditional on a frozen per-rung membership list for every rung, not only `INDEX_COMMON` at R1. The R0 anchor is a named ratification item (register item 21) and MUST be pinned before any R0 census result can be claimed to exist; until then R0 membership is explicitly UNCENSUSED-HYPOTHESIS. This per-rung census is therefore a **dependency of the rung-membership rule, NOT a separable OPEN Part-A item** (the Revision-1 log said otherwise; corrected in the Revision-2 log). Census sizing and CI method are preregistered in §1.4 so census N cannot modulate membership.
 
 ### 1.2 Prompt and scoring pins
 
@@ -170,9 +185,11 @@ The sealed index is separate and never folded into the public frozen-suite scala
 
 [STIPULATED — coordinator/Fable to ratify]
 
-- **LCB floor gate (Revision 1 — the prior UCB rule is WITHDRAWN as statistically backward)** `[PROPOSED-PREREG-ROW-MF0-R1b]`: before architecture results exist, a component is INCLUDED in a rung scalar only if, for that rung's anchor,
-  `LCB95(raw_score − chance) > f`, with floor span `f = 0.02` `[STIPULATED — coordinator/Fable to ratify]`. Inclusion requires *demonstrated* discrimination above chance; a component whose estimate is at chance but whose interval is merely wide is excluded from the scalar (it remains in the vector). The withdrawn rule — exclude only when `UCB95(raw_score − chance) < 0.02` — admitted exactly such uncertain-at-chance components and is never used.
-- Anchor by rung: R1 = 135M, R2 = 360M, R3 = 1.7B; the R0 anchor is pinned at P3-D-INDEX. The floor census runs per rung on that rung's anchor (§1.1 rung-membership rule).
+- **LCB floor gate (Revision 1 — the prior UCB rule is WITHDRAWN as statistically backward; units corrected Revision 2, per critique M-10 / `PROPOSED-CRIT-13`)** `[PROPOSED-PREREG-ROW-MF0-R1b]` `[PROPOSED-PREREG-ROW-MF0-R2k]`: before architecture results exist, a component is INCLUDED in a rung scalar only if, for that rung's anchor,
+  `LCB95(s̃) > f` — the floor is applied on the **NORMALIZED scale** \(\tilde{s}=(s-c)/(u-c)\), with floor span `f = 0.02` in normalized units `[STIPULATED — coordinator/Fable to ratify]`, so the discrimination bar is uniform across heterogeneous \((u-c)\) spans (a raw-units global constant varied the effective bar ~2× between BLiMP and CLUTRR for no stated reason, violating the §3.5 own-units discipline). Inclusion requires *demonstrated* discrimination above chance; a component whose estimate is at chance but whose interval is merely wide is excluded from the scalar (it remains in the vector). The withdrawn rule — exclude only when `UCB95(raw_score − chance) < 0.02` — admitted exactly such uncertain-at-chance components and is never used.
+- **Census CI method and minimum power (Revision 2, per critique C-2(c) / `PROPOSED-CRIT-2`)** `[STIPULATED — coordinator/Fable to ratify]` `[PROPOSED-PREREG-ROW-MF0-R2b]`: the census LCB is an exact one-sided Clopper–Pearson bound for single-accuracy components and the §6.2 cluster bootstrap for macro-averaged/depth-stratified components (method pinned per component in the manifest). Every component's `CAL-FLOOR` split must satisfy a preregistered **minimum census N**: large enough that a true normalized effect of `2f` is detected (LCB clears `f`) with power ≥ 0.8; where a 20% `CAL-FLOOR` split cannot meet this (e.g. FOLIO 204 → ~41 items), the split fraction for that component is raised in the manifest BEFORE census, never after. Census sizing is thereby removed as a membership knob: an operator cannot evict a component by under-powering its census.
+- **Census construct (Revision 2, per critique C-2(d))** `[STIPULATED]`: the census construct is "discriminates among pure-neural anchors". Components floored for a tiny pure-neural model (deep ProofWriter, FOLIO, GSM8K below R2) are exactly where an engine-bearing system may differ most; the census therefore systematically excludes discriminating-for-S components from lower-rung scalars. This is a deliberate construct decision (the scalar must discriminate among comparators too) and is recorded as a standing limitation in "Residual gameability"; excluded components remain vector columns and feed the §0 collision-rule fallback.
+- Anchor by rung: R0 = the register-item-21 pinned anchor (UNCENSUSED-HYPOTHESIS until pinned), R1 = 135M, R2 = 360M, R3 = 1.7B. The floor census runs per rung on that rung's anchor, executed by §7.2 step 3 (§1.1 rung-membership rule).
 - A component also becomes vector-only if its normalized bootstrap SE exceeds `0.05`, or if any calibration anchor clips at the upper ceiling.
 - Missing model output is incorrect. Missing benchmark items are not imputed; any scorer loss above `0.1%` of expected items invalidates the component.
 - Benchmark size does not change its weight. Its larger or smaller uncertainty is exposed through per-benchmark CIs.
@@ -182,7 +199,7 @@ The sealed index is separate and never folded into the public frozen-suite scala
 
 A scalar may be reported only when all are true:
 
-1. At least three capability domains remain scalar-eligible.
+1. Every member of the rung's frozen core-domain set is scalar-eligible — not merely "any three domains" (Revision 2, per critique M-4 / `PROPOSED-CRIT-7`: three convenient domains do not establish broad capability; the review's Part-A finding is resolved here, not deferred). At least three domains is the arithmetic floor this implies, never the rule. If a core domain is not scalar-eligible, the §0 collision rule governs (vector-column NI fallback, else W1 unavailable at the rung).
 2. P3-E-CAL is GREEN for this exact manifest, prompts, scorers and harness.
 3. Every scalar component passed the floor, variance and saturation rules.
 4. No domain or benchmark was removed after architecture outputs were observed.
@@ -299,10 +316,10 @@ The primary W1 budget retains the four authority-defined components, with the en
 
 **Secondary anti-laundering ceilings (Revision 1 — the 3× rule is WITHDRAWN).** The prior rule — ceilings at three times the strongest fitting comparator's measured value — is withdrawn as endogenous and indefensible: the "strongest fitting comparator" is endogenous to model selection; a slow or I/O-heavy strongest comparator grants S a large allowance; a zero-use comparator yields an impossible zero ceiling; 3× has no construct, power, or systems basis; and no single factor fits CPU, I/O, TTFT and throughput at once. Instead `[STIPULATED — coordinator/Fable to ratify]` `[PROPOSED-PREREG-ROW-MF0-R1k]`, ONE of two branches is ratified:
 
-1. CPU-seconds/query, accelerator-time/query, storage+network I/O bytes/query, TTFT and minimum goodput each receive a **metric-specific ABSOLUTE ceiling, preregistered before S is measured**, derived from the calibration anchors' measured values plus a per-metric deployment-rationale headroom stated in the prereg — never derived from S, and never from any comparator selected after S exists; or
-2. the budget vector \(B_k\) is **extended** to include the relevant resource coordinates as explicit Pareto-budget components, under the same UCB95 admissibility rule as the four primary components.
+1. CPU-seconds/query, accelerator-time/query, storage+network I/O bytes/query, TTFT and minimum goodput each receive a **metric-specific ABSOLUTE ceiling, preregistered before S is measured**, derived from the calibration anchors' measured values plus a per-metric headroom — never derived from S, and never from any comparator selected after S exists. **Headroom discipline (Revision 2, per critique M-3 / `PROPOSED-CRIT-6`)** `[STIPULATED — coordinator/Fable to ratify]` `[PROPOSED-PREREG-ROW-MF0-R2e]`: pre-S-*measurement* is not pre-S-*knowledge* — the operator setting headroom already knows S's committed architecture (H-PS is CPU/engine/I-O-heavy relative to a pure-neural anchor), so an unconstrained rationale sentence reproduces the withdrawn 3× laundering allowance by another derivation. Therefore each headroom must be (a) **DERIVED, not asserted** — pinned to a named external deployment envelope (an interactive-serving SLO class or a published serving-cost reference, cited and hash/DOI-pinned) with the derivation shown in the prereg; (b) **capped** at a ratified maximum multiple per metric (register item 11); and (c) **adversarially confirmed at ratification**: the ratifier must confirm the resulting ceilings would NOT admit an arm that the withdrawn 3×-of-strongest-comparator rule would have rejected on the anchors' measured profile — a ceiling failing this check returns to derivation; or
+2. the budget vector \(B_k\) is **extended** to include the relevant resource coordinates as explicit Pareto-budget components, under the same UCB95 admissibility rule as the four primary components, with coordinate values anchor-derived under the identical derivation-and-cap discipline of branch 1. Branch 2 is the PREFERRED branch where both are feasible (Revision 2): it makes the coordinates first-class budget components rather than side ceilings.
 
-Whichever branch is ratified, every coordinate remains co-reported even when non-binding, and exceeding any preregistered ceiling makes the arm inadmissible.
+Whichever branch is ratified, every coordinate remains co-reported even when non-binding, and exceeding any preregistered ceiling makes the arm inadmissible. Under §3.1a energy path (b), the storage+network I/O-byte and CPU-seconds coordinates are additionally BINDING, per the path-(b) interlock in §3.1a (Revision 2, per critique M-2).
 
 The neural-FLOP diagnostic is always reported and never binding:
 
@@ -340,7 +357,8 @@ Rules `[STIPULATED — coordinator/Fable to ratify]`:
 
 - **Naming:** "total energy"/"system energy" may name ONLY a wall/IPMI/Redfish-class whole-node measurement (`system_energy_status = MEASURED-WALL`). A component sum is always named by its components ("CPU-package+DRAM RAPL + GPU-board NVML energy"); calling component energy "total energy" is PROHIBITED on every claim surface.
 - **Two admissible paths for the binding W1 energy component:** either (a) obtain a common wall/system measurement for every arm on the pinned platform, or (b) AMEND the binding budget to **named component-energy coordinates** — max CPU-package+DRAM RAPL energy/query and max GPU-board NVML energy/query, each binding separately — with `system_energy_status = UNMEASURED` recorded and the amendment co-stated on every claim. There is no third, implicit path.
-- **`UNPROVEN` rule:** an apparent energy win consistent with work moving from a measured component into an unmeasured domain (e.g. GPU compute → disk/NIC/host-I/O/remote CPU) is labelled `UNPROVEN`, not a win. The grader checks the co-reported CPU-seconds, storage/network bytes and latency vector for such a movement signature; a signature without a covering measurement blocks any energy-superiority wording.
+- **Path-(b) admissibility interlock (Revision 2, per critique M-2 / `PROPOSED-CRIT-5`)** `[STIPULATED]` `[PROPOSED-PREREG-ROW-MF0-R2d]`: under path (b), "S fits \(B_k\)" is itself an efficiency-claim surface, and an arm that moves work into disk/NIC/host-I/O fits the amended component budget more easily while its true system energy is unbounded. Therefore, whenever path (b) is the ratified energy path: (i) the R1k storage+network I/O-bytes/query and CPU-seconds/query ceilings are **BINDING** (branch 1) or first-class Pareto-budget components (branch 2) — never merely co-reported; (ii) every admissibility statement ("S fits \(B_k\)") must be co-stated as "component-energy budget only; system energy unmeasured"; and (iii) a firing of the movement predicate below additionally gates ADMISSIBILITY wording, not only superiority wording — the fit claim carries the `UNPROVEN`-movement disclosure verbatim.
+- **`UNPROVEN` rule — EXECUTABLE predicate (Revision 2, per critique M-1 / `PROPOSED-CRIT-4`)** `[STIPULATED — coordinator/Fable to ratify]` `[PROPOSED-PREREG-ROW-MF0-R2d]`: an apparent energy win consistent with work moving from a measured component into an unmeasured domain (e.g. GPU compute → disk/NIC/host-I/O/remote CPU) is labelled `UNPROVEN`, not a win. "Movement signature" is not a discretionary heuristic; it is the following preregistered predicate, evaluated mechanically by the grader from frozen per-item rows: **a component-energy advantage is claimed for S over comparator \(C\), AND any unmeasured-domain proxy — (storage+network bytes)/query, CPU-seconds/query outside RAPL coverage where the platform record says such exist, or p95 latency — exceeds \(C\)'s value by more than a ratified factor \(\kappa_m\) (per-metric, register item 11)**. Predicate fires → the energy comparison row is stamped `UNPROVEN` in the grader output (that row is where the label lives; see the m-1 note in the MF0-R1d row), all energy-superiority wording is blocked, and under path (b) the admissibility co-statement of the interlock above attaches. The predicate, its proxies and each \(\kappa_m\) are frozen before any arm is measured.
 - **Remote compute:** remote computation/API execution is forbidden for admissible arms unless fully metered inside the boundary record; snapshotting a remote corpus (§2.1) accounts for bytes, never for remote compute or energy.
 
 ### 3.2 Hardware pin
@@ -356,8 +374,8 @@ If neither a common wall/system boundary nor the complete named component set (C
 [STIPULATED — coordinator/Fable to ratify]
 
 - `SingleStream`: concurrency 1, closed-loop, labelled “unloaded service time.”
-- `Server`: open-loop Poisson arrivals from seed `20260719`; rate fixed before S is measured at `0.5 / anchor_warm_median_service_time`.
-- `Offline`: batch size 8 or the largest batch fitting all arms, whichever is smaller.
+- `Server`: open-loop Poisson arrivals from seed `20260719`; rate fixed before S is measured at `0.5 / anchor_warm_median_service_time`. **(Revision 2, per critique m-6)** `[STIPULATED — coordinator/Fable to ratify]`: an arm materially slower than the anchor can approach utilization 1 under this rate (unbounded queue → mass timeouts); that is a legitimate goodput result, not a rig defect, and the frozen timeout/drop accounting governs. Two pins removed from ambiguity: (a) the **W1 budget's binding p95 latency is the `Server`-cell p95 under this frozen arrival schedule** (`SingleStream` p50/p95 are co-reported diagnostics); (b) **INDEX accuracy is computed from a separate unloaded scoring run** (`SingleStream`-discipline, batch-fixed), never from load-cell outputs, so queueing can never contaminate capability measurement.
+- `Offline`: batch size 8 or the largest batch fitting all arms, whichever is smaller. **(Revision 2, per critique m-7 — disclosure, not a fix)**: the review's batch-shopping game (one arm forcing every other arm to batch 1) survives here and remains OPEN for the re-review; edit 6's ADOPTED status does NOT cover it. The review's own candidate fix (multiple batch cells, or fixed batch 8 with non-fitting arms inadmissible for that cell) awaits ratification at register item 10.
 - Each warm cell runs at least 600 seconds and at least 1,000 completed queries — a FLOOR, never the accounting denominator (see drop accounting below).
 - Latency-under-load is measured from intended issue time. Closed-loop measurements cannot be presented as latency under offered load.
 - **Goodput SLO (Revision 1, per review edit #6)** `[STIPULATED — coordinator/Fable to ratify]`: goodput counts only completed queries whose end-to-end latency meets the preregistered per-benchmark latency SLO; every SLO value is frozen before any arm is measured. [LIT-BACKED: reports/lit-p3-sys.md §Q2]
@@ -384,11 +402,14 @@ Run on at least three days separated by at least 24 hours, with at least two ful
 
 | Measure | Warm day/reboot band | Cold day/reboot band | Within-session requirement |
 |---|---:|---:|---:|
-| p50/p95 latency, CPU-s, accelerator-time, energy/query | each day median within ±5% of grand median | ±10% | CoV ≤5% |
+| p50/p95 latency, CPU-s, accelerator-time | each day median within ±5% of grand median | ±10% | CoV ≤5% |
+| Energy/query | ±10% (aligned with the SYS-reported within-day variation — Revision 2, per critique C-3(c); any tighter value must be empirically justified at ratification) [LIT-BACKED: reports/lit-p3-sys.md §Q4] | ±10% | CoV ≤10% |
 | Throughput/goodput | ±5% | n/a | CoV ≤5% |
 | Peak RSS/VRAM | ±2% | ±2% | no run >2% from session median |
 | Storage/network bytes | exact for a fixed trace | exact | 0% unexplained drift |
 | Output/item counts | exact | exact | 0% drift |
+
+**Class-split bands (Revision 2, per critique C-3(b) / `PROPOSED-CRIT-3`)** `[STIPULATED — coordinator/Fable to ratify]` `[PROPOSED-PREREG-ROW-MF0-R2c]`: the table above is the **deterministic-decode class**. Adaptive/TTC arms — adaptive retrieval, retry/search, verifier-guided test-time compute — are *intrinsically* higher-variance in latency, CPU-seconds and energy per query as a matter of construction, not measurement failure; forcing them through deterministic-class bands would manufacture inadmissibility. They receive **class-specific bands**, ratified from P3-E-CAL PLUS the synthetic high-variance rig probes the review's Part A already requested (CPU-heavy, I/O-heavy, retry-heavy shapes), before any arm is measured. Class assignment per arm is frozen in the arm manifest at roster closure; band values sit in register item 10.
 
 A session whose start/end probe differs by more than 5% is discarded in full. Failures are not selectively rerun; the failure and discard are logged.
 
@@ -396,7 +417,10 @@ A session whose start/end probe differs by more than 5% is discarded in full. Fa
 
 - **Rank-based CIs:** latency percentiles and all other order statistics receive distribution-free rank-based (binomial order-statistic) confidence intervals; mean-type metrics use the hierarchical bootstrap. Measurement resolution is assessed in each metric's OWN units; a percentage latency band is never numerically compared with an index margin. [LIT-BACKED: reports/lit-p3-sys.md §Q4]
 - **Adaptive repetition count:** at least ten repetitions per cell remain the floor; the final \(N\) is chosen by a frozen rank-based CI-width stopping rule (target widths preregistered per metric, in that metric's units), evaluated blind to any cross-arm comparison. The stopping rule freezes before any arm is measured.
-- **Every-arm repeatability gate:** the §3.5 bands and probe protocol gate EVERY W1 campaign arm and EVERY comparator measurement — not only the P3-E-CAL anchors. An arm or comparator whose measurement fails its bands is remeasured under the frozen discard/repeat rule or becomes inadmissible; a comparator lost this way is reported as such, never silently dropped from \(F(B_k)\).
+- **Every-arm repeatability gate — FAIL-CLOSED (Revision 2, per critique C-3(a) / `PROPOSED-CRIT-3`)** `[PROPOSED-PREREG-ROW-MF0-R2c]`: the §3.5 bands and probe protocol gate EVERY W1 campaign arm and EVERY comparator measurement — not only the P3-E-CAL anchors. The Revision-1 wording ("remeasured … or becomes inadmissible; a comparator lost this way is reported as such") was fail-OPEN: a comparator exiting on repeatability shrank \(F(B_k)\), so S no longer had to beat it — a comparator-dodging channel the edit itself created, biting hardest on exactly the high-variance adaptive/TTC family most likely to threaten S. It is REPLACED by the fail-closed rule:
+  - **S itself:** failing its class bands after the frozen repeat rule → S is inadmissible at that rung. (Unchanged; already fail-closed for S.)
+  - **Any preregistered member of \(F(B_k)\):** failing its class bands after the frozen repeat rule → **W1 at that rung is BLOCKED as an instrument failure** — S is never evaluated against a frontier shrunken by repeatability attrition. This holds unconditionally for the strongest-by-dev comparator and for every per-domain frontier comparator \(C^{d}\); for any other roster member, the coordinator may instead carry the comparator with an explicit **`NON-REPEATABLE-COMPARATOR` adverse status** — its point results stand in the frontier with widened preregistered uncertainty (its class band replaced by its measured dispersion), it is never removed from \(F(B_k)\), and the adverse status appears verbatim on every W1 claim surface. Which of the two treatments applies to which roster tier is frozen at roster closure, before any measurement.
+  - Repeatability failure of a comparator is never, under any wording, a path by which S's opposition weakens.
 
 ## 4. KOT-LIFE/1
 
@@ -486,6 +510,8 @@ with \(t\) the deployment duration and \(\dot q\) the query rate: a continuously
 
 **Matched refresh baseline:** store refresh TCO is measured AGAINST a matched external-context baseline — the matched-RAG comparator (§5.3 item 5) receiving the same fresh-evidence snapshot cadence and the same metered refresh/indexing budget — so refresh economics are always a comparison, never a solo figure. [LIT-BACKED: reports/lit-p3-store.md §5]
 
+**KOT-LIFE energy-boundary rule (Revision 2, per critique m-2)** `[STIPULATED]`: every `"joules"` figure in the amortisation grid (and anywhere else in a KOT-LIFE ledger) carries or references a §3.1a boundary record; a component-sum joules figure is component-named there exactly as in KOT-COST/2. No KOT-LIFE surface may quote a component sum as lifecycle "energy".
+
 USD, human-hours and joules are never collapsed through a fabricated exchange rate. Dimension-drop arms state inherited donor pretraining; it is never netted out. Human and method-development accounting remains intrinsically gameable through unlogged prior work and failed experiments: metering is prospective from freeze, failed candidates are included, and this stays a standing limitation — KOT-LIFE remains non-binding and W1 is never described as overall lifecycle efficiency.
 
 **Sardana quarantine (Revision 1, per review edit #12)** `[PROPOSED-PREREG-ROW-MF0-R1l]` [LIT-BACKED: reports/lit-p3-sys.md §Q6]: Sardana et al. ("Beyond Chinchilla-Optimal") enters KOT-LIFE/1 ONLY as qualitative context for inference-volume-dependent optimal sizing. The SYS review found conflicting dollar examples between the paper and secondary accounts; until a direct read of the PDF reconciles them, **no specific saving figure, model size, or token count from that line may be copied into any KOT-LIFE ledger, example, default, or amortisation constant.**
@@ -514,7 +540,15 @@ Inputs are every canonical text field in every store/build source and every benc
    - Min-K-style donor membership diagnostics run wherever donor logits are available;
    - screening covers derivation inputs and source pages, not only final record text.
 
-Threshold calibration uses 100 verbatim inserts, 100 near-verbatim inserts with ≤10% token edits, 100 independently produced paraphrases and 1,000 same-domain negatives — split into disjoint development and held-out validation subsets per rule 9. Pass requires, on the HELD-OUT set: 100% verbatim recall, ≥99% near-verbatim recall, ≥90% paraphrase recall and ≤2% false-positive rate, each published with its confidence bound. Paraphrase misses remain a standing limitation; this gate certifies only gross-leak detection.
+Threshold calibration uses 100 verbatim inserts, 100 near-verbatim inserts with ≤10% token edits, 100 independently produced paraphrases and 1,000 same-domain negatives — split into disjoint development and held-out validation subsets per rule 9, with planted-set sizes raised where the operative statistics below require it.
+
+**Operative pass statistics (Revision 2, per critique M-8 / `PROPOSED-CRIT-11`)** `[STIPULATED — coordinator/Fable to ratify]` `[PROPOSED-PREREG-ROW-MF0-R2i]`: the Revision-1 wording ("pass requires … ≥90% paraphrase recall … each published with its confidence bound") was point-decided with a CI stapled on — mechanically undecidable and lenient-by-default (90/100 observed has Clopper–Pearson LCB ≈ 0.824). The gate binds, on the HELD-OUT set, per criterion:
+
+- **verbatim recall:** observed = 100% (no misses), AND its exact one-sided Clopper–Pearson LCB95 reported;
+- **near-verbatim recall and paraphrase recall:** the one-sided Clopper–Pearson **LCB95 must clear the ratified target** (targets and planted-set n sized JOINTLY at ratification so the planned n can actually pass at plausible true recall — e.g. an LCB95 ≥ 0.90 gate on 100 paraphrases needs ≈ 96/100 observed; either the target or the n is adjusted at register item 13, never post hoc);
+- **false-positive rate:** the one-sided **UCB95 must be ≤ the ratified bound** (point ≤2% is not the rule).
+
+A grader can decide each criterion mechanically from the frozen held-out rows; no reading of the gate admits the point-decided interpretation. Paraphrase misses remain a standing limitation; this gate certifies only gross-leak detection.
 
 ### 5.2 Sealed evaluation
 
@@ -528,8 +562,11 @@ Threshold calibration uses 100 verbatim inserts, 100 near-verbatim inserts with 
 - **Access:** encrypted at rest; release manifest hash committed before execution; only the custodian-controlled evaluation runner receives plaintext; developing agents receive no item-level feedback before verdict.
 - **After use:** publish items, scores and per-item outputs; mark the release burned. Any resulting learning requires the next claim to use a new release.
 - **Gate:** for every \(C\in F(B_k)\),  
-  `LCB95(INDEX_sealed(S) − INDEX_sealed(C)) > 0.01`, with the same FWER method. Additionally (Revision 1, per review edit #11), the frozen-to-sealed consistency condition is INFERENTIAL, not a point-estimate rule: with \(\Delta_{sealed}\) and \(\Delta_{public}\) the advantages against the strongest comparator, require one-sided **non-inferiority of the difference-in-differences**,  
-  `LCB95(Δ_sealed − Δ_public) > −0.03` — a confidence bound on \(\Delta_{sealed}-\Delta_{public}\) under the §6.2 resampling, with the margin `[STIPULATED — coordinator/Fable to ratify]`.
+  `LCB95(INDEX_sealed(S) − INDEX_sealed(C)) > 0.01`, with the same FWER method. Additionally (Revision 1, per review edit #11; estimand pinned Revision 2, per critique M-9 / `PROPOSED-CRIT-12`) `[PROPOSED-PREREG-ROW-MF0-R2j]`, the frozen-to-sealed consistency condition is INFERENTIAL, not a point-estimate rule: require one-sided **non-inferiority of the difference-in-differences**,  
+  `LCB95(Δ_sealed − Δ_public) > −0.03`, margin `[STIPULATED — coordinator/Fable to ratify]`, with the estimand fully pinned:
+  - **Comparator:** both \(\Delta\)s are against the SAME comparator — the **pre-declared strongest-by-dev comparator**, pinned at roster closure (§5.3) BEFORE any public or sealed result exists; it is never chosen per-suite or after results (an after-the-fact choice would let the operator pick the comparator whose public gap was smallest).
+  - **Joint resampling:** the two \(\Delta\)s live on disjoint item sets (public suite vs sealed release). Each of the 20,000 replicates resamples BOTH suites' §6.2 cluster hierarchies **simultaneously in one joint replicate** (shared system-level pairing; the sealed release's cluster taxonomy is pinned in its manifest exactly as the public suite's is), computes \(\Delta_{sealed}-\Delta_{public}\) on that replicate, and the one-sided percentile/max-t bound is taken over the joint replicate distribution — never independent bootstraps with a difference of bounds.
+  - The resampling scheme is the corrected fixed-weight item-cluster scheme of §6.2 (Revision 2, per critique C-1), not the withdrawn family-resampling.
 - Any custody violation, pre-freeze exposure, asymmetric evidence refresh or failed gap gate voids W1.
 
 ### 5.3 Frontier builder and comparator pinning
@@ -600,14 +637,16 @@ The parent makes the factorial control design and six-way attribution MANDATORY 
 
 **The detailed attribution design is the committed companion P3-D-THREAT Rev1** ([p3d-threat-factorial-controls.md](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/p3d-threat-factorial-controls.md) — itself a REVISED PROPOSAL, not frozen; it is ratified jointly with this framework and gates P3-D-INDEX). KOT-FAIR/2 adopts it by reference and restores here the framework-level contract `[PROPOSED-PREREG-ROW-MF0-R1i]` `[STIPULATED — coordinator/Fable to ratify]`:
 
-1. **Mandatory control families** (parent §2.2(2), all seven): (a) seed-pinned deranged store→item addressing `D`; (b) label permutation within records `P` — instantiated at the NL/schema binding seam with the joint equivariant-renaming positive control per THREAT Rev1 §3.2; (c) irrelevant-but-structurally-matched records `I`; (d) edge/relation shuffling for graph arms `G-edge`/`G-rel`/`G-adv`; (e) the aligned non-kernel typed store — split per THREAT Rev1 §3.5 into `T1`/`T2`/`T3` sub-factors with the executor factor kept separate; (f) the **matched generic-RAG/tool-use control** `R*` (§5.3 item 5 — both the same-host attribution cell and the strongest frontier RAG family); (g) the **kernel-as-text null** `X*` at matched token budget — **conditional per THREAT Rev1 §3.7**: a mandatory gate only when the registered claim names native/internal neural-symbolic integration, diagnostic otherwise. The default core conjunction is \(J_{core}=\{D,P,I,T^*,R^*\}\).
+1. **Mandatory control families** (parent §2.2(2), all seven): (a) seed-pinned deranged store→item addressing `D`; (b) label permutation within records `P` — instantiated at the NL/schema binding seam with the joint equivariant-renaming positive control per THREAT Rev1 §3.2; (c) irrelevant-but-structurally-matched records `I`; (d) edge/relation shuffling `G-edge`/`G-rel`/`G-adv` — **CLAIM-conditioned per THREAT Rev1 §3.4, not arm-conditioned** (Revision 2, per critique M-7.2): required for every graph, relational-structure, rule-composition, or topology CLAIM whatever the arm's architecture; terminal single-op H-PS claims do not name structure and do not trigger it; (e) the aligned non-kernel typed store — split per THREAT Rev1 §3.5 into `T1`/`T2`/`T3` sub-factors with the executor factor kept separate; (f) the **matched generic-RAG/tool-use control** `R*` (§5.3 item 5 — both the same-host attribution cell and the strongest frontier RAG family); (g) the **kernel-as-text null** `X*` at matched token budget — **conditional per THREAT Rev1 §3.7**: a mandatory gate only when the registered claim names native/internal neural-symbolic integration, diagnostic otherwise. The default core conjunction is \(J_{core}=\{D,P,I,T^*,R^*\}\).
 2. **Treatment-boundary law:** every control arm freezes a THREAT Rev1 §3.0 mutation-locus row (host-visible retrieval / entity-schema linking / formal request / authoritative store / engine results); a control supporting an engine-path claim must mutate the authoritative path *as consumed by the engine*; a declared-locus mismatch is `INSTRUMENT-INVALID` for that claim.
 3. **Transformed-world validity gate:** every store-mutating control satisfies THREAT Rev1 §3.0b (licensed, conflict-valid, coverage-matched, recomputed-target). Destructive contrasts prove NECESSITY only; any structural-reasoning wording additionally requires the counterfactual-following GATE of THREAT Rev1 §3.4. Abstention triggered by transformation-induced conflict or coverage loss never counts as a pass.
 4. **Six-way attribution ledger** (parent §2.3): every observed win is decomposed as far as the control cells allow across **kernel semantics / structured storage / retrieval / deterministic execution / retry-search / neural-symbolic integration**, as a contrast ledger with interactions reported — never six percentages forced to sum. Executor/retry/feedback cells use THREAT Rev1 §3.8's family-specific units and §3.9's feedback-information factor; H-GU-specific instantiations remain ▷ conditional on the H-GU API gate and are not preregistrable before it passes.
-5. **Statistics:** the attribution family enters THREAT Rev1 §5.1's frozen two-stage gatekeeping procedure — stage 1: the W1 frontier + per-domain non-inferiority family (§0, §6.2); stage 2, only on a stage-1 pass: the attribution-control family — with simultaneous one-sided max-t bounds at family-wise \(\alpha=0.05\) within each stage and \(\delta_{attr,k}=\delta_k\) under the efficiency framing `[STIPULATED]`.
+5. **Statistics:** the attribution family enters THREAT Rev1 §5.1's frozen two-stage gatekeeping procedure — stage 1: the W1 frontier + per-domain non-inferiority family (§0, §6.2); stage 2, only on a stage-1 pass: the attribution-control family — with simultaneous one-sided max-t bounds at family-wise \(\alpha=0.05\) within each stage and \(\delta_{attr,k}=\delta_k\) under the efficiency framing `[STIPULATED]`. **Both stages run on the ONE fixed-weight item-cluster resampling scheme of §6.2, which is identical by construction to THREAT Rev1 §5.1's** (Revision 2, per critique C-1): the Rev1 internal contradiction — stage 1 on within-domain family-resampling, stage 2 on cluster-resampling — is removed at its source in §6.2.
 6. **W1 wiring** (parent W1 condition 4): the factorial controls must behave as pre-registered — derangement/permutation destroys any store-content-attributed component; the aligned-non-kernel and matched-RAG results are REPORTED as the attribution split, whatever they show. All controls run on both the public and sealed suites (THREAT Rev1 §5); a missing, inadmissible, or information-inequivalent required control yields `INSTRUMENT-INVALID`, never a caveat.
 
 This section adds no control constructions beyond THREAT Rev1 and does not restate its treatment-boundary matrix, `G-*` gates, or `X*`-conditionality in different terms; any divergence between this section and a ratified THREAT is resolved in THREAT's favour and triggers a framework revision here.
+
+**THREAT content-hash pin (Revision 2, per critique M-7.1 / `PROPOSED-CRIT-10`)** `[STIPULATED]` `[PROPOSED-PREREG-ROW-MF0-R2h]`: for a FROZEN prereg, the prevailing object must be a fixed document — otherwise a post-freeze THREAT edit retroactively rewrites the frozen framework's control semantics without a version change. Therefore, **at prereg-freeze the ratified THREAT revision's content hash is pinned into the P3-D-INDEX manifest; the prevails-rule above applies to that hashed revision ONLY**. Any later THREAT change requires a KOT-FAIR framework VERSION bump and re-review before it can govern anything. This pin is a **named freeze precondition**: THREAT ratification without the freeze-time content-hash pin does not satisfy the freeze gate (register item 20; also stated in the banner).
 
 ## 6. Statistics
 
@@ -633,6 +672,8 @@ This section adds no control constructions beyond THREAT Rev1 and does not resta
 >    verdicts generated by the mechanical grader and cross-vendor audited, per  
 >    standing practice.
 
+**Reading note (Revision 2, per critique C-1):** item 3 above is the parent's rule quoted verbatim. Its concrete realisation in this framework is the §6.2 fixed-weight item-cluster scheme — "hierarchical … across benchmark families and items" is satisfied by clustering items WITHIN each fixed-weight benchmark (family structure enters as the cluster taxonomy), NOT by resampling benchmark families within domains, which is withdrawn.
+
 ### 6.2 Concrete analysis plan
 
 [STIPULATED — coordinator/Fable to ratify]
@@ -641,12 +682,19 @@ This section adds no control constructions beyond THREAT Rev1 and does not resta
 - One primary endpoint: the minimum simultaneous margin over all comparators,
   \(\min_C LCB95(INDEX(S)-INDEX(C))\).
 - 20,000 hierarchical bootstrap replicates, seed `20260719`.
-- At each replicate, resample benchmark families within domain, then items within benchmark; all S/comparator predictions for an item travel together. Domain weights remain fixed.
-- Form max-t simultaneous one-sided bounds across comparators. **The per-domain non-inferiority gates of §0 are BINDING and therefore always in the predeclared multiplicity family** (Revision 1, per review edit #1): the domain×frontier-comparator one-sided non-inferiority bounds enter the same max-t family or the frozen two-stage gatekeeping procedure of §5.4(5); they are never tested ad hoc. Additional domain-level superiority claims join the family only where registered.
-- The sealed difference-in-differences condition (§5.2) is computed as a one-sided LCB on \(\Delta_{sealed}-\Delta_{public}\) under the same hierarchical resampling.
+- **Resampling — ONE scheme, end-to-end (Revision 2, per critique C-1 / `PROPOSED-CRIT-1`)** `[STIPULATED — coordinator/Fable to ratify]` `[PROPOSED-PREREG-ROW-MF0-R2a]`: the Revision-1 rule — "resample benchmark families within domain, then items within benchmark" — is **WITHDRAWN**. It was condemned by the source review as estimand-changing and unreliable for domains with one or two families, and it is degenerate exactly where the new binding gates bite: D6 (IFEval) has ONE benchmark and D5 has two. The single scheme for EVERY inference in this framework is the review/THREAT **fixed-weight item-cluster scheme**:
+  - **benchmark and domain weights are FIXED** — never resampled; the estimand is the index on the fixed suite;
+  - at each replicate, resample preregistered **item clusters within each benchmark**, with the cluster taxonomy pinned per benchmark in the manifest (BLiMP paradigm; EWoK domain; CLUTRR story×depth cell; ProofWriter theory/depth; PR-KOT rule/composition family; GSM8K/ARC/OpenBookQA/HellaSwag/PIQA/WinoGrande/MMLU-Pro/BBH/IFEval/HumanEval source-document, task, or paraphrase family as recorded in the manifest row; sealed-release clusters pinned in its release manifest);
+  - all S/comparator/control outputs for an item travel together (paired predictions preserved);
+  - perturbation seed enters as a crossed randomization factor where controls are in the family;
+  - **training seed is a top-level random effect whenever the registered claim concerns a training PROCEDURE** rather than one frozen artifact (imported from the review's statistics corrections; consistent with §5.3 item 7's paired-seed rule);
+  - **resource UCBs carry the day/session/run hierarchy** (day → session → repetition) with simultaneous coverage across binding resource cells (imported likewise; consumed by §3.5's every-arm gate).
+  **This scheme and THREAT Rev1 §5.1's are IDENTICAL by construction**: stage 1 (W1 frontier + per-domain NI, this section) and stage 2 (attribution family, §5.4(5)) of the two-stage gatekeeping procedure run on the same fixed-weight item-cluster resampling; no inference anywhere in KOT-FAIR/2 — including the §0 per-domain NI bounds and the §5.2 sealed DiD bound — uses within-domain family-resampling.
+- Form max-t simultaneous one-sided bounds across comparators. **The per-domain non-inferiority gates of §0 are BINDING and therefore always in the predeclared multiplicity family** (Revision 1, per review edit #1): the domain×frontier-comparator one-sided non-inferiority bounds enter the same max-t family or the frozen two-stage gatekeeping procedure of §5.4(5); they are never tested ad hoc. Additional domain-level superiority claims join the family only where registered. The \(C^{d}\) dev-selection caveat (§0: winner's curse on selection, unbiased at test) is recorded here per critique M-6.
+- The sealed difference-in-differences condition (§5.2) is computed as a one-sided LCB on \(\Delta_{sealed}-\Delta_{public}\) under the joint two-suite replicate procedure pinned in §5.2, on this same cluster-resampling scheme.
 - No fallback multiplicity method may be selected after results. If max-t computation fails preregistered diagnostics, the verdict is instrument-invalid.
 - Sample-size/power calculation uses the realized comparator count and calibration covariance before campaign freeze.
-- Non-inferiority default margin is `−0.02` (this is the per-domain \(\delta_{NI}\) of §0); any other margin requires experiment-specific rationale.
+- The per-domain non-inferiority margin is \(\delta_{NI}\) as defined ONCE in §0 (positive margin `0.02`, one-sided condition \(> -\delta_{NI}\); Revision 2, per critique m-3 — the duplicate `−0.02` sign convention here is withdrawn); any other margin requires experiment-specific rationale.
 - Mechanical grader consumes only frozen per-item rows and emits PASS/FAIL/INSTRUMENT-INVALID.
 - Cross-vendor audit checks 100% of rule evaluation and a seeded 10% item sample; unresolved audit disagreement blocks the verdict.
 
@@ -675,15 +723,16 @@ This calibration judges pure-neural systems only. No kernel, store, retrieval, p
 
 ### 7.1 Subjects
 
-- `HuggingFaceTB/SmolLM2-135M-Instruct@12fd25f77366fa6b3b4b768ec3050bf629380bac`
-- `HuggingFaceTB/SmolLM2-360M-Instruct@a10cc1512eabd3dde888204e902eca88bddb4951`
-- `HuggingFaceTB/SmolLM2-1.7B-Instruct@31b70e2e869a7173562077fd711b654946d38674`
+- `HuggingFaceTB/SmolLM2-135M-Instruct@12fd25f77366fa6b3b4b768ec3050bf629380bac` (R1 anchor)
+- `HuggingFaceTB/SmolLM2-360M-Instruct@a10cc1512eabd3dde888204e902eca88bddb4951` (R2 anchor)
+- `HuggingFaceTB/SmolLM2-1.7B-Instruct@31b70e2e869a7173562077fd711b654946d38674` (R3 anchor)
+- The R0 anchor, once pinned at register item 21 (Revision 2, per critique C-2; until pinned, no R0 census exists and R0 membership is UNCENSUSED-HYPOTHESIS).
 
 ### 7.2 Exact run
 
 1. Materialize and hash every proposed dataset and scorer.
-2. Hash-partition each benchmark by item ID: 20% `CAL-FLOOR`, 80% `CAL-ORDER`.
-3. On `CAL-FLOOR`, apply the §1.4 floor and saturation rules without inspecting ordering results. Freeze `INDEX_COMMON` as the surviving R1 component set.
+2. Hash-partition each benchmark by item ID: 20% `CAL-FLOOR` (raised per component where the §1.4 minimum-census-N rule requires), 80% `CAL-ORDER`.
+3. **Per-rung floor census (Revision 2, per critique C-2 / `PROPOSED-CRIT-2`)** `[PROPOSED-PREREG-ROW-MF0-R2b]`: on `CAL-FLOOR`, apply the §1.4 floor and saturation rules without inspecting ordering results **on EVERY rung's anchor over that rung's §1.1 candidate component set** — R1 on the 135M anchor, R2 on the 360M anchor, R3 on the 1.7B anchor, and R0 on the register-item-21 anchor once pinned. Freeze one **per-rung membership list** per censused rung: `INDEX_COMMON` remains the name of the surviving R1 set; `INDEX_R2` and `INDEX_R3` (and `INDEX_R0` once its anchor exists) are frozen by the same rule. The §1.1 rung manifest (FOLIO/GSM8K at R2+, MMLU-Pro/BBH at R3+, the R0/R1 low-floor set, and every promised census-conditioned return path) is thereby fixed by an EXECUTED census on every rung, not by assertion.
 4. Run all three models on the identical `CAL-ORDER` items and prompts.
 5. Repeat the complete harness five times per model across the three P3-D-HW days. Deterministic option-logprob outputs should be byte-identical; generated-task score variability is measured.
 6. Run KOT-SMOL-CONT/1 as a separate harness-fidelity diagnostic.
@@ -719,6 +768,7 @@ using simultaneous one-sided 95% bounds across the two adjacent comparisons. Poi
 - Recomputing the 20,000-replicate CI with seed `20260720` may move either adjacent LCB by at most `0.002`.
 - No scalar component may saturate at 1.0.
 - At least three domains must survive the floor rule.
+- **Per-rung membership frozen (Revision 2, per critique C-2)**: GREEN requires a frozen membership list for EVERY censused rung (§7.2 step 3) — `INDEX_COMMON` (R1) alone is insufficient; each list must satisfy the §1.4 minimum-census-N rule for every candidate component, and every core domain of each rung must be resolved (scalar-eligible, or explicitly falling to the §0 collision rule).
 
 **Harness anchoring**
 
@@ -770,23 +820,24 @@ The following proposed values require coordinator/Fable ratification:
 1. Dataset semantic releases, full upstream commits, licences and canonical byte hashes not already present locally—especially BLiMP, EWoK, PIQA, WinoGrande, ProofWriter, IFEval, MMLU-Pro, BBH, HumanEval and LiveBench. `[SV]`
 2. PR-KOT/1 generator semantics, item count, four-choice format and seed range.
 3. BLiMP ceiling `.964`; theoretical ceiling `1.000` elsewhere; scalar clipping.
-4. LCB floor gate `f=.02` (`LCB95(score−chance)>f`, corrected direction, §1.4), variance exclusions `.05`, three-domain scalar minimum, and the frozen per-rung core-domain set required by the §0 non-inferiority condition.
-5. `δ1–δ3=.02`, sealed margin `.01`, sealed difference-in-differences non-inferiority margin `.03` (inferential, §5.2), per-domain non-inferiority margin `δ_NI=.02` (§0).
+4. LCB floor gate `f=.02` in NORMALIZED units (`LCB95(s̃)>f`, corrected direction §1.4, units per critique M-10), variance exclusions `.05`, the census CI method + per-component minimum census N/power target (§1.4, per critique C-2), the frozen per-rung core-domain set required by the §0 non-inferiority condition, AND the frozen **construct map** (domain assignment + benchmark-family clustering) with the grouping-sensitivity report attached (§0, per critique M-5) — ratified as ONE package.
+5. `δ1–δ3=.02`, sealed margin `.01`, sealed difference-in-differences non-inferiority margin `.03` (inferential, §5.2, estimand pinned per critique M-9), per-domain non-inferiority margin `δ_NI=.02` (§0, single positive-margin convention).
 6. Prompt shots, no-CoT rule, output limits and benchmark-specific scorers.
 7. Canonical serialization choices, whole-file deduplication and zstd-19.
 8. The actual base-image OCI digest and dependency lockfiles.
 9. A10G hardware choice and availability of whole-system CPU/GPU energy counters. `[SV]`
-10. Load shapes, 600-second/1,000-completed-query floor, goodput SLOs, queue/timeout policy, intended-send drift bounds, adaptive-repetition stopping widths (per metric, own units), and ±2/5/10% repeatability bands applied to every campaign arm and comparator (§3.3, §3.5).
-11. Metric-specific absolute secondary resource ceilings — or the Pareto-extended \(B_k\) — preregistered before S is measured, replacing the withdrawn 3× rule (§3.1); plus the §3.1a energy-boundary decision (wall probe outcome or the amended component-energy budget wording). `[SV]`
+10. Load shapes, 600-second/1,000-completed-query floor, goodput SLOs, queue/timeout policy, intended-send drift bounds, adaptive-repetition stopping widths (per metric, own units), the CLASS-SPLIT repeatability bands (deterministic-decode vs adaptive/TTC, ratified from P3-E-CAL plus the synthetic high-variance rig probes; energy band aligned with the SYS 10% within-day figure or tighter-with-evidence — §3.5, per critique C-3), the fail-closed roster-tier treatment map (§3.5), the binding-p95 load shape + unloaded-scoring-run pins (§3.3, per critique m-6), and the Offline batch-cell resolution (per critique m-7, OPEN).
+11. Metric-specific absolute secondary resource ceilings — or the (preferred) Pareto-extended \(B_k\) — preregistered before S is measured, replacing the withdrawn 3× rule (§3.1), with the headroom DERIVATION discipline: named external deployment envelope pins, per-metric maximum headroom multiples, and the adversarial 3×-non-readmission check (per critique M-3); plus the §3.1a energy-boundary decision (wall probe outcome or the amended component-energy budget wording), the executable `UNPROVEN` movement-predicate constants \(\kappa_m\) per proxy metric (per critique M-1), and the path-(b) binding-I/O-ceiling interlock (per critique M-2). `[SV]`
 12. Lifecycle amortisation grid — (query-volume, deployment-duration) pairs at \(10^3,10^6,10^9\) queries (§4) — and the KOT-LIFE subledger field definitions, quality operating-point metric, and matched external-context refresh baseline.
-13. Decontamination 8-gram, MiniLM revision, cosine `.85`, the disjoint threshold-development/held-out validation split, CI reporting method, Min-K diagnostic availability, and planted-set thresholds (§5.1). `[SV]`
+13. Decontamination 8-gram, MiniLM revision, cosine `.85`, the disjoint threshold-development/held-out validation split, Min-K diagnostic availability, and the OPERATIVE planted-set statistics — per-criterion LCB95/UCB95 gates with targets and planted-set n sized jointly so the planned n can pass (§5.1, per critique M-8). `[SV]`
 14. Sealed producer governance, the sealed-suite power analysis + 250/domain planning floor (§5.2), 90-day cadence and one-shot burn rule.
-15. Frontier transform grid, 14-day nomination window, five challengers and `.01` regret gate.
-16. 20,000 max-t hierarchical-bootstrap replicates and fixed seeds.
+15. Frontier transform grid, 14-day nomination window, five challengers and `.01` regret gate; plus the \(C^{d}\) selection statistic (dev domain-score argmax) and its rebuild/challenger recompute rule (§0, per critique M-6), and the strongest-by-dev DiD comparator pin (§5.2).
+16. 20,000 max-t hierarchical-bootstrap replicates and fixed seeds; the per-benchmark item-cluster taxonomy pinned in the manifest (§6.2, per critique C-1); training-seed random-effect and day/session/run resource-UCB hierarchy wiring.
 17. Calibration SD/SE/CI-stability thresholds and mock-seal requirements.
 18. FLOP-ledger twin protocol constants: ledger field list, IsoFLOP/Porian correction recipe, µP width-sweep grid, paired-seed schedule, and the equal-tuning-budget fallback trigger (§5.3 item 7).
 19. Matched-RAG completion cells: information-parity certificate method, pinned standard harness revision, position-shuffle/random-document/popularity-stratification recipes (§5.3 item 5; shared with P3-D-RAGC and P3-D-THREAT Rev1 §3.6).
-20. Factorial-control constants (§5.4): adopted from P3-D-THREAT Rev1's own ratification list; THREAT and this framework are ratified jointly, and \(\delta_{attr,k}=\delta_k\) under the efficiency framing.
+20. Factorial-control constants (§5.4): adopted from P3-D-THREAT Rev1's own ratification list; THREAT and this framework are ratified jointly, \(\delta_{attr,k}=\delta_k\) under the efficiency framing, and — **named freeze precondition (per critique M-7)** — the ratified THREAT revision's content hash is pinned into the P3-D-INDEX manifest at prereg-freeze; the prevails-rule binds to that hash only.
+21. **R0 anchor pin (per critique C-2)**: the R0 census anchor (model + revision hash), required before any R0 floor-census result or R0 rung membership can be claimed; until ratified, R0 membership is UNCENSUSED-HYPOTHESIS and R0 remains vector-first per §1.5.
 
 ## Residual gameability and standing limitations
 
@@ -804,6 +855,7 @@ The following proposed values require coordinator/Fable ratification:
 - Human authoring and review hours vary in quality and cannot be converted fairly into accelerator-hours.
 - A remote service’s reachable corpus may be difficult to bound.
 - The SmolLM2 size ordering is a strong same-family calibration expectation, not a law that larger models always score higher.
+- **Anchor-construct bias (Revision 2, per critique C-2(d))**: the per-rung floor census discriminates among PURE-NEURAL anchors. Components where a tiny pure-neural model floors — deep ProofWriter, FOLIO, GSM8K below R2 — are exactly the add-capability territory where a governed engine-bearing system would differ most, so lower-rung scalars systematically exclude discriminating-for-S components. This is a deliberate construct decision (§1.4), disclosed here as a standing limitation; excluded components remain vector columns.
 
 ## Part C — correctness instrument — DEFERRED pending #57
 
@@ -834,7 +886,43 @@ Authoritative wording = the review's ["Part B — ordered reconciliation edits"]
 11. **Decontamination layered + sealed suite powered + inferential gap rule — ADOPTED.** §5.1 rule 9 (disjoint dev/held-out sets, independent paraphrase sources, CIs on recall/FPR, perturbation checks, Min-K diagnostics, derivation-input/source-page screening) plus the benchmark-derived definition of confirmed leakage; §5.2 sizes the sealed suite by power analysis (250/domain demoted to a planning floor) and converts the `.03` gap to one-sided non-inferiority of the difference-in-differences with a CI. (MF0-R1j)
 12. **Sardana quarantine — ADOPTED.** §4: qualitative context only; no dollar/model/token figure may enter KOT-LIFE until the direct PDF read reconciles the conflicting examples. (Noted: the rc0 draft contained no such figures; the rule now prevents their introduction.) (MF0-R1l)
 
-No Part-B edit is rebutted. **Part C is NOT applied** (deferred placeholder above). Part-A observations not covered by the Part-B list (e.g. the Offline batch-shopping cell, construct-map freezing, base-image allowlisting, out-of-family calibration subject, per-rung calibration census scope) remain OPEN for the re-review and are not silently resolved here.
+No Part-B edit is rebutted. **Part C is NOT applied** (deferred placeholder above). ~~Part-A observations not covered by the Part-B list (e.g. the Offline batch-shopping cell, construct-map freezing, base-image allowlisting, out-of-family calibration subject, per-rung calibration census scope) remain OPEN for the re-review and are not silently resolved here.~~ **CORRECTED in Revision 2 (per critique C-2 and M-5): the separability claim was WRONG for two of these items.** The **per-rung calibration census** is a load-bearing dependency of edit 3 (the rung manifest resolves through a census only §7 can execute) and the **construct-map freeze** is load-bearing for edit 1's NI family (domain boundaries define which NI constraints exist); both are reclassified **Part-B-dependent** and are now addressed in §1.1/§1.4/§7.2–7.3 and §0/register-item 4 respectively. The genuinely separable OPEN Part-A items — the Offline batch-shopping cell (disclosed in §3.3), base-image allowlisting, and the out-of-family calibration subject — remain OPEN for the re-review.
+
+## Revision 2 — critique fixes applied
+
+Authoritative wording = the critique's Findings + `PROPOSED-CRIT-1..13`
+([kot-fair-2-rev1-fable-critique.md](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/kot-fair-2-rev1-fable-critique.md)). All 3 CRITICAL + 10 MAJOR + 7 MINOR findings applied; disposition per finding:
+
+**CRITICAL**
+
+- **C-1 (statistics contradiction) — ADOPTED (PROPOSED-CRIT-1).** §6.2 withdraws within-domain benchmark-family resampling entirely and adopts the review/THREAT fixed-weight item-cluster scheme (cluster taxonomy pinned per benchmark in the manifest); §6.2 states, and §5.4(5) restates, that both gatekeeping stages run on this ONE scheme, identical by construction to THREAT Rev1 §5.1; the §0 NI bounds and §5.2 DiD bound run on it; the review's training-seed random-effect and day/session/run resource-UCB corrections are imported; a §6.1 reading note prevents the verbatim parent quote being re-read as family-resampling. (MF0-R2a)
+- **C-2 (floor census has no instrument) — ADOPTED (PROPOSED-CRIT-2).** §7.2 step 3 now executes the §1.4 census on EVERY rung's anchor over that rung's candidate set and freezes a per-rung membership list; §7.3 GREEN is conditional on all of them, not only `INDEX_COMMON`; the R0 anchor is register item 21 (R0 = UNCENSUSED-HYPOTHESIS until pinned); §1.4 preregisters the census CI method and per-component minimum census N/power target (split fraction raised pre-census where 20% cannot power the gate); the census construct ("discriminates among pure-neural anchors") is stated and its anchor-construct bias recorded in Residual gameability. The per-rung census is reclassified Part-B-DEPENDENT (dependency of edit 3), correcting the Rev1 log. (MF0-R2b)
+- **C-3 (repeatability gate fail-open) — ADOPTED (PROPOSED-CRIT-3).** §3.5's every-arm gate is now FAIL-CLOSED: a preregistered \(F(B_k)\) member failing its bands after the frozen repeat rule BLOCKS W1 at that rung as an instrument failure — unconditionally for the strongest-by-dev comparator and every \(C^{d}\); the only alternative for lower-tier roster members is the explicit `NON-REPEATABLE-COMPARATOR` adverse status carried in the frontier and on every claim surface, never removal. Bands are split by arm class (deterministic-decode vs adaptive/TTC), ratified from P3-E-CAL plus the synthetic high-variance rig probes; the energy band is aligned to the SYS lit's 10% within-day figure (tighter only with empirical justification at ratification). (MF0-R2c)
+
+**MAJOR**
+
+- **M-1 (`UNPROVEN` not executable) — ADOPTED (PROPOSED-CRIT-4).** §3.1a replaces the undefined "movement signature" with a preregistered mechanical predicate (component-energy advantage claimed AND any unmeasured-domain proxy exceeds the comparator's by more than ratified \(\kappa_m\)); constants in register item 11; label lives on the grader's energy-comparison row. (MF0-R2d)
+- **M-2 (path-(b) budget-fit leak) — ADOPTED (PROPOSED-CRIT-5).** §3.1a path-(b) interlock: R1k I/O-byte and CPU-second ceilings become BINDING (or Pareto components) under path (b); "fits \(B_k\)" is co-stated "component-energy budget only; system energy unmeasured"; a predicate firing gates admissibility wording too. (MF0-R2d)
+- **M-3 (headroom endogeneity) — ADOPTED (PROPOSED-CRIT-6).** §3.1 branch-1 headroom must be derived from a named, pinned external deployment envelope with derivation shown, capped at a ratified per-metric maximum, and adversarially checked against the withdrawn 3× rule's rejections; branch 2 (with the same discipline) is named the preferred branch. (MF0-R2e)
+- **M-4 (NI family silent shrink) — ADOPTED (PROPOSED-CRIT-7).** §0 collision rule: a core domain losing scalar eligibility falls to a preregistered vector-column NI bound (unclipped \(\tilde{s}\) mean) in the same family, else W1 is unavailable at the rung; §1.5(1) now requires the CORE SET scalar-eligible, not "any three domains". (MF0-R2f)
+- **M-5 (construct-map freeze load-bearing) — ADOPTED (PROPOSED-CRIT-8).** Construct map + benchmark-family clustering pulled into ratification item 4 with the grouping-sensitivity report; §0 states the NI family is defined over the frozen construct map; reclassified Part-B-DEPENDENT in the corrected Rev1 log.
+- **M-6 (\(C^{d}\) under-defined) — ADOPTED (PROPOSED-CRIT-9).** §0 defines \(C^{d}\) = dev-domain-score argmax (point estimate, hash-pinned dev split), recomputed before prereg-freeze on any rebuild or challenger admission; dev-selection winner's-curse caveat recorded in §6.2. (MF0-R2g)
+- **M-7 (THREAT prevails-rule unpinned + drift) — ADOPTED (PROPOSED-CRIT-10).** §5.4 pins the ratified THREAT's content hash into the P3-D-INDEX manifest at prereg-freeze (prevails-rule binds to that hash only; later THREAT changes need a framework version bump + re-review) — recorded as a NAMED FREEZE PRECONDITION in the banner and register item 20; §5.4(1)(d) corrected to THREAT's claim-conditioned `G-*` wording. (MF0-R2h)
+- **M-8 (decon gate undecidable) — ADOPTED (PROPOSED-CRIT-11).** §5.1 states the operative statistic per criterion: verbatim observed 100% + exact LCB reported; near-verbatim/paraphrase bind on one-sided LCB95 vs targets jointly sized with n; FPR binds on one-sided UCB95. (MF0-R2i)
+- **M-9 (DiD estimand under-pinned) — ADOPTED (PROPOSED-CRIT-12).** §5.2 pins the DiD comparator to the pre-declared strongest-by-dev comparator (same C in both \(\Delta\)s) and the joint two-suite single-replicate resampling procedure on the corrected §6.2 scheme. (MF0-R2j)
+- **M-10 (floor span units) — ADOPTED (PROPOSED-CRIT-13).** §1.4 applies `f` on the normalized \(\tilde{s}\) scale (uniform bar across heterogeneous \(u-c\) spans) and names the census CI method per component class. (MF0-R2k)
+
+**MINOR**
+
+- **m-1 — ADOPTED.** MF0-R1d row reworded: two record states + the `UNPROVEN` claim label, recorded on the grader energy row.
+- **m-2 — ADOPTED.** §4: every KOT-LIFE joules figure carries/references a §3.1a boundary record.
+- **m-3 — ADOPTED.** \(\delta_{NI}\) stated once in §0 (positive margin, one-sided condition); §6.2's duplicate `−0.02` convention withdrawn.
+- **m-4 — ADOPTED.** §0 licensed-claim sentence now reads "no core domain more than \(\delta_{NI}\) below its preregistered per-domain frontier comparator".
+- **m-5 — ADOPTED.** §1.1: MMLU-Pro/BBH R3+ placement is census-confirmable in both directions like every other row; no flat-assertion placement remains.
+- **m-6 — ADOPTED.** §3.3: binding p95 = Server-cell p95 under the frozen schedule; INDEX accuracy from a separate unloaded scoring run; slow-arm saturation is a goodput result under the frozen accounting, not a rig defect.
+- **m-7 — ADOPTED (disclosure).** §3.3 states the Offline batch-shopping game survives and remains OPEN — edit 6's ADOPTED status does not cover it; candidate fixes parked at register item 10.
+
+No finding is rebutted; every fix follows its `PROPOSED-CRIT-*` wording (adopted-with-modification only in C-3's lower-tier alternative — the critique's own "at minimum" clause — where the adverse-status carry is offered alongside the unconditional block for non-\(C^{d}\), non-strongest roster members, with the tier map frozen at roster closure). Scope discipline: this is targeted repair per the critique's "Recommended next step"; no design element outside the findings was reopened, and Part C remains an untouched deferred placeholder.
 
 ## PROPOSED prereg rows (labels only — nothing registered)
 
@@ -843,7 +931,7 @@ All rows are PROPOSED only — nothing is registered, frozen, or scheduled; no `
 - **PROPOSED-PREREG-ROW-MF0-R1a:** W1 = scalar LCB-margin superiority AND simultaneous per-domain one-sided non-inferiority (margin \(\delta_{NI}\)) against the preregistered domain frontier, in one predeclared multiplicity family; the metric vector is the primary descriptive object. `[STIPULATED]`
 - **PROPOSED-PREREG-ROW-MF0-R1b:** scalar inclusion floor = `LCB95(raw_score − chance) > f` on the rung anchor (demonstrated discrimination); the UCB exclusion rule is withdrawn; per-rung floor census before architecture outputs. `[STIPULATED]`
 - **PROPOSED-PREREG-ROW-MF0-R1c:** proxy-rung asymmetry — R0/R1 kills may terminate; positive R0/R1 margins are hypotheses only; byte-identical prompts/scorers/formats across rungs. `[STIPULATED]`
-- **PROPOSED-PREREG-ROW-MF0-R1d:** energy boundary law — first-class boundary records; `MEASURED-WALL`/`UNMEASURED`/`UNPROVEN` states; "total energy" reserved for wall-class measurement; wall measurement or amended named component-energy budget, no third path. `[STIPULATED]`
+- **PROPOSED-PREREG-ROW-MF0-R1d:** energy boundary law — first-class boundary records; **two record states** (`MEASURED-WALL`/`UNMEASURED`) **plus the `UNPROVEN` claim label**, recorded on the grader's energy-comparison output row per the §3.1a executable movement predicate (wording corrected Revision 2, per critique m-1 — `UNPROVEN` is not a `system_energy_status` enum value); "total energy" reserved for wall-class measurement; wall measurement or amended named component-energy budget, no third path. `[STIPULATED]`
 - **PROPOSED-PREREG-ROW-MF0-R1e:** load/repeatability law — frozen goodput SLOs, full issued/completed/timed-out/dropped accounting, drift bounds, rank-based CIs in own units, adaptive-N stopping rule, repeatability gate on every campaign arm and comparator. `[STIPULATED]`
 - **PROPOSED-PREREG-ROW-MF0-R1f:** KOT-LIFE subledger law — build/mint, review/provenance, staleness-refresh subledgers + uncertainty; \(TCO(q,t)\); matched external-context refresh baseline. `[STIPULATED]`
 - **PROPOSED-PREREG-ROW-MF0-R1g:** twin law — from-scratch twins matched on a full FLOP ledger with IsoFLOP/Porian placement, paired seeds, µP sweep, optimizer/interface audit, equal-tuning-budget fallback; released anchors are pinned comparators, never twins. `[STIPULATED]`
@@ -852,6 +940,20 @@ All rows are PROPOSED only — nothing is registered, frozen, or scheduled; no `
 - **PROPOSED-PREREG-ROW-MF0-R1j:** decontamination/seal law — layered screening with disjoint dev/validation sets and CI-reported operating points; benchmark-derived definition of confirmed leakage; power-sized sealed suite; sealed consistency as one-sided non-inferiority of the difference-in-differences. `[STIPULATED]`
 - **PROPOSED-PREREG-ROW-MF0-R1k:** secondary-ceiling law — preregistered metric-specific absolute ceilings (anchor-derived, pre-S, with stated headroom) or an explicitly Pareto-extended \(B_k\); the 3×-strongest-comparator rule is withdrawn; all coordinates co-reported. `[STIPULATED]`
 - **PROPOSED-PREREG-ROW-MF0-R1l:** Sardana quarantine — qualitative context only; no specific saving/model/token figure enters KOT-LIFE before the direct-PDF reconciliation. `[STIPULATED]`
+
+Revision-2 rows (continuing the same series; critique fix labels were `PROPOSED-CRIT-1..13`):
+
+- **PROPOSED-PREREG-ROW-MF0-R2a:** ONE resampling law — fixed benchmark/domain weights; preregistered item-cluster resampling within each benchmark (taxonomy pinned per manifest row); paired outputs preserved; identical scheme for W1 frontier, per-domain NI, attribution stage-2, and the sealed DiD; training-seed random effect for procedure claims; day/session/run hierarchy for resource UCBs; within-domain family-resampling withdrawn. `[STIPULATED]`
+- **PROPOSED-PREREG-ROW-MF0-R2b:** per-rung census law — §7.2 executes the §1.4 floor/saturation census on every rung's anchor (R0 anchor = register item 21) over that rung's candidate set; per-rung membership lists gate §7.3 GREEN; census CI method + per-component minimum N/power preregistered; census sizing can never modulate membership. `[STIPULATED]`
+- **PROPOSED-PREREG-ROW-MF0-R2c:** fail-closed repeatability law — class-split bands (deterministic vs adaptive/TTC; energy at the SYS 10% figure absent contrary evidence); a failing preregistered comparator BLOCKS W1 at the rung (unconditional for strongest-by-dev and every \(C^{d}\)) or is carried under the explicit `NON-REPEATABLE-COMPARATOR` adverse status; comparator repeatability failure never weakens S's opposition. `[STIPULATED]`
+- **PROPOSED-PREREG-ROW-MF0-R2d:** executable `UNPROVEN` + path-(b) interlock — mechanical movement predicate with ratified \(\kappa_m\); label on the grader energy row; under path (b) the I/O/CPU ceilings bind and admissibility wording carries the component-energy-only co-statement. `[STIPULATED]`
+- **PROPOSED-PREREG-ROW-MF0-R2e:** headroom derivation law — branch-1 ceilings = anchor measurement + headroom derived from a named pinned external deployment envelope, capped per metric, adversarially checked against the withdrawn 3× rule; branch 2 preferred where feasible. `[STIPULATED]`
+- **PROPOSED-PREREG-ROW-MF0-R2f:** core-set collision law — a core domain losing scalar eligibility falls to the preregistered vector-column NI bound else W1 is unavailable at the rung; the scalar requires the whole core set scalar-eligible. `[STIPULATED]`
+- **PROPOSED-PREREG-ROW-MF0-R2g:** \(C^{d}\) law — dev domain-score argmax on the hash-pinned dev split, recomputed before prereg-freeze on any rebuild/challenger admission; never references S; winner's-curse caveat recorded. `[STIPULATED]`
+- **PROPOSED-PREREG-ROW-MF0-R2h:** THREAT pin law — the ratified THREAT's content hash enters the P3-D-INDEX manifest at prereg-freeze; the prevails-rule binds to that hash only; later THREAT edits require a framework version bump + re-review. `[STIPULATED]`
+- **PROPOSED-PREREG-ROW-MF0-R2i:** decidable decontamination law — per-criterion operative statistics (verbatim observed 100%; LCB95-bound near-verbatim/paraphrase recall with jointly sized targets/n; UCB95-bound FPR). `[STIPULATED]`
+- **PROPOSED-PREREG-ROW-MF0-R2j:** sealed DiD estimand law — same pre-declared strongest-by-dev comparator in both \(\Delta\)s; joint two-suite single-replicate cluster resampling; one-sided percentile/max-t bound. `[STIPULATED]`
+- **PROPOSED-PREREG-ROW-MF0-R2k:** normalized floor law — the §1.4 floor gate binds on the \(\tilde{s}\)-scale LCB with `f` in normalized units; per-component census CI method named in the manifest. `[STIPULATED]`
 
 ## MANDATORY self-check (Revision 1)
 
@@ -865,5 +967,18 @@ All rows are PROPOSED only — nothing is registered, frozen, or scheduled; no `
 8. **No @handle/account strings?** YES — checked; none present in the revised file.
 9. **No `ASM-<number>` ids minted?** YES — only `PROPOSED-PREREG-ROW-MF0-R1a…l` labels; the PROPOSED-rows section states ids are assigned at prereg-freeze.
 10. **Nothing committed/registered/frozen/run?** YES — this file was edited in place only; no git operations, no registry/bead changes, no goldens, no schedules, no runs; the banner, status block, and Part-C section all state NOT freeze-ready with re-review + Fable critique + the #57/Part-C decisions pending.
+
+## MANDATORY self-check (Revision 2)
+
+1. **All 3 CRITICALs fully resolved?** YES — C-1: §6.2 rewritten on the single fixed-weight item-cluster scheme, the family-resampling rule explicitly WITHDRAWN, §5.4(5) states stage-identity with THREAT §5.1, and the §0 NI + §5.2 DiD bounds run on it. C-2: §7.2 step 3 executes the census on every rung's anchor with per-rung membership lists gating §7.3 GREEN, R0 anchor = register item 21, census CI/minimum-N pins in §1.4. C-3: §3.5 gate rewritten fail-CLOSED with the W1-BLOCKED rule (unconditional for strongest-by-dev and every \(C^{d}\)), the explicit adverse-status alternative for lower tiers, class-split bands, and the energy band aligned to the SYS 10% figure.
+2. **Statistics unified on ONE sound resampling scheme end-to-end?** YES — the only remaining occurrences of "resample benchmark families within domain" are inside its own withdrawal sentence (§6.2) and the Rev2 changelog; the §6.1 verbatim parent quote carries a reading note preventing re-derivation of family-resampling; W1 frontier, per-domain NI, attribution stage 2, sealed DiD, and the census bootstrap all name the §6.2 cluster scheme.
+3. **Floor census has a named executing instrument covering R0..R3?** YES — extended P3-E-CAL (§7.2 step 3) on the §7.1 anchor list (R1/R2/R3 pinned SmolLM2 revisions; R0 via register item 21, with R0 explicitly UNCENSUSED-HYPOTHESIS until pinned — a runnable criterion, not an assertion); §7.3 GREEN requires every per-rung list frozen.
+4. **Repeatability gate fail-CLOSED?** YES — a preregistered comparator failing bands after the frozen repeat rule blocks W1 at the rung as instrument failure, or (lower tiers only, tier map frozen at roster closure) is carried with the `NON-REPEATABLE-COMPARATOR` adverse status inside \(F(B_k)\); the spec states verbatim that comparator repeatability failure is never a path by which S's opposition weakens.
+5. **The 2 non-separable Part-A items reclassified + addressed?** YES — the Rev1 log's separability claim is struck and corrected: the per-rung calibration census (dependency of edit 3) is addressed in §1.1/§1.4/§7.2–7.3; the construct-map freeze (load-bearing for edit 1's NI family) is addressed in §0 and ratification item 4 with the grouping-sensitivity report requirement. The genuinely separable items (Offline batch cell, base-image allowlisting, out-of-family calibration subject) remain OPEN and are named as such.
+6. **Part C untouched?** YES — the "## Part C — correctness instrument — DEFERRED pending #57" section is byte-identical to Revision 1: placeholder only, #57-gated, named freeze blocker; no correctness endpoint was designed anywhere in Rev2.
+7. **Every load-bearing claim tagged?** YES — every Rev2 design choice carries `[STIPULATED]` (or `[STIPULATED — coordinator/Fable to ratify]`); the two Rev2 literature-dependent values (energy-band 10%, SYS lit) carry `[LIT-BACKED: reports/lit-p3-sys.md §Q4]`; no `[MEASURED]` tag was added (Rev2 measures nothing); `[EXTRAPOLATION]` remains deliberately unused — the critique's extrapolative premises (e.g. TTC-arm variance) are cited as the critique's, not asserted as measured fact.
+8. **No @handle/account strings?** YES — the only `@` occurrences are upstream repo@revision pins (HuggingFace model/dataset commits) present since rc0 and treated as pins, not handles, by the Rev1 check; no account/@handle strings were added.
+9. **No `ASM-<number>` ids minted?** YES — grep-verified zero matches; only `PROPOSED-PREREG-ROW-MF0-R1a..l` and new `PROPOSED-PREREG-ROW-MF0-R2a..k` labels, plus references to the critique's `PROPOSED-CRIT-1..13`.
+10. **Nothing committed/registered/frozen/run?** YES — this file was edited in place only; no git operations, no bead/registry changes, no goldens, no schedules, no runs; the banner and status block state NOT FREEZE-READY with re-review + #57/Part-C + THREAT-ratification-with-hash-pin + P3-E-CAL + empirical ratifications pending.
 
 No preregistration, bead, registry entry, or frozen object was created by this revision; this design file was edited in place only.
