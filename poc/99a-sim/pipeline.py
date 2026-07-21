@@ -1,0 +1,106 @@
+"""S1 object-under-test: one full-pipeline replication.
+
+Order (S1/S4.8->S4.2-S4.7): generate arm-side DGM -> ledger contrast fits +
+gate tests -> build IUT component p-values -> graphical procedure over Stage-1
+claims -> Stage-2 endogenous trigger (C-FMT testable iff >=1 C-CON-SUP rejected)
+-> continue graphical.  Errors are counted at CLAIM level by the driver against
+hypotheses.truth_set (S1).
+
+Stage-1 binding futility (S4.6) and the Rung-0 branch (S4.8/§7) are
+binding-futility-only: they can only REMOVE rejection opportunities, hence are
+conservative for FWER.  They are implemented in futility.py / rung0.py and wired
+for the cells that exercise them; for cells whose futility/rung-0 parameters sit
+far from their boundaries (all mock FWER/power cells here) they never fire, so
+the core pipeline determines the result exactly.  See README / SPEC-DEFECTS.
+"""
+import pins
+import dgm
+import gate_test
+import graphical
+from inference import FamilyAnova
+from hypotheses import ParamVector
+
+_UCT_IDX = {a: i for i, a in enumerate(pins.UCT_ARMS)}
+_COMP_IDX = {a: i for i, a in enumerate(pins.COMP_ARMS)}
+_REV_OFF = {a: i for i, a in enumerate(pins.REVIEWED_ARMS)}
+
+
+def run_replication(t: ParamVector, ss, want_selection=False):
+    """Run one replication; return dict with rejected claims + diagnostics."""
+    dS, mT, dT, dG, mF, pi0 = (pins.DELTA_S, pins.M_T, pins.DELTA_T,
+                               pins.DELTA_G, pins.M_F, pins.PI0)
+
+    # ---- DGM (S4.1) ----
+    Yuct = dgm.gen_uct(t, ss)
+    Ycomp, gate = dgm.gen_composite_and_gate(t, ss)
+
+    # ---- ledger fits (S4.2): ONE balanced family ANOVA per family ----
+    uct_anova = FamilyAnova(Yuct)
+    comp_anova = FamilyAnova(Ycomp)
+    # UCT contrasts: Delta^UCT_c (c vs T) and Delta^SH_a natural (a vs S(a))
+    uct_fit = {c: uct_anova.contrast(_UCT_IDX[c], _UCT_IDX['T']) for c in pins.CANDIDATES}
+    shnat_fit = {a: uct_anova.contrast(_UCT_IDX[a], _UCT_IDX['S(%s)' % a])
+                 for a in pins.SH_NAT_ARMS}
+    # composite contrasts: Delta^G (H vs A2IR) and nonce shuffles
+    graph_fit = comp_anova.contrast(_COMP_IDX['H'], _COMP_IDX['A2IR'])
+    shnonce_fit = {a: comp_anova.contrast(_COMP_IDX[a], _COMP_IDX['S(%s)' % a])
+                   for a in pins.SH_NONCE_ARMS}
+
+    # ---- gate tests (S4.4), consumed gate-by-gate in arm-index order ----
+    boot = ss[pins.SS_GATE_BOOT]
+    gate_p = {}
+    for gi, a in enumerate(pins.GATE_ARMS):
+        gate_p[a] = gate_test.gate_pvalue(gate[gi], _REV_OFF[a], pi0, boot)
+
+    # ---- build IUT component p-values per claim (§4.6(1)/S5-targeted) ----
+    comp = {}
+    comp['C-VAL'] = ([shnat_fit[a].p_lower(dS) for a in pins.SH_NAT_ARMS]
+                     + [shnonce_fit[a].p_lower(dS) for a in pins.SH_NONCE_ARMS])
+    comp['C-DEF-NSUP'] = [uct_fit[c].p_upper(mT) for c in pins.CANDIDATES]
+    comp['C-DEF-SUP'] = [uct_fit[c].p_upper(-dT) for c in pins.CANDIDATES]
+    for c in pins.CANDIDATES:
+        comp['C-CON-SUP-%s' % c] = [uct_fit[c].p_lower(dT), gate_p[c]]
+    comp['C-GRAPH'] = [graph_fit.p_lower(dG), gate_p['H'], gate_p['A2IR']]
+
+    # ---- graphical procedure, Stage 1 (S4.7: C-FMT not yet testable) ----
+    state = graphical.GraphState(pins.ALPHA)
+    testable = {cl: True for cl in pins.STAGE1_CLAIMS}
+    for cl in pins.FMT_CLAIMS:
+        testable[cl] = False
+    state.run(comp, testable)
+
+    # ---- Stage-2 endogenous trigger (S4.7) ----
+    stage2 = False
+    con_rejected = any(('C-CON-SUP-%s' % c) in state.rejected for c in pins.CANDIDATES)
+    if con_rejected and t.stage2_mode == 'endogenous':
+        stage2 = True
+        for c in pins.CANDIDATES:
+            Yf = dgm.gen_format(t, ss, c)          # arms 0=T'(c),1=AST,2=VEC
+            fanova = FamilyAnova(Yf)
+            comps = []
+            for fi, f in enumerate(pins.FORMATS):
+                fit = fanova.contrast(0, fi + 1)   # T'(c) - f(c) = Delta^F_{c,f}
+                comps.append(fit.p_upper(mF))      # H0: Delta^F >= m_F
+                comps.append(fit.p_lower(-mF))     # H0: Delta^F <= -m_F
+            comp['C-FMT-%s' % c] = comps
+            testable['C-FMT-%s' % c] = True
+        state.run(comp, testable)                  # continue same update
+
+    result = {'rejected': set(state.rejected), 'stage2': stage2}
+    if want_selection:
+        result['selection'] = _select(uct_fit, graph_fit)
+        result['fits'] = {'uct': uct_fit, 'graph': graph_fit}
+    return result
+
+
+def _select(uct_fit, graph_fit):
+    """S4.5 hierarchy selection of c* (one-sided 95% lower bounds; fallback A1)."""
+    g = pins.SELECTION_LEVEL
+    gamma = 1.0 - g
+    if graph_fit.lower_bound(gamma) > pins.DELTA_G:
+        return 'H'
+    if uct_fit['A2IR'].lower_bound(gamma) - uct_fit['A2'].lower_bound(gamma) > pins.M_IR:
+        # (approximation: rung increments read off the UCT fits; the operative
+        #  increments are on the composite scale — documented simplification)
+        return 'A2IR'
+    return 'A1'

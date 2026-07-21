@@ -1,0 +1,146 @@
+# SPEC-DEFECTS / build notes — 99a SIM-SPEC mock implementation
+
+Per SIM-SPEC S9, a genuine ambiguity or contradiction in the spec is a
+REPORTABLE DESIGN DEFECT, not a thing the executor resolves locally. This file
+records (A) genuine spec ambiguities/contradictions found while implementing,
+(B) disclosed environment/scope deviations for the MOCK build (not spec
+defects — flagged so the coordinator can price them), and (C) deferred
+acceptance obligations the mock does not discharge.
+
+## A. Genuine spec ambiguities / candidate defects
+
+**A1. (minor) Bounded-Beta gate threshold recalibration references a per-cell
+stream but the marginal-mapping obligation is under-operationalised for the
+draw budget vs the run cost.** S4.4 pins: for the bounded-Beta regime, recompute
+the gate threshold t_a as "the exact numerical (1 - pi_a)-quantile of Z's
+distribution, computed once per cell by 10^7 pinned Monte-Carlo draws on the
+dedicated PER-CELL calibration stream SeedSequence([BASE_SEED, config_index,
+999_999_999]) before any replication runs." This is codeable and unambiguous as
+written; the note is only that 10^7 draws x (per-cell) x the bounded-Beta cells
+is a non-trivial one-off cost the S6 wall-clock accounting does not itemise. Not
+a contradiction — flagged for cost transparency, resolved as written in the
+frozen run.
+
+**A2. (clarification, not a blocker) S4.2 "operative path" wording vs the task
+brief.** The coordinator brief describes S4.2 as providing "the BALANCED
+CLOSED-FORM mixed-model fit ... as the operative path." S4.2 as written does NOT
+give a closed-form formula; it pins REML + Giesbrecht-Burns Satterthwaite with
+an R/lme4/lmerTest reference implementation as the executable oracle, and S9
+allows "any NUMERICALLY EXACT algorithm ... SUBJECT to the fixture-equivalence
+check" against lme4. For balanced crossed designs the ANOVA/method-of-moments
+variance components equal REML in the interior, so a balanced closed form is a
+LEGITIMATE such algorithm — but the spec does not itself write it, and exact
+lme4 equivalence must still be demonstrated on the S4.2 fixture. Recorded so the
+"closed form" is understood as an executor choice under S9, gated by the
+(deferred) fixture check, not something S4.2 hands over.
+
+**A4. (GENUINE FINDING — needs design review) The mandated S4.4 gate-
+calibration battery FAILS at the component level in a faithful implementation:
+the crossed-binary parametric-bootstrap gate test is ANTI-CONSERVATIVE at the
+null boundary when the seed/reviewer dependence is small.** Measured at the
+gate-cal cell (rho=0.1, n_nonce=96, pi_a=pi0=0.60, R=1200, all four arms):
+realised component rejection rate ~0.075 at gamma=0.025 (CP-upper ~0.088; the
+S4.4 acceptance bar is <= 1.25*gamma = 0.031) and ~0.04 at gamma=0.00625
+(CP-upper ~0.055; bar 0.0078). Diagnosis (isolated, not an estimator bug): the
+concordance estimators are UNBIASED — averaged over reps, empirical Q_cr/Q_s/Q_r
+match the theoretical bivariate-normal orthant probabilities at the true
+(rho_c=0.5, rho_s=0.1, rho_r=0.1) to 3 dp, and inverting the mean concordances
+recovers (0.606, 0.088, 0.108). The failure is that the SPEC-MANDATED per-
+replication truncation ("if a concordance inversion has no root ... set that
+rho_hat = 0") biases the SMALL components (rho_s, rho_r = 0.1, sitting just above
+the independence floor) downward: per rep their noisy concordance often dips
+below the floor and truncates to 0, so the estimated dependence under-states the
+reviewer/seed clustering, the null-boundary bootstrap of pihat* is UNDER-
+DISPERSED (sd 0.059-0.072 vs the true pihat sd 0.084), and the observed pihat
+looks too extreme too often -> inflated rejection. Fed the TRUE (0.5,0.1,0.1),
+the same bootstrap is well-calibrated (sd 0.091 >= 0.084). This is exactly the
+failure mode the S4.4 battery exists to catch — so it is a real result about the
+pinned test, not a harness artifact. **Claim-level consequence (measured):** the
+IUT conjunction TEMPERS it — F4 (only pi_H at boundary, contrast component also
+binding) FWER = 0.000; but F5 (Delta^UCT_H,A2IR = +0.16 ABOVE delta_T so the
+CONTRAST component is a true effect and the GATE is the binding true null)
+propagates the inflation to the claims: C-CON-SUP-H/A2IR reject ~0.02 each (vs
+0.00625 local level) and familywise FWER = 0.037 (CP-upper95 = 0.052), still
+under tau_FWER = 0.055 but with much less margin than the other cells (~0.01).
+**Routing:** this is a candidate SPEC DEFECT (the pinned gate dependence
+estimator + zero-truncation does not deliver the finite-sample level control the
+graphical procedure requires at small seed/reviewer dependence) OR at least an
+obligation the design must discharge before freeze — either revise the estimator
+(e.g. a conservative dependence floor / shrinkage instead of hard truncation to
+0, or a bias correction), or demonstrate gridwide that claim-level FWER holds
+under tau_FWER despite the component-level battery result. Flagged, NOT resolved
+locally (S9).
+
+**A3. (no defect found) The 12-claim procedure, weights, transition matrix,
+update algorithm, IUT/TOST composition, truth functions, grid expansion, and
+seed system were all codeable with zero remaining design decisions** — grid cell
+counts resolve to exactly the pinned 74 FWER + 36 power + 4 gate-cal, the graph
+satisfies the Bretz-2009 conditions (nonneg initial weights sum 1, zero
+diagonal, row sums <= 1), and the S5 truth functions reproduce the S5-cited
+F4/F8/F9 truth-set corrections. No contradiction requiring design escalation was
+hit in the confirmatory core.
+
+## B. Disclosed environment / scope deviations (MOCK build — not spec defects)
+
+**B1. Version pins unmet on this box.** S2/R8g pins CPython 3.12.x, numpy 2.1.3,
+scipy 1.14.1. This box has CPython 3.9.25, numpy 2.0.2, scipy 1.13.1 (Python
+3.9 cannot install the pinned numpy/scipy). The pinned Philox generator +
+SeedSequence substream discipline is fully implemented and works identically on
+these versions; bit-exact cross-version reproduction of the pinned draws is
+therefore NOT asserted. A version bump is a logged re-pin per S2 — recorded here.
+
+**B2. Inference estimator is the balanced pooled-ANOVA closed form, NOT the
+byte-identical lme4 REML.** The mock fits, per family per replication, ONE
+balanced crossed-family ANOVA (arm fixed; concept, concept x arm, seed, seed x
+arm random; residual) and reads each registered contrast's theta_hat (= arm-mean
+difference, = GLS under balance), SE, and Satterthwaite df from the pooled mean
+squares. This is a VALID (super-uniform under the null) mixed-model contrast test
+— which is the property the FWER simulation validates — and pools the seed x arm
+component across arms so it carries (A-1)(S-1) df (18 for UCT, 14 for composite)
+rather than the 2 df a single paired difference would give. It is NOT numerically
+identical to lme4 to the S4.2 tolerances, so the mandatory fixture-equivalence
+check (|d theta| <= 1e-7, rel SE <= 1e-5, rel nu <= 1e-3, |dp| <= 1e-6) is
+DEFERRED (no R on this box), not asserted. Two documented conservatisms in the
+pooled ANOVA (both cancel in the registered contrasts and only inflate the SE
+mildly): consumer/reviewer crossed nuisance folded into the concept x arm /
+residual strata; composite residual heteroscedasticity (reviewed vs unreviewed)
+averaged into one pooled residual — affecting only the nonce shuffle
+reviewed-vs-unreviewed C-VAL components, never the UCT / Delta^G true nulls.
+Consequence for the results: FWER control is validated ROBUSTLY (the weighted-
+Bonferroni graphical procedure controls FWER <= alpha for ANY valid component
+p-values; Satterthwaite df only moves the realised rate toward but never above
+alpha). Power is a fair estimate under the pooled closed form; the joint lme4
+fit could differ at the S4.2 tolerance but not in the qualitative power picture.
+
+**B3. Stage-1 binding futility (S4.6) and the Rung-0 nested-interim branch
+(S4.8/§7) are implemented structurally but not wired into the mock FWER/power
+cells, because for every mock cell their futility/rung-0 parameters sit far from
+their boundaries (default d0=+0.20, pi=0.85 or pi0, Delta^G>=delta_G) so they
+never fire.** Both are binding-futility-only: they can ONLY remove rejection
+opportunities, hence are conservative for FWER — omitting them makes the FWER
+test STRICTER, so the validated control is if-anything an upper bound. The
+Rung-0 module (U_ell(r), transfer envelope, Welch-Satterthwaite df, integer
+looks, F10 termination rule) is provided as rung0.py and exercised by its own
+mock; the F10/P6 termination-acceptance cells still need a dedicated run.
+
+**B4. Bounded-Beta gate threshold recalibration (S4.4) is stubbed to the
+Gaussian threshold in the mock.** The Gaussian-regime and block-regime cells
+(all mock validation cells here, and all of F4-F10 + the gate-calibration
+battery) are unaffected. Bounded-Beta gate-boundary cells (the beta variants of
+F4/F5/F11) require the pinned 10^7-draw per-cell recalibration before the frozen
+run; the hook is present (dgm._gate_thresholds) but returns the Gaussian
+threshold pending that implementation.
+
+## C. Deferred acceptance obligations (NOT discharged by the mock)
+
+- S2 determinism check (100 pinned (config, rep) pairs, bit-identical rejection
+  vectors) — the seed system is deterministic and reproducible, but the formal
+  100-pair artifact is not emitted.
+- S4.2 fixture-equivalence vs R/lme4/lmerTest (B2) and the F2/P1 2,000-flip
+  sign-permutation concordance.
+- The S8 normative resolved-configuration JSON (config_index -> vector -> truth
+  set + rotation tables), hashed before any replication — the enumeration and
+  truth engine are implemented (grid.enumerate_cells + hypotheses.truth_set);
+  the hashed artifact emission is a small addition for the frozen run.
+- Full-scale acceptance (R = 40,000 FWER / 10,000 power) — the mock deliberately
+  runs only hundreds-to-thousands of reps.
