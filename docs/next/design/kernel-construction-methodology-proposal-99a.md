@@ -1,10 +1,49 @@
-# Kernel construction methodology — proposal 99a, REVISION 4
+# Kernel construction methodology — proposal 99a, REVISION 5
 
 > **REVISED DRAFT — NOT A MAINTAINER SUBMISSION AND NOT A PREREG FREEZE.
-> NEXT = re-review of the Rev4 experimental design → maintainer (decision on #59).
-> Adoption of anything beyond a governance-architecture pilot requires that re-review
-> AND the maintainer decision; nothing is registered, frozen, scheduled, or committed
-> by this revision.**
+> NEXT = re-review of the Rev5 experimental design → if clean, the confirmatory
+> experiment is PREREGISTRATION-SUITABLE → maintainer (decision on #59). Per the
+> Rev4 re-review, adoption of the governance architecture for a bounded pilot is
+> separately available NOW; adoption of anything beyond that pilot requires the
+> Rev5 re-review AND the maintainer decision; nothing is registered, frozen,
+> scheduled, or committed by this revision.**
+>
+> Revision 5 produced 2026-07-21 (Fable), applying the residual findings of the
+> **cross-vendor GPT-5.6 RE-REVIEW of Rev4**
+> (`docs/next/design/99a-rev4-xvendor-review.md`, verdict **targeted revision
+> needed (converging)**; the reviewer confirms — for the third consecutive pass —
+> that the governance architecture is sound to adopt for a bounded pilot, and
+> states that after the four targeted fixes "the experiment should be suitable
+> for preregistration": 3 MAJOR + 1 MINOR residuals, ALL applied and itemised in
+> "## Revision 5 — Rev4-re-review residuals applied" below). Rev5 is the FINAL
+> statistical/operational-specification pass, not a redesign: (i) **atomic
+> strong-FWER control** — all 95 atomic confirmatory nulls enumerated in ten
+> nodes, the complete transition matrix and update algorithm published, ALL
+> initial alpha on the validity node E1 so gatekeeping is mathematical (an
+> unresolved E1 leaves every other node at level zero), every four-zone label
+> read from ONE node-level simultaneous confidence set at its final
+> procedure-assigned level, every operative 95% threshold replaced by its
+> procedure-adjusted bound, and BOTH strong-FWER behaviour and adoption-path
+> power simulated under that exact implementation (R5a); (ii) **UCT
+> executability completed** — natural claim count and class allocation pinned
+> (nine claims, exactly 3/3/3 by generation-to-quota, with a pinned
+> missing-class fallback), held-out-source-exposed claim GENERATORS separated
+> from packet-only gold LABELERS, consumer assignment / carryover / rendering /
+> truncation / format-competence pinned, and comparator selection made
+> inferentially valid by covering every candidate-vs-T UCT contrast in E2's one
+> simultaneous confidence set (R5b); (iii) **Rung-0 conditional futility
+> formalised** — a simultaneous one-sided upper prediction bound per reviewed
+> route on (unreviewed-route − T) + Δ_rev(route), termination permitted only
+> when every bound lies in the futility region, binding-futility-only
+> sequential-error accounting, the calibration pilot's human cost explicitly
+> credited, and the "before any human apparatus" wording reconciled (R5c);
+> (iv) the **kill-rule wording sweep finished** — a breached hard gate is a
+> cannot-advance outcome, never a registered kill, and §3.2 reads "fails to
+> advance or is killed" (R5d). Everything the Rev4 re-review marked resolved —
+> the unconditional UCT as dominant decision task, packet-relative labeling,
+> δ ≥ m zone geometry, the hurdle endpoint, and the §8.0 controlling table — is
+> **preserved untouched**. New prereg rows continue the series as
+> `PROPOSED-PREREG-ROW-99A-R5a…d`.
 >
 > Revision 4 produced 2026-07-21 (Fable), applying the residual findings of the
 > **cross-vendor GPT-5.6 RE-REVIEW of Rev3**
@@ -66,8 +105,9 @@
 > Nothing here is registered, frozen, scheduled, or committed by this revision. All prereg
 > rows are PROPOSED only, labelled `PROPOSED-PREREG-ROW-99A-R1a…j` (Rev1),
 > `PROPOSED-PREREG-ROW-99A-R2a…m` (Rev2, one per critique finding),
-> `PROPOSED-PREREG-ROW-99A-R3a…i` (Rev3, one per cross-vendor finding), and
-> `PROPOSED-PREREG-ROW-99A-R4a…f` (Rev4, one per re-review residual); **no
+> `PROPOSED-PREREG-ROW-99A-R3a…i` (Rev3, one per cross-vendor finding),
+> `PROPOSED-PREREG-ROW-99A-R4a…f` (Rev4, one per re-review residual), and
+> `PROPOSED-PREREG-ROW-99A-R5a…d` (Rev5, one per Rev4-re-review residual); **no
 > `ASM-<number>` ids are minted** (ids are assigned at prereg-freeze; sibling Phase-1
 > revisions use the same convention). Review packaging note, acknowledged: the review file `last-message.json` is
 > Markdown content in a `.json` wrapper — cosmetic only.
@@ -90,9 +130,10 @@ Tag discipline (applies to every load-bearing claim below):
 
 # Methodology proposal: build the canon from evidence, not from a model
 
-This is a revised draft applying the cross-vendor re-review of Rev3 — next stage a
-re-review of the Rev4 experimental design, then the maintainer decision on #59. It
-is not a final ruling and not yet a maintainer submission.
+This is a revised draft applying the cross-vendor re-review of Rev4 — next stage a
+re-review of the Rev5 experimental design (if clean, the confirmatory experiment is
+preregistration-suitable), then the maintainer decision on #59. It is not a final
+ruling and not yet a maintainer submission.
 
 **Bottom line (retained from the original, per review §1):** choose a specific hybrid
 *governance architecture*, but change what is called "canonical." The canonical object is an
@@ -538,7 +579,9 @@ is **never** evidence about production graph-import performance, which would add
 require a realistic, error-prone text→IR extraction test (out of scope for KBUILD-0 and
 listed as a binding extrapolation cap in §6). [STIPULATED — PROPOSED-PREREG-ROW-99A-R3a]
 
-Direction-of-travel note (rescoped in Rev2 per critique Finding 5c): if H-GRAPH fails but
+Direction-of-travel note (rescoped in Rev2 per critique Finding 5c; wording completed
+in Rev5, re-review residual 4 — "fails" was ambiguous between the R4e outcomes): if
+H-GRAPH **fails to advance or is killed** (§4.8 three-outcome rule) but
 citation discipline alone (A2 vs A1) shows the benefit, the programme keeps
 citation-constrained drafting and drops the graph constraint **from the compilation loop
 for the tested sectors** — (b)'s discovery, inventory, and audit roles are unaffected.
@@ -557,8 +600,9 @@ evaluation runs only if Stage 1 earns it.
 - **H-GRAPH (primary; demoted-to-hypothesis form, §3.2; graph-isolating contrast
   re-anchored — Rev3, cross-vendor CRITICAL-1):** graph-constrained H beats the
   **flat-IR control A2-IR** (identical atoms/relations in non-graph form, §4.3) on
-  packet-relative construction fidelity by the pre-registered margin (lower 95%
-  confidence bound of the paired per-concept difference > +0.08 on the fidelity
+  packet-relative construction fidelity by the pre-registered margin (lower
+  confidence bound — at node E3's final procedure-assigned level, never a fixed
+  95% (Rev5/R5a) — of the paired per-concept difference > +0.08 on the fidelity
   composite; the isolated increment is **explicit graph materialisation/closure** —
   Rev4 C1 narrowing, §3.2). **H vs A2-IR is the only graph-isolating contrast**; the Rev2 contrast
   H vs A2 confounded the graph with an oracle-quality parse/normalisation channel and
@@ -658,6 +702,35 @@ Two preregistered strata (role-separated authors, reviewers, host operators, aud
    stratum by design** (the §4.5 UCT) — decision-grade for the text contrast only,
    never a rescue channel for any constructed-arm contrast.
    [STIPULATED — PROPOSED-PREREG-ROW-99A-R4a]
+   **Natural-gold executability pins (Rev5, re-review residual 2 — the Rev4 text
+   left per-concept three-class balanced accuracy undefined when a natural
+   concept lacked a claim in some gold class):** each natural sense carries
+   **nine held-out claims, exactly three per packet-relative gold class**
+   (`ENTAILED`/`CONTRADICTED`/`UNDERDETERMINED`) — the same 3/3/3 allocation as
+   the nonce stratum, guaranteed **by generation-to-quota**: (i) *generator/labeler
+   separation* — held-out-source-exposed claim **generators** are a bound role,
+   disjoint from every labeling, adjudicating, consuming, constructing, and
+   endorsing role; they alone see the held-out source and they never assign a
+   gold label; the packet-only gold **labelers** (the two blinded annotators plus
+   a third packet-only adjudicator) never see the held-out source or any arm's
+   artifact. (ii) *Sampling and exclusion rules* — generators produce candidate
+   claims in pinned batches; pinned mechanical screens (single-proposition form,
+   grammaticality, a pinned near-duplicate similarity bound) apply BEFORE any
+   labeling; labelers then assign the packet-relative label independently under a
+   pinned majority rule, with the adjudicator resolving disagreements and
+   three-way splits; generation continues until every class holds three claims,
+   under a pinned per-concept candidate cap (proposed 30, re-justifiable at
+   freeze); a concept whose cap is reached before quota is replaced from a
+   pre-registered reserve list **before any arm artifact is drawn** — an
+   outcome-independent, gold-side rule, so no arm-outcome channel exists.
+   (iii) *Missing-class fallback (pinned)* — if post-freeze adjudication ever
+   leaves a gold class empty for some concept, per-concept macro-BA is defined as
+   the unweighted mean recall over the **non-empty** gold classes; the concept is
+   flagged and counted in the report and is **never excluded** — the gold is
+   arm-independent, so the fallback is byte-identical across arms inside every
+   paired contrast and cannot bias a between-arm difference. (iv) *Reliability* —
+   chance-corrected labeler agreement is gated by §4.7 gate 11.
+   [STIPULATED — PROPOSED-PREREG-ROW-99A-R5b]
 3. **Adversarial packet subset (new; review §5):** within each stratum, a preregistered
    fraction of packets contains conflicting sources, insufficient evidence
    (gold-underdetermined), tempting unsupported clauses, and anti-prior cases. These are
@@ -751,8 +824,10 @@ schema. "Drafter" = the pinned drafter of record (§0).
   and endorsed, and it is charged **all shared upstream construction/review costs** in
   the LCC. A T′ fidelity equivalence is never deflation evidence — that is T's job.
 - **S — shuffled controls:** independent permutation of the concept↔representation mapping
-  for A1, A2, A2-IR, B, H, T, T′ within sense-type and token-length strata; bytes, token
-  budgets, format unchanged.
+  for A0, A1, A2, A2-IR, B, H, T, T′ within sense-type and token-length strata; bytes, token
+  budgets, format unchanged. (A0 added in Rev5: the R5a atomic enumeration exposed that
+  the §4.8 A0 canon-readiness rule and Rung 0 referenced an A0 shuffle this list lacked —
+  a consistency repair, not a design change.)
 - **N — no-context control:** claim only.
 
 Method (c) remains excluded as a construction arm (a target model's internals cannot
@@ -866,6 +941,34 @@ packets. The endpoint is therefore **three-valued and packet-relative**:
   UCT difference, the nonce deterministic parse-back fidelity difference, and (only
   if Stage 2 runs) the host claim-task difference.
   [STIPULATED — PROPOSED-PREREG-ROW-99A-R4a]
+- **UCT execution pins (Rev5, re-review residual 2 — the operational detail that
+  made the Rev4 UCT not-yet-executable):** (i) *Consumer assignment and carryover
+  protection:* consumers are assigned to concept × arm cells by a pinned balanced
+  incomplete design with a registered assignment seed fixed at freeze; **no
+  consumer ever answers claims for the same concept under two different arms**,
+  session order is randomised within consumer, and consumer is a crossed random
+  factor in the analysis (§4.6) — carryover is excluded by design, not modelled
+  away. (ii) *Rendering and truncation:* every artifact is produced by its arm's
+  pinned deterministic renderer and cut to the identical pinned token budget by
+  ONE frozen truncation rule shared by all arms; a failed or illegal construction
+  enters its UCT sessions as the arm's actual output (or the registered
+  empty-artifact placeholder) and is **never excluded** — mirroring the R4c
+  denominator rule; evaluator-side rendering breakage is instrument failure per
+  gate 7, never silent attrition. (iii) *Format-competence check:* before any
+  scored session, every consumer must pass a calibration battery of exact-rule
+  oracle artifacts rendered in EVERY arm's format (the human mirror of gate 6)
+  against a pinned per-format competence bound; failures are excluded before
+  unblinding, outcome-independently — so the consumer pool cannot silently
+  favour the text format, and the check is itself gated (§4.7 gate 11).
+  (iv) *Comparator selection inference:* the comparison arm is selected by the
+  outcome-dependent §4.6 hierarchy, so a single selected-arm CI is not
+  automatically valid; of the re-review's two permitted repairs Rev5 takes the
+  **simultaneous-inference branch** — all four candidate-vs-T UCT contrasts
+  (H−T, A2-IR−T, A2−T, A1−T) are atomic members of node E2 and are covered by
+  E2's ONE simultaneous confidence set (§4.6/R5a), so the four-zone decision
+  read for the hierarchy-selected arm is valid **whatever the hierarchy
+  selects**; no outcome-disjoint calibration split is needed and none is
+  claimed. [STIPULATED — PROPOSED-PREREG-ROW-99A-R5b]
 - **Secondary:** host balanced accuracy (Stage 2), per-concept macro-BA over the 3/3/3
   claims — explicitly a *consumer/compression* measurement, entangled with host
   comprehension, rendering, and truncation, and never a substitute for the primary.
@@ -873,8 +976,8 @@ packets. The endpoint is therefore **three-valued and packet-relative**:
   a deterministic program, self-tested exhaustively (gate 2).
 
 Primary contrasts — every one an enumerated member of the §4.6 confirmatory family
-E1–E8 (Rev4, re-review residual 2: A2−A1 and A1−A0/H-REVIEW were named primary here
-but omitted from the Rev3 family; both are restored as members): H vs A2-IR
+(Rev4 restored A2−A1 and A1−A0/H-REVIEW to the family; Rev5 enumerates the family
+ATOMICALLY — ten nodes, 95 atomic nulls, §4.6/R5a): H vs A2-IR
 (explicit-materialisation/closure increment), A2-IR vs A2 (machine-readable-input
 increment), A2 vs A1 (citation increment), A1 vs A0 (review increment, H-REVIEW),
 best-constructed vs T (deflation, dominant — decided on the R4a UCT statistic), T′ vs
@@ -898,8 +1001,10 @@ best machine arm (cost realism).
   accordingly** ("under the pinned renderer families and snapshots") — never
   generalised over unsampled levels. Concept-only resampling is abolished as the sole
   inference; 10,000 paired sign permutations at concept level are retained as a
-  supplementary robustness check. Two-sided α=.05, BCa 95% CI and effect size
-  reported throughout; equivalence claims by the four-zone rule below, never by
+  supplementary robustness check. Two-sided total α=.05; BCa CIs and effect sizes
+  reported throughout — descriptive intervals at 95%, but **every DECISION
+  interval at its node's final procedure-assigned level (Rev5/R5a), never a fixed
+  95%**; equivalence claims by the four-zone rule below, never by
   non-significance. (PROPOSED-PREREG-ROW-99A-R3e)
 - **Four-zone decision rule for the text contrast (replaces TOST-only — Rev3,
   cross-vendor MAJOR-4):** for the constructed-minus-text fidelity difference with
@@ -916,57 +1021,149 @@ best machine arm (cost realism).
   equivalence is declared, though unreachable under δ ≥ m. The rule applies to the
   T-source contrast **on the R4a UCT decision statistic**, and, with
   (m = ±0.05, δ = +0.08), to the H−A2-IR graph contrast (precedence row 9).
-  (PROPOSED-PREREG-ROW-99A-R3d, amended by R4a/R4b)
-- **Confirmatory testing family — VALID FWER control via graphical gatekeeping
-  (replaces the Rev3 fixed-sequence rule — Rev4, re-review residual 2):** the Rev3
-  rule ("each member at full α=.05 while every earlier member has reached a
-  definitive zone") is **deleted as invalid** — a "definitive classification" is
-  not a null-hypothesis rejection, so passing full α down the sequence lets
-  classification-error probabilities accumulate. Instead the **elementary
-  confirmatory claims are enumerated** and tested under a **graphical gatekeeping
-  procedure with local alpha weights and explicit recycling** (graph pinned
-  pre-freeze; total two-sided α=.05): **(E1)** the H-SHUFFLE validity contrasts —
-  one per shuffled arm (A1, A2, A2-IR, B, H, T, T′ vs their shuffles), tested by
-  **Holm within E1 at E1's local alpha** (the Rev3 text left these plural contrasts
-  with no internal allocation); **(E2)** H-TEXT-SOURCE (four-zone on the R4a UCT
-  statistic); **(E3)** H-GRAPH (H−A2-IR); **(E4)** the A2-IR−A2 input-channel
-  contrast; **(E5)** A2−A1 (citation increment) and **(E6)** A1−A0 (H-REVIEW,
-  review increment) — both **restored to the family in Rev4** (§4.5 names them
-  primary; the Rev3 family omitted them); **(E7)** H-HUMAN; **(E8)** H-TEXT-FORMAT
-  (Stage 2). Proposed initial local weights (α-fractions; values re-justifiable
-  pre-freeze from calibration, the structure not deferrable): E1 = 0.20,
-  E2 = 0.40, E3 = 0.15, E4–E7 = 0.05 each, E8 = 0.05; recycling edges pinned as
-  E1 → E2 (no mass leaves E1 until all E1 nulls reject), then
-  E2 → E3 → E4 → E5 → E6 → E7 → E8, with E8 → E2 back-recycling. **Alpha
-  propagates only on rejection of an elementary null at its procedure-assigned
-  local level — never on a mere "definitive classification"**; each four-zone
-  label is confirmed only when its constituent one-sided nulls are rejected at the
-  assigned local level (equivalence = both TOST nulls; superiority/inferiority =
-  the corresponding δ-shifted one-sided null), with CIs reported at matching
-  confidence. A member that receives no alpha, or lands indeterminate, is reported
-  **descriptively only**, and nothing downstream regains confirmatory status from
-  it; any member may instead be pre-declared exploratory at freeze, but a claim
-  outside the pinned graph can never be reported as confirmatory. The Rev2
-  "T and/or T′" disjunction stays abolished — T (source) and T′ (format) are
-  separate members with separate roles (§4.1). Holm correction remains for the
-  fixed secondary family only and never licenses multiple primary/dominant claims.
-  (PROPOSED-PREREG-ROW-99A-R3d, replaced by R4b)
+  **Rev5 (R5a): every four-zone label is read from ONE two-sided confidence set
+  at the deciding node's FINAL procedure-assigned level** (for E2, the one
+  simultaneous four-contrast set) — the zone decision and the reported interval
+  are the same object at the same confidence, which removes the Rev4 mismatch
+  between operative 95% bounds and far-smaller graphical local levels
+  ("matching confidence" is now automatic, not aspirational).
+  (PROPOSED-PREREG-ROW-99A-R3d, amended by R4a/R4b, completed by R5a)
+- **Confirmatory testing family — ATOMIC strong-FWER control (Rev4 skeleton
+  completed in Rev5, re-review residual 1; this specification supersedes the R4b
+  weight scheme):** the Rev4 procedure was a valid skeleton with two defects the
+  re-review proved: E1–E8 were treated as elementary when they are composite
+  (E1 held seven contrasts, E2/E3 several four-zone claims, E7 fidelity + cost,
+  E8 multiple formats), and **every downstream node held positive initial alpha,
+  so an indeterminate E1 did not mathematically block E2–E8** despite the stated
+  gatekeeping intent. Rev5 replaces it with a fully enumerated closed procedure.
+
+  **(1) Atomic null enumeration — 95 atomic one-sided nulls in ten nodes**
+  (every directional and equivalence component, every arm-level safety gate,
+  both H-HUMAN endpoint components, both format contrasts, every candidate-vs-T
+  contrast, and the A0 canon-readiness components; every node's margins obey
+  δ_node ≥ m_node per R4b; "gate(X)" is the arm-level safety-gate null
+  H₀: gate-pass rate of arm X ≤ π₀ with π₀ pinned pre-freeze — its rejection
+  CONFIRMS the arm clears its §4.5 safety gate):
+
+  | Node (claim) | Atomic one-sided nulls | Within-node closed procedure | Release condition |
+  |---|---|---|---|
+  | **E1** — H-SHUFFLE validity (Stage 1) | for each arm a ∈ {A1, A2, A2-IR, B, H, T}, on Δ_a = a − S(a): sup (Δ_a ≤ +δ_S), inf (Δ_a ≥ −δ_S), eqL (Δ_a ≤ −m_S), eqU (Δ_a ≥ +m_S) — **24 nulls** | Holm over the six arms; per arm ONE two-sided CI at the Holm-assigned level reads the four-zone label (confirmed equivalence fires precedence row 2) | superiority confirmed for ALL six arms |
+  | **E2** — H-TEXT-SOURCE (dominant) | for each candidate c ∈ {H, A2-IR, A2, A1}, the 4 zone nulls on Δ_c = c − T (natural-stratum UCT paired macro-BA) — **16 nulls** | ONE simultaneous confidence set over all four contrasts at the node level (pinned conservative default: Bonferroni split; a sharper joint method is a freeze-time pin); the DECISION is the zone of the §4.6-hierarchy-selected contrast, read from this same set — valid under any selection (R5b) | any non-indeterminate zone confirmed for the selected contrast |
+  | **E3** — H-GRAPH | gate(H), gate(A2-IR) + 4 zone nulls on H − A2-IR (δ = +0.08, m = 0.05) — **6 nulls** | fixed sequence at the full node level: both gate nulls (intersection-union), then ONE CI four-zone | any zone other than indeterminate confirmed |
+  | **E4** — input channel | gate(A2-IR), gate(A2) + 4 zone nulls on A2-IR − A2 — **6 nulls** | same as E3 | same |
+  | **E5** — citation increment | gate(A2), gate(A1) + 4 zone nulls on A2 − A1 — **6 nulls** | same as E3 | same |
+  | **E6** — review increment (H-REVIEW) | gate(A1), gate(A0) + 4 zone nulls on A1 − A0 — **6 nulls** | same as E3 (if a gate null fails to reject, the zone nulls stay untested and the contrast reports descriptively via the Level-1 gate-pass-rate difference, R4c) | same |
+  | **E7** — H-HUMAN (cost realism) | gate(E); for each machine candidate c ∈ {H, A2-IR, A2, A1}: gate(c), fidelity eqL/eqU on E − c, cost null LCC_E − LCC_c ≥ 0 — **17 nulls** | fixed sequence: gate(E), then one simultaneous set over the four candidate blocks (Bonferroni default); per candidate the conjunctive claim is intersection-union over its four nulls; the DECISION is read for the hierarchy-selected candidate (fallback A1) — the E2 selective-inference device extended here, because E7's comparator is also outcome-selected (an enumeration-surfaced gap, fixed the same way) | the selected candidate's full conjunction rejects |
+  | **E9** — A0 canon-readiness | gate(A0) + 4 zone nulls on A0 − S(A0) (δ = +0.05 ≥ m_S0, pinned) + precision null (unsupported-constraint precision ≤ 0.95) — **6 nulls** | fixed sequence: gate(A0), then ONE CI four-zone plus the precision null by intersection-union; advancement = gate + superiority + precision all rejected; kill only on confirmed equivalence (§4.8/R5d) | advancement conjunction rejects, or equivalence confirmed |
+  | **E1b** — T′ shuffle validity (Stage 2) | 4 zone nulls on T′ − S(T′) — **4 nulls** | ONE CI four-zone | superiority confirmed |
+  | **E8** — H-TEXT-FORMAT (Stage 2) | for each pinned native format f ∈ {AST rendering, vector-derived rendering}: eqL/eqU on T′ − f — **4 nulls**; the SINGLE pinned endpoint is Stage-2 host three-label macro-BA (consumer cost and format handling are descriptive only — this closes the "multiple formats/endpoints" ambiguity) | intersection-union over all four TOST nulls; T′ renders the SHIPPING record, so E8's estimand is post-selection **by definition** and needs no selection adjustment | all four reject |
+
+  **(2) Initial weights and COMPLETE transition matrix** (all entries not shown
+  are zero; entries are fractions of the releasing node's weight; fraction
+  *values* are proposed and re-justifiable pre-freeze — the *structure* is NOT
+  deferrable: all initial mass on E1, E1 → E2 the only edge out of E1, no edge
+  bypassing E2). Initial weight vector: **w₀ = (E1: 1.00; all other nodes:
+  0.00)** — gatekeeping is now mathematical: an unresolved E1 leaves every other
+  node at local level zero, and an unresolved E2 leaves every downstream node at
+  level zero, matching precedence rows 2 and 4. E1 gates the deflation claim too,
+  deliberately: a family whose real-vs-shuffled contrasts are unresolved has not
+  shown that ANY arm's artifact carries concept-specific signal, and §3.1's
+  conditional-adoption default (the text store governs while construction is
+  unearned) already covers that world without a confirmatory deflation claim.
+
+  | From \ To | E2 | E3 | E4 | E5 | E6 | E7 | E9 | E1b | E8 |
+  |---|---|---|---|---|---|---|---|---|---|
+  | E1 | 1.00 | — | — | — | — | — | — | — | — |
+  | E2 | — | 0.55 | 0.15 | 0.10 | 0.05 | 0.10 | 0.05 | — | — |
+  | E3 | — | — | 1.00 | — | — | — | — | — | — |
+  | E4 | — | — | — | 1.00 | — | — | — | — | — |
+  | E5 | — | — | — | — | 0.50 | 0.50 | — | — | — |
+  | E6 | — | — | — | — | — | 0.50 | 0.50 | — | — |
+  | E7 | — | — | — | — | — | — | — | 1.00 | — |
+  | E9 | — | — | — | — | — | — | — | 1.00 | — |
+  | E1b | — | — | — | — | — | — | — | — | 1.00 |
+  | E8 | — | 1.00 | — | — | — | — | — | — | — |
+
+  **(3) Update algorithm (pinned):** total two-sided α = .05. Repeat: for every
+  node j with current weight w(j) > 0, run its registered within-node closed
+  procedure at local level w(j)·α; when a node's release condition newly fires,
+  add w(j)·G(j,k) to every node k, set w(j) ← 0, and re-route edges through
+  exhausted nodes by the standard graphical update rule; iterate until no new
+  release fires. Weight reaching an already-released node re-propagates along
+  its outgoing edges (so the E8 → E3 back-recycle is idle when E3 is resolved);
+  weight reaching a node whose nulls can no longer be tested — a
+  Stage-2-conditional node (E1b, E8) when Stage 2 never runs — **strands
+  harmlessly**: conditioning is one-way and returns no alpha, so conditional
+  execution cannot inflate error. Alpha moves ONLY on rejection of an atomic
+  null at its procedure-assigned level, never on a "definitive classification".
+  A node whose final weight is zero, or whose contrast lands indeterminate, is
+  reported **descriptively only**, and nothing downstream regains confirmatory
+  status from it; any node may instead be pre-declared exploratory at freeze,
+  but a claim outside the pinned graph can never be reported as confirmatory.
+
+  **(4) One confidence set per node:** every four-zone label is read from ONE
+  two-sided confidence set at the node's FINAL procedure-assigned level (E2 and
+  E7: the one simultaneous multi-candidate set), so the zone decision and the
+  reported interval are the same object at the same confidence — equivalence =
+  both TOST nulls rejected, superiority/inferiority = the corresponding
+  δ-shifted null rejected, exactly as read off that set.
+
+  **(5) Procedure-adjusted operative bounds:** every operative advancement,
+  kill, or adoption threshold in this document that formerly read "95%
+  confidence bound" — the §4.1/§4.6/§4.8 H-GRAPH bounds, the E9 A0
+  canon-readiness bounds, every four-zone CI, every arm-level safety gate — is
+  the bound at the relevant node's FINAL procedure-assigned level, never a
+  fixed 95%. Exactly two families keep pinned standalone levels, both OUTSIDE
+  the confirmatory family by construction: **§4.7 instrument gates** (failure
+  yields `INSTRUMENT-INVALID`, never a confirmatory claim in either direction)
+  and the **§4.6 selection-hierarchy rung bars** (SELECTION-ONLY devices: their
+  level affects which arm is selected, never the validity of the E2/E7
+  decisions, which the simultaneous candidate sets cover for every candidate).
+
+  **(6) Sequential interaction:** the Stage-1 sequential boundary is
+  **binding-futility-only with respect to confirmatory rejections** — no atomic
+  null is rejected before its registered final analysis; early stopping
+  (including the §7 Rung-0 rule) can only prevent rejections, so it is
+  conservative for FWER, and its power cost is modelled exactly in the mandated
+  simulation below. Early "superiority" stopping affects resource allocation
+  only, never an early confirmatory rejection.
+
+  **(7) Mandated simulation (freeze-blocking):** the freeze record must contain
+  a simulation of THIS exact implementation — all 95 atomic nulls, the
+  within-node procedures, the transition matrix, the binding-futility
+  boundaries, and the Rung-0 rule — demonstrating (i) **strong FWER ≤ .05
+  across a pinned grid of null configurations** (all nulls true; each single
+  node's nulls false with the rest true; the full adoption-path configuration;
+  and a pinned set of mixed configurations), and (ii) **adoption-path power**
+  per the power bullet below. The Rev2 "T and/or T′" disjunction stays
+  abolished — T (source) and T′ (format) are separate nodes with separate
+  roles (§4.1); Holm correction remains for the fixed secondary family only
+  and never licenses multiple primary/dominant claims.
+  (PROPOSED-PREREG-ROW-99A-R3d, replaced by R4b, completed by R5a)
 - **Decision thresholds:** advance H-GRAPH only if the H−A2-IR lower confidence bound
-  exceeds +0.08 on the primary composite (the H−A2 total effect is reported only as
+  **at node E3's final procedure-assigned level (Rev5/R5a)** exceeds +0.08 on the
+  primary composite (the H−A2 total effect is reported only as
   its decomposition, §4.1); **advance ≠ kill** — killing requires a confirmed
   equivalence/inferiority zone or a fired futility boundary, never mere lack of
   superiority (§4.8, Rev4/R4e). The composite comparison is reached only through
-  the R4c Level-1 hurdle (§4.5). All gate thresholds that were bare points in
-  the original (N ≤0.40; T−shuffled-T ≥0.20) become **pre-registered one-sided 95%
-  confidence-bound tests** (e.g. upper bound of N's BA below the leakage bound; lower
-  bound of the T−S(T) difference above the sensitivity bound).
+  the R4c Level-1 hurdle (§4.5), whose arm-level safety gates are themselves
+  enumerated atomic nulls inside each node (R5a). All gate thresholds that were
+  bare points in the original (N ≤0.40; T−shuffled-T ≥0.20) become
+  **pre-registered one-sided confidence-bound tests** (e.g. upper bound of N's BA
+  below the leakage bound; lower bound of the T−S(T) difference above the
+  sensitivity bound) — these are §4.7 INSTRUMENT gates at their own pinned
+  standalone one-sided levels, explicitly OUTSIDE the confirmatory family
+  (R5a item 5): their failure yields `INSTRUMENT-INVALID`, never a confirmatory
+  claim.
 - **Power (under the exact final analysis — Rev2 Finding 1a, rebuilt in Rev3 per
   cross-vendor MAJOR-5):** simulate before freeze from calibration data **under the
   exact final analysis model** — the crossed mixed-effects hierarchy above, the
   pre-registered sequential futility/superiority boundary, the winner-selection
-  hierarchy, **and the full R4b graphical multiplicity procedure (local levels and
-  recycling): the power simulation is re-run under the final multiplicity procedure
-  (Rev4, re-review residual 2)** — never under simplified concept-only resampling.
+  hierarchy, **and the full multiplicity procedure — in Rev5 the EXACT R5a atomic
+  implementation (95 enumerated nulls, within-node closed procedures, the
+  published transition matrix, binding-futility boundaries including the §7
+  Rung-0 rule), reporting BOTH the strong-FWER grid and adoption-path power
+  (R5a item 7)** — never under simplified concept-only resampling.
   Requirements: ≥90%
   power for the +0.08 superiority effect; **≥90% power for every registered
   equivalence test at its registered margin, stated at a specified true effect —
@@ -993,21 +1190,28 @@ best machine arm (cost realism).
   per arm (count pinned pre-freeze); conclusions attach to the pinned pipeline
   *distribution* per §1.3 criterion 4, not to a single stochastic draw.
 - **Selection-bias fix (hierarchy fully specified — Rev2, critique Finding 9; rungs
-  re-anchored in Rev3 per cross-vendor CRITICAL-1):** "best constructed arm" for the
+  re-anchored in Rev3 per cross-vendor CRITICAL-1; inference under selection made
+  valid in Rev5 per re-review residual 2):** "best constructed arm" for the
   text contrasts is determined by a **fixed pre-registered comparison hierarchy**
-  with each rung's bar and comparator defined: H clears iff the H−A2-IR lower 95%
+  with each rung's bar and comparator defined: H clears iff the H−A2-IR lower
   confidence bound exceeds +0.08 (the primary rule); otherwise A2-IR clears iff the
   A2-IR−A2 lower bound exceeds its pinned input-channel margin; otherwise A2 clears
   iff the A2−A1 lower bound exceeds its pinned citation-increment margin; otherwise
   A1 clears iff the A1−A0 lower bound exceeds its pinned review-increment margin
   (all increment margins pinned pre-freeze from calibration — values deferrable,
-  structure not). **Fallback:** if no arm clears any bar, best-arm := A1; T′ renders
+  structure not). **Rev5 (R5a item 5 / R5b): the rung bars are SELECTION-ONLY
+  devices at a pinned selection level (one-sided 95%), explicitly
+  non-confirmatory** — the hierarchy chooses the comparison arm but confirms
+  nothing; the validity of the E2 (and E7) decisions under this outcome-dependent
+  selection is secured by their ONE simultaneous confidence set over ALL
+  candidates, which covers whichever arm the hierarchy selects.
+  **Fallback:** if no arm clears any bar, best-arm := A1; T′ renders
   A1's endorsed records for the format contrast; and the **T-source deflation
   contrast still runs against A1** (it never depended on a constructed winner —
   Rev3 CRITICAL-2), so H-TEXT-SOURCE cannot silently vanish exactly when
   construction is weakest, the case where deflation is most likely true.
   Simultaneous confidence intervals reported; never selected post hoc on the same
-  outcomes. (PROPOSED-PREREG-ROW-99A-R2i)
+  outcomes. (PROPOSED-PREREG-ROW-99A-R2i, completed by R5a/R5b)
 
 ### 4.7 Instrument gates `[STIPULATED — review-1 fix 4; PROPOSED-PREREG-ROW-99A-R1f]`
 
@@ -1076,6 +1280,16 @@ Failure of any gate yields `INSTRUMENT-INVALID`, not a substantive null:
 10. **Access/prereg-integrity gate (new):** any breach of preregistration or access
     controls (constructor or reviewer exposure to gold, rule hashes, or competing
     records) → `INSTRUMENT-INVALID`.
+11. **UCT instrument gate (new — Rev5, re-review residual 2):** (i) chance-corrected
+    packet-only labeler agreement on the natural-stratum gold clears a pinned bound
+    with its CI — failure invalidates the natural-UCT instrument as a whole;
+    (ii) every scored consumer passed the pinned per-format competence battery
+    (§4.5 UCT execution pins) before unblinding; (iii) assignment/carryover
+    integrity holds — access logs verify that no consumer answered the same
+    concept under two arms, that claim generators never labeled, and that gold
+    labelers never saw the held-out source or any arm artifact. Any breach →
+    `INSTRUMENT-INVALID` for the affected natural-UCT cells.
+    [STIPULATED — PROPOSED-PREREG-ROW-99A-R5b]
 
 ### 4.8 Kill rules, ambiguity handling, and precedence matrix `[STIPULATED — review-1 fix 4; PROPOSED-PREREG-ROW-99A-R1i]`
 
@@ -1118,19 +1332,27 @@ Kill/selection rules (revised to the new endpoint and arms):
 - **H-GRAPH three-outcome rule (Rev4, re-review residual 5 — replaces "kill H-GRAPH
   if H fails to beat A2-IR", which contradicted precedence row 9):** **ADVANCE**
   H-GRAPH only if H beats A2-IR by the primary rule; **KILL** H-GRAPH only under a
-  confirmed four-zone **equivalence or inferiority** of H−A2-IR (CI wholly inside
-  ±0.05, or upper bound < −0.08) or a fired pre-registered **futility** boundary;
+  confirmed four-zone **equivalence or inferiority** of H−A2-IR (the CI at node
+  E3's procedure-assigned level — Rev5/R5a — wholly inside ±0.05, or its upper
+  bound < −0.08) or a fired pre-registered **futility** boundary;
   an **indeterminate** H−A2-IR outcome neither advances nor kills (precedence
   row 9) — the hypothesis stands unadvanced. Lack of demonstrated superiority
   blocks advancement; it is never itself a kill. Retain citation-constrained
   drafting if A2 beats A1.
 - **Unreviewed-drafting canon-readiness (same advance/kill/indeterminate discipline
-  — Rev4/R4e):** A0 **advances toward canon-ready** only if it beats its shuffle by
-  lower confidence bound +0.05 AND its unsupported-constraint precision has a 95%
-  lower bound ≥ 0.95; it is **killed as canon-ready** only on confirmed
-  equivalence-to-shuffle or a breached hard gate (§4.5); any other outcome is
-  indeterminate-not-advanced. `ModelAuthored` candidate role survives in every
-  case.
+  — Rev4/R4e; wording completed in Rev5, re-review residual 4):** A0 **advances
+  toward canon-ready** only if its E9 advancement conjunction holds (§4.6/R5a):
+  A0 beats its shuffle at margin +0.05, its unsupported-constraint precision
+  lower bound is ≥ 0.95 (both bounds at E9's procedure-assigned level), AND its
+  arm-level safety gate passes; it is **killed as canon-ready** only on confirmed
+  equivalence-to-shuffle or a fired pre-registered futility boundary. **A
+  breached hard gate (§4.5 arm-level safety-gate failure) is a CANNOT-ADVANCE
+  outcome, never a registered kill** — Rev5 takes the re-review's
+  cannot-advance branch, replacing the Rev4 wording that listed a hard-gate
+  breach as a kill event, so the R4e taxonomy (kills only via confirmed
+  equivalence/inferiority or futility) holds without exception; any other
+  outcome is indeterminate-not-advanced. `ModelAuthored` candidate role survives
+  in every case.
 - **Retain direct compilation** if A2-IR/A2/A1 and H are equivalent under the four-zone
   rule within ±0.05 and the direct arm has lower measured LCC.
 - **Deflate to text** iff the **T-source four-zone decision** (§4.6) is **text
@@ -1236,7 +1458,8 @@ margin, or verdict rests on it.
   each cap load-bearing and enforced in the named section):** oracle-IR graph
   performance is never production graph-import performance (§3.2/R3a); unreviewed
   Rung-0 results never terminate the reviewed route without the conditional-futility
-  rule (§7/R3h, completed by R4d); the one-revision-cycle cost is never full lifecycle evidence
+  rule (§7/R3h, completed by R4d, formalised as a simultaneous upper-bound stopping
+  rule by R5c); the one-revision-cycle cost is never full lifecycle evidence
   (§4.8/R3f); nonce compilation results never extend to natural concepts or
   dictionary-scale convergence beyond the confirmatory stratum (§4.2/R2e); and the
   nonce oracle parse-back (and nonce UCT) are never the T-source decision — the
@@ -1254,7 +1477,11 @@ Each rung: question / method / pass-fail / cost / decision-unblocked. Rungs are
 [STIPULATED] proposals; none is registered.
 
 0. **Rung 0 — machine-only screen (new — Rev2, critique Finding 12).** Q: do the two
-   cheapest potential branch-killers fire before any human apparatus exists?
+   cheapest potential branch-killers fire before the **full human endorsement
+   apparatus is stood up**? (Rev5 wording reconciliation, re-review residual 3: the
+   earlier "before any human apparatus exists" contradicted the review-calibration
+   pilot, which IS a small human exercise — the pilot is the one human component
+   Rung 0 requires, and its cost is explicitly credited below.)
    "Cheapest-first" must count the human machinery, not GPU cost only. M: arms A0,
    unreviewed-A2 (A2 minus endorsement), **unreviewed-A2-IR and unreviewed-H (both
    "minus endorsement" — added in Rev4, re-review residual 4: without them the
@@ -1270,24 +1497,55 @@ Each rung: question / method / pass-fail / cost / decision-unblocked. Rungs are
    candidates), but it can **never by itself
    kill the reviewed methodology** — H-REVIEW explicitly hypothesises that review
    changes fidelity, so extrapolating unreviewed futility to the reviewed route is
-   invalid. Killing the whole branch from Rung 0 additionally requires a
-   **conservative conditional-futility calculation, completed in Rev4 (residual 4:
-   the Rev3 single-increment rule did not bound the new IR/graph routes)**: take,
-   for **every** reviewed route r ∈ {A1, A2, A2-IR, H}, the **maximum credible
-   DIFFERENTIAL review increment Δ_rev(r)** — the largest review-attributable
-   improvement credibly available to route r **relative to T** — from an
-   **independent review-calibration pilot** (all Δ_rev(r) pinned before Rung-0
-   unblinding), and kill the branch only if, **for every route r,
-   unreviewed-r + Δ_rev(r) still lands inside the futility region relative to T**;
-   if any route's Δ_rev(r) cannot be credibly bounded by the pilot, **whole-branch
+   invalid. Killing the whole branch from Rung 0 additionally requires the
+   **formal conditional-futility bound (Rev4 structure per residual 4; formalised
+   as a mathematical stopping rule in Rev5, re-review residual 3 — "maximum
+   credible" was not yet a bound):** for **every** reviewed route
+   r ∈ {A1, A2, A2-IR, H} define
+
+   > θ(r) = (unreviewed-r − T) + Δ_rev(r)
+
+   where (unreviewed-r − T) is the Rung-0 evaluator-scored paired contrast on the
+   nonce parse-back screen statistic, and Δ_rev(r) is route r's **maximum
+   credible DIFFERENTIAL review increment relative to T**, estimated **with its
+   uncertainty** from the **independent review-calibration pilot** (all pilot
+   estimates pinned before Rung-0 unblinding). Compute for each route a
+   **one-sided upper PREDICTION bound U(r) on θ(r)** that propagates BOTH
+   uncertainty sources — the Rung-0 contrast's sampling uncertainty under the
+   §4.6 crossed model narrowed to Rung-0's factors (concept × author-seed; no
+   reviewer/consumer factors exist yet), and the pilot's estimation-PLUS-transfer
+   uncertainty for Δ_rev(r) (a prediction bound, not merely a confidence bound,
+   because the pilot's setting is not the campaign's) — with **simultaneous
+   coverage over all four routes** at pinned level 1 − α₀ (Bonferroni α₀/4 as
+   the pinned conservative default; any sharper joint method is a freeze-time
+   pin; the α₀ value is a named freeze-time pin, the simultaneity structure is
+   not deferrable). **Branch termination is permitted ONLY when U(r) < f for
+   EVERY route r**, where f is the pinned futility threshold — the smallest
+   screen-scale effect of interest, pinned pre-freeze; "maximum credible" is
+   thereby a mathematical stopping bound, not a judgment call.
+   **Sequential-error accounting (Rev5):** Rung-0 futility looks occur only at
+   the pinned interim points of the registered sequential plan and are
+   **binding-futility-only** — a Rung-0 stop can only terminate, never confirm,
+   so it cannot inflate the §4.6 confirmatory FWER (it is conservative for
+   Type I error); its entire cost is branch-loss risk, which the R5a mandated
+   simulation models exactly (boundary, looks, α₀, f) so the freeze record
+   quantifies it in the adoption-path power.
+   **Human-cost crediting (Rev5):** the review-calibration pilot is a bounded
+   HUMAN exercise; its blinded-review minutes and adjudication events are
+   measured, charged to the branch's Rung-0 ledger, and reported in the Rung-0
+   record — the pilot's cost is counted, never waved through as "machine-only".
+   If any route's Δ_rev(r) cannot be credibly bounded by the pilot (pilot
+   reliability failure or an unboundable transfer term), **whole-branch
    termination is PROHIBITED** and survivors always advance; in every non-kill
    case the mandated next step is a **small reviewed pilot**, not termination.
    Rung 0 can
    never support adoption (its arms are unreviewed). Cost: drafter calls +
-   deterministic evaluation only; no humans, no GPU. Unblocks: standing up the
-   endorsement apparatus (reviewer calibration, crossed review, arm E training) only if
-   the branch survives.
-   [STIPULATED — PROPOSED-PREREG-ROW-99A-R2l, scope-limited by R3h, completed by R4d]
+   deterministic evaluation + the credited review-calibration pilot's bounded
+   human minutes; no other humans, no GPU. Unblocks: standing up the FULL
+   endorsement apparatus (reviewer calibration at scale, crossed review, arm E
+   training) only if the branch survives.
+   [STIPULATED — PROPOSED-PREREG-ROW-99A-R2l, scope-limited by R3h, completed by
+   R4d, formalised by R5c]
 1. **Rung 1 — KBUILD-0 Stage 1 (construction fidelity, no host; entered only via
    Rung 0).** Q: does graph or
    citation discipline or review improve packet-relative record fidelity over the pinned drafter,
@@ -1326,7 +1584,7 @@ All rows are PROPOSED only — nothing is registered, frozen, or scheduled by th
 **no `ASM-<number>` ids are minted** (ids are assigned at prereg-freeze). Labels are
 `99A`-prefixed to stay disjoint from the sibling revisions (THR-, GU-, VL-, H-PS rows).
 
-### §8.0 Consolidated Rev4-controlling table (Rev4, re-review residual 6) `[STIPULATED — PROPOSED-PREREG-ROW-99A-R4f]`
+### §8.0 Consolidated controlling table (established in Rev4, re-review residual 6; extended — not restructured — in Rev5) `[STIPULATED — PROPOSED-PREREG-ROW-99A-R4f]`
 
 **This table CONTROLS.** The R1/R2/R3 row lists below are retained as the historical
 series with every stale row amended in place; on any conflict between a row's original
@@ -1356,7 +1614,12 @@ pointed to gate 5).
 | R3f | COMPLETED by R4c | gate-pass rates first (all failures in the denominator), composite only after arm-level safety gates, gate-breaching records floor-imputed, never dropped |
 | R3h | COMPLETED by R4d | futility on route-specific maximum credible DIFFERENTIAL review increments vs T over {A1, A2, A2-IR, H}; any unboundable increment prohibits whole-branch termination |
 | R3i | OPERATIVE (canonical term: evidence-release hash) | — |
-| R4a–R4f | NEW (Rev4 rows below) | — |
+| R4a | AMENDED by R5b | UCT made executable: nine natural claims per sense at exactly 3/3/3 by generation-to-quota with a pinned missing-class fallback; generator/labeler role separation; consumer assignment/carryover/rendering/truncation/format-competence pins; comparator inference via E2's simultaneous candidate set |
+| R4b | COMPLETED by R5a | atomic enumeration (95 nulls, ten nodes incl. E9 and E1b); ALL initial alpha on E1; complete transition matrix + update algorithm published; one confidence set per node at its final procedure-assigned level; every operative 95% threshold procedure-adjusted; strong-FWER grid + adoption-path power simulation mandated in the freeze record |
+| R4c, R4f | OPERATIVE as written (R4f extended by this table's Rev5 rows) | — |
+| R4d | FORMALISED by R5c | simultaneous one-sided upper prediction bounds U(r) on (unreviewed-r − T) + Δ_rev(r) over all four reviewed routes; termination only when every U(r) < f; binding-futility-only sequential accounting; pilot human cost credited; unboundable-increment prohibition retained |
+| R4e | COMPLETED by R5d | a breached hard gate is a cannot-advance outcome, never a registered kill; §3.2 reads "fails to advance or is killed" |
+| R5a–R5d | NEW (Rev5 rows below) | — |
 
 - **PROPOSED-PREREG-ROW-99A-R1a (amended in Rev2) [AMENDED in Rev4 — see §8.0: §1.2
   has SEVEN conditions since R3g added condition 7]:** independent-endorsement law — an
@@ -1553,7 +1816,9 @@ CRITICAL-1…3, MAJOR-4…8, MINOR-9):
 
 Rev4 rows (one per Rev3-re-review residual, in the re-review's priority order):
 
-- **PROPOSED-PREREG-ROW-99A-R4a (re-review residual 1, ADOPTION-BLOCKER):**
+- **PROPOSED-PREREG-ROW-99A-R4a (re-review residual 1, ADOPTION-BLOCKER)
+  [AMENDED by R5b — see §8.0: claim count/allocation, generator/labeler split,
+  consumer pins, and comparator selection inference added]:**
   T-source-estimand law — the T-source decision endpoint is the **unconditional
   held-out claim task (UCT)**: the same blinded consumers and identical
   artifact/consumer budgets for T and every constructed arm; run in Stage 1 for
@@ -1566,7 +1831,10 @@ Rev4 rows (one per Rev3-re-review residual, in the re-review's priority order):
   difference on the natural-stratum UCT between the §4.6-hierarchy comparison arm
   (fallback A1) and T — feeds the four-zone rule; the nonce oracle parse-back (and
   nonce UCT) are explicitly secondary upper bounds. [STIPULATED]
-- **PROPOSED-PREREG-ROW-99A-R4b (residual 2):** FWER law — the elementary
+- **PROPOSED-PREREG-ROW-99A-R4b (residual 2) [COMPLETED by R5a — see §8.0: the
+  Rev4 node-level weight scheme (positive initial alpha on every node) is
+  superseded by the atomic enumeration with all initial alpha on E1]:** FWER law
+  — the elementary
   confirmatory claims E1–E8 are enumerated (A2−A1 and A1−A0/H-REVIEW restored to
   the family) and tested under a graphical gatekeeping procedure with pinned local
   alpha weights and explicit recycling; Holm inside E1's plural shuffle contrasts;
@@ -1581,14 +1849,18 @@ Rev4 rows (one per Rev3-re-review residual, in the re-review's priority order):
   only after every arm in the contrast passes its safety gate, with gate-breaching
   records scored at the registered composite floor and never dropped, so every
   paired contrast (including H−A2-IR) is defined on every concept. [STIPULATED]
-- **PROPOSED-PREREG-ROW-99A-R4d (residual 4):** rung-0-completeness law — Rung 0
+- **PROPOSED-PREREG-ROW-99A-R4d (residual 4) [FORMALISED by R5c — see §8.0:
+  "maximum credible … still lands inside the futility region" is now the
+  simultaneous upper-prediction-bound stopping rule U(r) < f]:** rung-0-completeness law — Rung 0
   additionally observes unreviewed A2-IR and unreviewed H; whole-branch
   termination requires, for EVERY route in {A1, A2, A2-IR, H}, that
   unreviewed-route plus its pinned maximum credible DIFFERENTIAL review increment
   vs T remains inside the futility region; any unboundable increment prohibits
   whole-branch termination; survivors always advance to the small reviewed pilot.
   [STIPULATED]
-- **PROPOSED-PREREG-ROW-99A-R4e (residual 5):** advance/kill/indeterminate law —
+- **PROPOSED-PREREG-ROW-99A-R4e (residual 5) [COMPLETED by R5d — see §8.0: the
+  §4.8 unreviewed-drafting rule's hard-gate outcome is cannot-advance, never a
+  kill; §3.2's "fails" disambiguated]:** advance/kill/indeterminate law —
   a hypothesis or route is killed only under a confirmed equivalence/inferiority
   zone or a fired futility boundary; lack of demonstrated superiority only blocks
   advancement; indeterminate outcomes neither advance nor kill; the text rule
@@ -1598,6 +1870,63 @@ Rev4 rows (one per Rev3-re-review residual, in the re-review's priority order):
   single controlling prereg table; stale rows are amended in place and any
   conflict resolves to §8.0; the canonical hash term is "evidence-release hash";
   the §4.2 renderer-family cross-reference reads §4.7 gate 3. [STIPULATED]
+
+Rev5 rows (one per Rev4-re-review residual, in the re-review's priority order):
+
+- **PROPOSED-PREREG-ROW-99A-R5a (residual 1, MAJOR):** atomic-FWER law — the
+  confirmatory family is the pinned set of 95 enumerated atomic one-sided nulls
+  in ten nodes (E1–E9 plus E1b; §4.6 table), tested by the pinned closed
+  graphical procedure: ALL initial alpha on validity node E1 (gatekeeping is
+  mathematical — an unresolved E1, or an unresolved E2, leaves every downstream
+  node at local level zero); the complete transition matrix and update algorithm
+  are published in §4.6; within-node closed procedures are pinned (Holm across
+  E1's arms; ONE simultaneous multi-candidate set in E2 and E7 — which also
+  carries selection inference for the outcome-dependent comparison arm;
+  fixed-sequence safety-gates-then-zone in E3–E6/E9; intersection-union in
+  E7/E8/E9); every four-zone label is read from ONE confidence set at the node's
+  FINAL procedure-assigned level; every operative advancement/kill/adoption
+  threshold uses its procedure-adjusted (never fixed-95%) bound, with §4.7
+  instrument gates and the selection-hierarchy rung bars explicitly OUTSIDE the
+  family; the sequential boundary is binding-futility-only for confirmatory
+  rejections; and the freeze record must contain the mandated simulation of this
+  exact implementation showing strong FWER ≤ .05 across the pinned
+  null-configuration grid AND adoption-path power. [STIPULATED]
+- **PROPOSED-PREREG-ROW-99A-R5b (residual 2, MAJOR):** UCT-executability law —
+  natural gold is nine claims per sense at exactly three per packet-relative
+  class, achieved by generation-to-quota under pinned mechanical screens and a
+  pinned per-concept candidate cap, with a pre-registered reserve-list
+  replacement rule (outcome-independent, gold-side) and a pinned missing-class
+  macro-BA fallback (unweighted mean recall over non-empty classes; concepts
+  flagged, never excluded); held-out-source-exposed claim GENERATORS are
+  role-disjoint from packet-only gold LABELERS (two blinded annotators plus a
+  packet-only adjudicator under a pinned majority rule, agreement gated by §4.7
+  gate 11); consumer assignment is a pinned balanced design with a registered
+  seed and no same-concept-two-arms exposure; one frozen rendering/truncation
+  rule for all arms; failed artifacts enter as-is, never excluded; a pinned
+  per-format consumer competence battery precedes scoring; and comparator
+  selection inference is by inclusion of every candidate-vs-T UCT contrast in
+  E2's simultaneous confidence set (the simultaneous-inference branch of the
+  re-review's either/or). [STIPULATED]
+- **PROPOSED-PREREG-ROW-99A-R5c (residual 3, MAJOR):** rung-0-futility-bound law
+  — whole-branch termination requires simultaneous (level 1 − α₀,
+  Bonferroni-default) one-sided upper PREDICTION bounds U(r) on
+  (unreviewed-r − T) + Δ_rev(r) for every route r ∈ {A1, A2, A2-IR, H},
+  propagating both Rung-0 sampling uncertainty and the calibration pilot's
+  estimation-plus-transfer uncertainty, with termination permitted only when
+  every U(r) lies below the pinned futility threshold f; futility looks only at
+  pinned interim points, binding-futility-only (conservative for confirmatory
+  FWER), and modelled exactly in the R5a mandated simulation; the
+  review-calibration pilot's human cost is measured, charged to the Rung-0
+  ledger, and reported, with Rung 0 worded as preceding the FULL endorsement
+  apparatus (the pilot being its one credited human exercise); if any Δ_rev(r)
+  cannot be credibly bounded, whole-branch termination is prohibited and the
+  small reviewed pilot is mandatory. [STIPULATED]
+- **PROPOSED-PREREG-ROW-99A-R5d (residual 4, MINOR):** kill-taxonomy wording law
+  — registered kill events are exactly: a confirmed equivalence or inferiority
+  zone, or a fired pre-registered futility boundary; a breached hard gate
+  (arm-level safety-gate failure) is everywhere a CANNOT-ADVANCE outcome, never
+  a registered kill; §3.2's direction note reads "fails to advance or is
+  killed"; no other kill wording exists in this document. [STIPULATED]
 
 ## Revision 1 — review fixes applied
 
@@ -1726,9 +2055,18 @@ both halves of the critique's either/or fix for consistency with finding 1b.
 in Rev3):** the specific margin *values* (+0.08 / ±0.03 / ±0.05 and the four-zone
 superiority threshold δ) — **now derivable only from substantive-interchangeability
 arguments, never from power feasibility (Rev3, cross-vendor MAJOR-5), and subject to
-the Rev4 zone-geometry constraint δ ≥ m (R4b)**; the R4b local alpha weights and the
+the Rev4 zone-geometry constraint δ ≥ m (R4b)**; the R5a transition-matrix fraction
+*values* and simultaneous-set critical constants (superseding "the R4b local alpha
+weights"; the R5a *structure* — all initial mass on E1, E1 → E2 the sole exit edge,
+no edge bypassing E2, the within-node closed procedures — is NOT deferrable) and the
 UCT artifact/consumer budget values (structure and matched-budget rule not
-deferrable); the
+deferrable); the R5b per-concept candidate cap (proposed 30), reserve-list contents,
+near-duplicate similarity bound, and consumer-competence bound values (the
+generation-to-quota structure, role separation, and fallback definition not
+deferrable); the R5c α₀, futility threshold f, and interim-look schedule values
+(the simultaneous-prediction-bound structure and the binding-futility-only rule not
+deferrable); the E1/E9 shuffle-contrast margin values (m_S, δ_S, m_S0 — subject to
+δ ≥ m) and the arm-level safety-gate bound π₀; the
 fidelity-composite *weighting values* and LCC *weight/price values* — **now frozen from
 externally justified, outcome-disjoint grounds before unblinding, inside the
 non-compensatory-gates + declared-prices + robustness-sweep structure (Rev3, MAJOR-6)**;
@@ -1738,10 +2076,16 @@ unblinding). NOT deferred (structural): the per-equivalence-test power requireme
 row-4 adoption block, the LCC structure, the arm-E calibration counter-measure, and
 every Rev3 structural repair (A2-IR arm, three-valued target, T-source/T-format split,
 four-zone rule, confirmatory family, crossed-hierarchy analysis, hard minimum gates,
-two-human floor + anchoring protection, Rung-0 scope limit), and every Rev4
+two-human floor + anchoring protection, Rung-0 scope limit), every Rev4
 structural repair (unconditional UCT decision endpoint, graphical multiplicity
 procedure with δ ≥ m, hurdle estimand, differential Rung-0 futility, the
-advance/kill/indeterminate discipline, §8.0 consolidation).
+advance/kill/indeterminate discipline, §8.0 consolidation), and every Rev5
+structural repair (the atomic null enumeration with all-alpha-on-E1 gatekeeping
+and one-confidence-set-per-node, procedure-adjusted operative bounds, the
+generation-to-quota natural gold with generator/labeler separation, simultaneous
+candidate-set comparator inference, the U(r) < f Rung-0 stopping bound with
+binding-futility-only accounting and pilot cost crediting, and the
+cannot-advance hard-gate taxonomy).
 
 ## Revision 3 — cross-vendor findings applied
 
@@ -1889,7 +2233,90 @@ paired macro-BA), with the nonce parse-back, nonce UCT, and conditional Stage-2 
 measurements all declared secondary upper bounds — adopted-as-prescribed in
 substance, with the branch choice the only discretionary element. [STIPULATED]
 
-## Mandatory self-check — Revision 2 (historical record, retained verbatim; superseded by the Revision 4 self-check below)
+## Revision 5 — Rev4-re-review residuals applied
+
+Itemisation against the cross-vendor GPT-5.6 re-review of Rev4
+(`docs/next/design/99a-rev4-xvendor-review.md`, verdict **targeted revision needed
+(converging)**; the reviewer states that after these four targeted fixes "the
+experiment should be suitable for preregistration"). Everything the re-review
+listed as confirmed strengths — the natural-stratum UCT as the dominant decision
+task, packet-relative `ENTAILED`/`CONTRADICTED`/`UNDERDETERMINED` labeling, the
+δ ≥ m non-overlapping zone geometry, the hurdle endpoint with every failed record
+retained, the repaired kill/text-cost wording, and the §8.0 controlling table — is
+**preserved untouched**; every item below is statistical/operational
+specification, not redesign.
+
+1. **(MAJOR) Strong FWER control not demonstrated — ADOPTED.** All 95 atomic
+   one-sided nulls enumerated in ten nodes (§4.6 table): every directional and
+   equivalence component of every four-zone contrast, every arm-level safety
+   gate, both H-HUMAN endpoint components (fidelity TOST pair + cost null), both
+   H-TEXT-FORMAT format contrasts on ONE pinned endpoint, all four
+   candidate-vs-T contrasts, and the A0 canon-readiness components. The complete
+   transition matrix and update algorithm are published; **all initial alpha
+   sits on E1**, so an indeterminate E1 now mathematically blocks E2–E8 (the
+   Rev4 defect of positive downstream initial alpha is removed) and an
+   unresolved E2 blocks every constructed-arm node, matching precedence rows
+   2/4. Every zone is read from ONE node-level simultaneous confidence set at
+   its final procedure-assigned level; every operative 95% threshold (§4.1,
+   §4.6 thresholds and hierarchy, §4.8 kill bounds, E9) is replaced by its
+   procedure-adjusted bound, with instrument gates and selection-rung bars
+   explicitly outside the family; the freeze record must simulate BOTH strong
+   FWER over a pinned null-configuration grid AND adoption-path power under the
+   exact implementation (§4.1, §4.5, §4.6, §4.8; R5a).
+2. **(MAJOR) UCT estimand + selection inference incomplete — ADOPTED
+   (simultaneous-inference branch).** (a) Natural claim count and class
+   allocation pinned: nine claims per sense at exactly 3/3/3 by
+   generation-to-quota under pinned screens/cap with reserve-list replacement,
+   plus a pinned missing-class macro-BA fallback (mean recall over non-empty
+   classes; arm-independent, no exclusions); sampling/exclusion rules and the
+   two-annotator-plus-adjudicator protocol pinned, agreement gated by new §4.7
+   gate 11. (b) Held-out-source-exposed claim GENERATORS separated from
+   packet-only gold LABELERS as bound, access-logged roles. (c) Consumer
+   assignment (balanced design, registered seed, never two arms of one
+   concept), carryover protection, one frozen rendering/truncation rule,
+   failed-artifact floor-entry, and a per-format consumer competence battery
+   all pinned. (d) Of the review's either/or, Rev5 takes the
+   **simultaneous-inference branch**: every candidate-vs-T UCT contrast is an
+   E2 atomic member covered by ONE simultaneous confidence set, so the
+   four-zone decision for the hierarchy-selected arm is valid under any
+   selection — no outcome-disjoint calibration data of decision grade exists
+   pre-freeze, and the simultaneous set needs none. The enumeration also
+   surfaced and fixed the same selection gap in E7's machine comparator
+   (same device); E8 needs no adjustment because its estimand is the shipping
+   record, post-selection by definition (§4.2, §4.5, §4.6, §4.7; R5b).
+3. **(MAJOR) Rung-0 conditional futility not a mathematical bound — ADOPTED.**
+   θ(r) = (unreviewed-r − T) + Δ_rev(r) is defined per reviewed route; a
+   one-sided upper PREDICTION bound U(r) propagates both Rung-0 sampling and
+   pilot estimation-plus-transfer uncertainty, simultaneous over all four
+   routes at level 1 − α₀ (Bonferroni default); termination permitted ONLY when
+   every U(r) < f (pinned futility threshold); looks only at pinned interim
+   points, binding-futility-only — conservative for confirmatory FWER, with the
+   branch-loss cost modelled exactly in the R5a mandated simulation; the
+   calibration pilot's human minutes are measured, charged to the Rung-0
+   ledger, and reported; the "before any human apparatus exists" wording is
+   reconciled to "before the FULL endorsement apparatus is stood up", the pilot
+   being Rung 0's one credited human exercise; the fallback prohibiting
+   whole-branch termination when any Δ_rev(r) is unboundable is retained
+   verbatim (§7; R5c).
+4. **(MINOR) Kill-rule wording sweep — ADOPTED (cannot-advance branch).** The
+   §4.8 unreviewed-drafting rule no longer lists a breached hard gate as a kill
+   event: a hard-gate breach is a CANNOT-ADVANCE outcome, preserving the R4e
+   taxonomy (kills only via confirmed equivalence/inferiority or fired
+   futility) without exception; §3.2's "if H-GRAPH fails" now reads "fails to
+   advance or is killed"; the sweep found no other ambiguous kill wording
+   (§3.2, §4.8; R5d).
+
+No residual is rebutted. Two branch choices are recorded openly: residual 2
+permitted outcome-disjoint calibration selection OR simultaneous/selective
+inference over all candidate-vs-T contrasts — Rev5 takes the simultaneous branch
+(stated rationale above); residual 4 permitted registering hard-gate breach as an
+allowed kill event OR re-labelling it cannot-advance — Rev5 takes the
+cannot-advance branch (it leaves the R4e kill taxonomy unchanged rather than
+widening it). One consistency repair surfaced by the atomic enumeration is
+recorded: §4.3's shuffle-control list S now includes A0, which the §4.8 A0 rule
+and Rung 0 always presupposed (E9/R5a). [STIPULATED]
+
+## Mandatory self-check — Revision 2 (historical record, retained verbatim; superseded by the Revision 5 self-check below)
 
 1. **All 13 critique findings addressed?** YES — itemised in "Revision 2" above with
    section anchors and row labels R2a…m (one per finding); none rebutted; the deferral
@@ -1930,7 +2357,7 @@ substance, with the branch choice the only discretionary element. [STIPULATED]
    runs launched; the top banner marks it NOT a maintainer submission and NOT a prereg
    freeze, with NEXT = source-verify [SV] → maintainer (the critique loop is complete).
 
-## Mandatory self-check — Revision 3 (historical record, retained verbatim; superseded by the Revision 4 self-check below)
+## Mandatory self-check — Revision 3 (historical record, retained verbatim; superseded by the Revision 5 self-check below)
 
 1. **All 3 CRITICALs fully resolved?** YES — (CRITICAL-1) the graph-isolation control
    is added: arm A2-IR (§4.3) receives H's atoms/relations in flat non-graph form with
@@ -1988,7 +2415,7 @@ substance, with the branch choice the only discretionary element. [STIPULATED]
    re-review of the Rev3 experimental design → maintainer decision on #59, and states
    that adoption requires that re-review plus the maintainer decision.
 
-## Mandatory self-check — Revision 4 (final section)
+## Mandatory self-check — Revision 4 (historical record, retained verbatim; superseded by the Revision 5 self-check below)
 
 1. **T-source adoption-blocker resolved with one unconditional common estimand?**
    YES — the unconditional held-out claim task (UCT) is the T-source decision
@@ -2054,3 +2481,80 @@ substance, with the branch choice the only discretionary element. [STIPULATED]
     maintainer decision on #59, and states that adoption of anything beyond the
     governance-architecture pilot requires that re-review AND the maintainer
     decision.
+
+## Mandatory self-check — Revision 5 (final section)
+
+1. **Every atomic null enumerated + complete transition matrix +
+   procedure-adjusted bounds + FWER/power re-simulated?** YES — §4.6/R5a: 95
+   atomic one-sided nulls tabulated across ten nodes, covering every
+   directional/equivalence component, every arm-level safety gate, both H-HUMAN
+   endpoint components, both format contrasts on one pinned endpoint, all four
+   candidate-vs-T contrasts, and A0 canon-readiness; the initial weight vector
+   (all mass on E1) and the complete transition matrix are published with the
+   pinned update algorithm and within-node closed procedures; an indeterminate
+   E1 now mathematically blocks every downstream node (the re-review's
+   positive-initial-alpha defect is gone); every four-zone label is read from
+   ONE confidence set at the node's final procedure-assigned level; every
+   operative 95% threshold is replaced (§4.1 H-GRAPH, §4.6 decision thresholds,
+   §4.6 hierarchy re-labelled selection-only, §4.8 kill bounds, E9 bounds),
+   with instrument gates and rung bars explicitly outside the family; §4.6
+   item 7 makes the strong-FWER grid + adoption-path power simulation
+   freeze-blocking under the exact implementation.
+2. **UCT executable (claim count/class allocation pinned, generator/labeler
+   split, comparator inference valid)?** YES — §4.2: nine natural claims per
+   sense at exactly 3/3/3 by generation-to-quota with pinned screens, cap,
+   reserve-list replacement, and the pinned missing-class fallback (mean recall
+   over non-empty classes; arm-independent; no exclusions); generators
+   (source-exposed) are role-disjoint and access-logged from packet-only
+   labelers with a pinned adjudication rule; §4.5 UCT execution pins fix
+   consumer assignment/carryover, one frozen rendering/truncation rule,
+   failed-artifact floor-entry, and the per-format competence battery; §4.7
+   gate 11 gates the instrument; comparator inference is valid for ANY
+   hierarchy outcome via E2's (and E7's) simultaneous candidate set.
+3. **Rung-0 futility a formal simultaneous bound with sequential-error
+   accounting?** YES — §7/R5c: U(r) is a one-sided upper prediction bound on
+   θ(r) = (unreviewed-r − T) + Δ_rev(r), simultaneous over all four reviewed
+   routes at 1 − α₀ (Bonferroni default), propagating both Rung-0 sampling and
+   pilot estimation-plus-transfer uncertainty; termination only when every
+   U(r) < f; looks at pinned interim points, binding-futility-only
+   (conservative for confirmatory FWER) and modelled in the R5a simulation;
+   the pilot's human cost is measured, charged, and reported; the
+   human-apparatus wording is reconciled; the unboundable-increment
+   prohibition is retained verbatim.
+4. **Kill-wording consistent everywhere?** YES — swept the full document: kills
+   occur ONLY via confirmed equivalence/inferiority zones or fired futility
+   boundaries (R4e as completed by R5d); the §4.8 unreviewed-drafting rule's
+   hard-gate breach is now CANNOT-ADVANCE, never a kill; §3.2 reads "fails to
+   advance or is killed"; precedence rows 2/9, the H-GRAPH three-outcome rule,
+   and the H-SHUFFLE bullet all conform; no other ambiguous "fails"/"kill"
+   wording remains in an operative rule.
+5. **Resolved items undisturbed?** YES — the UCT remains the dominant,
+   unconditional T-source decision task with the single R4a statistic;
+   packet-relative labeling is untouched (the held-out source still never marks
+   packet-unsupported content as known); δ ≥ m zone geometry stands; the R4c
+   hurdle endpoint stands (its safety gates are now also enumerated nulls —
+   an addition, not an alteration); §8.0 remains the single controlling table,
+   extended with Rev5 rows, never restructured.
+6. **Every load-bearing claim tagged; no [EXTRAPOLATION] as a premise?** YES —
+   every Rev5 design choice (atomic family, weights/matrix, UCT pins, gate 11,
+   U(r) bound, kill taxonomy, deferral updates) is [STIPULATED]; [MEASURED]
+   tags still anchor only repository result files; [LIT-BACKED][SV] remains
+   supporting-only (the graphical-procedure and prediction-bound machinery is
+   deliberately stated as stipulated design verified by the mandated
+   simulation, not by literature authority); [EXTRAPOLATION] appears only in
+   §3.2's motivation/direction notes and the §6 binding caps — never as a
+   premise for any conclusion, verdict, or gate.
+7. **No @handle/account strings?** YES — models, pipelines, and roles are
+   referred to by model/pipeline/role names only; no @-handles or account
+   identifiers were introduced in Rev5.
+8. **No `ASM-<number>` minted?** YES — only `PROPOSED-PREREG-ROW-99A-R1a…j`,
+   `…-R2a…m`, `…-R3a…i`, `…-R4a…f`, and the new `…-R5a…d`; ids are assigned at
+   prereg-freeze; the re-review's findings are referenced by its own
+   MAJOR/MINOR numbering.
+9. **Nothing committed / registered / frozen?** YES — in-place edit of this
+   proposal document only (the review file untouched); no git operations, no
+   registry writes, no prereg-freeze, no runs launched; the banner marks this a
+   REVISED DRAFT with NEXT = re-review of the Rev5 experimental design → if
+   clean, preregistration-suitable → maintainer decision on #59, and records
+   that governance-architecture adoption for a bounded pilot is separately
+   available now per the Rev4 re-review.
