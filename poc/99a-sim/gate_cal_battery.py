@@ -29,11 +29,14 @@ GAMMAS = (0.025, 0.00625)
 CELLS = [(0.1, 96), (0.1, 160), (0.8, 96), (0.8, 160)]
 
 
-def run_cell(rho, n_nonce, R):
+def run_cell(rho, n_nonce, R, regime='gaussian'):
     idx, t = grid.cell_by_label('GATECAL', rho=rho,
-                                n='base' if n_nonce == 96 else 'esc')
+                                n='base' if n_nonce == 96 else 'esc', regime=regime)
     t.n_nonce = n_nonce
     t.n_nat = pins.N_NAT if n_nonce == 96 else pins.N_NAT_ESC
+    t.regime = regime
+    # per-cell gate thresholds computed ONCE (Gaussian ppf, or B4 beta recalib)
+    gate_thr = dgm.compute_gate_thresholds(t, idx)
     arms = pins.GATE_ARMS
     # per-arm accumulators
     pihat = {a: [] for a in arms}
@@ -45,7 +48,7 @@ def run_cell(rho, n_nonce, R):
 
     for r in range(R):
         ss = seeds.rep_substreams(idx, r)
-        _, gate = dgm.gen_composite_and_gate(t, ss)
+        _, gate = dgm.gen_composite_and_gate(t, ss, gate_thr=gate_thr)
         boot = ss[pins.SS_GATE_BOOT]
         for gi, a in enumerate(arms):
             p, d = gate_test.gate_pvalue(gate[gi], _REV_OFF[a], pins.PI0, boot,

@@ -214,3 +214,76 @@ all 4 cells with margin and clean dispersion diagnostics -> the A4 blocker is
 cleared for the full run, pending the routine full-R=40,000 battery in the frozen
 run. Remaining pre-freeze items are unchanged (B2 lme4 fixture; B3/B4 wire
 futility+Rung-0 / bounded-Beta gate recalibration; compute path).
+
+---
+
+## FULL-RUN-READY INCREMENT (2026-07-21) — B3 / B4 / gate-opt / S8+determinism
+
+Each item coded + hard-verified.  No full grid run; no git commit.
+
+### B3 — Stage-1 futility (S4.6) + Rung-0 (S4.8/§7) WIRED — DONE
+`futility.py` (S4.6 nominal moment-SE with the R9a floored rho~ and the exact
+design pair counts; graph-branch UB) and `rung0.py` are wired into
+`pipeline.run_replication` (flags `use_futility` / `use_rung0`, default ON =
+full-run-ready).  Both are binding-futility-only and draw only from their own
+substreams (rung0: SS_RUNG0/SS_PILOT; futility: no new draws), so ON-non-firing
+== OFF exactly.  VERIFIED (verify_item1.py, R=300 paired on identical seeds):
+- (a) regression F3: ON vs OFF rejection vectors bit-identical, 0/300 mismatch
+  (futility fired harmlessly on 2.7% of reps, outcome unchanged).
+- (b) gate-futility FIRES (custom pi_a=0.40 < pi0): fire rate 0.973; FWER_ON
+  (0.0000) <= FWER_OFF (0.0000).
+- (c) graph-futility FIRES (F9, Delta^G=0): graph_futile rate 0.607; FWER_ON
+  (0.0100) <= FWER_OFF (0.0100).
+- (d) Rung-0 TERMINATES (custom d0(r)=-0.5): terminate rate 0.987; C-VAL
+  rejection drops 0.9967 (OFF) -> 0.0133 (ON) — a terminated branch tests no
+  confirmatory claim, as pinned.
+Monotonicity FWER_ON <= FWER_OFF held in every cell (conservative, as the theory
+requires).
+
+### B4 — bounded-Beta gate threshold recalibration (S4.4) — DONE
+`dgm.compute_gate_thresholds(t, config_index)` replaces the Gaussian stub: for
+the bounded-Beta regime it computes t_a = the (1-pi_a)-quantile of Z's marginal
+from 10^7 pinned MC draws on SeedSequence([BASE_SEED, config_index,
+999_999_999]) (chunked; Z = sqrt(fc)*Cbeta + sqrt(fs)*N + sqrt(fr)*N +
+sqrt(fe)*N), computed ONCE per cell and threaded to the DGM.  VERIFIED
+(test_b4.py):
+- marginal mapping RESTORED: recalibrated threshold gives P(g=1)=0.595 ~= pi0
+  (0.60); the naive Gaussian threshold gives 0.579 (biased low ~0.02).
+- gate-cal battery on the bounded-Beta cell (rho=0.1, n=96, R=2000): ALL 4 arms
+  x 2 gamma PASS (CP-upper 0.0078-0.0180 at g=0.025 <= 0.031; 0.0015-0.0052 at
+  g=0.00625 <= 0.0078); SD-ratio 1.19-1.23 (>=1), no flags.
+Artifact: results/gatecal_r9a/cell_beta_rho0.1_n96_R2000.json.
+
+### Gate-test OPTIMIZATION (95% of full-run cost) — DONE, numerically equivalent
+`gate_test.orthant_p11` replaced scipy.stats.multivariate_normal.cdf with the
+EXACT closed-form bivariate-normal orthant via 128-node Gauss-Legendre on the
+1-D reduction P = int_z^inf phi(x) Phi((rho x - z)/sqrt(1-rho^2)) dx (raw ndtr).
+The B=999 bootstrap was already loop-free/vectorised (kept float64 to preserve
+exactness).  VERIFIED (test_gate_opt.py):
+- orthant vs scipy mvn.cdf: max abs diff 8e-15 over 3000 random (rho, z).
+- end-to-end gate p-value (optimized vs mvn.cdf-orthant reference, identical
+  bootstrap RNG state): **max abs diff 0.000e0 over 250 random cases** (0/250
+  differ) — numerically equivalent, not an approximation.
+- orthant 20 us/call (was 221 us scipy); per-rep F3 base 140->81 ms bare;
+  full-run-ready (futility+rung0 ON) 95.8 ms base / 154 ms esc.
+- REVISED full-grid estimate: **108.7 core-hours** (94.3 FWER + 11.6 power +
+  2.7 gate-cal + beta recalib), vs the ~220 core-h pre-opt estimate — **2.0x**.
+  Single-core ~4.5 days; 2-core ~2.3 days; the loop is embarrassingly parallel
+  (independent per (config_index, replication)) so ~3.4 h on 32 cores, ~1.7 h
+  on 64 cores.
+
+### S8 artifacts + S2 determinism — DONE
+- `emit_config.py` -> results/99a-r8-simspec-config.json (config_index ->
+  parameter vector -> truth-engine-derived truth set + consumer/reviewer
+  rotation tables), sha256 in-file.  VERIFIED hash STABLE: two emissions produce
+  byte-identical files, sha256 dc2ed1c5...d531 both times.
+- `determinism_check.py` -> results/99a-r8-simspec-determinism.json: 100 pinned
+  (config_index, replication_index) pairs, each run TWICE.  VERIFIED **0/100
+  mismatches — all rejection vectors bit-identical** (rejection-vectors sha256
+  74a870c8...).
+
+### B2 — lme4/lmerTest fixture-equivalence — DEFERRED (no R on box)
+`which Rscript R` -> none installed on this host; the S4.2 fixture-equivalence
+check against R 4.4.1 + lme4 1.1-35.5 + lmerTest 3.1-3 cannot run here and stays
+DEFERRED to the pinned-stack many-core box (the only remaining coded-but-
+unverified obligation).

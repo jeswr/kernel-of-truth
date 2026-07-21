@@ -9,13 +9,17 @@ import numpy as np
 import pins
 import seeds
 import pipeline
+import dgm
 from hypotheses import truth_set
 from stats_util import cp_upper, cp_lower, mc_se
 
 
-def run_cell(config_index, t, R, want_paths=False, progress=False):
+def run_cell(config_index, t, R, want_paths=False, progress=False,
+             use_futility=True, use_rung0=True):
     """Run R reps of resolved cell t (config_index for the seed map)."""
     T = truth_set(t)                       # {j : null_j true} — error-counting set
+    # per-cell gate thresholds computed ONCE before replications (S4.4/B4)
+    gate_thr = dgm.compute_gate_thresholds(t, config_index)
     claim_rej = {c: 0 for c in pins.CLAIMS}
     fwer_events = 0                        # >=1 TRUE-null claim rejected
     stage2_count = 0
@@ -25,7 +29,8 @@ def run_cell(config_index, t, R, want_paths=False, progress=False):
     t0 = time.time()
     for r in range(R):
         ss = seeds.rep_substreams(config_index, r)
-        res = pipeline.run_replication(t, ss)
+        res = pipeline.run_replication(t, ss, use_futility=use_futility,
+                                       use_rung0=use_rung0, gate_thr=gate_thr)
         rej = res['rejected']
         if res['stage2']:
             stage2_count += 1

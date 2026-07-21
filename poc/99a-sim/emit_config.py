@@ -56,10 +56,10 @@ def main():
     blob = json.dumps(artifact, sort_keys=True, default=str).encode()
     artifact['sha256'] = hashlib.sha256(blob).hexdigest()
     import os
-    os.makedirs('results/mock', exist_ok=True)
-    with open('results/mock/99a-r8-simspec-config.json', 'w') as f:
+    os.makedirs('results', exist_ok=True)
+    with open('results/99a-r8-simspec-config.json', 'w') as f:
         json.dump(artifact, f, indent=2, default=str)
-    print('wrote results/mock/99a-r8-simspec-config.json')
+    print('wrote results/99a-r8-simspec-config.json')
     print('cells:', len(records), 'sha256:', artifact['sha256'][:16], '...')
     # spot-check a couple of truth sets
     for r in records:

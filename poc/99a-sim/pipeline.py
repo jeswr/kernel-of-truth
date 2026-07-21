@@ -17,6 +17,8 @@ import pins
 import dgm
 import gate_test
 import graphical
+import futility
+import rung0
 from inference import FamilyAnova
 from hypotheses import ParamVector
 
@@ -25,14 +27,35 @@ _COMP_IDX = {a: i for i, a in enumerate(pins.COMP_ARMS)}
 _REV_OFF = {a: i for i, a in enumerate(pins.REVIEWED_ARMS)}
 
 
-def run_replication(t: ParamVector, ss, want_selection=False):
-    """Run one replication; return dict with rejected claims + diagnostics."""
+def run_replication(t: ParamVector, ss, want_selection=False,
+                    use_futility=True, use_rung0=True, gate_thr=None):
+    """Run one replication; return dict with rejected claims + diagnostics.
+
+    use_futility / use_rung0 (default ON = full-run-ready) enable the S4.6
+    Stage-1 binding futility and the S4.8/§7 Rung-0 branch.  Both are
+    binding-futility-only (can only REMOVE rejection opportunities), and both
+    draw ONLY from their own substreams (rung0: SS_RUNG0/SS_PILOT; futility:
+    no new draws — reads the already-generated interim slice), so with them ON
+    but non-firing the rejection vector is IDENTICAL to OFF (regression-safe).
+    gate_thr: precomputed per-cell gate thresholds (S4.4 bounded-Beta, B4);
+    None -> Gaussian ppf on the fly.
+    """
     dS, mT, dT, dG, mF, pi0 = (pins.DELTA_S, pins.M_T, pins.DELTA_T,
                                pins.DELTA_G, pins.M_F, pins.PI0)
 
+    # ---- Rung-0 nested-interim screen (S4.8/§7); terminated branch tests
+    #      NO confirmatory claim (conservative) ----
+    rung0_terminated = False
+    if use_rung0:
+        rung0_terminated = rung0.run_rung0(t, ss)['terminated']
+        if rung0_terminated:
+            return {'rejected': set(), 'stage2': False,
+                    'rung0_terminated': True, 'futility_dropped': set(),
+                    'graph_futile': False}
+
     # ---- DGM (S4.1) ----
     Yuct = dgm.gen_uct(t, ss)
-    Ycomp, gate = dgm.gen_composite_and_gate(t, ss)
+    Ycomp, gate = dgm.gen_composite_and_gate(t, ss, gate_thr=gate_thr)
 
     # ---- ledger fits (S4.2): ONE balanced family ANOVA per family ----
     uct_anova = FamilyAnova(Yuct)
@@ -62,11 +85,21 @@ def run_replication(t: ParamVector, ss, want_selection=False):
         comp['C-CON-SUP-%s' % c] = [uct_fit[c].p_lower(dT), gate_p[c]]
     comp['C-GRAPH'] = [graph_fit.p_lower(dG), gate_p['H'], gate_p['A2IR']]
 
+    # ---- Stage-1 binding futility (S4.6): drop candidates / stop graph ----
+    dropped = set()
+    graph_futile = False
+    if use_futility:
+        dropped, graph_futile = futility.stage1_futility(gate, Ycomp, t)
+
     # ---- graphical procedure, Stage 1 (S4.7: C-FMT not yet testable) ----
     state = graphical.GraphState(pins.ALPHA)
     testable = {cl: True for cl in pins.STAGE1_CLAIMS}
     for cl in pins.FMT_CLAIMS:
         testable[cl] = False
+    for c in dropped:                              # futility-dropped: unrejectable
+        testable['C-CON-SUP-%s' % c] = False
+    if graph_futile:
+        testable['C-GRAPH'] = False
     state.run(comp, testable)
 
     # ---- Stage-2 endogenous trigger (S4.7) ----
@@ -75,6 +108,8 @@ def run_replication(t: ParamVector, ss, want_selection=False):
     if con_rejected and t.stage2_mode == 'endogenous':
         stage2 = True
         for c in pins.CANDIDATES:
+            if c in dropped:                       # C-FMT-c also unrejectable
+                continue
             Yf = dgm.gen_format(t, ss, c)          # arms 0=T'(c),1=AST,2=VEC
             fanova = FamilyAnova(Yf)
             comps = []
@@ -86,20 +121,24 @@ def run_replication(t: ParamVector, ss, want_selection=False):
             testable['C-FMT-%s' % c] = True
         state.run(comp, testable)                  # continue same update
 
-    result = {'rejected': set(state.rejected), 'stage2': stage2}
+    result = {'rejected': set(state.rejected), 'stage2': stage2,
+              'rung0_terminated': False, 'futility_dropped': dropped,
+              'graph_futile': graph_futile}
     if want_selection:
-        result['selection'] = _select(uct_fit, graph_fit)
+        result['selection'] = _select(uct_fit, graph_fit, dropped)
         result['fits'] = {'uct': uct_fit, 'graph': graph_fit}
     return result
 
 
-def _select(uct_fit, graph_fit):
-    """S4.5 hierarchy selection of c* (one-sided 95% lower bounds; fallback A1)."""
+def _select(uct_fit, graph_fit, dropped=frozenset()):
+    """S4.5 hierarchy selection of c* (one-sided 95% lower bounds; fallback A1).
+    Futility-dropped candidates (S4.6) are skipped."""
     g = pins.SELECTION_LEVEL
     gamma = 1.0 - g
-    if graph_fit.lower_bound(gamma) > pins.DELTA_G:
+    if 'H' not in dropped and graph_fit.lower_bound(gamma) > pins.DELTA_G:
         return 'H'
-    if uct_fit['A2IR'].lower_bound(gamma) - uct_fit['A2'].lower_bound(gamma) > pins.M_IR:
+    if 'A2IR' not in dropped and (
+            uct_fit['A2IR'].lower_bound(gamma) - uct_fit['A2'].lower_bound(gamma) > pins.M_IR):
         # (approximation: rung increments read off the UCT fits; the operative
         #  increments are on the composite scale — documented simplification)
         return 'A2IR'

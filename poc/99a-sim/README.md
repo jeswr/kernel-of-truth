@@ -104,39 +104,43 @@ STRICTLY more conservative, so it can only REDUCE the pre-R9a F5 marginal FWER
 (0.037), never inflate it. Full-run blocker CLEARED pending the routine
 R = 40,000 battery. Artifacts: `results/gatecal_r9a/`.
 
-## Full-run cost estimate
+## Full-run cost estimate (post gate-test optimization)
 
-Measured wall-clock (this 2-core box, niced): base n (48,96) ~0.19-0.20 s/rep;
-escalated n (96,160) ~0.29 s/rep. **The gate test is 95% of runtime**, split
-between the bivariate-orthant inversions (scipy `multivariate_normal.cdf`, ~46%)
-and the B=999 bootstrap draws (~42%).
+The gate test (95% of cost) was optimized: `orthant_p11` now uses the EXACT
+closed-form bivariate-normal orthant (128-node Gauss-Legendre on the 1-D
+reduction, raw `ndtr`) instead of scipy `multivariate_normal.cdf` — 20 vs 221
+us/call, NUMERICALLY EQUIVALENT (gate p-value max abs diff 0.000 over 250 cases;
+see SPEC-DEFECTS). The B=999 bootstrap is already loop-free (kept float64 for
+exactness). Measured full-run-ready per-rep (futility+Rung-0 ON, fast orthant):
+base n (48,96) **95.8 ms**, escalated n (96,160) **154 ms** (power 94 / 139 ms);
+the bootstrap RNG is now the floor (orthant ~5%).
 
 Full grid (R = 40,000 FWER / 10,000 power):
-- FWER: ~50 base + 24 escalated cells -> ~678,000 s
-- Power: 18 base + 18 escalated -> ~88,000 s
-- Gate-cal: 4 cells x 40,000 (gate-only) -> ~25,000 s
-- **Total ~= 790,000 s ~= 220 core-hours ~= 9.2 days single-core; ~= 4.6 days on
-  2 cores** (idealised; this host's 2 cores are SHARED with a live server, so
-  realistically slower). Plus the bounded-Beta per-cell 10^7-draw gate-threshold
-  recalibration for the ~28 beta cells (~1 hour, minor).
+- FWER (50 base + 24 esc): ~94.3 core-h
+- Power (18 base + 18 esc): ~11.6 core-h
+- Gate-cal (4 cells, gate-only): ~2.7 core-h; bounded-Beta 10^7 recalib ~140 s
+- **Total ~= 108.7 core-hours** (was ~220 pre-opt -> **2.0x**). Single-core ~4.5
+  days; 2 cores ~2.3 days.
 
-**Feasibility:** NOT comfortable single-box on this shared 2-core host
-unoptimised (multi-day, contends with the live server). Two levers:
-1. **Optimize the gate test** (it is 95% of cost): replace the scipy mvn.cdf
-   orthant with a closed-form bivariate-normal orthant (Owen's T / a direct
-   series; ~50-100x on that 46%) and vectorise the bootstrap across the 4 gates
-   / use float32. Realistic ~3-5x overall -> ~1-1.5 days on 2 cores.
-2. **Bigger machine** — the loop is EMBARRASSINGLY PARALLEL (every
-   (config_index, replication) is independent by construction of the seed map),
-   so it scales linearly with cores: a 32-64 core box runs the full grid in a
-   few hours even unoptimised, ~1 hour optimised. Recommended path.
+**Feasibility:** the loop is EMBARRASSINGLY PARALLEL (independent per
+(config_index, replication)), so on the pinned-stack **many-core box it is
+~3.4 h on 32 cores / ~1.7 h on 64 cores** — the recommended path. Not run here.
 
-## Readiness
+## Readiness — FULL-RUN-READY (pending the pinned-stack box + B2)
 
-Ready for a code-vs-spec review. (A4) the gate-calibration failure is now FIXED
-by Rev9/R9a and re-validated (RESOLVED-PENDING-CONFIRM at mock scale; full
-R=40,000 battery is the frozen-run confirmation). Remaining before the full run:
-(B2) the deferred lme4 fixture-equivalence check; (B3/B4) wire Stage-1 futility +
-Rung-0 into the FWER/power cells that exercise them and implement the
-bounded-Beta gate recalibration; and pick the compute path (optimise the gate
-test and/or a many-core machine). See SPEC-DEFECTS.md.
+Everything the frozen run needs is coded and hard-verified:
+- **A4** gate calibration FIXED (Rev9/R9a floored plug-in), re-validated: 4-cell
+  battery ALL PASS, SD-ratio >= 1.20.
+- **B3** Stage-1 futility (S4.6) + Rung-0 (S4.8/§7) WIRED (default ON): regression
+  ON==OFF bit-identical; fires where params cross boundaries; FWER_ON <= FWER_OFF.
+- **B4** bounded-Beta gate threshold recalibration (S4.4, 10^7 per-cell): marginal
+  restored, beta gate-cal battery PASSES.
+- **Gate-test optimization**: exact closed-form orthant, gate p-value max abs diff
+  0.000 (numerically equivalent), 2.0x -> ~108.7 core-hours full grid.
+- **S8 config** artifact emitted + hash-STABLE (byte-identical); **S2 determinism**
+  100 pinned pairs bit-identical.
+
+Remaining, both external to the code: (1) provision the pinned-stack (CPython
+3.12 / numpy 2.1.3 / scipy 1.14.1) many-core box and run the full grid there
+(~3-4 h on 32 cores); (2) **B2** the lme4/lmerTest S4.2 fixture-equivalence check
+— DEFERRED (no R/Rscript on this host). See SPEC-DEFECTS.md.

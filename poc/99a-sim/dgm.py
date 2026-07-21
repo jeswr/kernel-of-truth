@@ -113,12 +113,13 @@ def gen_uct(t: ParamVector, ss):
     return Y
 
 
-def gen_composite_and_gate(t: ParamVector, ss):
+def gen_composite_and_gate(t: ParamVector, ss, gate_thr=None):
     """Composite family (nonce, 8 arms) + gate indicators (4 gate arms).
 
     The nonce concept layer is drawn ONCE as 12 coordinates (8 composite arm
     coords + 4 gate dimensions) so composite and gate share the concept layer
-    at the cell's rho (S4.3/S4.4).
+    at the cell's rho (S4.3/S4.4).  gate_thr: precomputed per-cell gate
+    thresholds (B4); None -> Gaussian ppf (valid only for non-beta regimes).
     """
     n = t.n_nonce
     nonce_dim = len(pins.COMP_ARMS) + len(pins.GATE_ARMS)   # 8 + 4
@@ -144,7 +145,7 @@ def gen_composite_and_gate(t: ParamVector, ss):
                              comp_coords, gens, reviewed_idx=reviewed_idx,
                              consumer=False, resid_var=resid_var)
 
-    gate = _gen_gate(t, gate_coords, ss)
+    gate = _gen_gate(t, gate_coords, ss, gate_thr=gate_thr)
     return Ycomp, gate
 
 
@@ -166,12 +167,13 @@ def gen_format(t: ParamVector, ss, c: str):
     return Y   # arms: 0=T'(c), 1=AST(c), 2=VEC(c)
 
 
-def _gen_gate(t: ParamVector, gate_coords, ss):
+def _gen_gate(t: ParamVector, gate_coords, ss, gate_thr=None):
     """S4.4 gate DGM: pass indicators g_{a,i,s} for the 4 gate arms.
 
     Z = sqrt(f_c)*G_i[a] + sqrt(f_s)*v^g_s[a] + sqrt(f_r)*w^g_{r(a,i)}
         + sqrt(1-f_c-f_s-f_r)*e ; g = 1{Z > thr_a}.  Gaussian regime: thr_a =
-    Phi^{-1}(1-pi_a) (exact marginal).  Bounded-Beta: thr recalibrated per cell.
+    Phi^{-1}(1-pi_a) (exact marginal).  Bounded-Beta: thr recalibrated per cell
+    (compute_gate_thresholds).  gate_thr overrides the on-the-fly Gaussian ppf.
     """
     from scipy import stats as _st
     n = t.n_nonce
@@ -196,26 +198,41 @@ def _gen_gate(t: ParamVector, gate_coords, ss):
                   + np.sqrt(fsd) * vg[a_i][None, :]
                   + np.sqrt(fe) * e[a_i])
 
-    thr = _gate_thresholds(t, ss)
-    g = (Z > thr[:, None, None]).astype(np.int8)
+    if gate_thr is None:                                    # on-the-fly Gaussian ppf
+        gate_thr = np.array([_st.norm.ppf(1.0 - t.pi[a]) for a in pins.GATE_ARMS])
+    g = (Z > np.asarray(gate_thr)[:, None, None]).astype(np.int8)
     return g
 
 
-def _gate_thresholds(t: ParamVector, ss):
-    """Per-arm gate threshold.  Gaussian regime => Phi^{-1}(1-pi_a).
-    Bounded-Beta => exact (1-pi_a)-quantile of Z by MC (S4.4)."""
+def compute_gate_thresholds(t: ParamVector, config_index: int,
+                            n_draws: int = 10_000_000):
+    """S4.4 per-cell gate threshold t_a (computed ONCE per cell, before any
+    replication).  Gaussian/block regime: exact Phi^{-1}(1-pi_a).  Bounded-Beta:
+    t_a = the (1-pi_a)-quantile of Z's marginal, estimated by n_draws (pinned
+    10^7) Monte-Carlo draws on the dedicated per-cell calibration stream
+    SeedSequence([BASE_SEED, config_index, 999_999_999]) — keeping P(g=1)=pi_a
+    EXACT while the bounded-Beta shape supplies the dependence stress (R8d)."""
     from scipy import stats as _st
+    import copula as _cop
+    from seeds import beta_cal_stream
     ga = pins.GATE_ARMS
     if t.regime != 'beta':
         return np.array([_st.norm.ppf(1.0 - t.pi[a]) for a in ga])
-    # bounded-Beta recalibration (S4.4): MC quantile of Z per arm.
-    # NOTE (mock): spec pins 1e7 draws on the per-cell calibration stream;
-    # for the mock we use fewer (documented) — see SPEC-DEFECTS / README.
-    import copula as _cop
-    cal = None
-    from seeds import beta_cal_stream
-    # config_index not threaded here in mock; use rho/regime-derived surrogate
-    # via a fresh calibration generator seeded off the replication stream is
-    # NOT allowed (must be per-cell); we approximate with the Gaussian ppf and
-    # flag beta-gate-boundary cells as needing the full recalibration.
-    return np.array([_st.norm.ppf(1.0 - t.pi[a]) for a in ga])
+    fc, fsd, fr = pins.F_CONCEPT, pins.F_SEED, pins.F_REVIEWER
+    fe = 1.0 - fc - fsd - fr
+    gen = beta_cal_stream(config_index)
+    # draw Z's marginal in chunks (peak memory ~ one chunk); Z = sqrt(fc)*Cbeta
+    # + sqrt(fsd)*N + sqrt(fr)*N + sqrt(fe)*N, Cbeta = standardized-Beta of N(0,1).
+    Z = np.empty(n_draws)
+    chunk = 1_000_000
+    off = 0
+    while off < n_draws:
+        m = min(chunk, n_draws - off)
+        y = gen.standard_normal(m)
+        cbeta = _cop._beta_transform(y)
+        Z[off:off + m] = (np.sqrt(fc) * cbeta
+                          + np.sqrt(fsd) * gen.standard_normal(m)
+                          + np.sqrt(fr) * gen.standard_normal(m)
+                          + np.sqrt(fe) * gen.standard_normal(m))
+        off += m
+    return np.array([np.quantile(Z, 1.0 - t.pi[a]) for a in ga])
