@@ -106,8 +106,11 @@ def _concordances(g: np.ndarray, off: int):
     return Q_cr, Q_s, Q_r
 
 
-def estimate_rhos(g: np.ndarray, off: int):
-    """Estimate (rho_c, rho_s, rho_r) per S4.4/§4.6(1b)(C)."""
+def estimate_rho_points(g: np.ndarray, off: int):
+    """POINT dependence estimates (rho_c, rho_s, rho_r) per S4.4/§4.6(1b)(C).
+    UNCHANGED by R9a: concordance-class inversion, no-root -> 0, and the
+    rho_c = max(0, rho_cr - rho_r) decomposition.  Each is naturally in
+    [0, 0.98] (invert_orthant returns [0, 0.98], rho_c a nonneg difference)."""
     pibar = float(g.mean())
     pibar = min(max(pibar, 1e-6), 1.0 - 1e-6)
     z = norm.ppf(1.0 - pibar)
@@ -116,20 +119,47 @@ def estimate_rhos(g: np.ndarray, off: int):
     rho_cr = invert_orthant(Q_cr, z)
     rho_s = invert_orthant(Q_s, z)
     rho_c = max(0.0, rho_cr - rho_r)
-    # truncate into [0, 0.98] and rescale sum to <= 0.98
-    comps = np.clip([rho_c, rho_s, rho_r], 0.0, _RHO_MAX)
-    tot = comps.sum()
+    return float(rho_c), float(rho_s), float(rho_r)
+
+
+def floored_triple(rho_points):
+    """R9a conservative bootstrap plug-in rho~ built from the POINT estimates
+    in the pinned order: (i) FLOOR the two small-cluster components
+    rho~_s = max(rho_hat_s, RHO_FLOOR), rho~_r = max(rho_hat_r, RHO_FLOOR),
+    rho~_c = rho_hat_c (no concept floor); (ii) clip each into [0, 0.98];
+    (iii) if the sum > 0.98, rescale proportionally to sum 0.98."""
+    rho_c, rho_s, rho_r = rho_points
+    # (i) floor (asymmetric: seed/reviewer only)
+    tc = rho_c
+    ts = max(rho_s, pins.RHO_FLOOR)
+    tr = max(rho_r, pins.RHO_FLOOR)
+    # (ii) clip
+    tc = min(max(tc, 0.0), _RHO_MAX)
+    ts = min(max(ts, 0.0), _RHO_MAX)
+    tr = min(max(tr, 0.0), _RHO_MAX)
+    # (iii) proportional rescale
+    tot = tc + ts + tr
     if tot > _RHO_MAX:
-        comps = comps * (_RHO_MAX / tot)
-    return float(comps[0]), float(comps[1]), float(comps[2])
+        s = _RHO_MAX / tot
+        tc, ts, tr = tc * s, ts * s, tr * s
+    return tc, ts, tr
+
+
+# backward-compatible alias: the dependence triple fed to the bootstrap (R9a).
+def estimate_rhos(g: np.ndarray, off: int):
+    """Return the FLOORED bootstrap plug-in rho~ (R9a)."""
+    return floored_triple(estimate_rho_points(g, off))
 
 
 def gate_pvalue(g: np.ndarray, off: int, pi0: float, boot_gen,
-                B: int = pins.B_BOOT) -> float:
-    """Parametric-bootstrap p-value for H0: pi_a <= pi0 (S4.4)."""
+                B: int = pins.B_BOOT, return_diag: bool = False):
+    """Parametric-bootstrap p-value for H0: pi_a <= pi0 (S4.4), R9a: the
+    null-boundary bootstrap consumes the FLOORED plug-in rho~.  With
+    return_diag, also return per-replication dispersion/floor diagnostics."""
     n, S = g.shape
     pihat = float(g.mean())
-    rho_c, rho_s, rho_r = estimate_rhos(g, off)
+    pts = estimate_rho_points(g, off)                      # POINT estimate
+    rho_c, rho_s, rho_r = floored_triple(pts)              # R9a bootstrap plug-in
     rest = max(0.0, 1.0 - rho_c - rho_s - rho_r)
     z0 = norm.ppf(1.0 - pi0)
     nrev = pins.N_REVIEWERS
@@ -146,4 +176,11 @@ def gate_pvalue(g: np.ndarray, off: int, pi0: float, boot_gen,
          + np.sqrt(rest) * e_star)
     pistar = (Z > z0).mean(axis=(1, 2))                    # (B,)
     p = (1.0 + np.count_nonzero(pistar >= pihat)) / (B + 1.0)
+    if return_diag:
+        return float(p), {
+            'pihat': pihat,
+            'pistar_sd': float(pistar.std()),              # bootstrap-null SD
+            'rho_points': pts,                             # (rho_hat_c, _s, _r)
+            'rho_tilde': (rho_c, rho_s, rho_r),            # floored plug-in
+        }
     return float(p)

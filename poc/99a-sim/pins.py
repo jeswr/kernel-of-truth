@@ -115,6 +115,7 @@ P_PRICE = (                                 # robustness PRICE-VECTOR set (5)
 DELTA_E      = -0.10         # true E-arm fidelity contrast default
 M_SHEQ       = 0.05          # row-2 shuffle-equivalence margin
 B_BOOT       = 999           # gate-test parametric-bootstrap replicates
+RHO_FLOOR    = 0.15          # R9a bootstrap-plug-in floor on seed/reviewer dep (1.5x f_seed/f_reviewer)
 TAU_TERM0    = 0.055         # F10 Rung-0 false-termination acceptance tolerance
 TAU_FWER     = 0.055         # S6 FWER acceptance tolerance
 TAU_TERM     = 0.025         # S7 P6 termination acceptance tolerance

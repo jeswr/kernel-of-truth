@@ -7,6 +7,27 @@ records (A) genuine spec ambiguities/contradictions found while implementing,
 defects — flagged so the coordinator can price them), and (C) deferred
 acceptance obligations the mock does not discharge.
 
+## A4 UPDATE (2026-07-21) — Rev9/R9a floored plug-in applied + re-validated
+
+Fable landed Rev9/R9a in the design doc (## Revision 9 + amended S4.4/§4.6(1b)(C)
++ §4.6 S4.6): the null-boundary bootstrap and the futility moment-SE now consume
+the FLOORED triple rho~ instead of the per-rep truncated-to-0 point estimates.
+
+**Code change applied (gate_test.py):** point estimation (`estimate_rho_points`)
+is UNCHANGED — concordance-class inversion, no-root->0, rho_c = max(0, rho_cr -
+rho_r). New `floored_triple()` builds rho~ in the pinned order: (i) floor the two
+small-cluster components rho~_s = max(rho_hat_s, 0.15), rho~_r = max(rho_hat_r,
+0.15), rho~_c = rho_hat_c (no concept floor); (ii) clip each into [0, 0.98];
+(iii) proportional rescale if the sum > 0.98. `gate_pvalue` bootstraps at rho~
+(with `return_diag` exposing pihat, the bootstrap-null SD, the point estimate,
+and rho~). `pins.RHO_FLOOR = 0.15`. The §4.6 futility moment-SE would consume the
+same rho~ (widening-only) once Stage-1 futility is wired (still B3-deferred; the
+shared `floored_triple` is ready for it).
+
+**Re-validation result — see the "A4 RE-VALIDATION" block appended at the end of
+this file** for the per-(cell, arm, gamma) pass/fail with CP bounds and the
+mandatory dispersion diagnostics.
+
 ## A. Genuine spec ambiguities / candidate defects
 
 **A1. (minor) Bounded-Beta gate threshold recalibration references a per-cell
@@ -144,3 +165,52 @@ threshold pending that implementation.
   the hashed artifact emission is a small addition for the frozen run.
 - Full-scale acceptance (R = 40,000 FWER / 10,000 power) — the mock deliberately
   runs only hundreds-to-thousands of reps.
+
+---
+
+## A4 RE-VALIDATION (Rev9/R9a floored test — 2026-07-21) — RESOLVED-PENDING-CONFIRM
+
+The R9a floored bootstrap plug-in (rho~; ledger-C `gate_test.floored_triple`)
+was applied and the S4.4 gate-calibration battery re-run at MOCK scale (R = 3000
+per cell; NOT the frozen R = 40,000) over the 4 pinned cells
+{rho in {0.1, 0.8}} x {n_nonce in {96, 160}}, Gaussian, pi_a = pi0 = 0.60.
+
+**Acceptance (every (cell, arm, gamma) CP-upper95 <= 1.25*gamma): ALL PASS.**
+Worst-case across all 4 cells x 4 arms:
+- gamma = 0.025 : worst realised rate ~0.008, worst CP-upper95 = 0.0116 (bar 0.03125) — PASS
+- gamma = 0.00625: worst realised rate ~0.002, worst CP-upper95 = 0.0044 (bar 0.0078) — PASS
+(Before R9a, the same cell measured ~0.075 at gamma=0.025 / CP-upper 0.088 — a
+clean FAIL. The floored plug-in collapses the rejection rate by ~10x.)
+
+**Mandatory dispersion diagnostics (R9a): PASS, no flags.**
+- SD-ratio (mean bootstrap-null SD of pihat* / empirical SD of pihat) = 1.20-1.24
+  in EVERY (cell, arm); min 1.20 >= 1 -> the R9a mechanism prediction (ratio >= 1,
+  i.e. the null bootstrap is now OVER-dispersed, the super-uniform direction)
+  HOLDS everywhere. No ratio < 1 flag. (Before R9a: ratio ~0.70, under-dispersed.)
+- Floor-binding rates P(rho_hat_s < 0.15), P(rho_hat_r < 0.15) = 0.86-0.92 across
+  cells — the floor is operative in ~9 of 10 reps, as expected in this
+  battery-scoped floor-binding regime (true seed/reviewer dependence 0.10 < the
+  0.15 floor). rho~ quartile medians: c ~ 0.51 (adaptive, unfloored), s = r =
+  0.150 (floored). Above-floor adaptivity is retained but rarely triggered here
+  by design.
+
+Per-cell verdicts (all four): rho0.1/n96 PASS; rho0.8/n96 PASS; rho0.1/n160 PASS;
+rho0.8/n160 PASS. Artifacts: `results/gatecal_r9a/cell_*_R3000.json`,
+`results/gatecal_r9a/gatecal_r9a_summary.json`, `results/gatecal_r9a/log_*.txt`.
+
+**Status: A4 RESOLVED-PENDING-CONFIRM.** The R9a fix demonstrably restores
+finite-sample level control at the previously-failing cells with comfortable
+margin, and the mechanism diagnostic (SD-ratio >= 1) confirms the intended
+over-dispersion. "PENDING-CONFIRM" only because this is the R = 3000 MOCK; the
+frozen-run obligation is the full R = 40,000 battery (tighter CP bounds; expected
+to pass with even more margin since the point rates are already ~0.002-0.008 <<
+the gammas). No claim-level FWER re-run was needed to clear the block: R9a makes
+the boundary gate STRICTLY MORE conservative (over-dispersed null -> higher p ->
+fewer rejections), so it can only REDUCE the F5 marginal FWER (0.037) measured
+pre-R9a, never inflate it.
+
+**Full-run unblock verdict:** the gate calibration now PASSES at mock scale on
+all 4 cells with margin and clean dispersion diagnostics -> the A4 blocker is
+cleared for the full run, pending the routine full-R=40,000 battery in the frozen
+run. Remaining pre-freeze items are unchanged (B2 lme4 fixture; B3/B4 wire
+futility+Rung-0 / bounded-Beta gate recalibration; compute path).

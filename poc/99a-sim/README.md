@@ -85,17 +85,24 @@ Rung-0 (rung0.py): F10 whole-branch termination rate 0.000 (CP-upper 0.004 <=
 tau_term0 0.055), envelope coverage ~99.9%; P6 termination 0.000 (<= tau_term
 0.025). Determinism: repeated (config, rep) yields identical rejection vectors.
 
-### Load-bearing finding — S4.4 gate calibration FAILS (SPEC-DEFECTS A4)
+### S4.4 gate calibration — A4 found + FIXED by Rev9/R9a (RESOLVED-PENDING-CONFIRM)
 
-At pi_a = pi0 (rho .1, n_nonce 96, R 1200) the component gate rejection rate is
-~0.075 at gamma 0.025 (bar 1.25*gamma = 0.031) and ~0.04 at gamma 0.00625 (bar
-0.0078) — the mandated S4.4 battery FAILS. Cause: the spec-mandated truncation of
-the small (0.1) seed/reviewer concordance-excess to 0 biases the estimated
-dependence low, under-dispersing the null-boundary bootstrap. The concordance
-ESTIMATORS are unbiased (averaged Q matches theory exactly). Claim-level FWER
-stays <= tau_FWER in every tested cell because the IUT conjunction tempers it,
-but F5 shows the inflation propagating (C-CON-SUP-H/A2IR reject ~0.02 vs 0.00625
-local) and eating the margin (0.037 vs 0.055). Needs design review.
+The first mock build MEASURED the mandated S4.4 battery FAILING (component gate
+rejection ~0.075 at gamma 0.025 vs the 0.031 bar) — the pinned truncate-to-0
+dependence plug-in under-disperses the null bootstrap at small seed/reviewer
+dependence (SPEC-DEFECTS A4). Fable's **Rev9/R9a** replaced the bootstrap plug-in
+with the FLOORED triple rho~ (floor seed/reviewer at rho_floor = 0.15, no concept
+floor; point estimation unchanged). Applied to `gate_test.py` and re-validated at
+R = 3000 over all 4 cells {rho in {.1,.8}} x {n_nonce in {96,160}}:
+
+**ALL 4 cells x 4 arms x 2 gamma PASS** (worst CP-upper95: 0.0116 at gamma 0.025
+vs bar 0.031; 0.0044 at gamma 0.00625 vs bar 0.0078). **Dispersion diagnostics:**
+SD-ratio (bootstrap-null SD / empirical pihat SD) = 1.20-1.24 everywhere (>= 1,
+mechanism confirmed; was ~0.70 pre-fix), no flags; floor-binding ~0.86-0.92.
+Rejection rate collapsed ~10x (0.075 -> ~0.006). R9a makes the boundary gate
+STRICTLY more conservative, so it can only REDUCE the pre-R9a F5 marginal FWER
+(0.037), never inflate it. Full-run blocker CLEARED pending the routine
+R = 40,000 battery. Artifacts: `results/gatecal_r9a/`.
 
 ## Full-run cost estimate
 
@@ -126,8 +133,10 @@ unoptimised (multi-day, contends with the live server). Two levers:
 
 ## Readiness
 
-Ready for a code-vs-spec review. Before the full frozen run, resolve: (A4) the
-gate-calibration failure; (B2) the deferred lme4 fixture-equivalence check;
-(B3/B4) wire Stage-1 futility + Rung-0 into the FWER/power cells that exercise
-them and implement the bounded-Beta gate recalibration; and pick the compute
-path (optimise the gate test and/or a many-core machine). See SPEC-DEFECTS.md.
+Ready for a code-vs-spec review. (A4) the gate-calibration failure is now FIXED
+by Rev9/R9a and re-validated (RESOLVED-PENDING-CONFIRM at mock scale; full
+R=40,000 battery is the frozen-run confirmation). Remaining before the full run:
+(B2) the deferred lme4 fixture-equivalence check; (B3/B4) wire Stage-1 futility +
+Rung-0 into the FWER/power cells that exercise them and implement the
+bounded-Beta gate recalibration; and pick the compute path (optimise the gate
+test and/or a many-core machine). See SPEC-DEFECTS.md.
