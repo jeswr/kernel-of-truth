@@ -1,4 +1,4 @@
-# Kernel construction methodology — proposal 99a, REVISION 8
+# Kernel construction methodology — proposal 99a, REVISION 9
 
 > **REVISED DRAFT — NOT A MAINTAINER SUBMISSION AND NOT A PREREG FREEZE.
 > STATUS PER THE MAINTAINER'S #59 RATIFICATION (2026-07-21): the verified-proposer
@@ -12,11 +12,16 @@
 > corrections of the focused cross-vendor spot-check of Rev7
 > (`docs/next/design/99a-rev7-simspec-spotcheck.md` — all DGM↔ledger
 > consistency and spec-completeness items, NOT design changes), making the
-> SIM-SPEC BUILD-READY. NEXT = (B) the coordinator BUILDS + RUNS the
-> FWER/power simulation directly (## SIM-SPEC is its acceptance
-> specification; implementation is the final consistency test — any residual
-> ambiguity routes back to design via the S9 clause) → re-review of the
-> simulation RESULTS → preregistration. Nothing is registered, frozen,
+> SIM-SPEC BUILD-READY. The (B) MOCK BUILD has since RUN
+> (`poc/99a-sim/`): it validated the procedure (global-null familywise
+> rejection 0.000, strong-FWER cell 0.010 CP-UB 0.0196 ≤ 0.055; zero
+> design ambiguity in the confirmatory core — its A3 note) and, exactly as
+> the S9 clause intends, routed ONE genuine spec defect back to design
+> (A4: the S4.4 gate-calibration battery fails under the truncation-to-0
+> dependence plug-in) — FIXED here as Revision 9/R9a. NEXT = the (B)
+> executor re-runs the 4-cell gate-calibration mock against the R9a test
+> (verify ≤ 1.25·γ) → full (B) run → re-review of the simulation
+> RESULTS → preregistration. Nothing is registered, frozen,
 > scheduled, or committed by this revision.**
 >
 > Revision 8 produced 2026-07-21 (Fable), applying the **cross-vendor GPT-5.6
@@ -71,6 +76,28 @@
 > NumPy/SciPy/Python versions, zero-based configuration and replication
 > indices, and named RNG substreams with pinned draw ordering (R8g). New
 > prereg rows continue the series as `PROPOSED-PREREG-ROW-99A-R8a…g`.
+>
+> Revision 9 produced 2026-07-21 (Fable), a FOCUSED single-defect fix from the
+> (B) simulation build's defect report (`poc/99a-sim/SPEC-DEFECTS.md` item A4):
+> the mock build [MEASURED] the mandated S4.4 gate-calibration battery FAILING
+> at the component level (~0.075 realised rejection at γ = 0.025 vs the
+> ≤ 1.25·γ = 0.031 bar) because the spec-mandated per-replication HARD
+> TRUNCATION-TO-0 of the small seed/reviewer dependence estimates biases the
+> null-boundary parametric bootstrap toward UNDER-dispersion — the
+> anti-conservative direction. Rev9 replaces that truncation, in the null
+> bootstrap ONLY, with a pinned CONSERVATIVE seed/reviewer dependence floor
+> (ρ_floor = 0.15 = 1.5× the S3 planning fractions), so dependence
+> mis-estimation errs toward OVER-dispersion (the super-uniform direction),
+> and adds mandatory dispersion diagnostics to the battery (R9a). The same
+> mock validated everything else it exercised: global-null familywise
+> rejection 0.000 (CP-UB 0.005), strong-FWER cell 0.010 (CP-UB 0.0196
+> ≤ 0.055), and the 12-node procedure / IUT-TOST / truth functions / grid
+> coded with zero design ambiguity — so **NOTHING else changes**: the
+> graphical procedure, the 12-claim ledger, weights, transition matrix,
+> update algorithm, IUT/TOST compositions, margins, truth functions, and
+> grid are byte-preserved. New prereg row: `PROPOSED-PREREG-ROW-99A-R9a`.
+> NEXT = the (B) executor re-runs the 4-cell gate-calibration mock against
+> the R9a test to verify ≤ 1.25·γ before committing to the full run.
 >
 > Revision 7 produced 2026-07-21 (Fable), applying the **cross-vendor GPT-5.6
 > re-review of Rev6** (`docs/next/design/99a-rev6-xvendor-review.md`, verdict
@@ -1482,14 +1509,51 @@ and the T′-shuffle contrast.
     different-concept pairs; invert each through the bivariate-normal
     orthant probability P₁₁(ρ; π̄) = P(Z₁ > z, Z₂ > z), z = Φ⁻¹(1 − π̄)
     (monotone in ρ; bisection to |Δρ| ≤ 1e−6) to get ρ̂_r (from Q̂_r),
-    ρ̂_c = max(0, ρ̂_cr − ρ̂_r) (from Q̂_cr), ρ̂_s (from Q̂_s); truncate
-    each into [0, 0.98] and, if ρ̂_c + ρ̂_s + ρ̂_r > 0.98, rescale
-    proportionally to sum 0.98 (all pins [STIPULATED]). *p-value
-    (parametric bootstrap at the null boundary):* draw B_boot = 999
-    bootstrap datasets from the working latent model with marginal EXACTLY
-    π₀ and the estimated (ρ̂_c, ρ̂_s, ρ̂_r) — directly as
-    Z* = √ρ̂_c·b*_i + √ρ̂_s·v*_s + √ρ̂_r·w*_{r(a,i)} +
-    √(1 − ρ̂_c − ρ̂_s − ρ̂_r)·e*, all components iid standard normal — and
+    ρ̂_c = max(0, ρ̂_cr − ρ̂_r) (from Q̂_cr), ρ̂_s (from Q̂_s) (all pins
+    [STIPULATED]). *Conservative bootstrap plug-in (REPLACES the Rev8
+    truncate-to-0 plug-in — Rev9/R9a):* the dependence triple fed to the
+    null bootstrap is the FLOORED triple ρ̃, built from ρ̂ by the pinned
+    order (i) FLOOR the two small-cluster components —
+    ρ̃_s = max(ρ̂_s, ρ_floor), ρ̃_r = max(ρ̂_r, ρ_floor) with
+    **ρ_floor = 0.15** [STIPULATED — 1.5× the S3 planning fractions
+    f_seed = f_reviewer = 0.10; consistency rule: any freeze-time re-pin
+    of f_seed or f_reviewer above ρ_floor/1.5 re-pins ρ_floor to 1.5× the
+    new fraction and re-runs the S4.4 battery]; ρ̃_c = ρ̂_c (no concept
+    floor — asymmetry rationale below); (ii) clip each component into
+    [0, 0.98]; (iii) if ρ̃_c + ρ̃_s + ρ̃_r > 0.98, rescale proportionally
+    to sum 0.98. *Why a floor, and why only on seed/reviewer
+    ([MEASURED] defect + [STIPULATED] remedy):* the (B) mock build
+    measured (`poc/99a-sim/SPEC-DEFECTS.md` A4) that the Rev8 rule —
+    per-replication hard truncation of a no-root/negative concordance
+    excess to 0, fed directly to the bootstrap — biases the SMALL
+    dependence components downward per replication (their noisy
+    concordances often dip below the independence floor), UNDER-dispersing
+    the null bootstrap and inflating rejection (~0.075 at γ = 0.025 vs
+    the 0.031 bar), while the same bootstrap fed the TRUE dependence is
+    well-calibrated; a downward-biased dependence plug-in is exactly the
+    anti-conservative direction, because the bootstrap null's dispersion
+    — and hence its rejection threshold — is monotone INCREASING in every
+    dependence component (each pair-class covariance
+    P₁₁(ρ; π₀) − π₀² increases in ρ at the fixed exact marginal π₀).
+    The floor makes small-dependence mis-estimation err toward
+    OVER-dispersion (the super-uniform direction) precisely on the two
+    components that (a) dominate Var(π̂) — π̂ averages over only n_seeds
+    = 3 seed and n_reviewers = 8 reviewer clusters, so their dependence
+    terms carry O(1/S) and O(1/n_rev) weight vs O(1/I) for concept — and
+    (b) are per-replication near-inestimable for the same reason (few
+    exchangeable clusters ⇒ concordance noise straddles the truncation
+    boundary at small true dependence). The concept component keeps the
+    adaptive point estimate: at the S3 planning fraction 0.50 it sits far
+    from the truncation boundary, rests on hundreds of same-concept
+    pairs, and its Var(π̂) contribution is O(1/I) — its estimation noise
+    was measured immaterial to the dispersion failure. Above the floor
+    the estimate is used as-is (adaptivity to strong dependence
+    retained). *p-value (parametric bootstrap at the null boundary):*
+    draw B_boot = 999 bootstrap datasets from the working latent model
+    with marginal EXACTLY π₀ and the FLOORED (ρ̃_c, ρ̃_s, ρ̃_r) (R9a) —
+    directly as
+    Z* = √ρ̃_c·b*_i + √ρ̃_s·v*_s + √ρ̃_r·w*_{r(a,i)} +
+    √(1 − ρ̃_c − ρ̃_s − ρ̃_r)·e*, all components iid standard normal — and
     compute p = (1 + #{π̂*_b ≥ π̂_a}) / (B_boot + 1), the exact-validity
     Monte-Carlo form `[LIT-BACKED — Davison A.C. & Hinkley D.V., Bootstrap
     Methods and their Application, CUP 1997, §4.2.5 (parametric-bootstrap
@@ -1501,17 +1565,43 @@ and the T′-shuffle contrast.
     test–CI duality, campaign analysis):* the reported claim-level lower
     bound is the largest π₀′ with p(π₀′) ≤ γ, found by bisection over π₀′
     to tolerance 1e−4 (each candidate re-running the bootstrap on its own
-    pinned substream). *Fitting-failure handling (pinned):* an empty
+    pinned substream; the floored ρ̃ is computed ONCE from the data and
+    reused at every candidate π₀′ — dependence estimation never touches
+    π₀, R9a). *Fitting-failure handling (pinned):* an empty
     concordance class is impossible under the pinned design; if a
     concordance inversion has no root in [0, 0.98] (Q̂ below the
-    independence value), set that ρ̂ = 0; the bootstrap itself cannot fail.
-    *Calibration (demonstrated level control — mandatory):* the SIM-SPEC
-    gate-calibration battery (S4.4) runs this exact test at π_a = π₀
-    across the pinned dependence grid and ACCEPTANCE requires the realised
-    component rejection rate's exact one-sided 95% upper bound ≤ 1.25·γ at
-    both audited γ levels — level control is DEMONSTRATED, not assumed;
-    B_boot's granularity 1/(B_boot+1) = 0.001 resolves the smallest
-    procedure local level (0.00625). The Rev7 LPM caveat text and its
+    independence value), set that POINT estimate ρ̂ = 0 — harmless since
+    Rev9: for the seed/reviewer components the floor then binds (a zero
+    read never reaches the bootstrap), and for concept the O(1/I)
+    dispersion weight makes it immaterial (R9a); the bootstrap itself
+    cannot fail. *Validity posture of the floored test (honest
+    statement — R9a):* with KNOWN dependence the null-boundary
+    Monte-Carlo p is exactly super-uniform by exchangeability (the
+    retained (1+#)/(B+1) construction, [LIT-BACKED] as cited above,
+    supporting-only per §5); with estimated dependence the floor turns
+    the measured failure mode (dependence understated ⇒ under-dispersed
+    null ⇒ anti-conservative) into its conservative mirror — whenever
+    true seed/reviewer dependence ≤ ρ_floor the bootstrap null is
+    over-dispersed by the dispersion monotonicity above, the
+    super-uniform direction (a [STIPULATED] working-model argument) —
+    and the composite null π_a < π₀ keeps the boundary test conservative
+    in its interior; finite-sample level control remains DEMONSTRATED by
+    the battery, never assumed. Scope disclosure: the battery stresses
+    the floor-binding regime (true seed/reviewer dependence at the S3
+    planning fractions, below the floor) — exactly the regime the A4
+    measurement identified as failing; for above-floor truth the plug-in
+    is adaptive and sits away from the truncation boundary (where its
+    mean-concordance inversion was [MEASURED] unbiased —
+    `poc/99a-sim/SPEC-DEFECTS.md` A4), a disclosed scope statement, not
+    a demonstration. *Calibration (demonstrated level control —
+    mandatory):* the SIM-SPEC gate-calibration battery (S4.4) runs this
+    exact FLOORED test (R9a) at π_a = π₀ across the pinned dependence
+    grid and ACCEPTANCE requires the realised component rejection rate's
+    exact one-sided 95% upper bound ≤ 1.25·γ at both audited γ levels —
+    level control is DEMONSTRATED, not assumed — with the S4.4 mandatory
+    dispersion diagnostics reported alongside (R9a); B_boot's
+    granularity 1/(B_boot+1) = 0.001 resolves the smallest procedure
+    local level (0.00625). The Rev7 LPM caveat text and its
     cluster-bootstrap robustness read are retired with the LPM test.
   - **(D) Format components** — Δ^F_{c,f} (TOST pairs of C-FMT-c).
     *Estimand:* mean paired per-record difference in Stage-2 host three-label
@@ -2328,7 +2418,7 @@ Each rung: question / method / pass-fail / cost / decision-unblocked. Rungs are
    the Rung-1 verdicts hold outside formal/lexical sectors? Only designed after Rungs
    1–3 report. Unblocks: any general construction-methodology ruling.
 
-## SIM-SPEC — FWER/power simulation protocol (Rev7/R7e, before-build corrections Rev8/R8a–g — the task-(B) acceptance artifact, maintainer-ratified #59)
+## SIM-SPEC — FWER/power simulation protocol (Rev7/R7e, before-build corrections Rev8/R8a–g, A4 gate-calibration fix Rev9/R9a — the task-(B) acceptance artifact, maintainer-ratified #59)
 
 This section is the complete, self-contained specification of the mandated
 FWER/power simulation (§4.6/R6a item 8), **REWRITTEN in Rev7 per the Rev6
@@ -2686,18 +2776,42 @@ the FWER acceptance rule verifies the claim-level bound under the DGM as
 pinned — a disclosed scope statement, not a silent assumption). *Test:*
 each π_a is tested by the §4.6/(1b) family-C latent-probit
 parametric-bootstrap procedure EXACTLY as pinned there (moment statistic
-π̂_a; concordance-class inversion for (ρ̂_c, ρ̂_s, ρ̂_r); B_boot = 999
-bootstrap draws from the null-boundary latent model on substream 12;
-p = (1 + #{π̂* ≥ π̂})/(B_boot + 1)). *Gate-calibration battery
+π̂_a; concordance-class inversion for the POINT (ρ̂_c, ρ̂_s, ρ̂_r);
+the FLOORED bootstrap plug-in ρ̃ — ρ̃_s = max(ρ̂_s, ρ_floor),
+ρ̃_r = max(ρ̂_r, ρ_floor), ρ̃_c = ρ̂_c, ρ_floor = 0.15, then
+clip/rescale in the pinned order (Rev9/R9a); B_boot = 999
+bootstrap draws from the null-boundary latent model at ρ̃ on substream
+12; p = (1 + #{π̂* ≥ π̂})/(B_boot + 1)). The Rev8 rule that fed the
+per-replication truncated-to-0 estimates straight to the bootstrap is
+RETIRED: the (B) mock [MEASURED] it anti-conservative (SPEC-DEFECTS A4 —
+component rejection ~0.075 at γ = 0.025 vs the 0.031 bar; bootstrap-null
+sd 0.059–0.072 vs true π̂ sd 0.084; well-calibrated when fed the true
+dependence). *Gate-calibration battery
 (mandatory — the demonstrated-level-control obligation):* a dedicated
-run of the gate test ALONE at π_a = π₀ for all four arms, over the 4
+run of the FLOORED gate test (R9a) ALONE at π_a = π₀ for all four arms,
+over the 4
 cells {ρ ∈ {0.1, 0.8}} × {n_nonce ∈ {96, 160}}, Gaussian regime,
 R = 40,000, with rejection audited at BOTH pinned levels γ ∈ {0.025,
 0.00625} (the procedure's typical local levels); **ACCEPT iff every
 (cell, arm, γ) realised rejection rate's exact one-sided 95% upper bound
-is ≤ 1.25·γ.** These 4 calibration cells sit OUTSIDE the S6 74-cell FWER
+is ≤ 1.25·γ.** *Mandatory dispersion diagnostics (R9a — reported, not
+gated):* per (cell, arm) the battery report MUST include (i) the
+empirical SD of π̂_a across the R replications, (ii) the mean
+bootstrap-null SD of π̂* across replications, and their ratio
+(mechanism check: the R9a fix predicts ratio ≥ 1 — a persistent ratio
+< 1 in any cell is a REPORTED flag that the mechanism argument failed
+even if the rate bar passes, routed back to design per S9, never
+silently accepted); (iii) the floor-binding rates
+P(ρ̂_s < ρ_floor), P(ρ̂_r < ρ_floor) and the quartiles of each ρ̃
+component (discloses how often the floor, vs the adaptive estimate, is
+operative). These 4 calibration cells sit OUTSIDE the S6 74-cell FWER
 grid; their config_index values continue the S7 counter (S6 expansion
-order note) and their results are an S8 deliverable.
+order note) and their results are an S8 deliverable. Battery scope
+(disclosed): all 4 cells share the S3 within-arm dependence truth
+(f_concept, f_seed, f_reviewer) = (0.50, 0.10, 0.10) — the
+floor-binding regime the A4 measurement identified as failing; the
+ρ_floor consistency rule in §4.6/(1b)(C) forces a battery re-run if the
+planning fractions are ever re-pinned upward.
 
 **S4.5 Hierarchy selection.** From the full Stage-1 data compute the rung
 bounds per §4.6 (one-sided 95% lower bounds from the S4.2 analyses): H
@@ -2714,12 +2828,17 @@ rule as in §7/R8f). At the look: (i) per candidate c, if the nominal
 one-sided 95% MOMENT-BASED Wald upper bound on π_c lies BELOW π₀ —
 π̂_c + 1.645·SE_mom(π̂_c), with the moment variance formula pinned as
 SE_mom(π̂)² = (1/N²)·[N·π̂(1−π̂) + Σ_q N_q·(P₁₁(ρ̂_q; π̂) − π̂²)] over the
-distinct-record pair classes q of the ledger-C latent covariance
-(same-concept: ρ̂_c + ρ̂_r; same-reviewer/different-concept/different-seed:
-ρ̂_r; same-seed/different-reviewer: ρ̂_s; same-seed/same-reviewer:
-ρ̂_s + ρ̂_r), N_q the design pair counts, P₁₁(ρ; π̂) the bivariate-normal
+distinct-record pair classes q of the ledger-C latent covariance, using
+the SAME floored dependence ρ̃ as the ledger-C bootstrap (Rev9/R9a —
+one shared dependence treatment; the floors only ADD nonnegative
+covariance terms, so they WIDEN this bound, preserving its conservative
+binding-futility direction)
+(same-concept: ρ̃_c + ρ̃_r; same-reviewer/different-concept/different-seed:
+ρ̃_r; same-seed/different-reviewer: ρ̃_s; same-seed/same-reviewer:
+ρ̃_s + ρ̃_r), N_q the design pair counts, P₁₁(ρ; π̂) the bivariate-normal
 orthant probability at threshold Φ⁻¹(1 − π̂), and each negative
-concordance-excess term truncated at 0 (widening only) — (pinned in Rev8:
+concordance-excess term truncated at 0 in the POINT estimates (widening
+only) — (pinned in Rev8:
 futility is a binding-futility-only OPERATIONAL read, so the cheap nominal
 moment bound is used here, never the confirmatory bootstrap test),
 candidate c is futility-dropped: C-CON-SUP-c and
@@ -3014,7 +3133,11 @@ accounting plus the R7e pipeline diagnostics).
   branch-loss, futility/trigger/selection/LCC-read/envelope diagnostics.
 - `poc/results/99a-r8-simspec-gatecal.json` + `.md`: the S4.4
   gate-calibration battery — per (cell, arm, γ) realised rejection rates
-  with exact upper bounds and pass/fail against 1.25·γ (R8c).
+  with exact upper bounds and pass/fail against 1.25·γ (R8c), PLUS the
+  R9a mandatory dispersion diagnostics per (cell, arm): empirical SD of
+  π̂ across replications, mean bootstrap-null SD and their ratio, the
+  floor-binding rates for ρ̂_s and ρ̂_r, and the quartiles of each ρ̃
+  component.
 - A summary markdown table mapping EVERY acceptance criterion (S2
   determinism check, S4.2 fixture-equivalence and permutation-concordance
   tolerances, S4.4 gate-calibration bounds, S6 FWER bound, the S4.8/F10
@@ -3092,7 +3215,9 @@ pointed to gate 5).
 | R7b, R7c, R7d, R7f | OPERATIVE as written (R7c's ν_D now computed by the R8b-pinned implementation; §7 look sizes integerised by R8f) | — |
 | R7e | AMENDED by R8a–R8g | the simulation-correctness law stands; Rev8 applies the spot-check's seven before-build corrections: arm-side DGM↔ledger unification, pinned inference + fixture check, replaced gate test/DGM with calibration battery + cross-stratum resolution, pre-scaling bounded-Beta concept RE, operational-layer variables/algorithms with price-vector LCC and the P1 include-LCC estimand, Rung-0 integer looks/joint covariance/F10 criterion, and version/index/substream pins |
 | R7a–R7f | NEW in Rev7 (rows below), as amended above | — |
-| R8a–R8g | NEW (Rev8 rows below) | — |
+| R8a, R8b, R8d–R8g | NEW (Rev8 rows below) | — |
+| R8c | NEW (Rev8 row below); AMENDED by R9a | the crossed-binary gate test, its shared DGM, and the 4-cell battery stand; the null-bootstrap dependence plug-in is the R9a FLOORED triple (ρ̃_s = max(ρ̂_s, 0.15), ρ̃_r = max(ρ̂_r, 0.15), ρ̃_c = ρ̂_c) — the Rev8 rule feeding per-replication truncated-to-0 estimates to the bootstrap is retired as mock-measured anti-conservative (SPEC-DEFECTS A4) |
+| R9a | NEW (Rev9 row below) | — |
 
 - **PROPOSED-PREREG-ROW-99A-R1a (amended in Rev2) [AMENDED in Rev4 — see §8.0: §1.2
   has SEVEN conditions since R3g added condition 7]:** independent-endorsement law — an
@@ -3585,7 +3710,10 @@ Rev8 rows (one per spot-check before-build correction, in correction order):
   pinned fixture within the pinned tolerances (|Δθ̂| ≤ 1e−7, rel. SE
   ≤ 1e−5, rel. ν̂ ≤ 1e−3, |Δp| ≤ 1e−6); no unspecified closed-form-vs-
   generic latitude exists anywhere. [STIPULATED]
-- **PROPOSED-PREREG-ROW-99A-R8c:** gate-test-validity law — gate
+- **PROPOSED-PREREG-ROW-99A-R8c [AMENDED in Rev9 — see §8.0/R9a: the
+  per-replication hard truncation-to-0 dependence plug-in is replaced by
+  the conservative seed/reviewer floor in the bootstrap null]:**
+  gate-test-validity law — gate
   components are tested by the ledger-C crossed-binary procedure: a
   latent-probit working model SHARED IDENTICALLY with the S4.4 DGM
   (thresholded Gaussian; covariance ρ_c/ρ_s/ρ_r over
@@ -3632,6 +3760,29 @@ Rev8 rows (one per spot-check before-build correction, in correction order):
   replication indices, and the named 13-substream RNG layout with pinned
   spawn order and within-stream draw ordering; any version bump is a
   logged re-pin with fixture re-verification. [STIPULATED]
+
+Rev9 row (one, for the single (B)-build defect A4):
+
+- **PROPOSED-PREREG-ROW-99A-R9a:** gate-dependence-conservatism law —
+  the ledger-C/S4.4 null-boundary parametric bootstrap NEVER consumes a
+  dependence estimate that hard-truncation has biased toward
+  independence: the bootstrap plug-in is the FLOORED triple
+  ρ̃_s = max(ρ̂_s, ρ_floor), ρ̃_r = max(ρ̂_r, ρ_floor), ρ̃_c = ρ̂_c with
+  ρ_floor = 0.15 (pinned = 1.5× the S3 planning fractions
+  f_seed = f_reviewer = 0.10; re-pinning either fraction above
+  ρ_floor/1.5 re-pins the floor to 1.5× the new fraction and re-runs the
+  battery), applied in the pinned order floor → clip [0, 0.98] →
+  proportional rescale to sum ≤ 0.98; small-dependence mis-estimation
+  therefore errs toward OVER-dispersion of the bootstrap null (the
+  super-uniform direction, by monotonicity of every pair-class
+  covariance in ρ at the exact marginal π₀), never toward the
+  mock-measured anti-conservative under-dispersion; the S4.4 battery
+  audits the FLOORED test at both γ levels against the unchanged
+  ≤ 1.25·γ exact-bound acceptance and MUST report the R9a dispersion
+  diagnostics (empirical vs mean bootstrap-null SD of π̂ with ratio,
+  floor-binding rates, ρ̃ quartiles); the S4.6 futility moment SE uses
+  the same floored ρ̃ (widening-only, conservative direction
+  preserved). [STIPULATED]
 
 ## Revision 1 — review fixes applied
 
@@ -4364,6 +4515,119 @@ reviewer rotation is exactly balanced at every simulated n-level — the
 alternative (unbalanced rotation) would have broken the exact-cancellation
 property the closed inference relies on. [STIPULATED]
 
+## Revision 9 — A4 gate-calibration fix
+
+Focused single-defect revision from the (B) simulation build
+(`poc/99a-sim/SPEC-DEFECTS.md`, item A4 — the ONE genuine spec defect the
+build surfaced; its A3 note records that the 12-claim procedure, weights,
+transition matrix, update algorithm, IUT/TOST composition, truth
+functions, grid expansion, and seed system were all codeable with ZERO
+remaining design decisions, and the mock validated FWER control:
+global-null familywise rejection 0.000 with CP-UB 0.005; strong-FWER cell
+0.010 with CP-UB 0.0196 ≤ τ_FWER = 0.055). Rev9 changes NOTHING outside
+the A4 surface.
+
+1. **The defect ([MEASURED] — mock build, gate-cal cell ρ = 0.1,
+   n_nonce = 96, π_a = π₀ = 0.60, R = 1,200, all four arms).** The
+   mandated S4.4 gate-calibration battery FAILS at the component level
+   under the Rev8 test as written: realised rejection ~0.075 at
+   γ = 0.025 (bar ≤ 1.25·γ = 0.031) and ~0.04 at γ = 0.00625 (bar
+   0.0078). The implementer isolated the mechanism: the concordance
+   estimators are UNBIASED (mean concordances match the theoretical
+   orthant probabilities at the true (ρ_c, ρ_s, ρ_r) = (0.5, 0.1, 0.1)
+   to 3 dp), but the Rev8-mandated PER-REPLICATION hard truncation of a
+   no-root inversion to ρ̂ = 0, fed directly to the bootstrap, biases
+   the SMALL components (ρ_s, ρ_r = 0.1, just above the independence
+   floor) downward per replication — their noisy concordances often dip
+   below the floor — so the null-boundary bootstrap is UNDER-dispersed
+   (sd 0.059–0.072 vs the true π̂ sd 0.084) and the observed π̂ looks
+   too extreme too often. Fed the TRUE dependence, the same bootstrap is
+   well-calibrated (sd 0.091 ≥ 0.084). Claim-level FWER still held
+   ≤ 0.055 in every tested cell (the IUT conjunction tempers the
+   inflation), but F5 shows it propagating (familywise 0.037, CP-UB
+   0.052) — eating the margin — and the battery is a MANDATORY S8
+   acceptance criterion that fails as pinned.
+
+2. **The fix (R9a — [STIPULATED] design choice; the implementer's
+   suggested direction, option (a)):** the bootstrap-null dependence
+   plug-in becomes the CONSERVATIVE FLOORED triple
+   ρ̃ = (ρ̂_c, max(ρ̂_s, ρ_floor), max(ρ̂_r, ρ_floor)),
+   ρ_floor = 0.15 = 1.5× the S3 planning fractions
+   f_seed = f_reviewer = 0.10 (with the pinned consistency rule: any
+   upward re-pin of those fractions re-pins the floor and re-runs the
+   battery), applied in the pinned order floor → clip [0, 0.98] →
+   proportional rescale to sum ≤ 0.98. The point-estimation pins
+   (concordance classes, orthant inversion, no-root → 0, the
+   ρ̂_c = max(0, ρ̂_cr − ρ̂_r) decomposition) are UNCHANGED — only what
+   the bootstrap consumes changes. The S4.6 futility moment SE uses the
+   same ρ̃ (one shared dependence treatment; floors only widen that
+   bound, preserving its conservative binding-futility direction).
+   §4.6/(1b)(C), S4.4, S4.6, S8, and §8 are updated together; a
+   mandatory dispersion-diagnostics block is added to the battery
+   report.
+
+3. **Why this removes the downward bias while keeping super-uniform
+   validity.** The bootstrap null's dispersion — hence its rejection
+   threshold — is monotone INCREASING in every dependence component
+   (each pair-class covariance P₁₁(ρ; π₀) − π₀² increases in ρ at the
+   exact marginal π₀, which the construction fixes for every ρ). The
+   Rev8 truncation therefore erred in the uniquely harmful direction:
+   dependence understated ⇒ null under-dispersed ⇒ anti-conservative.
+   The floor inverts the sign of the error: whenever true seed/reviewer
+   dependence ≤ ρ_floor (the battery's regime, and the design's
+   anticipated regime with a 50% margin), the bootstrap null is
+   at-least-truth dispersed ⇒ over-rejection becomes under-rejection —
+   the super-uniform direction. With KNOWN dependence the (1+#)/(B+1)
+   Monte-Carlo p is exactly super-uniform by exchangeability
+   ([LIT-BACKED] — the retained Barnard 1963 / Davison & Hinkley 1997
+   citations, supporting-only per §5); the composite null π_a < π₀
+   keeps the boundary test conservative in its interior; and
+   finite-sample level control remains DEMONSTRATED by the battery,
+   never assumed — the document's standing epistemic posture for this
+   test, unchanged. Above the floor the estimate is used as-is, and the
+   scope of the demonstration (floor-binding regime) is disclosed in
+   §4.6/(1b)(C) and S4.4 rather than silently assumed away.
+
+4. **Why the battery should now pass its ≤ 1.25·γ bar at all 4 cells
+   (mechanistic argument).** The dispersion deficit was carried by the
+   two floored components: π̂ averages over only n_seeds = 3 seed and
+   n_reviewers = 8 reviewer clusters, so the same-seed and same-reviewer
+   pair classes dominate Var(π̂) (O(1/S) and O(1/n_rev) weight), while
+   the concept term is O(1/I) (I = 96 or 160) — which is exactly why
+   collapsing ρ̂_s, ρ̂_r to 0 crushed the bootstrap sd to 0.059–0.072
+   vs 0.084 while leaving ρ̂_c noise immaterial. With the floor, the
+   dominant terms enter the bootstrap at ≥ 0.15 > the true 0.10 in
+   every replication, so the bootstrap null's sd is ≥ the
+   true-dependence sd essentially always — and the mock already
+   [MEASURED] that the true-dependence bootstrap is well-calibrated with
+   margin (sd 0.091 vs 0.084). Per-replication thresholds therefore sit
+   at or above their well-calibrated values ⇒ realised rejection ≤ γ
+   with room under the 1.25·γ bar. All four battery cells share the
+   same within-arm dependence truth (0.50, 0.10, 0.10) — the cells vary
+   only the copula ρ and n_nonce, neither of which enters the within-arm
+   gate covariance — so the argument covers all 4 cells uniformly.
+   [EXTRAPOLATION — direction-only: this argues the full R = 40,000
+   battery will pass; it motivates the executor's re-run and is not
+   used as a premise anywhere — the battery itself remains the
+   demonstration and the acceptance criterion.]
+
+5. **What is deliberately untouched (everything the (B) build
+   validated).** The graphical procedure, the 12-claim ledger, initial
+   weights, transition matrix, update algorithm, IUT/TOST compositions,
+   margins, truth functions, hypothesis functions, the S6 74-cell FWER
+   grid and S7 power grid (the battery stays 4 cells, outside the FWER
+   grid), the DGM formulas, seeds/substreams, and every other acceptance
+   criterion are byte-unchanged. The battery's ≤ 1.25·γ exact-bound
+   acceptance rule is numerically unchanged; it now audits the floored
+   test and carries the mandatory dispersion diagnostics.
+
+6. **Next step (executor).** Re-run the 4-cell gate-calibration mock
+   against the R9a floored test and verify every (cell, arm, γ)
+   realised rate's CP upper bound ≤ 1.25·γ, with the diagnostics
+   showing mean bootstrap-null SD ≥ empirical SD of π̂ — BEFORE
+   committing to the full R = 40,000 run. A failure is a reportable
+   design defect per S9, routed back — never resolved locally.
+
 ## Mandatory self-check — Revision 2 (historical record, retained verbatim; superseded by the Revision 8 self-check below)
 
 1. **All 13 critique findings addressed?** YES — itemised in "Revision 2" above with
@@ -4796,7 +5060,7 @@ property the closed inference relies on. [STIPULATED]
     ledger + corrected SIM-SPEC (Rev7) → (B) simulation build+run →
     re-review of results → preregistration.
 
-## Mandatory self-check — Revision 8 (final section)
+## Mandatory self-check — Revision 8 (historical record, retained verbatim; extended — not replaced — by the focused Revision 9 self-check below)
 
 1. **DGM and ledger share ONE data representation, reviewer/consumer
    consistent, rotations published?** YES — S4.1 generates arm-side
@@ -4909,3 +5173,70 @@ property the closed inference relies on. [STIPULATED]
     is the FINAL consistency test: any ambiguity discovered in the build
     is, by S9, a reportable design defect routed back — never a local
     judgment call.
+
+## Mandatory self-check — Revision 9 (final section)
+
+1. **Does the estimator/bootstrap-null still downward-bias small
+   dependence?** NO — the bootstrap now consumes the FLOORED triple ρ̃
+   (seed/reviewer components never below ρ_floor = 0.15 > the S3
+   planning fractions 0.10), so the mock-measured failure path
+   (per-replication truncation-to-0 → under-dispersed null) cannot
+   reach the bootstrap for the two components that dominate Var(π̂);
+   the point-estimation pins (including no-root → 0) are retained but
+   feed only the floored plug-in, and the residual unfloored component
+   (concept) carries O(1/I) dispersion weight, [MEASURED] immaterial to
+   the defect (`poc/99a-sim/SPEC-DEFECTS.md` A4).
+2. **Does the gate test stay a valid super-uniform-under-H₀ level-γ
+   test?** YES, on the document's standing posture, now in the
+   conservative direction: exact super-uniformity with known dependence
+   (the retained (1+#)/(B+1) Monte-Carlo construction, [LIT-BACKED]
+   Barnard 1963 / Davison & Hinkley 1997, supporting-only per §5);
+   dispersion monotonicity in every dependence component at the exact
+   marginal π₀ means the floor turns dependence mis-estimation into
+   OVER-dispersion of the null whenever true seed/reviewer dependence
+   ≤ ρ_floor ([STIPULATED] working-model argument, disclosed scope);
+   the composite null π_a < π₀ keeps the boundary test conservative in
+   its interior; finite-sample level control remains DEMONSTRATED by
+   the mandatory battery, never assumed.
+3. **Does the S4.4 battery now pass its ≤ 1.25·γ bar — argued
+   mechanistically?** YES (Revision 9 item 4): the dispersion deficit
+   was carried entirely by the floored components (3 seed / 8 reviewer
+   clusters ⇒ dominant O(1/S), O(1/n_rev) variance weight); with the
+   floor ≥ 1.5× the true fractions in all four cells (which share the
+   within-arm truth (0.50, 0.10, 0.10) — the cells vary only copula ρ
+   and n_nonce, neither entering the within-arm gate covariance), the
+   bootstrap sd is restored to at-least the true-dependence sd, which
+   the mock [MEASURED] well-calibrated with margin (0.091 vs 0.084);
+   the full-R pass expectation is tagged [EXTRAPOLATION —
+   direction-only, motivating the mandated executor re-run, never a
+   premise]; the battery itself remains the acceptance criterion, with
+   new mandatory dispersion diagnostics to expose any residual
+   mechanism failure.
+4. **Nothing else changed — procedure byte-unchanged?** YES — the
+   12-claim ledger, initial weights, transition matrix, update
+   algorithm, IUT/TOST compositions, margins, truth functions, S5/S6/S7
+   grids (battery stays 4 cells outside the FWER grid), DGM formulas,
+   seed/substream system, and every other acceptance criterion are
+   byte-preserved; Rev9 touched ONLY: the banner/status text, the
+   SIM-SPEC heading tag, §4.6/(1b)(C)'s plug-in/failure-handling/
+   calibration text, S4.4's test/battery text, S4.6's moment-SE
+   dependence reference (same floored ρ̃, widening-only), the S8
+   gatecal deliverable fields, §8.0 table + R8c row annotation + the
+   new R9a row, and the Revision 9 / self-check sections.
+5. **Four epistemic tags disciplined?** YES — [MEASURED] for the mock
+   build's A4 measurements (cited to `poc/99a-sim/SPEC-DEFECTS.md`),
+   [STIPULATED] for the floor value/order/consistency rule and the
+   monotonicity working-model argument, [LIT-BACKED] only re-citing the
+   already-source-verified Barnard/Davison–Hinkley basis
+   (supporting-only per §5 — no new external citations minted), and
+   [EXTRAPOLATION] exactly once (the full-R pass expectation),
+   direction-only and never a premise.
+6. **No @handle/account strings; no `ASM-<number>` minted?** YES —
+   roles by name only; the single new row is exactly
+   `PROPOSED-PREREG-ROW-99A-R9a`; ids are assigned at prereg-freeze.
+7. **Nothing committed / registered / frozen / run?** YES — in-place
+   edit of this proposal document only; `poc/99a-sim/SPEC-DEFECTS.md`
+   untouched; no git operations, no registry writes, no freeze, no
+   simulation launched; the mandated next step (the executor's 4-cell
+   gate-calibration mock re-run against the R9a test, verifying
+   ≤ 1.25·γ before the full run) is recorded, not performed.
