@@ -1,0 +1,53 @@
+{
+  "purpose": "Rev10/R10a B2-fix validation on the pinned Modal image. GATE outcome: FAIL-CLOSED (grid NOT run).",
+  "date": "2026-07-22",
+  "git_sha": "33754244f164c4fe2abc5de65be00c2e40e32784",
+  "platform": {
+    "provider": "Modal", "app": "kot-99a-r10a", "workspace": "jwrightwho", "profile": "jmwright-045",
+    "image_digest": "im-k5wxPoFZ7ncQlZ2EJFSkXN (reused from setup; CPython 3.12.1 / numpy 2.1.3 / scipy 1.14.1 / R 4.4.1 / lme4 1.1-35.5 / lmerTest 3.1-3)",
+    "runs": {
+      "v1_5comp_oracle": "ap-T889RzbqqknAshO15fO0p4",
+      "v2_6comp_oracle_richardson": "ap-jXusEWGXx3BNq3Jf076Lq1 (first with UCT consumer oracle)",
+      "v3_diagnostic_familyA": "ap-jXusEWGXx3BNq3Jf076Lq1"
+    }
+  },
+  "what_was_done": [
+    "Implemented the R10a exact-REML estimator for the composite family (family B) as poc/99a-sim/reml_composite.py: exact profiled REML of the registered 6-component model (concept, concept x arm, seed, seed x arm, reviewer[reviewed-only], single residual) via a Kronecker + rank-n_block Woodbury structured deviance; theta_hat = GLS = OLS arm-mean diff; Var via the R10a linear map Var = (2/I)s2_ab + (2/S)s2_av + kappa*s2_w/n_rev + (2/(IS))s2_eps (kappa=1 iff exactly one arm covered by the block); nu via observed-information (Richardson-extrapolated numerical Hessian of the REML deviance, matching lmerTest's Satterthwaite).",
+    "Internally verified (host): fast Woodbury deviance == dense reference to 1e-12; GLS beta == OLS to 1e-15; GLS contrast variance == R10a linear map to 1e-18 (both kappa=0 and kappa=1).",
+    "Updated the fixture oracle to the CORRECT registered per-family model: family A (UCT) 6-component INCLUDING the consumer block (1|consumer_id); family B (composite) 6-component INCLUDING the reviewed-only reviewer block (0 + rev | reviewer_id).",
+    "Generalized the exact-REML fitter to handle an arbitrary extra crossed block (reviewer for B, consumer for A) and ran a DIAGNOSTIC: compared BOTH FamilyAnova AND exact-REML for UCT against the same 6-component lme4 oracle."
+  ],
+  "fixture_results_config0_reps0_49": {
+    "tolerances_S4.2": {"abs_dtheta": 1e-7, "rel_se": 1e-5, "rel_nu": 1e-3, "abs_dp": 1e-6},
+    "COMPOSITE_family_B_exact_REML_vs_6comp_lme4": {
+      "n": 150, "max_abs_dtheta": 5.9e-14, "max_rel_se": 4.7e-6, "max_rel_nu": 6.9e-5, "max_abs_dp": 1.006e-6,
+      "verdict": "theta/SE/nu PASS; |Dp| 1.006e-6 is 0.6% over the 1e-6 tol (a tuning boundary at the mid-range p~0.59 where dp/dnu is largest; a marginally finer Hessian resolves it). R10a family-B fix WORKS: SE went from 5.9% (pooled ANOVA) to 4.7e-6, nu from 16.6% to 6.9e-5."
+    },
+    "UCT_family_A_FamilyAnova_current_engine_vs_6comp_lme4": {
+      "n": 450, "max_abs_dtheta": 1.04e-13, "max_rel_se": 0.050, "max_rel_nu": 0.209, "max_abs_dp": 0.010,
+      "verdict": "FAIL. The pooled ANOVA does NOT match REML for family A."
+    },
+    "UCT_family_A_exact_REML_diagnostic_vs_6comp_lme4": {
+      "n": 450, "max_abs_dtheta": 1.04e-13, "max_rel_se": 3.4e-6, "max_rel_nu": 4.8e-5, "max_abs_dp": 7.8e-7,
+      "verdict": "PASS all four. The exact-REML with the consumer block matches lme4."
+    },
+    "PASS_current_engines_UCT_FamilyAnova": false,
+    "PASS_if_both_families_exact_REML": "false ONLY because COMPOSITE |Dp|=1.006e-6 (boundary); UCT_REML passes all four. Resolvable by tightening the composite df."
+  },
+  "S9_DEFECT_finding": {
+    "title": "R10a is INCOMPLETE: family A (UCT/consumer block) has the identical ANOVA != REML defect as family B and also fails the S4.2 fixture.",
+    "evidence": "Measured on the pinned stack (config 0, 50 reps): FamilyAnova UCT vs the registered 6-component lme4 oracle = rel-SE 5.0%, rel-nu 20.9%; the exact-REML UCT (consumer block) vs the same oracle = rel-SE 3.4e-6, rel-nu 4.8e-5, |Dp| 7.8e-7 (all pass).",
+    "why": "The consumer block w_{k(a,i)}, k=(uct_arm+i) mod n_consumers, is a ROTATED crossed random-effect block; folding it into an iid residual (the pooled-ANOVA closed form) breaks the balanced-design ANOVA=REML identity for the contrast SE/df EXACTLY as the reviewer block does for family B. 'Spanning all ten arms' (the spec's stated reason family A is safe) does NOT make the pooled ANOVA match REML -- the rotation is non-orthogonal to the concept x arm stratum. The spec's [MEASURED] claim 'family A max rel-SE 2.6e-7' is refuted; the direction is conservative (FamilyAnova SE larger, nu smaller).",
+    "scope": "Only families A (consumer) and B (reviewer) carry a rotated crossed block and use the FamilyAnova REML. Family C (gate) is a separate parametric-bootstrap procedure (no ANOVA REML). Family D (format, gen_format) has NO extra block (iid residual) -> genuinely balanced -> FamilyAnova correct. So the fix is: extend the R10a exact-REML to family A; C/D unaffected.",
+    "available_fix": "poc/99a-sim/reml_composite.py already generalizes to an arbitrary extra block; build_for_uct() (consumer, all arms, kappa always 0 since every arm is covered) validated to pass all four tolerances against lme4. Wiring both families into pipeline.run_replication is mechanical once ratified.",
+    "routing": "DESIGN decision for Fable/coordinator (overrides the spec's 'families A/C/D untouched'): a NEW S9 reportable defect per R10a's own fail-closed clause. Do NOT resolve locally."
+  },
+  "cost_speed_blocker": {
+    "issue": "The exact-REML fit is ~5-7x slower than the pooled ANOVA: measured ~664 ms/rep (base n_nonce=96) and ~849 ms/rep (esc) for composite fit+Hessian on Modal-class CPU (vs the ~95 ms/rep full-rep budget). With BOTH families on exact-REML, the full grid (~3.5M reps) would be ~$20-40 at naive speed -- FAR over the $3-5 envelope.",
+    "levers_not_yet_applied": "warm-starting the optimizer across reps (consecutive reps have near-identical phi_hat); an analytic REML gradient (cuts optimizer evals ~10x); replacing the numerical Hessian with the analytic expected information (the spec-pinned Giesbrecht-Burns info) for the df. Estimated reducible to ~10-30 ms/rep -> grid ~$5-12, but this is an OPTIMIZATION PASS (Fable model-code) that must be validated against the fixture, not assumed.",
+    "routing": "Needs a revised cost ceiling AND an optimization pass before the grid can run in-budget."
+  },
+  "GATE_OUTCOME": "FAIL-CLOSED. The S4.2 fixture does NOT pass with the current engines (family A fails). Per the coordinator's instruction and R10a's fail-closed clause, the full frozen grid was NOT run. No grid spend.",
+  "teardown": "All Modal apps ephemeral (modal run) and stopped; no deployed apps, no volumes created by this task. Image left cached by design.",
+  "validation_spend": "~a few dollars (image reused from cache; 3 fixture runs, each ~50 composite/UCT REML fits + ~100-150 lme4 fits). Well within the envelope; NO grid spend."
+}
