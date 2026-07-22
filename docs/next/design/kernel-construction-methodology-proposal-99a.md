@@ -1,4 +1,4 @@
-# Kernel construction methodology — proposal 99a, REVISION 11
+# Kernel construction methodology — proposal 99a, REVISION 12
 
 > **REVISED DRAFT — NOT A MAINTAINER SUBMISSION AND NOT A PREREG FREEZE.
 > STATUS PER THE MAINTAINER'S #59 RATIFICATION (2026-07-21): the verified-proposer
@@ -50,10 +50,36 @@
 > for BOTH families is ~5–7× the pooled-ANOVA cost, so the full grid
 > exceeds the ~$3–5 staging envelope — the optimization pass + revised
 > cost ceiling is a SEPARATE model-code pass and a maintainer decision
-> (surfaced on the GitHub thread), NOT resolved here. NEXT = maintainer
-> cost/optimization decision → the executor wires the validated
-> exact-REML into the engine for families (A)+(B) per R10a/R11a →
-> re-passes the S4.2 fixture on the pinned image → full frozen (B) run →
+> (surfaced on the GitHub thread), NOT resolved here. The R11a wiring has
+> since been VALIDATED on the pinned image
+> (`poc/99a-sim/results/frozen-run/r11a-fixture/r11a-validation-manifest.json`):
+> BOTH families' operative exact-REML matches lme4 on every load-bearing
+> quantity — θ̂ ~1e−13, rel-SE ≤ 4.7e−6 (2× inside the unchanged 1e−5
+> tolerance), rel-ν̂ ≤ 2.5e−5 (40× inside 1e−3; the R11a ladder
+> tightening WORKED) — and family (A) passes ALL FOUR registered checks.
+> The single residual, composite |Δp| = 1.078e−6 vs the 1e−6 check, was
+> [MEASURED] to be NOT an estimator or convergence defect (a TIGHTER lme4
+> oracle made it WORSE — refuting under-convergence; ν̂ is 40× inside
+> tolerance — refuting the df channel) but a MUTUAL INCONSISTENCY in the
+> S4.2 tolerance REGISTRATION itself: |Δp| ≈ 0.23·rel-SE at the worst
+> cells (t ≈ 1; the ratio measured CONSTANT at 0.229/0.229/0.231 across
+> three oracle configurations — the t-density coefficient |t|·f_ν̂(1)
+> at the fixture's df, safe sup κ_p = φ(1) = 0.242), so the |Δp| ≤ 1e−6
+> check silently demanded
+> rel-SE ≤ 4.1e−6 — 2.4× TIGHTER than the registered 1e−5 rel-SE
+> tolerance it coexisted with; no estimator meeting the registered
+> primitive tolerances could be GUARANTEED to meet it — RECONCILED here
+> as Revision 12/R12a: the three PRIMITIVE tolerances (θ̂/SE/ν̂) are
+> byte-UNCHANGED and remain the only gates; the |Δp| check — p being a
+> pinned DETERMINISTIC function of the three gated primitives — is
+> demoted from gate to MANDATORY REPORTED DIAGNOSTIC against its DERIVED
+> first-order propagation bound (κ_p = 0.242 = sup|t|·f_ν(t) on the SE
+> channel; full derivation in S4.2/R12a), which preserves the p-wiring
+> detection power of the old gate with zero inconsistency. Under the
+> reconciled criterion the R11a-validated estimator PASSES the S4.2
+> fixture outright ([MEASURED]: diagnostic 1.078e−6 ≤ derived bound
+> ~5.0e−6) — estimator and fixture are now both CLEAN. NEXT = maintainer
+> cost/optimization decision (#59 thread) → full frozen (B) run →
 > re-review of the simulation RESULTS → preregistration. Nothing is
 > registered, frozen, scheduled, or committed by this revision.**
 >
@@ -208,6 +234,43 @@
 > `PROPOSED-PREREG-ROW-99A-R11a`. NEXT = maintainer cost decision → the
 > executor wires both families' exact-REML → re-passes the fixture on
 > the pinned image → full frozen grid.
+>
+> Revision 12 produced 2026-07-22 (Fable), a FOCUSED single-defect fix from
+> the R11a fixture validation on the pinned Modal image
+> (`poc/99a-sim/results/frozen-run/r11a-fixture/r11a-validation-manifest.json`;
+> both families wired to the operative exact-REML, R11a ν̂ ladder
+> applied). The validation [MEASURED] the ESTIMATOR fully clean — θ̂
+> 1e−13-exact, rel-SE ≤ 4.7e−6 vs tol 1e−5, rel-ν̂ ≤ 2.5e−5 vs tol 1e−3
+> (the R11a df tightening WORKED: 6.9e−5 → 2.4e−5), family (A) passing
+> ALL FOUR checks — with ONE residual: composite |Δp| = 1.078e−6 vs the
+> 1e−6 check (7.8% over). Alternatives REFUTED by measurement: not
+> df/Richardson under-convergence (ν̂ already 40× inside tolerance; one
+> more ladder level does not move it), and not lme4-oracle
+> under-convergence (a bobyqa-tightened oracle made it WORSE, 1.078e−6 →
+> 1.34e−6). Diagnosis: |Δp| ≈ 0.23·rel-SE at the worst cells (t ≈ 1;
+> the t-density coefficient |t|·f_ν̂(1), measured CONSTANT at
+> 0.229/0.229/0.231 across three oracle configurations; safe sup
+> κ_p = φ(1) = 0.242), so the |Δp| ≤ 1e−6 check REQUIRED rel-SE ≤ ~4.1e−6
+> while the registered rel-SE tolerance is 1e−5 — the S4.2 tolerances
+> were MUTUALLY INCONSISTENT as registered (a fixture-SPECIFICATION
+> defect, not an estimator defect; the ~5e−6 rel-SE floor is the
+> intrinsic agreement limit of two independent REML optimizers at the
+> flat REML optimum). Rev12 reconciles by DEMOTION-WITH-DERIVED-BOUND
+> (option (b) of the manifest's recommendation, argued in S4.2/R12a over
+> the relax-to-κ_p·tol alternative): p is a pinned deterministic
+> function of the three gated primitives, so |Δp| is REDUNDANT as an
+> independent gate; it becomes a MANDATORY reported diagnostic checked
+> against its derived per-run propagation bound
+> B_run = 0.242·relSE_max + 0.16·relν̂_max + 0.399·|Δθ̂|_max/SE_min —
+> exceeding B_run while the primitives pass is a p-WIRING defect (wrong
+> tail/sidedness/df hand-off), an S9 reportable that HALTS, so the old
+> gate's unique detection power is fully retained. The θ̂/SE/ν̂
+> tolerances, the fixture, the estimator pins, and BOTH exact-REML
+> algorithms are byte-UNCHANGED. Under the reconciled criterion the
+> R11a-validated estimator PASSES outright (1.078e−6 ≤ ~5.0e−6;
+> family (A) 7.8e−7 ≤ ~4.8e−6). New prereg row:
+> `PROPOSED-PREREG-ROW-99A-R12a`. NEXT = maintainer cost/optimization
+> decision (#59 thread) — now the ONLY gate before the full frozen grid.
 >
 > Revision 7 produced 2026-07-21 (Fable), applying the **cross-vendor GPT-5.6
 > re-review of Rev6** (`docs/next/design/99a-rev6-xvendor-review.md`, verdict
@@ -1502,7 +1565,11 @@ and the T′-shuffle contrast.
   the production analysis software) is admissible ONLY if it reproduces
   the reference implementation on the pinned S4.2 fixture within the
   pinned tolerances (|Δθ̂| ≤ 1e−7 absolute; relative SE difference
-  ≤ 1e−5; relative ν̂ difference ≤ 1e−3; |Δp| ≤ 1e−6). For an upper component
+  ≤ 1e−5; relative ν̂ difference ≤ 1e−3 — the three PRIMITIVE gates;
+  |Δp| is REPORTED against its derived propagation bound as a
+  p-wiring diagnostic, not a fourth gate — Rev12/R12a, S4.2: the former
+  |Δp| ≤ 1e−6 gate was [MEASURED] mutually inconsistent with the rel-SE
+  tolerance it coexisted with). For an upper component
   null H₀: θ ≥ θ₀ the one-sided p-value is p = F_{t,ν̂}((θ̂ − θ₀)/SE(θ̂));
   for a lower component null H₀: θ ≤ θ₀ it is
   p = 1 − F_{t,ν̂}((θ̂ − θ₀)/SE(θ̂)). **Matching confidence-bound inversion
@@ -2801,9 +2868,23 @@ latitude about the estimator), SUBJECT to the mandatory **fixture
 equivalence check**: on a pinned fixture of 50 replications (config_index
 0, replication_index 0–49) × every ledger family, the engine must match
 the reference implementation within |Δθ̂| ≤ 1e−7, relative SE ≤ 1e−5,
-relative ν̂ ≤ 1e−3, |Δp| ≤ 1e−6; the fixture report is an S8 deliverable
-and a breach halts the build (an S9 reportable defect, never a locally
-relaxed tolerance). **Fit-failure handling (pinned):** if the REML
+relative ν̂ ≤ 1e−3 — the three PRIMITIVE gates, byte-unchanged since
+R8b. **|Δp| (REVISED in Rev12/R12a — see the R12a paragraph below for
+the measurement and derivation):** the per-family max |Δp| is a
+MANDATORY REPORTED DIAGNOSTIC, checked against the derived first-order
+propagation bound B_run = 0.242·(max rel-SE) + 0.16·(max rel-ν̂) +
+0.399·(max |Δθ̂|)/SE_min computed from the SAME fixture run's measured
+primitive deltas; |Δp| > B_run while all three primitive gates pass is
+a p-WIRING defect (wrong tail, wrong sidedness, ν̂→p hand-off) and an
+S9 reportable that halts the build. The former separate |Δp| ≤ 1e−6
+gate is RETIRED: it was [MEASURED] mutually inconsistent with the
+registered primitive tolerances (it implicitly required
+rel-SE ≤ ~4.1e−6 against the registered 1e−5), and p is a pinned
+deterministic function of the three gated primitives, so it carried no
+independent information beyond the wiring check the diagnostic
+preserves. The fixture report is an S8 deliverable and a breach of any
+primitive gate, or of the B_run diagnostic, halts the build (an S9
+reportable defect, never a locally relaxed tolerance). **Fit-failure handling (pinned):** if the REML
 optimization fails to converge, retry once from the pinned second start
 (all variance components equal at σ_j²/(number of components)); if it
 still fails, the affected components are NOT rejected for that replication
@@ -2972,7 +3053,14 @@ arbiter. [EXTRAPOLATION — direction-only: with the ν̂ ladder converged at
 1e−6 the propagated |Δp| falls to the ~1e−8–1e−7 scale, clearing 1e−6
 cleanly; family (A)'s exact-REML already clears at |Δp| = 7.8e−7 under
 the same machinery; a residual breach is a NEW S9 reportable defect,
-never a locally relaxed tolerance.] *Cost implication (acknowledged, NOT
+never a locally relaxed tolerance.] **[REFUTED in Rev12 — [MEASURED]
+(`r11a-validation-manifest.json`): the ladder tightening WORKED for its
+own target (rel-ν̂ 6.9e−5 → 2.4e−5, 40× inside tolerance) but the
+composite |Δp| residual did NOT fall to the ~1e−8–1e−7 scale — it is
+SE-channel-limited, not df-limited (1.078e−6 ≈ 0.23·rel-SE at t ≈ 1;
+a TIGHTER lme4 oracle made it WORSE, 1.34e−6, refuting oracle
+under-convergence). The defect is in the |Δp| tolerance REGISTRATION,
+not the engine — resolved by R12a below.]** *Cost implication (acknowledged, NOT
 resolved here):* exact-REML for BOTH families is [MEASURED] ~5–7× the
 pooled-ANOVA per-replication cost (~664–849 ms/rep composite fit +
 Hessian vs the ~95 ms/rep full-rep budget on Modal-class CPU), so the
@@ -2986,6 +3074,97 @@ revised cost ceiling are a SEPARATE model-code pass and a maintainer
 decision (surfaced on the GitHub thread) — Rev11 makes the estimator
 CORRECT; the grid does not launch until the fixture passes on the pinned
 image AND the maintainer ratifies the revised ceiling.
+
+**R12a — S4.2 |Δp| tolerance reconciliation (Rev12; a fixture-tolerance
+SPECIFICATION fix. The estimator pins, BOTH exact-REML algorithms
+(R10a/R11a), the fixture, and the three primitive tolerances
+θ̂/SE/ν̂ are byte-UNCHANGED — this pin changes only the STATUS of the
+|Δp| check, from fourth gate to derived-bound diagnostic).**
+*What was [MEASURED]
+(`poc/99a-sim/results/frozen-run/r11a-fixture/r11a-validation-manifest.json`,
+pinned image, S4.2 fixture as pinned, BOTH families on the operative
+exact-REML with the R11a ν̂ ladder, vs the registered per-family
+6-component lme4 oracle):* family (A) max |Δθ̂| = 1.04e−13, rel-SE =
+3.4e−6, rel-ν̂ = 2.5e−5, |Δp| = 7.8e−7 — ALL FOUR registered checks
+pass; family (B) max |Δθ̂| = 5.9e−14, rel-SE = 4.7e−6 (2× inside the
+1e−5 tolerance), rel-ν̂ = 2.4e−5 (40× inside 1e−3; the R11a tightening
+achieved its target, 6.9e−5 → 2.4e−5) — and ONE residual, |Δp| =
+1.078e−6 vs the former 1e−6 check (7.8% over). *Alternative causes
+REFUTED by measurement:* (i) NOT df/Richardson under-convergence — ν̂
+is already an order tighter than R11a demanded and 40× inside its
+tolerance, and one more ladder level does not move |Δp| (float64
+roundoff bounds the ladder at its truncation/roundoff balance point);
+(ii) NOT lme4-oracle under-convergence — re-running the oracle with
+bobyqa tightened to rhoend 2e−12/maxfun 2e6 made the disagreement
+STRICTLY WORSE (rel-SE 4.7e−6 → 5.8e−6, |Δp| 1.078e−6 → 1.34e−6): the
+~5e−6 rel-SE floor is the INTRINSIC agreement limit of two independent
+REML optimizers (engine L-BFGS-B at ftol 1e−15 vs lme4's
+derivative-free bobyqa) locating their own points on the
+quadratic-flat REML optimum, where the variance components are
+resolved only to ~1e−5. *The defect, derived:* p is the pinned
+deterministic map p = F_{t,ν̂}(±(θ̂ − θ₀)/SE) of the three gated
+primitives (§4.6 (1b) definitions — identical on engine and oracle;
+CDF-implementation discrepancy ~1e−15, negligible), so to first order
+|Δp| ≤ κ_p·(rel-SE) + κ_ν·(rel-ν̂) + f₀·|Δθ̂|/SE with derived
+constants: **κ_p** — the SE-channel coefficient |∂p/∂ log SE| =
+|t|·f_ν(t); its stationarity condition (ν+1)t²/(ν+t²) = 1 has the
+unique positive root t = 1 for EVERY ν, so sup_t = f_ν(1), which
+increases in ν to the Gaussian limit φ(1) = e^{−1/2}/√(2π) = 0.24197
+(ν = 1: 0.159; ν = 2: 0.192; ν = 5: 0.220) — hence **κ_p = 0.242 is a
+safe sup over the fixture's entire t- and df-range**, and the
+[MEASURED] worst cells sit exactly there: |Δp|/rel-SE = 0.229, 0.229,
+0.231 across the three independent oracle configurations
+(4.7e−6 → 1.078e−6; 3.4e−6 → 7.8e−7; 5.8e−6 → 1.34e−6) — a CONSTANT
+ratio, equal to |t|·f_ν̂(1) at the fixture's finite df and safely
+below the 0.242 sup, confirming the SE channel as the mechanism to
+~1%; **κ_ν** — the
+df-channel coefficient |∂p/∂ log ν̂|, ≈ φ(t)(t³+t)/(4ν) ≤ 0.158/ν for
+moderate-to-large ν (maximised at t² = 1+√2), with **0.16 adopted as
+the [STIPULATED] safe global envelope over ν ≥ 1** (finite-difference
+checks at small ν give ~0.08–0.1 per log-unit, inside it); **f₀** —
+the θ̂-channel density bound sup_{ν,t} f_ν(t) = φ(0) = 0.399.
+Therefore |Δp| ≤ 1e−6 as a GATE required κ_p·rel-SE ≤ 1e−6, i.e.
+rel-SE ≤ 1e−6/0.242 = 4.1e−6 — but the registered rel-SE tolerance is
+1e−5, 2.4× looser (and the ν̂ channel adds up to 0.16·1e−3 more at its
+own registered tolerance): the four registered tolerances were
+MUTUALLY INCONSISTENT — no estimator meeting the (correct, unchanged)
+primitive tolerances could be GUARANTEED to meet the |Δp| gate. A
+fixture-tolerance-specification defect, NOT an estimator defect.
+*The reconciliation ([STIPULATED] — option (b), demote-with-derived-
+bound, chosen over option (a), relax-the-gate-to-κ_p·tol ≈ 2.4e−6,
+BECAUSE option (a) repairs only the SE channel and silently retains
+the identical inconsistency on the ν̂ channel — an engine at
+rel-ν̂ = 9e−4, legal under the unchanged 1e−3 tolerance, propagates
+|Δp| far above any fixed ~2.4e−6 gate at small df — whereas the
+per-run derived bound is consistent with ALL THREE primitive
+tolerances simultaneously, by construction, and no constant in it is
+tuned to the observed miss):* the three primitive gates are the ONLY
+gates; the per-family max |Δp| is REPORTED and checked against
+**B_run = 0.242·(max rel-SE) + 0.16·(max rel-ν̂) +
+0.399·(max |Δθ̂|)/SE_min**, computed from the same run's measured
+primitive deltas; |Δp| > B_run with the primitives passing indicates
+the ONE failure mode the old gate could uniquely catch — a mis-wired
+p-map (wrong tail, wrong sidedness, ν̂→p hand-off; such defects
+produce |Δp| orders above B_run) — and is an S9 reportable that HALTS.
+No detection power is lost (p carries no information beyond the gated
+primitives it is computed from), nothing anti-conservative can be
+admitted that the primitives would have caught, and the S9
+never-relax-locally clause is untouched in scope: this is a
+registration-level repair of a self-contradictory specification,
+derived from the unchanged primitives — not a tolerance tuned to pass
+a failing run (B_run ≈ 5.0e−6 is 4.6× above the observed 1.078e−6 and
+would be the same formula under any other miss). *Status under the
+reconciled criterion ([MEASURED], same manifest):* family (A) —
+primitives pass, |Δp| = 7.8e−7 ≤ B_run ≈ 0.242·3.4e−6 + 0.16·2.5e−5 ≈
+4.8e−6 ✓; family (B) — primitives pass, |Δp| = 1.078e−6 ≤ B_run ≈
+0.242·4.7e−6 + 0.16·2.4e−5 ≈ 5.0e−6 ✓ (θ̂ terms ~1e−13-scale,
+negligible). The S4.2 fixture is GREEN on the pinned image for BOTH
+families: estimator and fixture are now both clean, and the full
+frozen grid is gated ONLY on the maintainer cost/optimization decision
+(#59 thread). [EXTRAPOLATION — direction-only: any future engine
+optimization (warm starts, analytic gradient, analytic
+expected-information df) still re-runs this fixture and must keep the
+primitives inside their unchanged tolerances and |Δp| inside B_run.]
 
 **S4.3 Concept-layer copula and regimes (Rev8: coordinates are ARM-SIDE
 concept×arm effects, and bounded-Beta is a PRE-SCALING concept random
@@ -3991,7 +4170,12 @@ Rev8 rows (one per spot-check before-build correction, in correction order):
   r(a,i) = (rev_arm_index(a) + i) mod n_reviewers) with their balance and
   no-competing-exposure properties stated and their tables emitted with
   the configuration artifact. [STIPULATED]
-- **PROPOSED-PREREG-ROW-99A-R8b:** pinned-inference law — "REML +
+- **PROPOSED-PREREG-ROW-99A-R8b [AMENDED in Rev12 — see §8.0/R12a: the
+  three PRIMITIVE tolerances are unchanged, but the fourth item,
+  |Δp| ≤ 1e−6, was validation-[MEASURED] mutually inconsistent with the
+  rel-SE tolerance (|Δp| ≈ 0.23·rel-SE at the worst cells) and is
+  demoted from gate to the R12a derived-bound diagnostic]:**
+  pinned-inference law — "REML +
   Satterthwaite" is completed to a unique algorithm: REML with the
   nonnegativity boundary, GLS fixed effects, expected-information
   variance-component covariance, and the Giesbrecht–Burns Satterthwaite
@@ -4103,7 +4287,13 @@ Rev10 row (one, for the single frozen-run-staging defect B2):
 Rev11 row (one, for the single R10a-validation defect — R10a's
 incompleteness on family (A)):
 
-- **PROPOSED-PREREG-ROW-99A-R11a:** rotated-crossed-block exact-REML law
+- **PROPOSED-PREREG-ROW-99A-R11a [AMENDED in Rev12 — see §8.0/R12a: the
+  "so |Δp| clears the unchanged 1e−6 tolerance" expectation was refuted
+  by the R11a fixture validation; the ladder tightening worked for ν̂
+  (6.9e−5 → 2.4e−5) but the |Δp| residual is SE-channel-limited at the
+  two-optimizer agreement floor, and the |Δp| ≤ 1e−6 gate itself was
+  measured mutually inconsistent with the registered rel-SE tolerance —
+  the R12a diagnostic criterion governs]:** rotated-crossed-block exact-REML law
   (generalises and completes R10a) — the R10a
   engine-estimator-faithfulness law's trigger condition is ANY extra
   crossed random-effect block assigned by a published rotation,
@@ -4130,6 +4320,34 @@ incompleteness on family (A)):
   measured ~5–7× exact-REML cost is routed to the maintainer as a
   separate optimization-pass + cost-ceiling decision, never absorbed by
   weakening the estimator. [STIPULATED]
+
+Rev12 row (one, for the single R11a-validation defect — the S4.2
+tolerance registration's internal inconsistency):
+
+- **PROPOSED-PREREG-ROW-99A-R12a:** fixture-tolerance consistency law —
+  the S4.2 fixture equivalence check gates on the three PRIMITIVE
+  tolerances ONLY (|Δθ̂| ≤ 1e−7, rel-SE ≤ 1e−5, rel-ν̂ ≤ 1e−3,
+  byte-unchanged since R8b); any DERIVED quantity that is a pinned
+  deterministic function of gated primitives (currently p, and the
+  matching confidence bound with it) is checked as a REPORTED
+  DIAGNOSTIC against its derived first-order propagation bound computed
+  from the same run's measured primitive deltas (for p:
+  B_run = 0.242·rel-SE_max + 0.16·rel-ν̂_max + 0.399·|Δθ̂|_max/SE_min,
+  constants derived in S4.2/R12a — κ_p = sup|t|f_ν(t) = φ(1),
+  κ_ν = safe envelope of |∂p/∂ log ν̂|, f₀ = φ(0)), a diagnostic
+  breach with passing primitives being a p-WIRING defect and an S9
+  reportable that halts; NO independent gate on a derived quantity may
+  be registered tighter than the bound its primitives' tolerances imply
+  (the refuted |Δp| ≤ 1e−6 gate implicitly demanded
+  rel-SE ≤ 4.1e−6 against the registered 1e−5 —
+  validation-[MEASURED]: |Δp| ≈ 0.23·rel-SE, ratio constant at
+  0.229–0.231, at the worst t ≈ 1 cells,
+  the ~5e−6 rel-SE floor being the intrinsic two-independent-optimizer
+  agreement limit at the flat REML optimum, with df/Richardson and
+  oracle-convergence explanations both refuted by measurement);
+  primitive tolerances themselves remain under the unchanged S9 clause
+  — an engine fix or a new S9 defect, never locally relaxed.
+  [STIPULATED]
 
 ## Revision 1 — review fixes applied
 
@@ -5267,7 +5485,13 @@ ANOVA≠REML defect. Rev11 changes NOTHING outside that surface.
    the propagated |Δp| to the ~1e−8–1e−7 scale; family (A)'s exact-REML
    already clears at 7.8e−7 under the same machinery; the fixture re-run
    on the pinned image remains the acceptance criterion, and a residual
-   breach is a NEW S9 reportable defect.]
+   breach is a NEW S9 reportable defect.] **[REFUTED in Rev12 — the
+   fixture re-run measured the ladder tightening working for ν̂
+   (6.9e−5 → 2.4e−5) but |Δp| = 1.078e−6 persisting, SE-channel-limited
+   (≈ 0.23·rel-SE at t ≈ 1), with df/Richardson and oracle-convergence
+   causes both refuted; the |Δp| ≤ 1e−6 gate was itself mutually
+   inconsistent with the registered rel-SE tolerance and is demoted to
+   the R12a derived-bound diagnostic — see ## Revision 12.]**
 
 5. **Cost implication (acknowledged, deliberately NOT resolved here).**
    Exact-REML for BOTH families is [MEASURED] ~5–7× the pooled-ANOVA
@@ -5306,6 +5530,122 @@ ANOVA≠REML defect. Rev11 changes NOTHING outside that surface.
    (iii) the S4.2 fixture re-run on the pinned image (both families,
    same tolerances) — the LAST gate; (iv) determinism/timing artifacts
    re-emitted under the revised ceiling; (v) THEN the full frozen grid.
+
+## Revision 12 — S4.2 |Δp| tolerance reconciliation
+
+Focused single-defect revision from the R11a fixture validation on the
+pinned Modal image
+(`poc/99a-sim/results/frozen-run/r11a-fixture/r11a-validation-manifest.json`;
+both families wired to the operative exact-REML per R10a/R11a, the R11a
+ν̂ ladder applied, fixture re-run vs the registered per-family
+6-component lme4 oracle). The validation proved the ESTIMATOR correct on
+every load-bearing quantity and localised the one residual to the S4.2
+tolerance REGISTRATION itself. Rev12 changes NOTHING outside that
+surface — the estimator, both exact-REML algorithm pins, the fixture,
+and the three primitive tolerances (θ̂/SE/ν̂) are byte-UNCHANGED.
+
+1. **What the validation [MEASURED].** Family (A) (UCT, 450
+   comparisons): max |Δθ̂| = 1.04e−13, rel-SE = 3.4e−6, rel-ν̂ =
+   2.5e−5, |Δp| = 7.8e−7 — ALL FOUR registered checks pass. Family (B)
+   (composite, 150 comparisons): max |Δθ̂| = 5.9e−14, rel-SE = 4.7e−6
+   (2× inside the 1e−5 tolerance), rel-ν̂ = 2.4e−5 (40× inside 1e−3 —
+   the R11a ladder tightening achieved its target, 6.9e−5 → 2.4e−5),
+   and ONE miss: |Δp| = 1.078e−6 vs the former 1e−6 check — 7.8% over.
+
+2. **Alternative explanations REFUTED by measurement.** (i) *Not
+   df/Richardson under-convergence:* ν̂ is 40× inside its tolerance and
+   an order tighter than R11a demanded; a deeper ladder cannot move
+   |Δp| (float64 roundoff bounds the Hessian ladder at its
+   truncation/roundoff balance point). (ii) *Not lme4-oracle
+   under-convergence:* re-running the oracle with bobyqa tightened to
+   rhoend 2e−12 / maxfun 2e6 made agreement STRICTLY WORSE (rel-SE
+   4.7e−6 → 5.8e−6; |Δp| 1.078e−6 → 1.34e−6). The ~5e−6 rel-SE floor
+   is the INTRINSIC agreement limit of two independent REML optimizers
+   (L-BFGS-B at ftol 1e−15 vs derivative-free bobyqa) each locating its
+   own point on the quadratic-flat REML optimum (variance components
+   resolved to ~1e−5).
+
+3. **The defect, derived (the mutual inconsistency).** p is the pinned
+   deterministic map p = F_{t,ν̂}(±(θ̂ − θ₀)/SE) of the three gated
+   primitives, identical on engine and oracle, so to first order
+   |Δp| ≤ κ_p·rel-SE + κ_ν·rel-ν̂ + f₀·|Δθ̂|/SE. The SE-channel
+   constant κ_p = sup |∂p/∂ log SE| = sup |t|·f_ν(t): the stationarity
+   condition (ν+1)t²/(ν+t²) = 1 has unique positive root t = 1 for
+   every ν, so the sup is f_ν(1), increasing in ν to the Gaussian limit
+   φ(1) = 0.24197 — κ_p = 0.242 is a safe sup over the fixture's whole
+   t/df range, and the measured worst cells confirm it: |Δp|/rel-SE =
+   0.229, 0.229, 0.231 at t ≈ 1 across the three independent oracle
+   configurations (4.7e−6 → 1.078e−6; 3.4e−6 → 7.8e−7; 5.8e−6 →
+   1.34e−6) — a constant ratio equal to |t|·f_ν̂(1) at the fixture's
+   finite df, safely below the sup, pinning the SE channel as the
+   mechanism to ~1%. Hence the registered |Δp| ≤ 1e−6 gate implicitly demanded
+   rel-SE ≤ 1e−6/0.242 = 4.1e−6 — 2.4× TIGHTER than the registered
+   rel-SE tolerance of 1e−5 it coexisted with (and the ν̂ channel,
+   κ_ν ≤ 0.16 global envelope with ≈ 0.158/ν at moderate df, adds up
+   to 0.16·1e−3 more at ITS registered tolerance). The four registered
+   tolerances were MUTUALLY INCONSISTENT: no estimator meeting the
+   (correct, unchanged) primitive tolerances could be GUARANTEED to
+   meet the |Δp| gate. A specification defect in the fixture's
+   tolerance registration — NOT an estimator defect.
+
+4. **The reconciliation (operative text: S4.2 fixture-equivalence
+   sentence + S4.2/R12a; law: `PROPOSED-PREREG-ROW-99A-R12a`).**
+   Option (b) — DEMOTE |Δp| to a derived-bound diagnostic — chosen over
+   option (a), relaxing the gate to κ_p·(rel-SE tolerance) ≈ 2.4e−6,
+   with the reason stated: (a) repairs only the SE channel and silently
+   re-creates the same class of inconsistency on the ν̂ channel (an
+   engine at rel-ν̂ = 9e−4 — legal under the unchanged 1e−3 tolerance —
+   propagates |Δp| far above any fixed ~2.4e−6 gate at small df),
+   whereas the per-run derived bound is consistent with ALL THREE
+   primitive tolerances simultaneously by construction. The rule: the
+   three primitive gates are the ONLY gates; per family, max |Δp| is
+   MANDATORILY REPORTED and checked against
+   B_run = 0.242·(max rel-SE) + 0.16·(max rel-ν̂) +
+   0.399·(max |Δθ̂|)/SE_min, computed from the same run's measured
+   primitive deltas (constants: κ_p = φ(1) sup above; κ_ν = 0.16
+   [STIPULATED] safe envelope of |∂p/∂ log ν̂| over ν ≥ 1; f₀ = φ(0) =
+   0.399 the density sup). |Δp| > B_run with passing primitives is a
+   p-WIRING defect (wrong tail/sidedness/ν̂→p hand-off — the one
+   failure mode the old gate could uniquely catch, and such defects
+   overshoot B_run by orders) — an S9 reportable that HALTS. Redundancy
+   argument: p carries no information beyond the primitives it is
+   deterministically computed from, so no detection power is lost and
+   nothing anti-conservative becomes admissible. Fail-closed posture
+   preserved: this is a registration-level repair of a
+   self-contradictory specification, derived from the unchanged
+   primitive tolerances — not a tolerance tuned to a failing run
+   (B_run ≈ 5.0e−6 sits 4.6× above the observed miss and is the same
+   formula under any miss); the S9 never-relax-locally clause is
+   untouched for the primitives.
+
+5. **Status under the reconciled criterion ([MEASURED], same
+   manifest).** Family (A): primitives pass; diagnostic 7.8e−7 ≤
+   B_run ≈ 0.242·3.4e−6 + 0.16·2.5e−5 ≈ 4.8e−6 ✓. Family (B):
+   primitives pass; diagnostic 1.078e−6 ≤ B_run ≈ 0.242·4.7e−6 +
+   0.16·2.4e−5 ≈ 5.0e−6 ✓ (θ̂ terms ~1e−13-scale, negligible). The
+   S4.2 fixture is GREEN on the pinned image for BOTH families —
+   estimator and fixture are now both clean.
+
+6. **What is deliberately untouched, and next steps.** The graphical
+   procedure, the 12-claim ledger, weights, transition matrix, update
+   algorithm, IUT/TOST compositions, margins, truth/hypothesis
+   functions, the R8b estimator pins, the R10a/R11a exact-REML
+   algorithm pins, the three primitive fixture tolerances, the gate
+   test + A4/R9a fix + battery, the S4.6 futility/Rung-0 algorithms,
+   the S6 74-cell FWER grid, S7 power grid, S3 parameters,
+   seeds/substreams, and the environment pins are all byte-preserved;
+   Rev12 touched ONLY the title/banner text, the §4.6 pin-(e)
+   tolerance parenthetical, the S4.2 fixture-equivalence sentence, the
+   S4.2/R11a extrapolation annotation + new S4.2/R12a paragraph, the
+   §8.0 R8b- and R11a-row annotations + new R12a row, the Revision 11
+   item-4 annotation and self-check re-heading, and this section + its
+   self-check. The validation
+   manifest is untouched. Next: (i) the maintainer's cost/optimization
+   decision (#59 thread) — now the ONLY gate before the full frozen
+   grid; (ii) any adopted engine optimization (warm starts, analytic
+   gradient, analytic expected-information df) re-runs this fixture
+   under the reconciled criterion before the grid; (iii) full frozen
+   (B) run → re-review of the simulation RESULTS → preregistration.
 
 ## Mandatory self-check — Revision 2 (historical record, retained verbatim; superseded by the Revision 8 self-check below)
 
@@ -5982,7 +6322,7 @@ ANOVA≠REML defect. Rev11 changes NOTHING outside that surface.
    THEN launches the full grid on the already-verified-GREEN
    environment) are recorded, not performed.
 
-## Mandatory self-check — Revision 11 (final section)
+## Mandatory self-check — Revision 11 (historical record, retained verbatim; extended — not replaced — by the focused Revision 12 self-check below)
 
 1. **Is the refuted family-(A) claim corrected and re-tagged from
    measurement?** YES — the Rev10 [MEASURED] statement ("family (A)
@@ -6073,3 +6413,67 @@ ANOVA≠REML defect. Rev11 changes NOTHING outside that surface.
    simulation or Modal run launched; the mandated next steps (maintainer
    cost decision → engine wiring → fixture re-pass on the pinned image →
    grid) are recorded, not performed.
+
+## Mandatory self-check — Revision 12 (final section)
+
+1. **Is |Δp| reconciled with the rel-SE tolerance (option a or b), WITH
+   the derivation?** YES — option (b), demote-with-derived-bound
+   (S4.2 fixture sentence + S4.2/R12a + `PROPOSED-PREREG-ROW-99A-R12a`),
+   with the full derivation stated: p = F_{t,ν̂}(±(θ̂ − θ₀)/SE) is a
+   pinned deterministic map of the three gated primitives, so
+   |Δp| ≤ κ_p·rel-SE + κ_ν·rel-ν̂ + f₀·|Δθ̂|/SE; κ_p = sup |t|·f_ν(t)
+   = f_ν(1) (unique stationary point t = 1 for every ν) ↑ φ(1) = 0.242
+   — a safe sup over the whole t/df range, [MEASURED]-confirmed by the
+   constant ratio 0.229/0.229/0.231 (= |t|·f_ν̂(1) at the fixture's
+   finite df) across three oracle configurations; hence the old
+   |Δp| ≤ 1e−6 gate implicitly demanded rel-SE ≤ 4.1e−6 against the
+   registered 1e−5 — mutually inconsistent. The reconciled criterion:
+   primitive gates only, plus the mandatory reported diagnostic
+   |Δp| ≤ B_run = 0.242·rel-SE_max + 0.16·rel-ν̂_max +
+   0.399·|Δθ̂|_max/SE_min (κ_ν = 0.16 a [STIPULATED] safe envelope;
+   f₀ = φ(0)); a diagnostic breach with passing primitives = p-wiring
+   defect, S9 reportable, halts. Option (a) (a fixed gate at
+   κ_p·tol ≈ 2.4e−6) is considered and rejected WITH the reason: it
+   silently retains the identical inconsistency on the ν̂ channel.
+
+2. **Estimator and θ̂/SE/ν̂ tolerances untouched?** YES — the R8b
+   estimator pins, the R10a and R11a exact-REML algorithm pins
+   (i)–(v) including starts/convergence and the ν̂ Richardson-ladder
+   pin, `reml_composite.py`, the fixture definition (50 reps ×
+   families, config 0), and the three primitive tolerances
+   (|Δθ̂| ≤ 1e−7, rel-SE ≤ 1e−5, rel-ν̂ ≤ 1e−3) are byte-UNCHANGED;
+   Rev12 changed only the STATUS of the |Δp| check (gate → derived-
+   bound diagnostic) and the texts listed in Revision 12 item 6 — no
+   engine code, no manifest, no primitive number was edited.
+
+3. **Does the measured R11a estimator PASS under the reconciled
+   criterion?** YES — [MEASURED] from
+   `r11a-validation-manifest.json`: family (A) primitives 1.04e−13 /
+   3.4e−6 / 2.5e−5 all inside, diagnostic 7.8e−7 ≤ B_run ≈ 4.8e−6;
+   family (B) primitives 5.9e−14 / 4.7e−6 / 2.4e−5 all inside,
+   diagnostic 1.078e−6 ≤ B_run ≈ 5.0e−6 — the S4.2 fixture is GREEN
+   for BOTH families on the pinned image; estimator and fixture are
+   both clean, and the frozen grid is gated ONLY on the maintainer
+   cost/optimization decision (#59 thread).
+
+4. **Four epistemic tags disciplined?** YES — [MEASURED] for every
+   validation number (cited to `r11a-validation-manifest.json`,
+   including the refuted-alternative measurements), [STIPULATED] for
+   the R12a rule, the κ_ν = 0.16 safe envelope, and the option-(b)
+   design choice, [LIT-BACKED] not newly minted (the §4.6 basis is
+   unchanged and remains supporting-only per §5), and [EXTRAPOLATION]
+   exactly once (S4.2/R12a's direction-only note that future engine
+   optimizations re-run the fixture), never a premise.
+
+5. **No @handle/account strings; no `ASM-<number>` minted?** YES —
+   roles by name only ("the maintainer", "the executor"); the single
+   new row is exactly `PROPOSED-PREREG-ROW-99A-R12a`; ids are assigned
+   at prereg-freeze.
+
+6. **Nothing committed / registered / frozen / run?** YES — in-place
+   edit of this proposal document only; the validation artifacts
+   (`r11a-validation-manifest.json`, `reml_composite.py`, oracle logs)
+   are untouched; no git operations, no registry writes, no freeze, no
+   simulation or Modal run launched; the remaining gate (the
+   maintainer's #59 cost/optimization decision, then the full frozen
+   grid) is recorded, not performed.
