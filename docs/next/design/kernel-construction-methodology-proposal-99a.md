@@ -1,4 +1,4 @@
-# Kernel construction methodology — proposal 99a, REVISION 9
+# Kernel construction methodology — proposal 99a, REVISION 10
 
 > **REVISED DRAFT — NOT A MAINTAINER SUBMISSION AND NOT A PREREG FREEZE.
 > STATUS PER THE MAINTAINER'S #59 RATIFICATION (2026-07-21): the verified-proposer
@@ -18,11 +18,26 @@
 > design ambiguity in the confirmatory core — its A3 note) and, exactly as
 > the S9 clause intends, routed ONE genuine spec defect back to design
 > (A4: the S4.4 gate-calibration battery fails under the truncation-to-0
-> dependence plug-in) — FIXED here as Revision 9/R9a. NEXT = the (B)
-> executor re-runs the 4-cell gate-calibration mock against the R9a test
-> (verify ≤ 1.25·γ) → full (B) run → re-review of the simulation
-> RESULTS → preregistration. Nothing is registered, frozen,
-> scheduled, or committed by this revision.**
+> dependence plug-in) — FIXED as Revision 9/R9a and since RE-VALIDATED
+> ALL-PASS at mock scale (R = 3,000, 4/4 cells, SD-ratio ≥ 1.20 —
+> SPEC-DEFECTS "A4 RE-VALIDATION"). The FROZEN-RUN STAGING on the pinned
+> Modal stack (`poc/99a-sim/results/frozen-run-setup/run-manifest.json`)
+> has since verified the environment EXACT (CPython 3.12.1 / numpy 2.1.3 /
+> scipy 1.14.1 / R 4.4.1 / lme4 1.1-35.5 / lmerTest 3.1-3, ALL_PINS_MET),
+> reproduced the FWER-control and gate-calibration statistical acceptance
+> picture on the pinned image, priced the full grid (~$3, ~15–31 min), and
+> surfaced ONE remaining defect: the deferred SPEC-DEFECTS B2 obligation,
+> first-time [MEASURED] on the pinned stack — the engine's balanced
+> pooled-ANOVA composite-family fit is a CONSERVATIVE-BUT-DIFFERENT
+> estimator, not the pinned lme4 REML, breaching the S4.2 fixture
+> tolerances on SE/ν̂/p by 3–4 orders — FIXED here as Revision 10/R10a
+> (composite-family EXACT-REML engine algorithm; the S4.2 fixture and its
+> tolerances are byte-UNCHANGED — the engine is fixed, the gate is not
+> relaxed). NEXT = the executor re-codes the family-(B) fit per R10a →
+> re-passes the S4.2 fixture on the pinned image → full frozen (B) run
+> (environment already GREEN) → re-review of the simulation RESULTS →
+> preregistration. Nothing is registered, frozen, scheduled, or committed
+> by this revision.**
 >
 > Revision 8 produced 2026-07-21 (Fable), applying the **cross-vendor GPT-5.6
 > focused spot-check of Rev7's SIM-SPEC + analysis ledger**
@@ -98,6 +113,38 @@
 > grid are byte-preserved. New prereg row: `PROPOSED-PREREG-ROW-99A-R9a`.
 > NEXT = the (B) executor re-runs the 4-cell gate-calibration mock against
 > the R9a test to verify ≤ 1.25·γ before committing to the full run.
+>
+> Revision 10 produced 2026-07-22 (Fable), a FOCUSED single-defect fix from
+> the frozen-run environment staging on the pinned Modal stack
+> (`poc/99a-sim/results/frozen-run-setup/run-manifest.json`,
+> `b2-fixture.log`): the staging [MEASURED] the S4.2 fixture-equivalence
+> obligation that the (B) mock had DEFERRED (SPEC-DEFECTS B2 — no R on the
+> build box) FAILING on the pinned stack — the engine's balanced
+> pooled-ANOVA closed form matches lme4/lmerTest REML EXACTLY on every θ̂
+> (max |Δθ̂| = 1.5e−13 ≤ 1e−7) but breaches the SE/ν̂/p tolerances by 3–4
+> orders (max rel-SE 0.059 vs 1e−5; max rel-ν̂ 0.166 vs 1e−3; max |Δp|
+> 0.0142 vs 1e−6), ENTIRELY in the COMPOSITE family (worst contrasts
+> H−A2-IR, H−S(H), A2-IR−S(A2-IR)), and CONSERVATIVE in direction in every
+> worst case (engine SE larger, ν̂ smaller, p larger). Root cause: the
+> registered family-(B) model's reviewer block w_{r(a,i)} exists on
+> REVIEWED arm-records only, so the composite design does not satisfy the
+> balance conditions under which ANOVA mean-square matching equals REML —
+> the pooled single-residual closed form is a VALID-but-DIFFERENT
+> (conservative) estimator, not an exact algorithm for the registered one.
+> Rev10 resolves B2 by OPTION (b) — FIX THE ENGINE, NOT THE GATE: family
+> (B) must be computed by the R10a exact-REML algorithm (profiled REML of
+> the registered 6-component model on per-cell precomputed structure, with
+> pinned deterministic starts and convergence tolerances), because the
+> simulation's object under test is the REGISTERED procedure and a
+> conservative-but-different sim estimator would make the simulation
+> UNDERSTATE the registered procedure's error rates — the invalid
+> direction for an FWER demonstration. The S4.2 fixture, its 600
+> comparisons, and its four tolerances are byte-UNCHANGED; the registered
+> estimator pins (R8b), the 12-claim procedure, the gate test + A4/R9a
+> fix, and the S6/S7 grids are byte-preserved. New prereg row:
+> `PROPOSED-PREREG-ROW-99A-R10a`. NEXT = the executor re-codes the
+> composite-family fit → re-passes the fixture on the pinned image → full
+> frozen grid (environment already verified GREEN).
 >
 > Revision 7 produced 2026-07-21 (Fable), applying the **cross-vendor GPT-5.6
 > re-review of Rev6** (`docs/next/design/99a-rev6-xvendor-review.md`, verdict
@@ -2418,7 +2465,7 @@ Each rung: question / method / pass-fail / cost / decision-unblocked. Rungs are
    the Rung-1 verdicts hold outside formal/lexical sectors? Only designed after Rungs
    1–3 report. Unblocks: any general construction-methodology ruling.
 
-## SIM-SPEC — FWER/power simulation protocol (Rev7/R7e, before-build corrections Rev8/R8a–g, A4 gate-calibration fix Rev9/R9a — the task-(B) acceptance artifact, maintainer-ratified #59)
+## SIM-SPEC — FWER/power simulation protocol (Rev7/R7e, before-build corrections Rev8/R8a–g, A4 gate-calibration fix Rev9/R9a, B2 composite-family engine-estimator fix Rev10/R10a — the task-(B) acceptance artifact, maintainer-ratified #59)
 
 This section is the complete, self-contained specification of the mandated
 FWER/power simulation (§4.6/R6a item 8), **REWRITTEN in Rev7 per the Rev6
@@ -2697,6 +2744,78 @@ supplementary 2,000-flip sign-permutation p-value is also computed on
 5,000 replications and its rejection concordance with the model-based p
 reported (tolerance: ≤ 1% discordant rejections; a breach is reported, not
 silently accepted).
+
+**R10a — composite-family EXACT-REML engine algorithm (Rev10; the B2 fix.
+The estimator pins above and the fixture + tolerances are byte-UNCHANGED —
+this pin closes WHICH algorithms are admissible for family (B)).** The
+frozen-run staging [MEASURED]
+(`poc/99a-sim/results/frozen-run-setup/run-manifest.json`,
+`b2-fixture.log`; SPEC-DEFECTS B2) that balanced pooled-ANOVA mean-square
+matching is NOT a numerically exact algorithm for the pinned estimator on
+the COMPOSITE family: over the 600 fixture comparisons, θ̂ is exact (max
+|Δθ̂| = 1.5e−13) but max rel-SE = 0.059, max rel-ν̂ = 0.166, max |Δp| =
+0.0142 — every breach in family (B) (worst contrasts H−A2-IR, H−S(H),
+A2-IR−S(A2-IR)), every worst case CONSERVATIVE (engine SE larger, ν̂
+smaller, p larger). Structural reason: family (B)'s reviewer block
+w_{r(a,i)} exists on REVIEWED arm-records only (A1, A2, A2-IR, H — a
+structurally-partial random-effect block, §4.6/(1b)(B)), and under the
+published rotation the reviewer classification is a coarsening of the
+(arm, concept) cells that is NOT orthogonal to the concept-main stratum —
+so the composite design does not satisfy the balance conditions under
+which ANOVA mean-square matching equals REML, and pooling ONE residual
+spreads σ²_w across the pooled mean squares (a valid, conservative, but
+DIFFERENT estimator). The identity does hold to fixture tolerance for
+family (A) ([MEASURED] on the same fixture: max rel-SE 2.6e−7, rel-ν̂
+1.6e−6, |Δp| 1.7e−10 — the consumer block spans ALL ten arms) and
+structurally for family (D) (no partial block, §4.6/(1b)(D)). *Pinned
+family-(B) algorithm ([STIPULATED] — an implementation pin under the S9
+exact-algorithm clause; it changes NO registered quantity):*
+(i) *model/parameters:* the registered (1b)(B) 6-component model with
+φ = (σ²_b, σ²_ab, σ²_v, σ²_av, σ²_w, σ²_ε), each ≥ 0, and the SINGLE
+residual σ²_ε — the reference implementation's parametrization: the
+reviewed/unreviewed heteroscedasticity that the registered model implies
+is carried by the reviewed-only Z_w block EXACTLY as registered (reviewed
+records: σ²_w reviewer-clustered + σ²_ε; unreviewed: σ²_ε), NEVER by a
+free per-stratum residual variance (which lme4 cannot fit — introducing
+one would silently re-register the estimator and diverge from the
+oracle); (ii) *objective:* minimize the profiled REML deviance of that
+model (arm fixed effects profiled by GLS, σ²_ε profiled in closed form,
+optimization over the five nonnegative variance ratios), the reference
+implementation's own objective; boundary solutions retained per pin (a);
+(iii) *per-cell precompute / per-rep reduction:* the design matrices are
+fixed across replications, so XᵀX, XᵀZ, ZᵀZ are computed once per cell
+and each replication reduces its data ONCE to (ZᵀY, XᵀY, YᵀY); every
+optimizer evaluation runs in the reduced q-dimensional mixed-model system
+(q = I + 8I + S + 8S + n_reviewers), never re-touching the N records (an
+equivalent exact spectral reduction — the reviewer block couples only the
+n_reviewers Fourier harmonics of the concept index, leaving every other
+eigenblock balanced — is admissible; the fixture, not the derivation, is
+the arbiter); (iv) *deterministic starts and convergence
+([STIPULATED]):* start 1 = the pooled-ANOVA moment estimates clipped
+to ≥ 0 (the retired closed form survives ONLY as a starting value);
+non-convergence retries once from the pinned second start above
+(equal-split), with the fit-failure counting rule unchanged; convergence
+requires relative deviance change ≤ 1e−12 AND max relative parameter
+change ≤ 1e−9 — an order below the fixture margins; (v) *outputs:* θ̂
+from the GLS fixed effects (numerically the arm-mean difference: the
+composite V(φ) maps the arm-indicator span to itself under the published
+balanced rotation, so GLS = OLS — a stated consequence, fixture-arbitrated);
+SE(θ̂)² = cᵀ(XᵀV̂⁻¹X)⁻¹c, which on this design equals the linear contrast-
+variance map Var(θ̂; φ) = (2/I)·σ²_ab + (2/S)·σ²_av + κ·σ²_w/n_reviewers
++ (2/(I·S))·σ²_ε with κ = 1 iff EXACTLY ONE of the two arms is reviewed
+(H−S(H), A2-IR−S(A2-IR), and the E/A0-vs-reviewed descriptive contrasts)
+and κ = 0 otherwise (Δ^G = H−A2-IR: all four reviewed arms share the
+identical reviewer average under the rotation, so reviewer effects cancel
+— the pooled form wrongly charged them to Δ^G's SE); the engine computes
+SE by the general GLS expression and MAY use the map as a self-check;
+ν̂ by the Giesbrecht–Burns formula of pin (d) with the expected
+information of pin (c) evaluated in the same reduced system (g = ∇_φ Var(θ̂)
+is the CONSTANT vector (0, 2/I, 0, 2/S, κ/n_reviewers, 2/(I·S)) since the
+map is linear in φ); p and bounds by the generic definitions. *Fail-closed
+rule:* if the exact-REML engine STILL breaches the fixture, that is a NEW
+S9 reportable defect (e.g. a reference-implementation optimizer-convergence
+artifact), routed to design — never a locally relaxed tolerance, and never
+a reversion to the pooled estimator.
 
 **S4.3 Concept-layer copula and regimes (Rev8: coordinates are ARM-SIDE
 concept×arm effects, and bounded-Beta is a PRE-SCALING concept random
@@ -3218,6 +3337,7 @@ pointed to gate 5).
 | R8a, R8b, R8d–R8g | NEW (Rev8 rows below) | — |
 | R8c | NEW (Rev8 row below); AMENDED by R9a | the crossed-binary gate test, its shared DGM, and the 4-cell battery stand; the null-bootstrap dependence plug-in is the R9a FLOORED triple (ρ̃_s = max(ρ̂_s, 0.15), ρ̃_r = max(ρ̂_r, 0.15), ρ̃_c = ρ̂_c) — the Rev8 rule feeding per-replication truncated-to-0 estimates to the bootstrap is retired as mock-measured anti-conservative (SPEC-DEFECTS A4) |
 | R9a | NEW (Rev9 row below) | — |
+| R10a | NEW (Rev10 row below) | — (enforces R8b's fixture gate on the engine side; amends no registered quantity — the pooled-ANOVA closed form is retired as the family-(B) engine ESTIMATOR, retained only as a starting value) |
 
 - **PROPOSED-PREREG-ROW-99A-R1a (amended in Rev2) [AMENDED in Rev4 — see §8.0: §1.2
   has SEVEN conditions since R3g added condition 7]:** independent-endorsement law — an
@@ -3783,6 +3903,27 @@ Rev9 row (one, for the single (B)-build defect A4):
   floor-binding rates, ρ̃ quartiles); the S4.6 futility moment SE uses
   the same floored ρ̃ (widening-only, conservative direction
   preserved). [STIPULATED]
+
+Rev10 row (one, for the single frozen-run-staging defect B2):
+
+- **PROPOSED-PREREG-ROW-99A-R10a:** engine-estimator-faithfulness law —
+  the simulation engine (and the production analysis software) computes
+  EVERY continuous-family component by an algorithm that is NUMERICALLY
+  EXACT for the R8b-pinned REML estimator of that family's REGISTERED
+  model, verified on the UNCHANGED S4.2 fixture at the UNCHANGED
+  tolerances; for any family whose registered model contains a
+  structurally-partial random-effect block (currently only family (B)'s
+  reviewed-only reviewer w_{r(a,i)}), balanced ANOVA mean-square matching
+  is NOT an admissible algorithm (it is a conservative-but-DIFFERENT
+  estimator — staging-[MEASURED] SE/ν̂/p breaches of 3–4 orders) and the
+  S4.2/R10a exact-REML algorithm is mandated, the pooled closed form
+  surviving only as a deterministic starting value; a fixture breach is
+  ALWAYS resolved by fixing the engine or reporting a new S9 defect,
+  NEVER by relaxing tolerances or accepting a conservative surrogate —
+  because a conservative-but-different sim estimator makes the simulation
+  UNDERSTATE the registered procedure's rejection rates, which is the
+  invalid direction for an FWER demonstration even though the surrogate
+  is itself a valid (super-uniform) test. [STIPULATED]
 
 ## Revision 1 — review fixes applied
 
@@ -4628,6 +4769,181 @@ the A4 surface.
    committing to the full R = 40,000 run. A failure is a reportable
    design defect per S9, routed back — never resolved locally.
 
+## Revision 10 — B2 fixture resolution
+
+Focused single-defect revision from the frozen-run environment staging on
+the pinned Modal stack (`poc/99a-sim/results/frozen-run-setup/
+run-manifest.json` + `b2-fixture.log`; the deferred obligation of
+`poc/99a-sim/SPEC-DEFECTS.md` item B2, now discharged as a first-time
+measurement). The staging validated EVERYTHING ELSE it exercised: all six
+version pins EXACT on the built image (CPython 3.12.1 / numpy 2.1.3 /
+scipy 1.14.1 / R 4.4.1 / lme4 1.1-35.5 / lmerTest 3.1-3, ALL_PINS_MET);
+the FWER-control picture reproduced and passing on the pinned image
+(global-null familywise 0.000; strong-FWER and binding-true-null slices
+all CP-UB ≤ 0.055); the R9a gate-calibration battery ALL-PASS with
+SD-ratio ≥ 1.2; and the full grid priced at ~$3 / ~15–31 min wall-clock.
+Rev10 changes NOTHING outside the B2 surface.
+
+1. **The finding ([MEASURED] — pinned stack, S4.2 fixture as pinned:
+   config_index 0, replications 0–49, both Stage-1 ledger families, 12
+   registered contrasts/rep = 600 comparisons).** The engine's balanced
+   pooled-ANOVA closed form — the (B) mock's operative estimator
+   (`inference.FamilyAnova`), whose lme4 equivalence SPEC-DEFECTS B2 had
+   left DEFERRED for lack of R on the build box — matches the reference
+   implementation EXACTLY on every point estimate (max |Δθ̂| =
+   1.5e−13 ≤ 1e−7) but BREACHES the other three pinned tolerances by 3–4
+   orders of magnitude: max rel-SE 0.059 (tol 1e−5), max rel-ν̂ 0.166
+   (tol 1e−3), max |Δp| 0.0142 (tol 1e−6). Every breach lies in the
+   COMPOSITE family — worst contrasts H−A2-IR (Δ^G), H−S(H),
+   A2-IR−S(A2-IR) — and every worst case is CONSERVATIVE (engine SE
+   larger, ν̂ smaller, p larger than lme4's). The UCT family passes all
+   four tolerances with ≥ 2 orders of margin (rel-SE 2.6e−7, rel-ν̂
+   1.6e−6, |Δp| 1.7e−10). Mechanism: the registered family-(B) model
+   carries the reviewer random intercept w_{r(a,i)} on REVIEWED
+   arm-records ONLY (§4.6/(1b)(B): "a zero column, not a zero-variance
+   level"), i.e. the registered model itself implies a heteroscedastic
+   reviewed/unreviewed marginal structure (reviewed records: σ²_w
+   reviewer-clustered + σ²_ε; unreviewed: σ²_ε alone) — matching the
+   S4.1 layer-folding DGM, which folds the reviewer fraction into the
+   unreviewed residual. A structurally-partial block breaks the balance
+   conditions under which ANOVA mean-square matching equals REML (the
+   reviewer classification is a coarsening of the (arm, concept) cells
+   not orthogonal to the concept-main stratum), so the mock's single
+   pooled residual spreads σ²_w across its mean squares: it inflates
+   Δ^G's SE with reviewer noise that in fact cancels exactly (all four
+   reviewed arms share the identical reviewer average under the
+   published rotation) and mis-weights the mixed reviewed-vs-unreviewed
+   shuffle contrasts. Per S4.2 as pinned, a fixture breach HALTS the
+   build — the gate fired exactly as designed.
+
+2. **The decision (R10a — [STIPULATED] design choice: option (b), fix
+   the ENGINE to the registered estimator; option (c), amending S4.2 to
+   accept the conservative surrogate, is REJECTED).** Three options were
+   on the table: (a) run lme4 in-loop — cost-prohibitive (~10⁵–10⁶ R
+   fits across the grid vs the ~103 vCPU-hour budget) and unnecessary;
+   (b) make the engine numerically exact for the registered estimator;
+   (c) amend the S4.2 acceptance to a directional (conservative-not-
+   equal) criterion. Rev10 adopts **(b)**, on three grounds. *(i) The
+   registered composite model genuinely implies the structure the mock
+   discarded:* §4.6/(1b)(B) registers w_{r(a,i)} as a modelled crossed
+   random effect on reviewed records only, and the reference
+   implementation fits exactly that — the reviewed/unreviewed
+   heteroscedastic marginal is not an artifact of lme4, it is the
+   REGISTERED working model; an engine that pools it away is computing a
+   different estimator. *(ii) The simulation's object under test (S1) is
+   the REGISTERED procedure.* The campaign's operative composite-family
+   p-values are DEFINED by the R8b pins with lme4 as the executable
+   oracle. A sim estimator whose p-values are uniformly-in-the-worst-case
+   LARGER than the registered ones makes the simulated FWER an
+   UNDER-statement of the registered procedure's FWER: "conservative" is
+   validity-preserving for the surrogate test itself, but it is exactly
+   the INVALID direction for using the simulation as the strong-FWER
+   demonstration of the registered analysis (the lme4-defined test
+   rejects MORE than the surrogate — sharper SE, larger ν̂ — so a grid
+   pass under the surrogate would not bound the registered procedure's
+   error rate). Option (c)'s clause (iii), "the gridwide FWER
+   demonstration the full run provides", would therefore demonstrate
+   control for the WRONG object. *(iii) Making (c) coherent would cost
+   more than (b):* it would require re-registering the campaign's
+   operative composite estimator to be the pooled closed form — touching
+   the R8b pins (ruled out of Rev10's scope, and an inversion of the
+   named-oracle discipline: the estimator would become "what the Python
+   code does") — and would buy strictly worse power exactly where the
+   design needs it (Δ^G and the nonce shuffle components: measured
+   rel-SE +5.9%, ν̂ −16.6% at the fixture cell). It would also set the
+   precedent that a pinned acceptance gate, having fired, is relaxed
+   rather than obeyed — the opposite of the document's fail-closed
+   posture. The S4.2 fixture, its 600 comparisons, and its four
+   tolerances are byte-UNCHANGED by Rev10.
+
+3. **The exact fix (operative text: S4.2/R10a).** Family (B) — and by
+   the R10a law any family whose registered model ever carries a
+   structurally-partial random-effect block — must be computed by the
+   pinned exact-REML algorithm: the registered 6-component model
+   (σ²_b, σ²_ab, σ²_v, σ²_av, σ²_w, σ²_ε ≥ 0; SINGLE σ²_ε, the
+   reference implementation's parametrization — explicitly NOT a free
+   per-stratum residual variance, which lme4 cannot fit and which would
+   silently re-register the estimator; the "per-stratum residual
+   structure" the registered model implies is carried by the
+   reviewed-only Z_w block exactly as registered); profiled REML
+   deviance minimized over the five nonnegative variance ratios with
+   boundary solutions retained (R8b (a)); per-cell precomputed
+   cross-products with a once-per-replication data reduction to
+   (ZᵀY, XᵀY, YᵀY) so no optimizer step re-touches the N records;
+   pinned deterministic starts (start 1 = the pooled-ANOVA moment
+   estimates clipped to ≥ 0 — the retired closed form survives only as
+   a starting value; retry from the R8b second start) and convergence
+   tolerances (relative deviance change ≤ 1e−12, max relative parameter
+   change ≤ 1e−9 — an order below the fixture margins); SE from the
+   general GLS expression, with the stated linear contrast-variance map
+   Var(θ̂; φ) = (2/I)σ²_ab + (2/S)σ²_av + κ·σ²_w/n_reviewers +
+   (2/(I·S))σ²_ε (κ = 1 iff exactly one arm of the contrast is
+   reviewed; κ = 0 for Δ^G, where reviewer effects cancel exactly under
+   the published rotation) available as a self-check; ν̂ by the
+   unchanged Giesbrecht–Burns/expected-information pins (R8b (c)–(d))
+   evaluated in the reduced system, with the constant gradient
+   g = (0, 2/I, 0, 2/S, κ/n_reviewers, 2/(I·S)). Supporting-only
+   citations unchanged ([LIT-BACKED] — the already-source-verified
+   Giesbrecht & Burns 1985 / Kuznetsova et al. 2017 basis per §5; no
+   new external citations minted; the load-bearing warrant remains the
+   reference implementation + the fixture). Families (A) and (D) are
+   UNCHANGED: (A) is fixture-[MEASURED] within all four tolerances and
+   (D)'s registered model has no partial block; family (C) (gate test)
+   and the R9a fix are untouched — B2 does not touch them.
+
+4. **Validity status after the fix (conservative ≠ anti-conservative,
+   stated precisely).** Nothing about Rev10 weakens any validity
+   property: the registered composite p-values keep their standing
+   honest status (§4.6/(1b): super-uniform under the [STIPULATED]
+   Gaussian working model, with finite-sample behaviour verified
+   empirically by the SIM grid — the registered model remains a
+   deliberate working approximation to the S4.1 DGM, whose residual
+   folding no single-σ²_ε model represents exactly; that gap is
+   precisely what the FWER grid measures, disclosed, never assumed
+   away). The retired pooled estimator was itself a valid super-uniform
+   test — the B2 breach was never an anti-conservative error, and no
+   staged result is invalidated: the staging's FWER/gate-cal slice
+   verdicts stand as machinery validation. But because the fixed engine
+   makes the composite components SHARPER (smaller SE, larger ν̂ than
+   the surrogate), the full-grid FWER acceptance MUST be (and is) run
+   under the fixed engine — the unchanged S6/S8 bars (every cell's exact
+   one-sided 95% CP upper bound ≤ τ_FWER = 0.055, global null ≈ 0)
+   then certify the registered procedure itself, which is the entire
+   point of choosing (b). [EXTRAPOLATION — direction-only: the
+   exact-REML engine is expected to pass the fixture at the pinned
+   tolerances, since the UCT family already matches lme4 at the 1e−7
+   level under the same reduction discipline and the remaining gap was
+   purely the discarded reviewer structure; the fixture re-run on the
+   pinned image remains the acceptance criterion, and a residual breach
+   is a NEW S9 reportable defect, never a locally relaxed tolerance.]
+
+5. **What is deliberately untouched (everything the staging
+   validated).** The graphical procedure, the 12-claim ledger, weights,
+   transition matrix, update algorithm, IUT/TOST compositions, margins,
+   truth functions, hypothesis functions, the registered estimator pins
+   (R8b (a)–(e), including the fixture definition and all four
+   tolerances), the gate test + R9a floored plug-in + battery, the
+   S4.6 futility and S4.8/Rung-0 algorithms, the S6 74-cell FWER grid,
+   S7 power grid, S3 parameters, seeds/substreams, the environment pins
+   (verified EXACT), and the A4 fix are all byte-unchanged. Rev10
+   touched ONLY: the banner/status text, the SIM-SPEC heading tag, the
+   new S4.2/R10a paragraph, the §8.0 table + new R10a row, and the
+   Revision 10 / self-check sections.
+
+6. **Next step (executor) — what unblocks the full grid.** (i) Re-code
+   the family-(B) fit in the engine (`poc/99a-sim/` `inference.py`) per
+   S4.2/R10a — exact-REML path with per-cell precompute; families
+   (A)/(C)/(D) and all other modules unchanged. (ii) Re-run the S4.2
+   fixture ON THE PINNED IMAGE (same 600 comparisons, same tolerances)
+   — it must PASS; a residual breach routes back per S9. (iii) Re-emit
+   the S2 determinism artifact and re-run the Modal timing bench (the
+   iterative composite fit changes per-rep cost; the seed system and
+   substream layout are untouched, so chunking stays bit-exact and
+   order-independent), disclosing the revised grid cost — bounded well
+   within the ~$3–5 envelope the staging priced. (iv) THEN launch the
+   full frozen grid: the environment is already verified GREEN, so the
+   S4.2 fixture pass is the LAST gate before the run.
+
 ## Mandatory self-check — Revision 2 (historical record, retained verbatim; superseded by the Revision 8 self-check below)
 
 1. **All 13 critique findings addressed?** YES — itemised in "Revision 2" above with
@@ -5174,7 +5490,7 @@ the A4 surface.
     is, by S9, a reportable design defect routed back — never a local
     judgment call.
 
-## Mandatory self-check — Revision 9 (final section)
+## Mandatory self-check — Revision 9 (historical record, retained verbatim; extended — not replaced — by the focused Revision 10 self-check below)
 
 1. **Does the estimator/bootstrap-null still downward-bias small
    dependence?** NO — the bootstrap now consumes the FLOORED triple ρ̃
@@ -5240,3 +5556,65 @@ the A4 surface.
    simulation launched; the mandated next step (the executor's 4-cell
    gate-calibration mock re-run against the R9a test, verifying
    ≤ 1.25·γ before the full run) is recorded, not performed.
+
+## Mandatory self-check — Revision 10 (final section)
+
+1. **Is B2 resolved by (b) or (c), with the EXACT spec change?** YES —
+   by **(b)**: the operative change is the new S4.2/R10a paragraph
+   pinning the family-(B) EXACT-REML engine algorithm (registered
+   6-component model with the reviewed-only Z_w block and single σ²_ε —
+   the registered per-stratum structure, not a free heteroscedastic
+   residual; profiled REML over the five nonnegative ratios, boundary
+   retained; per-cell precomputed cross-products with one-pass per-rep
+   data reduction; pinned starts — pooled-ANOVA moments clipped ≥ 0,
+   R8b second start on retry — and pinned convergence tolerances
+   1e−12/1e−9; SE via the general GLS expression with the κ-classified
+   linear contrast-variance map as self-check; ν̂ by the unchanged
+   Giesbrecht–Burns/expected-information pins with constant gradient
+   g = (0, 2/I, 0, 2/S, κ/n_rev, 2/(I·S))), enforced by the new
+   `PROPOSED-PREREG-ROW-99A-R10a` engine-estimator-faithfulness law;
+   the S4.2 fixture and all four tolerances are byte-UNCHANGED, and the
+   choice of (b) over (c) is argued from what the REGISTERED composite
+   model implies (Revision 10 item 2).
+2. **Is validity preserved — super-uniform, conservative-not-anti-
+   conservative?** YES, and sharpened: the [MEASURED] B2 deviation was
+   conservative in every worst case (engine SE larger, ν̂ smaller,
+   p larger), so nothing anti-conservative ever entered the mock or the
+   staging slices; the registered composite p-values keep their standing
+   §4.6/(1b) honest status (super-uniform under the [STIPULATED] working
+   model, finite-sample control DEMONSTRATED by the grid, working-model
+   gap to the S4.1 DGM disclosed); and Revision 10 item 2 records the
+   asymmetry that decided against (c) — a conservative-but-different SIM
+   estimator UNDERSTATES the registered procedure's FWER, so accepting
+   it would have certified the wrong object; fixing the engine makes the
+   unchanged gridwide FWER acceptance certify the registered procedure
+   itself.
+3. **Nothing else changed?** YES — the procedure, claims ledger,
+   weights, transition matrix, update algorithm, IUT/TOST compositions,
+   margins, truth/hypothesis functions, R8b estimator pins + fixture +
+   tolerances, gate test + R9a fix + battery, futility/Rung-0, S3
+   parameters, S6/S7 grids, seeds/substreams, and environment pins are
+   byte-preserved; Rev10 touched ONLY the banner/status text, the
+   SIM-SPEC heading tag, the S4.2/R10a paragraph, the §8.0 table + R10a
+   row, and the Revision 10 / self-check sections; the review/manifest
+   artifacts (`run-manifest.json`, `b2-fixture.log`, SPEC-DEFECTS.md)
+   are untouched.
+4. **Four epistemic tags disciplined?** YES — [MEASURED] for the
+   staging's fixture numbers (cited to `poc/99a-sim/results/
+   frozen-run-setup/`), [STIPULATED] for the R10a algorithm/convergence
+   pins and the option-(b) design choice, [LIT-BACKED] only re-citing
+   the already-source-verified Giesbrecht–Burns/Kuznetsova basis
+   (supporting-only per §5 — no new external citations minted), and
+   [EXTRAPOLATION] exactly once (the expectation that the exact-REML
+   engine passes the fixture), direction-only, with the fixture re-run
+   remaining the acceptance criterion.
+5. **No @handle/account strings; no `ASM-<number>` minted?** YES —
+   roles by name only; the single new row is exactly
+   `PROPOSED-PREREG-ROW-99A-R10a`; ids are assigned at prereg-freeze.
+6. **Nothing committed / registered / frozen / run?** YES — in-place
+   edit of this proposal document only; no git operations, no registry
+   writes, no freeze, no simulation launched, no Modal run; the mandated
+   next steps (executor re-codes the family-(B) fit, re-passes the S4.2
+   fixture on the pinned image, re-emits determinism/timing artifacts,
+   THEN launches the full grid on the already-verified-GREEN
+   environment) are recorded, not performed.
