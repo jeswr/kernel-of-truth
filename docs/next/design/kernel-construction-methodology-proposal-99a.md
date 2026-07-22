@@ -1,4 +1,4 @@
-# Kernel construction methodology — proposal 99a, REVISION 10
+# Kernel construction methodology — proposal 99a, REVISION 11
 
 > **REVISED DRAFT — NOT A MAINTAINER SUBMISSION AND NOT A PREREG FREEZE.
 > STATUS PER THE MAINTAINER'S #59 RATIFICATION (2026-07-21): the verified-proposer
@@ -30,14 +30,32 @@
 > first-time [MEASURED] on the pinned stack — the engine's balanced
 > pooled-ANOVA composite-family fit is a CONSERVATIVE-BUT-DIFFERENT
 > estimator, not the pinned lme4 REML, breaching the S4.2 fixture
-> tolerances on SE/ν̂/p by 3–4 orders — FIXED here as Revision 10/R10a
+> tolerances on SE/ν̂/p by 3–4 orders — FIXED as Revision 10/R10a
 > (composite-family EXACT-REML engine algorithm; the S4.2 fixture and its
 > tolerances are byte-UNCHANGED — the engine is fixed, the gate is not
-> relaxed). NEXT = the executor re-codes the family-(B) fit per R10a →
-> re-passes the S4.2 fixture on the pinned image → full frozen (B) run
-> (environment already GREEN) → re-review of the simulation RESULTS →
-> preregistration. Nothing is registered, frozen, scheduled, or committed
-> by this revision.**
+> relaxed). The R10a FROZEN-RUN VALIDATION on the pinned image
+> (`poc/99a-sim/results/frozen-run/r10a-validation-manifest.json`) has
+> since [MEASURED] that the family-(B) exact-REML fix WORKS (rel-SE
+> 4.7e−6, rel-ν̂ 6.9e−5 vs the registered per-family lme4 oracle) but
+> that R10a was INCOMPLETE: family (A) (UCT/consumer) carries the
+> IDENTICAL ANOVA≠REML defect — its operative pooled-ANOVA fit fails the
+> corrected 6-component oracle (rel-SE 0.050, rel-ν̂ 0.209, |Δp| 0.010;
+> two independent exact computations agree to 3.4e−6 against it), and
+> the Rev10 [MEASURED] claim that family (A) matched at 2.6e−7 is
+> REFUTED (it was measured against a mis-specified oracle omitting the
+> registered consumer block) — FIXED here as Revision 11/R11a
+> (exact-REML extended to family (A); the refuted claim corrected from
+> measurement; the composite df numerical pin tightened so |Δp| clears
+> 1e−6; families (C)/(D) measured/structurally unaffected). Exact-REML
+> for BOTH families is ~5–7× the pooled-ANOVA cost, so the full grid
+> exceeds the ~$3–5 staging envelope — the optimization pass + revised
+> cost ceiling is a SEPARATE model-code pass and a maintainer decision
+> (surfaced on the GitHub thread), NOT resolved here. NEXT = maintainer
+> cost/optimization decision → the executor wires the validated
+> exact-REML into the engine for families (A)+(B) per R10a/R11a →
+> re-passes the S4.2 fixture on the pinned image → full frozen (B) run →
+> re-review of the simulation RESULTS → preregistration. Nothing is
+> registered, frozen, scheduled, or committed by this revision.**
 >
 > Revision 8 produced 2026-07-21 (Fable), applying the **cross-vendor GPT-5.6
 > focused spot-check of Rev7's SIM-SPEC + analysis ledger**
@@ -145,6 +163,51 @@
 > `PROPOSED-PREREG-ROW-99A-R10a`. NEXT = the executor re-codes the
 > composite-family fit → re-passes the fixture on the pinned image → full
 > frozen grid (environment already verified GREEN).
+>
+> Revision 11 produced 2026-07-22 (Fable), a FOCUSED single-defect fix from
+> the R10a frozen-run validation on the pinned Modal image
+> (`poc/99a-sim/results/frozen-run/r10a-validation-manifest.json`; the
+> gate fired FAIL-CLOSED exactly as designed — NO grid spend). The
+> validation [MEASURED], against the CORRECTED registered per-family lme4
+> oracle (6 components INCLUDING each family's extra crossed block), that
+> (i) the R10a family-(B) exact-REML WORKS (θ̂ 5.9e−14, rel-SE 4.7e−6,
+> rel-ν̂ 6.9e−5; |Δp| 1.006e−6 — a numerical-Hessian boundary artifact,
+> tightened here); but (ii) family (A)'s operative pooled-ANOVA fit FAILS
+> (rel-SE 0.050, rel-ν̂ 0.209, |Δp| 0.010 over 450 comparisons), while an
+> executor exact-REML with the registered consumer block passes all four
+> tolerances (3.4e−6 / 4.8e−5 / 7.8e−7) — TWO independent exact
+> computations agreeing with each other and both disagreeing with the
+> pooled ANOVA by ~5%/21%. The Rev10 [MEASURED] claim that family (A)
+> matched at 2.6e−7 "because the consumer block spans ALL ten arms" is
+> REFUTED BY MEASUREMENT: that number was taken against a mis-specified
+> oracle that itself omitted the registered consumer block, and spanning
+> all arms does NOT make the rotation k = (uct_arm_index(a) + i) mod
+> n_consumers orthogonal to the concept×arm stratum — the consumer block
+> is a ROTATED crossed random effect, and folding it into an iid residual
+> breaks the balanced ANOVA=REML identity for the contrast SE/df exactly
+> as the reviewer block does in family (B) (direction CONSERVATIVE in
+> every worst case, as before). Rev11 therefore (a) CORRECTS the refuted
+> claim from measurement, (b) EXTENDS the R10a exact-REML mandate to
+> family (A) (S4.2/R11a — same profiled-REML/GLS/Giesbrecht–Burns
+> machinery, generic over the extra block, matching the
+> validation-passing implementation), generalising the R10a law from
+> "structurally-partial block" to ANY rotated extra crossed
+> random-effect block, and (c) TIGHTENS the ν̂ numerical-Hessian pin so
+> the composite |Δp| clears the unchanged 1e−6 tolerance cleanly.
+> Families (C) (separate parametric-bootstrap procedure, no ANOVA/REML
+> path) and (D) (no extra block) are measured/structurally unaffected.
+> The S4.2 fixture, its four tolerances, the R8b estimator pins, the
+> 12-claim procedure, the gate test + A4/R9a fix, the R10a composite
+> algorithm, and the S6/S7 grids are byte-preserved. COST is
+> acknowledged, not resolved: exact-REML for BOTH families is ~5–7× the
+> pooled-ANOVA cost (~$20–40 naive for the full grid vs the ~$3–5
+> envelope; est. ~$5–12 after warm-start + analytic-gradient +
+> analytic-expected-information optimization) — that optimization pass
+> and the revised cost ceiling are a SEPARATE model-code pass and a
+> maintainer decision surfaced on the GitHub thread. New prereg row:
+> `PROPOSED-PREREG-ROW-99A-R11a`. NEXT = maintainer cost decision → the
+> executor wires both families' exact-REML → re-passes the fixture on
+> the pinned image → full frozen grid.
 >
 > Revision 7 produced 2026-07-21 (Fable), applying the **cross-vendor GPT-5.6
 > re-review of Rev6** (`docs/next/design/99a-rev6-xvendor-review.md`, verdict
@@ -1488,12 +1551,18 @@ and the T′-shuffle contrast.
     distinct consumers, so no consumer answers one concept under two arms
     (the §4.5 constraint); with n_consumers | I (24 | 48 and 24 | 96 ✓)
     every consumer scores exactly I/n_consumers concepts × n_seeds sessions
-    per arm, so consumer effects cancel EXACTLY in every arm contrast;
+    per arm, so consumer effects cancel EXACTLY in every arm-contrast POINT
+    estimate (fixture-[MEASURED]: max |Δθ̂| = 1.04e−13 — Rev11 scope note:
+    this cancellation does NOT extend to the contrast SE/ν̂, because the
+    rotation is a crossed classification NOT orthogonal to the concept×arm
+    stratum; the pooled-ANOVA closed form is therefore NOT an admissible
+    algorithm for this family's inference — S4.2/R11a);
     same-(a,i) seed variants share a consumer, which the §4.5 constraint
     permits (cross-arm exposure is what it forbids) and whose campaign-side
     carryover handling remains the unchanged R5b pins. *Estimator/df/p/
     bound:* the R8b exact inference pins; generic definitions at
-    θ₀ ∈ {m_T, −δ_T, δ_T, δ_S} per the claim table.
+    θ₀ ∈ {m_T, −δ_T, δ_T, δ_S} per the claim table; engine algorithm per
+    S4.2/R11a (exact REML with the consumer block — Rev11).
   - **(B) Nonce-composite components** — Δ^G (C-GRAPH), the two nonce
     C-VAL shuffle components, and (descriptive/selection-only, same fit)
     the rung increments and the E-arm contrast Δ^E. *Estimand:* mean paired
@@ -2465,7 +2534,7 @@ Each rung: question / method / pass-fail / cost / decision-unblocked. Rungs are
    the Rung-1 verdicts hold outside formal/lexical sectors? Only designed after Rungs
    1–3 report. Unblocks: any general construction-methodology ruling.
 
-## SIM-SPEC — FWER/power simulation protocol (Rev7/R7e, before-build corrections Rev8/R8a–g, A4 gate-calibration fix Rev9/R9a, B2 composite-family engine-estimator fix Rev10/R10a — the task-(B) acceptance artifact, maintainer-ratified #59)
+## SIM-SPEC — FWER/power simulation protocol (Rev7/R7e, before-build corrections Rev8/R8a–g, A4 gate-calibration fix Rev9/R9a, B2 composite-family engine-estimator fix Rev10/R10a, family-A exact-REML completion + refuted-claim correction Rev11/R11a — the task-(B) acceptance artifact, maintainer-ratified #59)
 
 This section is the complete, self-contained specification of the mandated
 FWER/power simulation (§4.6/R6a item 8), **REWRITTEN in Rev7 per the Rev6
@@ -2764,10 +2833,33 @@ published rotation the reviewer classification is a coarsening of the
 so the composite design does not satisfy the balance conditions under
 which ANOVA mean-square matching equals REML, and pooling ONE residual
 spreads σ²_w across the pooled mean squares (a valid, conservative, but
-DIFFERENT estimator). The identity does hold to fixture tolerance for
-family (A) ([MEASURED] on the same fixture: max rel-SE 2.6e−7, rel-ν̂
-1.6e−6, |Δp| 1.7e−10 — the consumer block spans ALL ten arms) and
-structurally for family (D) (no partial block, §4.6/(1b)(D)). *Pinned
+DIFFERENT estimator). **[CORRECTED in Rev11 — the Rev10 claim here that
+the identity "does hold to fixture tolerance for family (A) (max rel-SE
+2.6e−7 … the consumer block spans ALL ten arms)" is REFUTED BY
+MEASUREMENT.]** [MEASURED]
+(`poc/99a-sim/results/frozen-run/r10a-validation-manifest.json`, config 0,
+reps 0–49, 450 comparisons, vs the CORRECTED registered 6-component lme4
+oracle INCLUDING the consumer block): family (A)'s pooled-ANOVA fit
+breaches at max rel-SE 0.050, max rel-ν̂ 0.209, max |Δp| 0.010, while the
+exact-REML fit with the consumer block passes all four tolerances (max
+rel-SE 3.4e−6, rel-ν̂ 4.8e−5, |Δp| 7.8e−7) — the Rev10 2.6e−7 figure was
+taken against a MIS-SPECIFIED oracle that itself omitted the registered
+consumer block u_k, so engine and oracle agreed only because both folded
+the block into the residual. Spanning all ten arms does NOT make the
+published rotation k(a, i, s) = (uct_arm_index(a) + i) mod n_consumers
+orthogonal: the consumer block is a ROTATED crossed random effect — a
+coarsening of the (arm, concept) cells not orthogonal to the concept×arm
+stratum — so pooling it breaks the balanced ANOVA=REML identity for the
+contrast SE/df exactly as the reviewer block does in family (B); it
+cancels exactly in every θ̂ (measured |Δθ̂| = 1.04e−13) and in the
+contrast-variance map (every contrast has BOTH arms covered by the block,
+κ = 0 always), but NOT in the stratum decomposition behind SE/ν̂.
+Direction CONSERVATIVE in every worst case (pooled SE larger, ν̂ smaller,
+p larger). The identity does hold structurally for family (D) (NO extra
+block of either kind, §4.6/(1b)(D)), and family (C)'s gate test is a
+separate parametric-bootstrap procedure with no ANOVA/REML path — both
+confirmed unaffected. Family (A)'s engine algorithm is therefore pinned
+by R11a below, symmetric to family (B)'s. *Pinned
 family-(B) algorithm ([STIPULATED] — an implementation pin under the S9
 exact-algorithm clause; it changes NO registered quantity):*
 (i) *model/parameters:* the registered (1b)(B) 6-component model with
@@ -2816,6 +2908,84 @@ rule:* if the exact-REML engine STILL breaches the fixture, that is a NEW
 S9 reportable defect (e.g. a reference-implementation optimizer-convergence
 artifact), routed to design — never a locally relaxed tolerance, and never
 a reversion to the pooled estimator.
+
+**R11a — family-(A) EXACT-REML engine algorithm + ν̂-information
+tightening (Rev11; the R10a completion. The estimator pins, the fixture,
+and its four tolerances remain byte-UNCHANGED — this pin extends R10a's
+admissible-algorithm mandate to family (A) and sharpens one numerical
+pin).** Per the corrected measurement above, the R10a law's trigger
+condition is GENERALISED: balanced pooled-ANOVA mean-square matching is
+inadmissible for any family whose registered model carries ANY extra
+crossed random-effect block assigned by a published rotation —
+structurally-partial (family (B)'s reviewed-only reviewer w_{r(a,i)}) OR
+full-but-rotated (family (A)'s all-arm consumer u_{k(a,i,s)}) — because
+either rotation is a coarsening of the (arm, concept) cells that is not
+orthogonal to the concept×arm stratum; only family (D), with NO extra
+block, retains the exact identity (structural; family (C) has no
+ANOVA/REML path). *Pinned family-(A) algorithm ([STIPULATED] — an
+implementation pin under the S9 exact-algorithm clause, symmetric to
+R10a's items (i)–(v) and matching the validation-passing generic
+implementation, `poc/99a-sim/results/frozen-run/reml_composite.py`,
+[MEASURED] to pass all four tolerances vs the registered lme4 oracle):*
+(i) *model/parameters:* the registered (1b)(A) 6-component model with
+φ = (σ²_b, σ²_ab, σ²_v, σ²_av, σ²_u, σ²_ε), each ≥ 0, SINGLE residual
+σ²_ε, and the consumer block u on ALL ten arms per the published rotation
+k(a, i, s) = (uct_arm_index(a) + i) mod n_consumers (independent of s);
+(ii) *objective:* the identical profiled REML deviance (arm fixed effects
+by GLS, σ²_ε profiled in closed form, optimization over the five
+nonnegative variance ratios; boundary solutions retained per R8b (a));
+(iii) *per-cell precompute / per-rep reduction:* identical to R10a (iii),
+with the consumer block Z_u in place of the reviewed-only Z_w
+(q = I + 10I + S + 10S + n_consumers); (iv) *deterministic starts and
+convergence:* the R10a (iv) pins verbatim (pooled-ANOVA moment starts
+clipped to ≥ 0; retry from the R8b second start; relative deviance change
+≤ 1e−12 AND max relative parameter change ≤ 1e−9); (v) *outputs:* θ̂ from
+the GLS fixed effects (= the arm-mean difference under the published
+balanced rotation, fixture-arbitrated); SE(θ̂)² = cᵀ(XᵀV̂⁻¹X)⁻¹c, which
+on this design equals Var(θ̂; φ) = (2/I)·σ²_ab + (2/S)·σ²_av +
+κ·σ²_u/n_consumers + (2/(I·S))·σ²_ε with **κ = 0 for EVERY registered
+family-(A) contrast** (both arms of every contrast are covered by the
+block, so consumer effects cancel in the contrast variance even though
+they contaminate the pooled mean squares — the map is a self-check, the
+general GLS expression is operative); ν̂ by the unchanged
+Giesbrecht–Burns pins with the constant gradient
+g = (0, 2/I, 0, 2/S, 0, 2/(I·S)); p and bounds by the generic
+definitions; fail-closed rule identical to R10a's. Supporting-only
+citations unchanged ([LIT-BACKED] — the already-source-verified
+Giesbrecht & Burns 1985 / Kuznetsova et al. 2017 basis per §5; no new
+external citations minted; the load-bearing warrant remains the reference
+implementation + the fixture). *ν̂ numerical-information tightening
+([STIPULATED] — applies to BOTH exact-REML families):* the composite
+family's validated fit left ONE boundary artifact, [MEASURED] max
+|Δp| = 1.006e−6 vs the 1e−6 tolerance (θ̂/SE/ν̂ all passing; rel-ν̂
+6.9e−5; the worst case at mid-range p ≈ 0.59, where |∂p/∂ν̂| is maximal —
+a numerical-Hessian resolution boundary, not an estimator discrepancy).
+The pin: the Cov(φ̂) entering the Giesbrecht–Burns ν̂ must be computed
+from a central-difference, Richardson-extrapolated Hessian of the REML
+deviance carried to step-halving CONVERGENCE — successive Richardson
+extrapolants agreeing to relative change ≤ 1e−6 in the resulting ν̂
+(the validation build stopped at a fixed ladder depth one level short) —
+so the engine-side ν̂ numerical error sits an order below the 6.9e−5
+that propagated the boundary p-gap. The fixture tolerances are
+byte-UNCHANGED and the fixture re-run on the pinned image remains the
+arbiter. [EXTRAPOLATION — direction-only: with the ν̂ ladder converged at
+1e−6 the propagated |Δp| falls to the ~1e−8–1e−7 scale, clearing 1e−6
+cleanly; family (A)'s exact-REML already clears at |Δp| = 7.8e−7 under
+the same machinery; a residual breach is a NEW S9 reportable defect,
+never a locally relaxed tolerance.] *Cost implication (acknowledged, NOT
+resolved here):* exact-REML for BOTH families is [MEASURED] ~5–7× the
+pooled-ANOVA per-replication cost (~664–849 ms/rep composite fit +
+Hessian vs the ~95 ms/rep full-rep budget on Modal-class CPU), so the
+full frozen grid naively prices at ~$20–40 — OUTSIDE the ~$3–5 staging
+envelope. [EXTRAPOLATION — direction-only: warm-starting φ̂ across
+replications, an analytic REML gradient, and the analytic
+expected-information df in place of the numerical Hessian are estimated
+to reduce this to ~10–30 ms/rep (~$5–12 grid), but each MUST be
+fixture-validated, never assumed.] That optimization pass and the
+revised cost ceiling are a SEPARATE model-code pass and a maintainer
+decision (surfaced on the GitHub thread) — Rev11 makes the estimator
+CORRECT; the grid does not launch until the fixture passes on the pinned
+image AND the maintainer ratifies the revised ceiling.
 
 **S4.3 Concept-layer copula and regimes (Rev8: coordinates are ARM-SIDE
 concept×arm effects, and bounded-Beta is a PRE-SCALING concept random
@@ -3337,7 +3507,8 @@ pointed to gate 5).
 | R8a, R8b, R8d–R8g | NEW (Rev8 rows below) | — |
 | R8c | NEW (Rev8 row below); AMENDED by R9a | the crossed-binary gate test, its shared DGM, and the 4-cell battery stand; the null-bootstrap dependence plug-in is the R9a FLOORED triple (ρ̃_s = max(ρ̂_s, 0.15), ρ̃_r = max(ρ̂_r, 0.15), ρ̃_c = ρ̂_c) — the Rev8 rule feeding per-replication truncated-to-0 estimates to the bootstrap is retired as mock-measured anti-conservative (SPEC-DEFECTS A4) |
 | R9a | NEW (Rev9 row below) | — |
-| R10a | NEW (Rev10 row below) | — (enforces R8b's fixture gate on the engine side; amends no registered quantity — the pooled-ANOVA closed form is retired as the family-(B) engine ESTIMATOR, retained only as a starting value) |
+| R10a | NEW (Rev10 row below); AMENDED by R11a | enforces R8b's fixture gate on the engine side; amends no registered quantity — the pooled-ANOVA closed form is retired as the family-(B) engine estimator, retained only as a starting value; the R10a validation [MEASURED] the composite exact-REML matching lme4 (rel-SE 4.7e−6, rel-ν̂ 6.9e−5) AND refuted the row's "currently only family (B)" scope — the trigger condition is generalised by R11a to ANY rotated extra crossed block, bringing family (A) IN |
+| R11a | NEW (Rev11 row below) | — (completes R10a: family-(A) exact-REML mandated, the refuted family-(A) 2.6e−7 claim corrected from measurement, the ν̂ numerical-information pin tightened; families (C)/(D) measured/structurally out) |
 
 - **PROPOSED-PREREG-ROW-99A-R1a (amended in Rev2) [AMENDED in Rev4 — see §8.0: §1.2
   has SEVEN conditions since R3g added condition 7]:** independent-endorsement law — an
@@ -3906,7 +4077,11 @@ Rev9 row (one, for the single (B)-build defect A4):
 
 Rev10 row (one, for the single frozen-run-staging defect B2):
 
-- **PROPOSED-PREREG-ROW-99A-R10a:** engine-estimator-faithfulness law —
+- **PROPOSED-PREREG-ROW-99A-R10a [AMENDED in Rev11 — see §8.0/R11a: the
+  "structurally-partial … currently only family (B)" trigger condition
+  was refuted by the R10a frozen-run validation; the generalised R11a
+  condition (ANY rotated extra crossed random-effect block) governs, and
+  family (A) is IN]:** engine-estimator-faithfulness law —
   the simulation engine (and the production analysis software) computes
   EVERY continuous-family component by an algorithm that is NUMERICALLY
   EXACT for the R8b-pinned REML estimator of that family's REGISTERED
@@ -3924,6 +4099,37 @@ Rev10 row (one, for the single frozen-run-staging defect B2):
   UNDERSTATE the registered procedure's rejection rates, which is the
   invalid direction for an FWER demonstration even though the surrogate
   is itself a valid (super-uniform) test. [STIPULATED]
+
+Rev11 row (one, for the single R10a-validation defect — R10a's
+incompleteness on family (A)):
+
+- **PROPOSED-PREREG-ROW-99A-R11a:** rotated-crossed-block exact-REML law
+  (generalises and completes R10a) — the R10a
+  engine-estimator-faithfulness law's trigger condition is ANY extra
+  crossed random-effect block assigned by a published rotation,
+  structurally-partial (family (B)'s reviewed-only reviewer w_{r(a,i)})
+  OR full-but-rotated (family (A)'s all-arm consumer u_{k(a,i,s)}):
+  either rotation is a coarsening of the (arm, concept) cells not
+  orthogonal to the concept×arm stratum, so balanced ANOVA mean-square
+  matching is NOT an admissible algorithm for that family's SE/ν̂/p
+  (frozen-run-validation-[MEASURED]: family (A) pooled ANOVA vs the
+  registered 6-component lme4 oracle rel-SE 0.050 / rel-ν̂ 0.209 /
+  |Δp| 0.010, conservative direction, while exact REML with the consumer
+  block passes all four fixture tolerances; the Rev10 family-(A) 2.6e−7
+  match is refuted — it was measured against a mis-specified oracle
+  omitting the registered consumer block; the S4.2 fixture oracle is
+  ALWAYS each family's FULL registered model); families (A) AND (B) are
+  therefore both computed by the S4.2 R10a/R11a exact-REML algorithm
+  (pooled closed form surviving only as a starting value), family (D)
+  retains the exact identity structurally (no extra block) and family
+  (C) has no ANOVA/REML path (separate parametric-bootstrap procedure);
+  the ν̂-information numerical pin (Richardson ladder converged at
+  relative Δν̂ ≤ 1e−6) applies to both exact-REML families so |Δp|
+  clears the unchanged 1e−6 tolerance; a fixture breach remains ALWAYS
+  an engine fix or a new S9 defect, never a relaxed tolerance — and the
+  measured ~5–7× exact-REML cost is routed to the maintainer as a
+  separate optimization-pass + cost-ceiling decision, never absorbed by
+  weakening the estimator. [STIPULATED]
 
 ## Revision 1 — review fixes applied
 
@@ -4798,7 +5004,12 @@ Rev10 changes NOTHING outside the B2 surface.
    A2-IR−S(A2-IR) — and every worst case is CONSERVATIVE (engine SE
    larger, ν̂ smaller, p larger than lme4's). The UCT family passes all
    four tolerances with ≥ 2 orders of margin (rel-SE 2.6e−7, rel-ν̂
-   1.6e−6, |Δp| 1.7e−10). Mechanism: the registered family-(B) model
+   1.6e−6, |Δp| 1.7e−10). **[REFUTED in Rev11 — the preceding UCT-family
+   sentence was measured against a MIS-SPECIFIED oracle omitting the
+   registered consumer block; against the correct 6-component oracle the
+   UCT pooled-ANOVA fit FAILS (rel-SE 0.050, rel-ν̂ 0.209, |Δp| 0.010)
+   and requires the same exact-REML — see S4.2/R11a and Revision 11.]**
+   Mechanism: the registered family-(B) model
    carries the reviewer random intercept w_{r(a,i)} on REVIEWED
    arm-records ONLY (§4.6/(1b)(B): "a zero column, not a zero-variance
    level"), i.e. the registered model itself implies a heteroscedastic
@@ -4890,6 +5101,10 @@ Rev10 changes NOTHING outside the B2 surface.
    UNCHANGED: (A) is fixture-[MEASURED] within all four tolerances and
    (D)'s registered model has no partial block; family (C) (gate test)
    and the R9a fix are untouched — B2 does not touch them.
+   **[CORRECTED in Rev11 — "(A) is fixture-[MEASURED] within all four
+   tolerances" is refuted (mis-specified oracle); family (A) is brought
+   INTO the exact-REML mandate by R11a; (C)/(D) remain out, with the
+   measured/structural justification restated there.]**
 
 4. **Validity status after the fix (conservative ≠ anti-conservative,
    stated precisely).** Nothing about Rev10 weakens any validity
@@ -4916,6 +5131,12 @@ Rev10 changes NOTHING outside the B2 surface.
    purely the discarded reviewer structure; the fixture re-run on the
    pinned image remains the acceptance criterion, and a residual breach
    is a NEW S9 reportable defect, never a locally relaxed tolerance.]
+   **[Rev11 note: the extrapolation's conclusion was CONFIRMED for the
+   composite family (exact-REML measured at rel-SE 4.7e−6 / rel-ν̂
+   6.9e−5, with one ν̂-resolution boundary artifact on |Δp|, tightened
+   by R11a), but its UCT-match premise was refuted — the fixture re-run
+   fired exactly as the S9 clause intends and routed the family-(A)
+   defect back to design.]**
 
 5. **What is deliberately untouched (everything the staging
    validated).** The graphical procedure, the 12-claim ledger, weights,
@@ -4933,7 +5154,10 @@ Rev10 changes NOTHING outside the B2 surface.
 6. **Next step (executor) — what unblocks the full grid.** (i) Re-code
    the family-(B) fit in the engine (`poc/99a-sim/` `inference.py`) per
    S4.2/R10a — exact-REML path with per-cell precompute; families
-   (A)/(C)/(D) and all other modules unchanged. (ii) Re-run the S4.2
+   (A)/(C)/(D) and all other modules unchanged. **[SUPERSEDED in Rev11:
+   family (A) is IN — both families (A) and (B) take the exact-REML path
+   per R11a; the cost consequence is routed to the maintainer, and the
+   revised next steps are in Revision 11 item 6.]** (ii) Re-run the S4.2
    fixture ON THE PINNED IMAGE (same 600 comparisons, same tolerances)
    — it must PASS; a residual breach routes back per S9. (iii) Re-emit
    the S2 determinism artifact and re-run the Modal timing bench (the
@@ -4943,6 +5167,145 @@ Rev10 changes NOTHING outside the B2 surface.
    within the ~$3–5 envelope the staging priced. (iv) THEN launch the
    full frozen grid: the environment is already verified GREEN, so the
    S4.2 fixture pass is the LAST gate before the run.
+
+## Revision 11 — family-A exact-REML (R10a completion) + refuted-claim correction
+
+Focused single-defect revision from the R10a frozen-run validation on the
+pinned Modal image
+(`poc/99a-sim/results/frozen-run/r10a-validation-manifest.json`; runs
+listed there; GATE OUTCOME: FAIL-CLOSED — the S4.2 fixture did not pass
+with the current engines, so per R10a's own fail-closed clause the full
+frozen grid was NOT run and no grid money was spent). The validation
+confirmed the R10a composite fix and surfaced ONE new S9 reportable
+defect: R10a was INCOMPLETE — family (A) carries the identical
+ANOVA≠REML defect. Rev11 changes NOTHING outside that surface.
+
+1. **What the validation [MEASURED] (pinned stack, S4.2 fixture as
+   pinned: config_index 0, replications 0–49, vs the CORRECTED
+   registered per-family lme4 oracle — family (A) fitted with its
+   registered consumer block `(1|consumer_id)`, family (B) with its
+   reviewed-only reviewer block).** (i) *R10a WORKS for family (B):* the
+   exact-REML composite fit matches lme4 at max |Δθ̂| = 5.9e−14, max
+   rel-SE = 4.7e−6, max rel-ν̂ = 6.9e−5 over 150 comparisons — the
+   pooled-ANOVA breaches of 0.059/0.166 are gone; one boundary artifact
+   remains, max |Δp| = 1.006e−6 vs the 1e−6 tolerance (item 4). (ii)
+   *Family (A) FAILS:* the operative pooled-ANOVA fit vs the same
+   6-component oracle breaches at max rel-SE = 0.050, max
+   rel-ν̂ = 0.209, max |Δp| = 0.010 over 450 comparisons (θ̂ exact,
+   max |Δθ̂| = 1.04e−13); an executor exact-REML fit WITH the consumer
+   block passes all four tolerances (rel-SE 3.4e−6, rel-ν̂ 4.8e−5,
+   |Δp| 7.8e−7). TWO independent exact computations — the executor
+   exact-REML and lme4's 6-component fit — agree with each other to
+   3.4e−6 and BOTH disagree with the pooled ANOVA by ~5% (SE) / ~21%
+   (ν̂). Direction CONSERVATIVE in every worst case (pooled SE larger,
+   ν̂ smaller, p larger).
+
+2. **The refuted claim, corrected (the epistemic defect).** Rev10's
+   [MEASURED] statement that family (A) matched lme4 at rel-SE 2.6e−7
+   "because the consumer block spans ALL ten arms" is REFUTED BY
+   MEASUREMENT and corrected in place (S4.2/R10a paragraph; Revision 10
+   items 1/3/4/6 annotated, retained verbatim as the historical record).
+   Two-part correction: *(i) the number was an oracle artifact* — the
+   staging's fixture oracle for family (A) itself omitted the registered
+   consumer block u_k, so engine and oracle agreed only because both
+   folded the block into an iid residual; the S4.2 oracle is ALWAYS each
+   family's FULL registered model, and against it the agreement
+   evaporates. *(ii) the mechanism claim was wrong* — spanning all ten
+   arms does NOT make the published rotation
+   k(a, i, s) = (uct_arm_index(a) + i) mod n_consumers orthogonal: the
+   consumer block is a ROTATED crossed random effect, a coarsening of
+   the (arm, concept) cells not orthogonal to the concept×arm stratum,
+   so pooling it into the residual breaks the balanced ANOVA=REML
+   identity for the contrast SE/df exactly as the reviewer block does in
+   family (B). What IS true (and measured): consumer effects cancel
+   exactly in every θ̂ and in the contrast-variance map (κ = 0 always —
+   both arms of every family-(A) contrast are block-covered); the §4.5
+   design properties of the rotation are untouched. The corrected
+   statements are re-tagged [MEASURED] against
+   `r10a-validation-manifest.json`.
+
+3. **The fix (operative text: S4.2/R11a; law:
+   `PROPOSED-PREREG-ROW-99A-R11a`).** The R10a exact-REML mandate is
+   EXTENDED to family (A), and the law's trigger condition is
+   GENERALISED from "structurally-partial random-effect block" to ANY
+   extra crossed random-effect block assigned by a published rotation
+   (partial OR full-but-rotated). Family (A)'s algorithm is pinned
+   symmetric to family (B)'s R10a items (i)–(v): the registered (1b)(A)
+   6-component model (σ²_b, σ²_ab, σ²_v, σ²_av, σ²_u, σ²_ε ≥ 0; single
+   σ²_ε; consumer block on ALL ten arms per the published rotation);
+   profiled REML over the five nonnegative ratios, boundary retained;
+   per-cell precompute with one-pass per-rep reduction; the identical
+   pinned starts and 1e−12/1e−9 convergence tolerances; SE by the
+   general GLS expression with the κ-classified linear map as self-check
+   (κ = 0 for every registered family-(A) contrast); ν̂ by the unchanged
+   Giesbrecht–Burns pins with constant gradient
+   g = (0, 2/I, 0, 2/S, 0, 2/(I·S)). This matches the executor's
+   validation-passing generic implementation
+   (`poc/99a-sim/results/frozen-run/reml_composite.py`, generic over the
+   extra block), [MEASURED] to pass all four fixture tolerances for
+   family (A). Scope of the extension: families (C) and (D) remain OUT,
+   with justification — (C)'s gate components are tested by the R8c/R9a
+   latent-probit parametric-bootstrap procedure (no ANOVA/REML path at
+   all), and (D)'s registered model carries NO extra block (iid residual
+   only), so the balanced ANOVA=REML identity holds structurally; both
+   confirmed unaffected by the validation. The S4.2 fixture, its four
+   tolerances, and the R8b estimator pins are byte-UNCHANGED.
+
+4. **Composite df tightening (clears the 1.006e−6 boundary).** The one
+   residual composite artifact — |Δp| = 1.006e−6, 0.6% over tolerance at
+   mid-range p ≈ 0.59 where |∂p/∂ν̂| is maximal, with rel-ν̂ already at
+   6.9e−5 — is a numerical-Hessian RESOLUTION boundary, not an estimator
+   discrepancy. Exact change ([STIPULATED], S4.2/R11a; applies to BOTH
+   exact-REML families): the Cov(φ̂) entering the Giesbrecht–Burns ν̂
+   must come from a central-difference Richardson-extrapolated Hessian
+   of the REML deviance carried to step-halving convergence — successive
+   Richardson extrapolants agreeing to relative Δν̂ ≤ 1e−6 (the
+   validation build stopped at a fixed ladder depth one level short).
+   The p-tolerance is NOT touched: the gate stays at |Δp| ≤ 1e−6 and the
+   engine is tightened — the same fix-the-engine-not-the-gate posture as
+   Rev10. [EXTRAPOLATION — direction-only: the converged ladder drops
+   the propagated |Δp| to the ~1e−8–1e−7 scale; family (A)'s exact-REML
+   already clears at 7.8e−7 under the same machinery; the fixture re-run
+   on the pinned image remains the acceptance criterion, and a residual
+   breach is a NEW S9 reportable defect.]
+
+5. **Cost implication (acknowledged, deliberately NOT resolved here).**
+   Exact-REML for BOTH families is [MEASURED] ~5–7× the pooled-ANOVA
+   per-replication cost (~664–849 ms/rep composite fit + numerical
+   Hessian vs the ~95 ms/rep full-rep budget), so the full frozen grid
+   naively prices at ~$20–40 — busting the ~$3–5 staging envelope.
+   [EXTRAPOLATION — direction-only: warm-starting φ̂ across
+   replications, an analytic REML gradient, and the analytic
+   expected-information df are estimated to bring this to ~10–30 ms/rep
+   (grid ~$5–12), each requiring fixture re-validation, never assumed.]
+   That optimization pass is a SEPARATE model-code pass, and the revised
+   cost ceiling is a MAINTAINER decision — surfaced on the GitHub
+   thread, outside this document's authority. Rev11's scope is
+   CORRECTNESS of the estimator only: the grid does not launch until the
+   fixture passes on the pinned image AND the maintainer ratifies the
+   revised ceiling. No weakening of the estimator is an admissible cost
+   remedy (R11a).
+
+6. **What is deliberately untouched, and next steps.** The graphical
+   procedure, the 12-claim ledger, weights, transition matrix, update
+   algorithm, IUT/TOST compositions, margins, truth/hypothesis
+   functions, the R8b estimator pins + fixture + all four tolerances,
+   the R10a composite algorithm pins (i)–(v) (validated — extended, not
+   altered), the gate test + A4/R9a fix + battery, the S4.6
+   futility/Rung-0 algorithms, the S6 74-cell FWER grid, S7 power grid,
+   S3 parameters, seeds/substreams, and the environment pins are all
+   byte-preserved; Rev11 touched ONLY the title/banner text, the
+   family-(A) ledger entry's rotation-property scope note + engine
+   cross-reference, the SIM-SPEC heading tag, the S4.2/R10a corrected
+   claim + new R11a paragraph, the §8.0 table (R10a annotation + R11a
+   row), the R10a prereg-row annotation + new R11a row, the Revision 10
+   bracketed correction notes, and this section + its self-check. Next:
+   (i) the maintainer's cost/optimization decision (GitHub thread);
+   (ii) the executor wires the validated generic exact-REML into the
+   engine for families (A) and (B) with the tightened ν̂ ladder;
+   (iii) the S4.2 fixture re-run on the pinned image (both families,
+   same tolerances) — the LAST gate; (iv) determinism/timing artifacts
+   re-emitted under the revised ceiling; (v) THEN the full frozen grid.
 
 ## Mandatory self-check — Revision 2 (historical record, retained verbatim; superseded by the Revision 8 self-check below)
 
@@ -5557,7 +5920,7 @@ Rev10 changes NOTHING outside the B2 surface.
    gate-calibration mock re-run against the R9a test, verifying
    ≤ 1.25·γ before the full run) is recorded, not performed.
 
-## Mandatory self-check — Revision 10 (final section)
+## Mandatory self-check — Revision 10 (historical record, retained verbatim; extended — not replaced — by the focused Revision 11 self-check below)
 
 1. **Is B2 resolved by (b) or (c), with the EXACT spec change?** YES —
    by **(b)**: the operative change is the new S4.2/R10a paragraph
@@ -5618,3 +5981,95 @@ Rev10 changes NOTHING outside the B2 surface.
    fixture on the pinned image, re-emits determinism/timing artifacts,
    THEN launches the full grid on the already-verified-GREEN
    environment) are recorded, not performed.
+
+## Mandatory self-check — Revision 11 (final section)
+
+1. **Is the refuted family-(A) claim corrected and re-tagged from
+   measurement?** YES — the Rev10 [MEASURED] statement ("family (A)
+   matches at rel-SE 2.6e−7 … the consumer block spans ALL ten arms") is
+   replaced in the operative S4.2/R10a text by the measured truth
+   ([MEASURED], `poc/99a-sim/results/frozen-run/
+   r10a-validation-manifest.json`, config 0, reps 0–49, vs the CORRECTED
+   registered 6-component lme4 oracle): pooled ANOVA rel-SE 0.050 /
+   rel-ν̂ 0.209 / |Δp| 0.010 over 450 comparisons; exact-REML with the
+   consumer block 3.4e−6 / 4.8e−5 / 7.8e−7 (all pass); two independent
+   exact computations agreeing to 3.4e−6 against the pooled form; BOTH
+   parts of the old claim corrected — the 2.6e−7 number was an artifact
+   of a mis-specified oracle omitting the registered consumer block, and
+   "spans all arms" does not confer orthogonality (the rotation is a
+   rotated crossed block, non-orthogonal to the concept×arm stratum;
+   cancellation holds for θ̂ and the κ = 0 variance map only). Revision
+   10 items 1/3/4/6 and the family-(A) ledger property are annotated,
+   the historical text retained verbatim.
+
+2. **Is the R10a exact-REML extended to family (A), with (C)/(D) still
+   out and justified?** YES — the new S4.2/R11a paragraph pins family
+   (A)'s algorithm symmetric to R10a items (i)–(v) (registered (1b)(A)
+   6-component model incl. the consumer block on all ten arms per the
+   published rotation; profiled REML over the five nonnegative ratios,
+   boundary retained; per-cell precompute + one-pass reduction; the
+   identical pinned starts and 1e−12/1e−9 convergence pins; SE by
+   general GLS with the κ-classified map as self-check, κ = 0 for every
+   registered family-(A) contrast; ν̂ by the unchanged Giesbrecht–Burns
+   pins, constant gradient (0, 2/I, 0, 2/S, 0, 2/(I·S))), matching the
+   executor's validation-passing generic implementation
+   (`reml_composite.py`) — and the R11a law generalises R10a's trigger
+   to ANY rotated extra crossed block. (C) stays out because its gate
+   components use the R8c/R9a parametric-bootstrap procedure (no
+   ANOVA/REML path); (D) stays out because its registered model has NO
+   extra block, so the balanced identity holds structurally — both
+   confirmed unaffected by the validation.
+
+3. **Is the composite df tightened so |Δp| clears 1e−6, without touching
+   the gate?** YES — exact change stated in S4.2/R11a and Revision 11
+   item 4: the Giesbrecht–Burns Cov(φ̂) Hessian must be
+   Richardson-extrapolated to step-halving convergence at relative
+   Δν̂ ≤ 1e−6 (the validation build stopped one ladder level short,
+   leaving rel-ν̂ 6.9e−5 → |Δp| 1.006e−6 at the worst mid-range-p
+   cell); the |Δp| ≤ 1e−6 tolerance and the whole fixture are
+   byte-UNCHANGED, and the clearing expectation is tagged
+   [EXTRAPOLATION — direction-only] with the fixture re-run as the
+   acceptance criterion.
+
+4. **Is the cost implication noted but NOT resolved?** YES — Revision 11
+   item 5 and S4.2/R11a record the [MEASURED] ~5–7× cost (~664–849
+   ms/rep vs ~95 ms/rep; naive grid ~$20–40 vs the ~$3–5 envelope) and
+   the estimated ~$5–12 after warm-start + analytic gradient + analytic
+   expected-information df ([EXTRAPOLATION], each requiring fixture
+   re-validation); the optimization pass is a separate model-code pass
+   and the revised ceiling a maintainer decision surfaced on the GitHub
+   thread — no cost remedy that weakens the estimator is admissible, and
+   Rev11 performs no optimization.
+
+5. **Is validity preserved?** YES — the family-(A) defect is
+   CONSERVATIVE in every worst case (pooled SE larger, ν̂ smaller,
+   p larger), so nothing anti-conservative ever entered any staged
+   result; the Rev10 asymmetry argument applies verbatim to family (A):
+   a conservative-but-different sim estimator would UNDERSTATE the
+   registered procedure's FWER, so the grid must run under the exact
+   registered estimator for BOTH families — which R11a mandates; the
+   registered p-values keep their standing §4.6/(1b) honest status, and
+   the fail-closed gate demonstrably WORKED (FAIL-CLOSED outcome, no
+   grid spend).
+
+6. **Four epistemic tags disciplined?** YES — [MEASURED] for every
+   validation number (cited to `r10a-validation-manifest.json`),
+   [STIPULATED] for the R11a algorithm/law and the ν̂-ladder pin,
+   [LIT-BACKED] only re-citing the already-source-verified
+   Giesbrecht–Burns/Kuznetsova basis (supporting-only per §5 — no new
+   external citations minted), and [EXTRAPOLATION] direction-only in
+   exactly two places (the |Δp| clearing expectation; the optimization
+   cost estimate), never a premise.
+
+7. **No @handle/account strings; no `ASM-<number>` minted?** YES — roles
+   by name only ("the maintainer", "the executor"); the single new row
+   is exactly `PROPOSED-PREREG-ROW-99A-R11a`; ids are assigned at
+   prereg-freeze.
+
+8. **Nothing committed / registered / frozen / run?** YES — in-place
+   edit of this proposal document only; the validation artifacts
+   (`r10a-validation-manifest.json`, `reml_composite.py`, oracle logs)
+   are untouched; no git operations, no registry writes, no freeze, no
+   simulation or Modal run launched; the mandated next steps (maintainer
+   cost decision → engine wiring → fixture re-pass on the pinned image →
+   grid) are recorded, not performed.
