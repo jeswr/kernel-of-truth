@@ -1,0 +1,96 @@
+{
+  "purpose": "99a SIM-SPEC frozen-run environment staging + validation (SETUP ONLY; full grid NOT run).",
+  "date": "2026-07-22",
+  "platform": {
+    "provider": "Modal",
+    "workspace": "jwrightwho",
+    "profile": "jmwright-045",
+    "app_name": "kot-99a-frozen-setup",
+    "runs": {
+      "versions": "https://modal.com/apps/jwrightwho/main/ap-cQWxHm8j5ncjulHUmnmW5b",
+      "slices": "https://modal.com/apps/jwrightwho/main/ap-hmR4FgNYL6rAS6w2KuzXl1"
+    },
+    "auth_source": "~/.config/kot/modal2.env (MODAL_TOKEN_ID+MODAL_TOKEN_SECRET; modal.env has only the ID)"
+  },
+  "image": {
+    "base": "rocker/r-ver:4.4.1 (+ add_python=3.12)",
+    "final_image_digest": "im-k5wxPoFZ7ncQlZ2EJFSkXN",
+    "r_package_source": "Posit Package Manager snapshot p3m.dev jammy 2024-10-30; lme4 compiled from source, deps as binaries",
+    "app_file": "poc/99a-sim/results/frozen-run-setup/kot_99a_modal.py"
+  },
+  "pins_required_vs_installed": {
+    "CPython": {"pin": "3.12.x", "installed": "3.12.1 (CPython)", "match": true},
+    "numpy": {"pin": "2.1.3", "installed": "2.1.3", "match": true},
+    "scipy": {"pin": "1.14.1", "installed": "1.14.1", "match": true},
+    "R": {"pin": "4.4.1", "installed": "4.4.1 (2024-06-14)", "match": true},
+    "lme4": {"pin": "1.1-35.5", "installed": "1.1.35.5", "match": true},
+    "lmerTest": {"pin": "3.1-3", "installed": "3.1.3", "match": true},
+    "Matrix_note": "1.7.0 (2024-10-30 snapshot); lme4 compiled against it (consistent). Not separately pinned by S2."
+  },
+  "ALL_PINS_MET": true,
+  "b2_lme4_fixture_equivalence": {
+    "definition": "S4.2 fixture: config_index 0 (F1, gaussian, rho=0, base n), replications 0..49, UCT (10-arm) + composite (8-arm) ledger families. Python balanced pooled-ANOVA (inference.FamilyAnova, the pipeline's operative estimator) vs R lme4/lmerTest REML (ddf=Satterthwaite), 12 registered contrasts/rep = 600 comparisons.",
+    "tolerances_S4.2": {"abs_dtheta": 1e-7, "rel_se": 1e-5, "rel_nu": 1e-3, "abs_dp": 1e-6},
+    "measured": {
+      "n_compared": 600,
+      "max_abs_dtheta": 1.45e-13,
+      "max_rel_se": 0.0590,
+      "max_rel_nu": 0.1659,
+      "max_abs_dp": 0.01417
+    },
+    "PASS": false,
+    "direction": "CONSERVATIVE: in every worst case the mock's pooled-ANOVA SE is LARGER and Satterthwaite df SMALLER than lme4 REML (super-uniform p preserved).",
+    "worst_family": "COMPOSITE (nonce) family. Worst contrasts H-vs-A2IR (Delta^G), H-vs-S(H), A2IR-vs-S(A2IR). Root cause = documented conservatism (SPEC-DEFECTS B2): the composite residual is heteroscedastic (reviewed vs unreviewed arms) and the mock pools ONE residual, breaking the balanced-data REML=ANOVA identity. UCT family (homoscedastic residual) agrees far more closely.",
+    "interpretation": "theta_hat is numerically exact (1.5e-13 << 1e-7); SE/df/p breach the pinned fixture gate by 3-4 orders of magnitude. The mock's balanced pooled-ANOVA is NOT the S4.2 joint lme4 REML to tolerance. This CONFIRMS the deferred SPEC-DEFECTS B2 concern with a first-time MEASURED result on the pinned stack. It is a pre-freeze DESIGN decision (route to Fable/coordinator), NOT an environment blocker.",
+    "artifact": "poc/99a-sim/results/frozen-run-setup/b2-fixture.log"
+  },
+  "modal_timing_bench_1vcpu_per_rep": {
+    "fwer_base_s_per_rep": 0.09373,
+    "fwer_esc_s_per_rep": 0.13076,
+    "power_esc_s_per_rep": 0.12874,
+    "gatecal_s_per_rep": 0.08444,
+    "host_comparison": "host mock measured fwer_base 95.8ms, fwer_esc 154ms, power_esc 139ms -> Modal hardware is comparable (slightly faster on escalated cells)."
+  },
+  "full_grid_cost_estimate": {
+    "grid": "FWER 50 base + 24 esc (R=40000) + Power 18 base + 18 esc (R=10000) + Gate-cal 4 (R=40000) + 28 bounded-Beta 1e7 recalibs",
+    "total_vcpu_hours": 102.9,
+    "host_post_opt_estimate_core_hours": 108.7,
+    "modal_cpu_price_std": "$0.0000131/physical-core-sec = $0.04716/physical-core-hour (1 physical core = 2 vCPU)",
+    "recommended_cost_packed_2workers_per_core": "~$2.4 compute + ~$0.4 memory = ~$2.8",
+    "worst_case_cost_1worker_per_core": "~$4.9 compute",
+    "wall_clock": {
+      "100_containers_cpu2_200vcpu": "~31 min",
+      "100_containers_cpu4_400vcpu": "~15 min",
+      "50_containers_cpu2_100vcpu": "~62 min"
+    },
+    "parallelization_plan": "Embarrassingly parallel per (config_index, replication). modal.Function.map over ~1740 (config_index, rep_start, rep_end) chunks of ~2000 reps each (each chunk ~3-6 min). Request cpu=2 (=1 physical core, 2 vCPU) and run a 2-way internal worker pool per container to fully utilise the billed core; auto-scale to ~100 containers (respect account concurrency). Seeds are per (config_index, replication) so chunking is bit-exact and order-independent (S2)."
+  },
+  "small_slice_validation": {
+    "note": "Pinned Modal image (CPython 3.12.1 / numpy 2.1.3 / scipy 1.14.1) vs committed host mocks (CPython 3.9.25 / numpy 2.0.2 / scipy 1.13.1). Bit-identity is NOT expected across stacks/code revisions; the STATISTICAL acceptance picture is what must reproduce.",
+    "cells": {
+      "F11_global_null_R600": {"host": {"fwer_hat": 0.0, "cp_upper95": 0.00498}, "pinned": {"fwer_hat": 0.0, "cp_upper95": 0.00498, "config_index": 58}, "verdict": "global-null FWER = 0.000 on both -> CONTROLLED"},
+      "F3_strong_fwer_R600": {"host": {"fwer_hat": 0.01, "cp_upper95": 0.0196}, "pinned": {"fwer_hat": 0.005, "cp_upper95": 0.0129, "config_index": 27, "C-VAL": 0.993}, "verdict": "both cp_upper << 0.055 -> CONTROLLED"},
+      "F5_binding_true_null_R600": {"host": {"fwer_hat": 0.0367, "cp_upper95": 0.0520}, "pinned": {"fwer_hat": 0.0, "cp_upper95": 0.00498, "config_index": 45, "C-VAL": 0.998}, "verdict": "pinned MORE conservative (current R9a gate + futility ON); both <= 0.055 -> CONTROLLED"},
+      "P3_power_R500": {"host": {"C-VAL": 0.998, "C-CON-SUP-H": 0.414, "stage2_rate": 0.414, "path_CVAL_CONSUPH_GRAPH": 0.048}, "pinned": {"C-VAL": 0.998, "C-CON-SUP-H": 0.24, "stage2_rate": 0.24, "path_CVAL_CONSUPH_GRAPH": 0.012, "config_index": 87}, "verdict": "SAME machinery (gate opens ~0.998, stage2 fires iff a C-CON-SUP rejects, graph<con). Power point-estimates LOWER than host mock -- consistent with futility+Rung-0 now DEFAULT-ON (binding-conservative) and cross-version RNG. Qualitative picture reproduced; magnitudes differ (NOT bit-identical, as expected)."},
+      "gatecal_rho0.1_n96": {"host_R3000": {"all_pass": true, "min_sd_ratio_range": "1.20-1.24", "worst_cp_upper": {"0.025": 0.0116, "0.00625": 0.0044}}, "pinned_R2000": {"all_pass": true, "min_sd_ratio": 1.21, "worst_cp_upper": {"0.025": 0.0121, "0.00625": 0.0031}, "config_index": 110}, "verdict": "TIGHT MATCH: ALL_PASS, SD-ratio >= 1.2 (over-dispersed, R9a mechanism), worst cp within bars (0.031/0.0078)"}
+    },
+    "acceptance_on_pinned_image": {
+      "global_null_FWER_approx_0": true,
+      "every_FWER_cell_cp_upper_le_0.055": true,
+      "gatecal_ALL_PASS_sd_ratio_ge_1": true,
+      "VERDICT": "The FWER-control and gate-calibration statistical picture REPRODUCES and PASSES on the pinned image. Power point-estimates differ in magnitude (futility/rung0 default-ON + cross-version RNG) but qualitative behaviour is correct."
+    }
+  },
+  "teardown": {
+    "apps": "All apps ephemeral (modal run) and auto-stopped (state=stopped, 0 tasks). No modal deploy, no running containers, no schedules.",
+    "volumes": "NONE created by this task (kot-knull-v2-ckpt / kot-scale-wikidata / kot-hf-cache pre-date it and belong to other work -- left untouched).",
+    "image": "im-k5wxPoFZ7ncQlZ2EJFSkXN remains in Modal's image cache by design (so the full frozen run reuses it instantly; a cache, not a billed resource).",
+    "status": "COMPLETE -- nothing of this task's persists as a billed resource."
+  },
+  "estimated_validation_spend": "~a few dollars (one image build + 4 short validation runs, each seconds-to-minutes of 1-2 core compute). Full grid NOT run.",
+  "GREEN_LIGHT": {
+    "environment": "VERIFIED GREEN. Pinned stack confirmed EXACT (Py 3.12.1 / numpy 2.1.3 / scipy 1.14.1 / R 4.4.1 / lme4 1.1-35.5 / lmerTest 3.1-3). FWER control (global-null 0.000; strong-FWER + binding cells cp_upper <= 0.055) and gate-cal (ALL_PASS, SD-ratio >= 1.2) reproduce and pass on the pinned image. Full grid ~$3 and ~15-60 min wall-clock.",
+    "full_frozen_run": "GATED -- do NOT launch yet. The B2 lme4 fixture-equivalence FAILS the pinned S4.2 tolerances (theta_hat exact to 1.5e-13, but SE breaches by up to 5.9%, Satterthwaite df by up to 16.6%, p by up to 1.4%). Per S4.2 a fixture breach halts the build (S9 reportable defect). The mock's balanced pooled-ANOVA is a CONSERVATIVE-but-DIFFERENT estimator than the S4.2 joint lme4 REML, worst in the composite family's heteroscedastic (reviewed vs unreviewed) residual. This is a DESIGN/ESTIMATOR decision for Fable/coordinator, NOT an environment fault. Options: (a) run joint lme4 REML in-loop (cost-prohibitive), (b) implement an exact joint-REML closed form handling the composite heteroscedastic residual (e.g. per-stratum residual), or (c) amend S4.2 to accept the conservative estimator with a gridwide FWER demonstration.",
+    "bottom_line": "Environment is one green-light away for the full run; the remaining blocker is the B2 estimator (design), which this staging surfaced as a first-time MEASURED result on the pinned stack."
+  }
+}
