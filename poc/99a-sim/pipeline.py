@@ -19,6 +19,7 @@ import gate_test
 import graphical
 import futility
 import rung0
+import reml_composite
 from inference import FamilyAnova
 from hypotheses import ParamVector
 
@@ -57,9 +58,12 @@ def run_replication(t: ParamVector, ss, want_selection=False,
     Yuct = dgm.gen_uct(t, ss)
     Ycomp, gate = dgm.gen_composite_and_gate(t, ss, gate_thr=gate_thr)
 
-    # ---- ledger fits (S4.2): ONE balanced family ANOVA per family ----
-    uct_anova = FamilyAnova(Yuct)
-    comp_anova = FamilyAnova(Ycomp)
+    # ---- ledger fits (S4.2/R10a/R11a): EXACT REML per rotated-block family ----
+    # Families A (UCT/consumer) and B (composite/reviewer) use the exact 6-component
+    # REML (reml_composite); the pooled-ANOVA closed form is retired (SPEC-DEFECTS
+    # B2 + the family-A finding).  Families C/D unchanged.
+    uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)
+    comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)
     # UCT contrasts: Delta^UCT_c (c vs T) and Delta^SH_a natural (a vs S(a))
     uct_fit = {c: uct_anova.contrast(_UCT_IDX[c], _UCT_IDX['T']) for c in pins.CANDIDATES}
     shnat_fit = {a: uct_anova.contrast(_UCT_IDX[a], _UCT_IDX['S(%s)' % a])

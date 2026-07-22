@@ -1,0 +1,36 @@
+{
+  "purpose": "Rev11/R11a validation: wire exact-REML into the operative pipeline for BOTH families A+B, apply the R11a df tightening, re-run the S4.2 fixture on the pinned Modal image.",
+  "date": "2026-07-22",
+  "git_sha_base": "2063225b (Rev11/R11a)",
+  "image_digest": "im-k5wxPoFZ7ncQlZ2EJFSkXN (CPython 3.12.1 / numpy 2.1.3 / scipy 1.14.1 / R 4.4.1 / lme4 1.1-35.5 / lmerTest 3.1-3)",
+  "changes_made": [
+    "reml_composite.py generalized to any rotated extra crossed block: build_for_cell (composite/reviewer, kappa=1 for exactly-one-reviewed contrasts) and build_for_uct (UCT/consumer, kappa=0 for all contrasts). Cached factories get_comp/get_uct.",
+    "R11a df tightening: the Giesbrecht-Burns Cov(phi_hat) Hessian is a central-difference Richardson (Romberg) tableau over step-halved steps, returning the diagonal at the truncation/roundoff BALANCE point (base rel step 1e-3; deeper halving hits float64 roundoff in the 2nd difference so naive convergence-to-1e-6 is unreachable -- the balance-level estimate is the accurate observed-info Hessian).",
+    "pipeline.py wired: families A (UCT) and B (composite) now use reml_composite exact-REML as the operative estimator (pooled ANOVA retired); families C (gate)/D (format) unchanged. Local pipeline smoke test (F3, R=8) runs green.",
+    "Fixture oracle: correct registered 6-component per-family lme4 model -- UCT with (1|consumer_id), composite with (0+rev|reviewer_id)."
+  ],
+  "fixture_R11a_default_lme4_oracle": {
+    "tolerances": {"dtheta": 1e-7, "relse": 1e-5, "relnu": 1e-3, "dp": 1e-6},
+    "UCT_exact_REML_operative": {"n": 450, "max_dtheta": 1.04e-13, "max_relse": 3.4e-6, "max_relnu": 2.5e-5, "max_dp": 7.8e-7, "verdict": "PASS all four"},
+    "COMP_exact_REML_operative": {"n": 150, "max_dtheta": 5.9e-14, "max_relse": 4.7e-6, "max_relnu": 2.4e-5, "max_dp": 1.078e-6, "verdict": "theta/SE/nu PASS; |Dp| 1.078e-6 is 7.8% over the 1e-6 tol"},
+    "UCT_FamilyAnova_retired_diagnostic": {"n": 450, "max_relse": 0.050, "max_relnu": 0.209, "max_dp": 0.010, "verdict": "FAIL -- confirms why family A needed the exact-REML"},
+    "PASS": false,
+    "diagnosis": "The R11a df tightening WORKED (nu-hat rel 6.9e-5 -> 2.4e-5 composite / 4.8e-5 -> 2.5e-5 UCT). The residual COMP |Dp|=1.078e-6 is NOT a df/Richardson issue -- it is now SE-LIMITED: at intermediate p (t~1, where the t-density peaks) |Dp| ~ phi(1)*relse ~ 0.24*4.7e-6 ~ 1.1e-6. UCT clears (relse 3.4e-6 -> |Dp| 7.8e-7); COMP's slightly larger relse (4.7e-6) pushes it just over. 'One more Richardson level' does NOT help. The relse floor is the agreement between the tightly-converged (ftol 1e-15) exact-REML engine and the pinned DEFAULT lme4 oracle (bobyqa converges to only ~1e-6) -- hypothesis: the SE gap is default-lme4 under-convergence, tested by the tight-oracle diagnostic below."
+  },
+  "tight_oracle_diagnostic": {
+    "setup": "Same fixture, lme4 oracle re-run with bobyqa optCtrl rhoend=2e-12, maxfun=2e6 (far tighter than default ~1e-6).",
+    "UCT": {"max_relse": 3.37e-6, "max_relnu": 2.67e-5, "max_dp": 8.3e-7},
+    "COMP": {"max_relse": 5.80e-6, "max_relnu": 2.59e-5, "max_dp": 1.34e-6},
+    "finding": "Tightening the oracle made COMP relse (4.7e-6 -> 5.8e-6) and |Dp| (1.078e-6 -> 1.34e-6) WORSE, not better. REFUTES the default-lme4-under-convergence hypothesis. The ~5e-6 rel-SE gap is the intrinsic precision floor of two INDEPENDENT REML optimizers (my L-BFGS-B ftol 1e-15 vs lme4's derivative-free bobyqa) agreeing on phi-hat near the FLAT REML optimum: derivative-free/quasi-Newton methods resolve the variance components to only ~1e-5 (deviance is quadratic-flat there), giving ~5e-6 SE agreement. Tighter bobyqa converges more precisely to ITS slightly-different point."
+  },
+  "ROOT_CAUSE_and_diagnosis": {
+    "summary": "The R11a df tightening SUCCEEDED (nu-hat rel 6.9e-5 -> 2.4e-5). The residual COMP |Dp|=1.078e-6 is (a) NOT a df/Richardson issue -- one more Richardson level does not help (df is already an order tighter than needed); (b) NOT default-lme4 under-convergence -- the tight oracle was strictly worse. It is SE-driven and sits at a fundamental tolerance-consistency limit.",
+    "mechanism_confirmed": "|Dp| at intermediate p (t~1, where the t-density*|t| peaks at ~0.238) equals ~0.238*rel-SE. MEASURED matches PREDICTED: relse 4.7e-6 -> |Dp| 1.12e-6 (obs 1.078e-6); relse 3.4e-6 (UCT) -> 8.1e-7 (obs 7.8e-7, PASSES); relse 5.8e-6 (tight) -> 1.38e-6 (obs 1.34e-6).",
+    "tolerance_inconsistency": "|Dp| <= 1e-6 at intermediate p REQUIRES rel-SE <= 4.2e-6, but the S4.2 rel-SE tolerance is 1e-5 (2.4x looser). So the |Dp| and rel-SE tolerances are MUTUALLY INCONSISTENT: no estimator that merely meets rel-SE <= 1e-5 can guarantee |Dp| <= 1e-6. This is a tolerance-design issue, not an estimator defect.",
+    "recommendation_Rev12": "NOT one more Richardson level. Either (a) reconcile the tolerances -- relax |Dp| to ~2-3e-6 (consistent with rel-SE <= 1e-5 via |Dp| ~ 0.238*relse), OR recognise |Dp| is REDUNDANT given theta-hat/SE/nu-hat all pass with orders of margin (p is a deterministic function of them); or (b) if |Dp| <= 1e-6 must stand, it demands rel-SE ~1e-6, i.e. an SE-matching method beyond independent-optimizer REML agreement (e.g. both engine and oracle sharing an analytic SE) -- a heavier Rev12. Do NOT relax any tolerance locally (fail-closed)."
+  },
+  "ESTIMATOR_STATUS": "Fixture-clean on ALL load-bearing quantities for BOTH families: theta-hat (1e-13), rel-SE (<=4.7e-6 << 1e-5), rel-nu (<=2.5e-5 << 1e-3). UCT PASSES all four incl |Dp| (7.8e-7). COMP passes 3/4; |Dp| 1.078e-6 is a tolerance-consistency artifact. Exact-REML wired into pipeline.py for families A+B (operative); C/D unchanged; reml_composite.py is the estimator module (both uncommitted).",
+  "GRID": "NOT run (gated on the maintainer cost decision AND now the Rev12 |Dp|-tolerance decision).",
+  "teardown": "All Modal apps ephemeral/stopped; no volumes; image cached by design.",
+  "spend": "~cents (image cached; 2 fixture runs)."
+}
