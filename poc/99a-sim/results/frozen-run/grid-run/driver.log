@@ -1,0 +1,56 @@
+[grid_driver] 114 cells; launching Modal map ...
+/home/ec2-user/css/kernel/kernel-of-truth/poc/99a-sim/results/frozen-run/grid_driver.py:42: DeprecationError: 2025-06-27: Function.map currently leaks an internal exception wrapping type (modal.exceptions.UserCodeException) when `return_exceptions=True` is set. In the future, this will change, and the underlying exception will be returned directly.
+To opt into the future behavior and silence this warning, add `wrap_returned_exceptions=False`:
+
+    f.map(..., return_exceptions=True, wrap_returned_exceptions=False)
+  run_cell_job.map(specs, order_outputs=True, return_exceptions=True),
+Traceback (most recent call last):
+  File "/home/ec2-user/css/kernel/kernel-of-truth/poc/99a-sim/results/frozen-run/grid_driver.py", line 40, in <module>
+    for spec, res in zip(
+  File "/home/ec2-user/css/kernel/kernel-of-truth/poc/99a-sim/venv/lib64/python3.9/site-packages/modal/_utils/async_utils.py", line 493, in __iter__
+    yield from run_async_gen(runner, self._async_iterable)
+  File "/home/ec2-user/css/kernel/kernel-of-truth/poc/99a-sim/venv/lib64/python3.9/site-packages/modal/_utils/async_utils.py", line 571, in run_async_gen
+    next_yield = runner.run(gen.asend(next_send))  # type: ignore[arg-type]
+  File "/home/ec2-user/css/kernel/kernel-of-truth/poc/99a-sim/venv/lib64/python3.9/site-packages/synchronicity/async_utils.py", line 85, in run
+    return self._loop.run_until_complete(wrapper_coro())
+  File "/usr/lib64/python3.9/asyncio/base_events.py", line 647, in run_until_complete
+    return future.result()
+  File "/home/ec2-user/css/kernel/kernel-of-truth/poc/99a-sim/venv/lib64/python3.9/site-packages/synchronicity/async_utils.py", line 51, in wrapper_coro
+    return await coro_task
+  File "/home/ec2-user/css/kernel/kernel-of-truth/poc/99a-sim/venv/lib64/python3.9/site-packages/modal/_utils/async_utils.py", line 403, in asend
+    return await self.gen.asend(value)
+  File "/home/ec2-user/css/kernel/kernel-of-truth/poc/99a-sim/venv/lib64/python3.9/site-packages/modal/parallel_map.py", line 1074, in _map_async
+    async for output in _map_helper(
+  File "/home/ec2-user/css/kernel/kernel-of-truth/poc/99a-sim/venv/lib64/python3.9/site-packages/modal/parallel_map.py", line 1029, in _map_helper
+    async for output in map_output_stream:
+  File "/home/ec2-user/css/kernel/kernel-of-truth/poc/99a-sim/venv/lib64/python3.9/site-packages/modal/_utils/async_utils.py", line 745, in async_merge
+    raise item.value
+  File "/home/ec2-user/css/kernel/kernel-of-truth/poc/99a-sim/venv/lib64/python3.9/site-packages/modal/_utils/async_utils.py", line 724, in producer
+    async for item in stream:
+  File "/home/ec2-user/css/kernel/kernel-of-truth/poc/99a-sim/venv/lib64/python3.9/site-packages/synchronicity/synchronizer.py", line 502, in _run_generator_async
+    raise uc_exc.exc
+  File "/home/ec2-user/css/kernel/kernel-of-truth/poc/99a-sim/venv/lib64/python3.9/site-packages/modal/_object.py", line 349, in wrapped
+    async for item in stream:
+  File "/home/ec2-user/css/kernel/kernel-of-truth/poc/99a-sim/venv/lib64/python3.9/site-packages/modal/_functions.py", line 1655, in _map
+    async for item in stream:
+  File "/home/ec2-user/css/kernel/kernel-of-truth/poc/99a-sim/venv/lib64/python3.9/site-packages/modal/parallel_map.py", line 982, in _map_invocation_inputplane
+    async for maybe_output in merged:
+  File "/home/ec2-user/css/kernel/kernel-of-truth/poc/99a-sim/venv/lib64/python3.9/site-packages/modal/_utils/async_utils.py", line 745, in async_merge
+    raise item.value
+  File "/home/ec2-user/css/kernel/kernel-of-truth/poc/99a-sim/venv/lib64/python3.9/site-packages/modal/_utils/async_utils.py", line 724, in producer
+    async for item in stream:
+  File "/home/ec2-user/css/kernel/kernel-of-truth/poc/99a-sim/venv/lib64/python3.9/site-packages/modal/parallel_map.py", line 769, in pump_inputs
+    response: api_pb2.MapStartOrContinueResponse = await input_plane_stub.MapStartOrContinue(
+  File "/home/ec2-user/css/kernel/kernel-of-truth/poc/99a-sim/venv/lib64/python3.9/site-packages/modal/_grpc_client.py", line 108, in __call__
+    return await _retry_transient_errors(
+  File "/home/ec2-user/css/kernel/kernel-of-truth/poc/99a-sim/venv/lib64/python3.9/site-packages/modal/_utils/grpc_utils.py", line 414, in _retry_transient_errors
+    raise exc
+  File "/home/ec2-user/css/kernel/kernel-of-truth/poc/99a-sim/venv/lib64/python3.9/site-packages/modal/_utils/grpc_utils.py", line 363, in _retry_transient_errors
+    return await fn_callable(req, metadata=attempt_metadata, timeout=timeout)
+  File "/home/ec2-user/css/kernel/kernel-of-truth/poc/99a-sim/venv/lib64/python3.9/site-packages/modal/_grpc_client.py", line 139, in direct
+    return await self.client._call_unary(self.wrapped_method, req, timeout=timeout, metadata=metadata)
+  File "/home/ec2-user/css/kernel/kernel-of-truth/poc/99a-sim/venv/lib64/python3.9/site-packages/modal/_grpc_client.py", line 44, in __exit__
+    raise exc from None  # from None to skip the grpc-internal cause
+  File "/home/ec2-user/css/kernel/kernel-of-truth/poc/99a-sim/venv/lib64/python3.9/site-packages/grpclib/client.py", line 346, in _raise_for_grpc_status
+    raise GRPCError(status, message, details)
+grpclib.exceptions.GRPCError: (<Status.FAILED_PRECONDITION: 9>, 'workspace ac-eD1aaY3npNEubBCLiCaVHF is disabled', None)

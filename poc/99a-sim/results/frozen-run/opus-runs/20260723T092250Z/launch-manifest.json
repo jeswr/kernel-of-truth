@@ -1,0 +1,83 @@
+{
+  "role": "experiment-runner (Opus execution) kern/opus-runner-1",
+  "task": "99a confirmatory-experiment FWER/power acceptance-artifact simulation — FROZEN design (Rev6->Rev12), full grid execution",
+  "design_doc": "docs/next/design/kernel-construction-methodology-proposal-99a.md (SIM-SPEC S1-S9, Rev12/R12a)",
+  "launch_utc": "20260723T092250Z",
+  "grid_app_id": "ap-SEsbGWFqXseXM7lADUiHHS",
+  "runner_agent_id": "kern/opus-runner-1",
+  "executor_model": "claude-opus-4-8",
+
+  "pinned_image": {
+    "digest_expected": "im-k5wxPoFZ7ncQlZ2EJFSkXN",
+    "build": "rocker/r-ver:4.4.1 + add_python 3.12 + pip numpy==2.1.3 scipy==1.14.1 + remotes::install_version lme4 1.1-35.5 / lmerTest 3.1-3 (byte-identical build to kot_99a_modal.py -> Modal cache reuse)",
+    "versions_measured_pinned_image": {
+      "python": "3.12.1", "python_impl": "CPython",
+      "numpy": "2.1.3", "scipy": "1.14.1",
+      "R": "4.4.1", "lme4": "1.1.35.5", "lmerTest": "3.1.3", "Matrix": "1.7.0"
+    },
+    "pin_verification": "PASS — all 6 pins EXACT vs the frozen S2/R8g entry"
+  },
+
+  "seed_registration_S2_R8g": {
+    "base_seed": 990066001,
+    "n_substreams": 13,
+    "per_rep_stream": "SeedSequence([BASE_SEED, config_index, replication_index]).spawn(13) -> Philox Generators",
+    "beta_cal_stream": "SeedSequence([BASE_SEED, config_index, 999999999]) -> Philox",
+    "substream_map": {
+      "0": "SS_NAT_CONCEPT", "1": "SS_NONCE_CONCEPT", "2": "SS_SEED_EFFECTS",
+      "3": "SS_REVIEWER", "4": "SS_CONSUMER", "5": "SS_RESID_NAT",
+      "6": "SS_RESID_NONCE", "7": "SS_GATE_NOISE", "8": "SS_STAGE2_FMT",
+      "9": "SS_RUNG0", "10": "SS_PILOT", "11": "SS_COST_NOISE", "12": "SS_GATE_BOOT"
+    },
+    "config_index_range": "0..113 (74 FWER 0..73, 36 power 74..109, 4 gate-cal 110..113)",
+    "replication_range": "FWER 0..39999 (R=40000), power 0..9999 (R=10000), gate-cal 0..39999 (R=40000)",
+    "note": "seeds fully determined by base_seed + config_index + replication_index; deterministic, execution-order independent (S2 determinism check 100/100 bit-identical, sha 74a870c86d85c28dd65d318ae0e3409ed97e9e64ec6a478c8dbf9b1b55837d9f)"
+  },
+
+  "setup_gate_results": {
+    "step1_pins": "PASS (all 6 exact)",
+    "step2_estimator_wiring": "PASS — operative pipeline.run_replication drives R11a exact-REML (CompositeREML) for BOTH families A (get_uct) and B (get_comp); FamilyAnova only in Stage-2 format branch (family D). Smoke F3 R=8 green (idx 27). Exact-REML contrast != retired pooled-ANOVA (SE/nu differ; theta agrees, OLS=GLS). No rewiring needed; new full-grid runner kot_99a_grid.py written (Opus operational code).",
+    "step3_b2_fixture_R12a": {
+      "UCT": {"max_dtheta": 1.037e-13, "max_relse": 3.415e-06, "max_relnu": 2.525e-05, "max_dp": 7.806e-07, "B_run": 4.867e-06, "primitives": "PASS", "dp_le_Brun": true, "verdict": "PASS"},
+      "COMP": {"max_dtheta": 5.891e-14, "max_relse": 4.674e-06, "max_relnu": 2.375e-05, "max_dp": 1.078e-06, "B_run": 4.931e-06, "primitives": "PASS", "dp_le_Brun": true, "verdict": "PASS"},
+      "criterion": "R12a: three primitives (dtheta<=1e-7, relSE<=1e-5, relnu<=1e-3) AND |dp| <= B_run = 0.242*relSE_max + 0.16*relnu_max + 0.399*|dtheta|_max/SE_min (derived-bound diagnostic, NOT the retired hard |dp|<=1e-6 gate)"
+    },
+    "step4_small_slice_validation": {
+      "source": "prior-session slices.log on the BYTE-IDENTICAL pinned image (digest im-k5wxPoFZ...) + this-session fresh smoke/B2/S8/determinism; a fresh validate re-run was aborted on an infra-slow gate-cal container (not a science failure). The full grid re-runs F3 (idx27)/F11 (idx58)/gate-cal at full R=40000 = the fresh at-scale validation.",
+      "F3_strongfwer_R600": {"fwer_hat": 0.005, "cp_upper95": 0.01287, "bar": 0.055, "PASS": true},
+      "F11_globalnull_R600": {"fwer_hat": 0.0, "cp_upper95": 0.00498, "PASS": true},
+      "gatecal_rho0.1_n96_R2000": {"all_pass": true, "any_sd_flag": false, "min_sd_ratio": 1.2097, "worst_cp_upper_0.025": 0.01213, "bar_0.025": 0.03125, "worst_cp_upper_0.00625": 0.00314, "bar_0.00625": 0.0078, "PASS": true}
+    },
+    "S8_config_hash": "dc2ed1c582fc68a66715df6d917d0f57ad1e9444f88da937b1a1a11f0dd4d531 (114 cells; stable/byte-identical; emitted before grid)",
+    "S2_determinism": "100/100 pairs bit-identical; rejection_vectors_sha256 74a870c86d85c28dd65d318ae0e3409ed97e9e64ec6a478c8dbf9b1b55837d9f"
+  },
+
+  "reuse_gate": "N/A — 99a is a statistical acceptance-artifact simulation (SIM-SPEC), NOT a registered kot-reg experiment. No registry/experiments/99a.json; no prior 99a cell in results-log/artifact-ledger; r11a manifest confirms 'GRID: NOT run'. No colliding paid cell possible; reuse-check has no record/cell to gate against.",
+
+  "grid_spec": {
+    "n_cells": 114, "fwer_cells": 74, "power_cells": 36, "gatecal_cells": 4,
+    "R_fwer": 40000, "R_power": 10000, "R_gatecal": 40000,
+    "futility_S4.6": "ON (default)", "rung0_S4.8": "ON (default)",
+    "gate_test": "optimized exact closed-form bivariate-normal orthant (128-node Gauss-Legendre; numerically equivalent to scipy mvn.cdf, gate-p max abs diff 0.000)",
+    "fanout": "one Modal container per cell via run_cell_job.map (cpu=1.0, timeout=18000s, retries=2 for infra failures); return_exceptions salvage",
+    "F10_termination_idx": [55, 56], "P6_termination_idx": [104, 105, 106, 107, 108, 109]
+  },
+
+  "acceptance_criteria_S6_S7": {
+    "FWER": "PASS iff CP-upper95(fwer_events,R) <= tau_FWER=0.055 for EVERY cell (no point-estimate condition)",
+    "F10_termination": "whole-branch termination CP-upper95 <= tau_term0=0.055",
+    "power_floor": "floored cells CP-lower95(path) >= 0.90 at ESCALATED n (base reported alongside)",
+    "P6_termination": "termination CP-upper95 <= tau_term=0.025",
+    "gatecal": "per (arm,gamma) CP-upper95 <= 1.25*gamma; SD-ratio (R9a mechanism) >= 1"
+  },
+
+  "cost_dry_plan": {
+    "projected_core_hours": 103.8,
+    "basis": "Modal-measured per-rep: fwer_base 0.0937s, fwer_esc 0.1308s, power_esc 0.1287s, gatecal 0.0844s (n96); FWER 312968s + power 40086s + gatecal 16352s + beta-recalib 3920s + rung0 280s",
+    "projected_usd": "~16-35 (Modal CPU ~$0.13-0.20/core-h + memory); within ~$40 authorization, under ~$50 hard-stop",
+    "guard": "monitor actual Modal spend; STOP if trending toward $50"
+  },
+
+  "status": "GRID LAUNCHED 20260723T092250Z; 100 concurrent containers (Modal default cap), 14 queued. Results + wall-clock + actual spend + mechanical verdict appended on completion.",
+  "fable_interpretive_assessed": "pending"
+}
