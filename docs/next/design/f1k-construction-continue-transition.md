@@ -16,6 +16,15 @@
      the hard-cap architecture, and the landed-code change register. Where the body
      and the Revision 2 section conflict, Revision 2 governs. -->
 
+<!-- REVISION 3 (2026-07-23, after the GPT-5.6 Rev2 delta-check NEW-DEFECT/
+     STILL-REJECT, poc/gpt56-review/f1k-cc-rev2-deltacheck/last-message.json):
+     resolves the cap-mechanism fork (PROPOSED-CC-7) from GCP documentation — the
+     hard cap becomes the NATIVE GCE absolute runtime limit (terminationTime) with
+     the unified STOP action, which coexists with Spot preemption-resume and
+     eliminates the Scheduler/OIDC/async/cron defect family outright. Section
+     "Revision 3" governs over both earlier layers wherever they conflict; R2.1's
+     Cloud Scheduler L1 is SUPERSEDED. -->
+
 # F1-K `construction-continue` transition — implementable design
 
 Bead `kernel-of-truth-700k`: the runnable, guarded, NO-SPEND transition from a GREEN
@@ -197,14 +206,18 @@ Phase 1 — VM mutation, still $0 exposure risk:
 
 Phase 2 — the single pre-spend gate:
 
-12. `preflight_launch_gate` (section 4, Rev2-extended per LC-7) with real transports:
-    B1 epoch + derived deadline, L1 provider cap job verification (LC-3), hardened
-    L2 guest-timer verification (LC-2), guest-side deletion-IAM dry-run
-    (`testIamPermissions` including `compute.instances.delete`, executed FROM the VM
-    with its own credentials — proves auth + API reachability + permission
-    end-to-end without deleting, LC-4), exact-budget-resource attestation (LC-6),
-    and the B4 rate window. `go: false` refuses and STOPS — deliberately leaving
-    every cap layer armed (an armed cap on a VM we are keeping is conservative, and
+12. `preflight_launch_gate` (section 4, as amended by LC-7; Rev3 R3.1) with real
+    transports: B1 epoch + derived deadline; L1 NATIVE cap read-back — live
+    `instances.get` scheduling: `terminationTime == epoch + 900 h`,
+    `instanceTerminationAction == STOP`, `provisioningModel == SPOT`,
+    discard-local-SSD-at-termination set (LC-3v3); hardened L2 guest-timer
+    verification (LC-2); guest-side deletion-IAM dry-run (`testIamPermissions`
+    including `compute.instances.delete`, executed FROM the VM with its own
+    credentials — proves auth + API reachability + permission end-to-end without
+    deleting, LC-4; under Rev3 this backs the CLEANUP/teardown layer, not the hard
+    cap); exact-budget-resource attestation (LC-6, Rev3-extended per R3.3); and the
+    B4 rate window. `go: false` refuses and STOPS — deliberately leaving every cap
+    layer armed (an armed cap on a VM we are keeping is conservative, and
     `teardown` remains available).
 
 Phase 3 — artifact placement (atomic, sha-read-back):
@@ -218,15 +231,17 @@ Phase 3 — artifact placement (atomic, sha-read-back):
 
 Phase 4 — backstop swap (ordering is the point):
 
-15. ONLY after preflight verified the FULL cap stack — L1 provider delete job
-    (config + retry floor + SA IAM binding), hardened L2 guest units, AND the
-    guest-side deletion-IAM dry-run — AND after an immediate re-probe of the L2
-    timer (`is-active`, narrowing the preflight-to-cancel TOCTOU window, oracle
-    group 25): cancel the bring-up guest max-life (`sudo shutdown -c`). Order
-    recorded in the continue transcript; the oracle asserts verify-before-cancel
-    (this is F1K-CONSTRUCTION-LAUNCH-ARCH's "cancel the bring-up shutdown only after
-    the provider delete is verified", now implemented with a genuinely provider-side
-    delete, R2.1).
+15. ONLY after preflight verified the FULL cap stack — L1 native runtime limit,
+    hardened L2 guest units, AND the guest-side deletion-IAM dry-run — AND after an
+    immediate re-probe of BOTH layers (Rev3, delta-check #4: a fresh L1
+    `instances.get` scheduling read-back AND the L2 `is-active` query, run
+    immediately before the cancel; if the runtime limit has been patched/removed or
+    the timer disarmed since preflight, do NOT cancel — oracle groups 25 + 31):
+    cancel the bring-up guest max-life (`sudo shutdown -c`). Order recorded in the
+    continue transcript; the oracle asserts verify-before-cancel (this is
+    F1K-CONSTRUCTION-LAUNCH-ARCH's "cancel the bring-up shutdown only after the
+    provider delete is verified", now implemented with a provider-NATIVE cap,
+    R3.1).
 
 Phase 5 — handoff production (section 4.2 for the provider block):
 
@@ -239,9 +254,13 @@ Phase 5 — handoff production (section 4.2 for the provider block):
     `campaign_started_at_utc`, bring-up elapsed hours (ROUND_CEILING 6 dp), the
     licensed rate, and `bringup_cost_usd_decimal = elapsed x rate` (ROUND_CEILING) —
     written to `/home/ubuntu/f1k-gate/` and kept on the control box; its sha is in
-    the continue receipt, and the config-cost basis step MUST consume it (named
-    runbook step; oracle-asserted). Bring-up spend is thereby BOUND as evidence, not
-    carried by a later manual argument.
+    the continue receipt. (Rev3, delta-check #5) Consumption is MECHANICAL, not a
+    runbook promise: LC-13 amends `cmd_config_cost`
+    (`poc/gcp/f1k_bringup_gate.py:1787`) to REQUIRE `--prior-evidence <path>`,
+    validate its schema/sha/arithmetic/instance binding, DERIVE the prior
+    dollars/hours from it, and REFUSE the manual `--prior-usd`/`--prior-hours`
+    flags outright (any supplied value, including zero, is a hard error). Bring-up
+    spend is thereby BOUND as evidence with an enforcing consumer.
 
 Phase 6 — guard launch via systemd (guard remains the SOLE builder launcher):
 
@@ -325,31 +344,36 @@ service account for no benefit:
 | `systemctl_transport` | SSH wrapper: the read-only queries (`is-active`, `oncalendar`, `persistent`, `triggered-unit`, `exec-start`, and Rev2 LC-2's `restart-policy`) via `gcloud compute ssh ubuntu@<vm> -- systemctl show ...`, each mapped to the exact string the verifier expects; any SSH failure raises -> preflight returns NO-GO |
 | `budget_transport` | Billing Budgets API get via gcloud, control-box credentials — full LC-6 validation |
 | `catalog_transport` | the landed live Cloud Billing Catalog HTTP transport |
-| `scheduler_transport` (NEW, LC-3) | Cloud Scheduler jobs describe via gcloud — verifies the L1 provider cap job (R2.1) |
-| `iam_transport` (NEW, LC-4) | guest-side `instances.testIamPermissions` (SSH-invoked, VM credentials) + control-plane IAM-binding read for the L1 job's service account |
+| `compute_transport` (LC-3v3, Rev3 — replaces Rev2's `scheduler_transport`) | live `instances.get` scheduling read-back: `terminationTime`, `instanceTerminationAction`, `provisioningModel`, discard-local-SSD flag — the L1 native cap verification (R3.1); no Cloud Scheduler in the load-bearing path |
+| `iam_transport` (NEW, LC-4) | guest-side `instances.testIamPermissions` (SSH-invoked, VM credentials) — backs the cleanup/teardown deletion capability under Rev3 |
 
 Boot-id note (Rev2, R2.6-BOOTID): phase-0 identity resolution uses LC-9's injectable
 `bootid_transport` (SSH `cat /proc/sys/kernel/random/boot_id` as `ubuntu@<vm>`);
 the landed function always read the LOCAL boot id, so a control-box call could never
 match the guest and would false-refuse every launch.
 
-Epoch origin (REVISED in Rev2 — R2.5; Rev1's "immediately after a successful
-`instances create`" is WITHDRAWN as non-conservative): `cmd_provision` (LC-10)
-captures `t_epoch = UTC now` BEFORE issuing the create request and durably persists
-it (control-box local + GCS mirror, write-once B1 semantics
+Epoch origin (REVISED in Rev2 — R2.5; Rev3 strengthens further): `cmd_provision`
+(LC-10) captures `t_epoch = UTC now` BEFORE issuing the create request and durably
+persists it (control-box local + GCS mirror, write-once B1 semantics
 [MEASURED contract: `poc/gcp/f1k_ops.py:4963-5037`]) BEFORE the VM exists, keyed to
-(project, zone, instance name). The L1 provider cap job (R2.1) is armed at
-`t_epoch + 900 h` also BEFORE create. Only then does `instances create` run. After
-create: write + mirror `epoch-binding.json` carrying the numeric instance id, and
-READ BACK epoch + mirror + binding; if durable persistence or read-back fails, the
-just-created VM is IMMEDIATELY deleted and provision exits nonzero — a paid VM
-without a durable epoch never survives. Because `t_epoch` predates actual creation
-by the provisioning latency, the deadline can only be EARLIER than creation+900 h —
-the conservative direction. This anchors the cap at (before) VM creation, covering
-bring-up + construction on the one instance, and makes preflight's `elapsed < 900`
-and seam ARMED-899 coherent. Provision refuses if an epoch already exists for a live
-VM name (reuse-gate parity). Build-order consequence (R2.5): ALL epoch/cap code
-lands BEFORE any `provision` run, not merely before `bringup-deploy`.
+(project, zone, instance name). (Rev3, R3.1) The L1 native cap is then carried IN
+THE CREATE REQUEST ITSELF — `scheduling.terminationTime = t_epoch + 900 h` with the
+unified `instanceTerminationAction = STOP` and the discard-local-SSD flag — so no
+VM can exist, even transiently, without its cap; this is strictly stronger than
+Rev2's arm-before-create external job (there is nothing separate to arm or to
+read back BEFORE create — the delta-check's read-back demand is satisfied by the
+$0 plan-oracle assertion on the request body plus the mandatory IMMEDIATE
+post-create `instances.get` read-back below). After create, as the FIRST
+post-create act: read back scheduling (terminationTime/action/SPOT/discard flags)
+and write + mirror `epoch-binding.json` carrying the numeric instance id; if the
+read-back mismatches or durable persistence fails, the just-created VM is
+IMMEDIATELY deleted FAIL-CLOSED with the deletion VERIFIED to completion (poll the
+zonal operation to DONE, check errors, confirm instance absence — the delta-check's
+verified-cleanup requirement) and provision exits nonzero. Because `t_epoch`
+predates actual creation by the provisioning latency, the deadline can only be
+EARLIER than creation + 900 h — the conservative direction. Provision refuses if an
+epoch already exists for a live VM name (reuse-gate parity). Build-order
+consequence (R2.5): ALL epoch/cap code lands BEFORE any `provision` run.
 
 Fail-closed statement (binding): preflight returns `{"go": false, reason}` on ANY
 error — including transport exceptions — and `construction-continue` treats anything
@@ -389,14 +413,28 @@ not structurally implementable; the fix is a real closed attestation, LC-5):
 - `provider.termination_time_utc` := `compute_selfdelete_deadline(epoch_launch)` (the
   intended deadline).
 - `provider.termination_timestamp_utc` := `verify_cap_armed()["deadline_utc"]`
-  (the READ-BACK attestation — the L1 job's verified schedule and the L2 timer's
-  verified OnCalendar, which LC-5 requires to be identical before it returns at
-  all). `validate_handoff` requires the two handoff fields equal — and (LC-8)
-  additionally RECOMPUTES `armed_hours_decimal` from
+  (the READ-BACK attestation — under Rev3, the live `instances.get`
+  `terminationTime` and the L2 timer's verified OnCalendar, which LC-5 requires to
+  agree before it returns at all). `validate_handoff` requires the two handoff
+  fields equal — and (LC-8) additionally RECOMPUTES `armed_hours_decimal` from
   `campaign_started_at_utc -> termination_time_utc` under the producer's
   ROUND_CEILING/6 dp rule, requiring exact equality plus timestamp ordering, so an
   understated `"armed_hours_decimal"` (the review's `"1"`-against-899 h case) can no
-  longer satisfy the $300 arithmetic.
+  longer satisfy the $300 arithmetic. (Rev3, delta-check #3 residual:
+  `validate_handoff` gains a required `now_utc` parameter and — repeated inside
+  guard with a FRESH clock — requires `campaign_started_at_utc <= now_utc + 60 s`
+  AND `campaign_started_at_utc <= created_at_utc <= now_utc + 60 s`, so a
+  hand-built FUTURE start can no longer understate exposure.)
+- (Rev3, R3.2) Under the native-STOP cap the provider block's semantics change and
+  the handoff schema bumps to `kot-f1k-construction-handoff/2`: the cap attestation
+  carries `cap.mechanism = "gce-termination-time"`, `cap.action = "STOP"` (the
+  UNIFIED provider action, shared with preemption by the API itself),
+  `cap.termination_time_utc` + read-back, and a `cleanup` sub-object (verified
+  post-cap deletion semantics). The /1 literal-DELETE requirement encoded the
+  superseded leaner-B premise. The wonu two-axes RULE survives intact in /2 form:
+  the CAP attestation is populated ONLY from the live scheduling read-back
+  composite (LC-5), never by echoing a provisioning flag — and the preemption axis
+  is now separately asserted live (STOP) by guard step 3'(b).
 - `provider.campaign_started_at_utc` := the continue-run UTC now (construction spend
   start), never GREEN time.
 - `provider.armed_hours_decimal` := exact hours between `campaign_started_at_utc` and
@@ -435,12 +473,19 @@ preemption action to STOP; omitted silently, it would drop the independent cap
 verification. The replacement step 3' is:
 
 - (a) live `scheduling.provisioningModel == SPOT`;
-- (b) live GCE `instanceTerminationAction == STOP` — asserting the PREEMPTION axis
-  is the resume-preserving value (a DELETE-on-preemption mis-provision refuses);
-- (c) `verify_cap_armed()` live (L1 provider job + hardened L2 timer + deletion-IAM
-  dry-run, LC-5) with deadline exactly `epoch + 900 h`;
+- (b) live GCE `instanceTerminationAction == STOP` — the UNIFIED action (Rev3):
+  this single API field now serves BOTH axes at once — resume-preserving STOP on
+  preemption AND the provider's action at the runtime limit (a DELETE
+  mis-provision refuses);
+- (c) `verify_cap_armed()` live (L1 native scheduling read-back:
+  `terminationTime == epoch + 900 h` + discard flag; hardened L2 timer;
+  deletion-IAM dry-run — LC-5 as revised R3.1) — with the L1 leg re-run at every
+  checkpoint poll;
 - (d) wall-clock sufficiency recomputed with a fresh clock, `parse_float=str`
-  extraction, ROUND_CEILING, and the PROPOSED-CC-9 margin.
+  extraction, ROUND_CEILING, and the PROPOSED-CC-9 margin — which also absorbs the
+  documented up-to-30 s provider termination latency;
+- (e) (Rev3, delta-check #3) `campaign_started_at_utc <= fresh now + 60 s` and
+  coherent ordering with handoff creation, independently of the validator.
 
 The rest of the contract stands:
 
@@ -594,13 +639,13 @@ sections 7/8 and NEXT-ACTION, is:
   nothing — the enforced bounds are the watchdog `--max-hours`, the guest max-life,
   and the $300 budget tripwire]. The superseded on-demand figure is cited as history,
   not silently dropped, and no "~$2-3" phrasing survives without its upper edge.
-- (Rev2, R2.6-#8) Bring-up dollars and instance-hours are carried into the eventual
-  config-cost basis by an EXECUTABLE step, not a narrative promise:
-  `construction-continue` phase 5 produces `prior-spend-evidence.json`
-  (epoch, campaign start, elapsed bring-up hours ROUND_CEILING, licensed rate, and
-  the derived bring-up cost), sha-recorded in the continue receipt; the config-cost
-  basis step consumes it by name and the oracle asserts both its production and its
-  arithmetic. They also share the 900 h wall clock with construction under the
+- (Rev2, R2.6-#8; Rev3-hardened per delta-check #5) Bring-up dollars and
+  instance-hours are carried into the config-cost basis by an ENFORCED step:
+  `construction-continue` phase 5 produces `prior-spend-evidence.json`, and LC-13
+  amends `cmd_config_cost` (`poc/gcp/f1k_bringup_gate.py:1787`) to require +
+  validate it and to REFUSE manual `--prior-usd`/`--prior-hours` (zero included).
+  The oracle asserts production, arithmetic, tamper refusal, and the manual-flag
+  refusal. They also share the 900 h wall clock with construction under the
   pre-create epoch (section 4.1), so they cannot disappear from the analysis basis.
 
 ---
@@ -632,17 +677,19 @@ The delta — everything `construction-continue` adds, exhaustively:
 | 7 | guest max-life CANCELLATION | VM | only after the full cap stack verified + L2 re-probe (phase 4) |
 | 8 | `prior-spend-evidence.json` (Rev2) | `/home/ubuntu/f1k-gate/` + control box | produced phase 5, sha in the receipt |
 
-NOT in the continue delta but part of the Rev2 transition surface: the L1 provider
-cap job (Cloud Scheduler delete at `epoch + 900 h`) is armed at PROVISION time,
-before the VM exists (R2.1/R2.5), and only VERIFIED here.
+NOT in the continue delta but part of the transition surface: (Rev3) the L1 native
+cap (`scheduling.terminationTime = epoch + 900 h`, unified STOP action, discard
+flag) is set INSIDE the provision create request itself — no VM exists without it
+— and is only VERIFIED here (read-back at preflight and again at the phase-4
+re-probe).
 
 Code deltas shipped with the build (not staged at continue time): the
 `construction-continue` entrypoint + `f1k_ops` import + the LC-10/LC-11 provision
 and teardown changes + `ubuntu@` SSH targeting in `f1k_gcp.py`; the guard
 `--handoff` (B3) delta incl. step 3' in `f1k_bringup_gate.py`; the LC-1..9 + LC-12
-amendments in `f1k_ops.py`. ALL of it lands as ONE reviewed bundle BEFORE any
-`provision` run (R2.5) — Rev1's "before any bring-up deploy" was necessary but
-insufficient.
+amendments in `f1k_ops.py`; LC-13 (`cmd_config_cost`) and LC-14 (the control-box
+cap-reaper) per R3. ALL of it lands as ONE reviewed bundle BEFORE any `provision`
+run (R2.5) — Rev1's "before any bring-up deploy" was necessary but insufficient.
 
 ---
 
@@ -653,19 +700,29 @@ insufficient.
    USD, exactly $300, with thresholds + notification config; its exact resource name
    is pinned in `KOT_F1K_BUDGET_RESOURCE` (known GCP env/IAM setup gate; preflight
    fails closed without it).
-2. (Rev2, R2.1) The L1 provider cap needs one-time GCP setup: enable the Cloud
-   Scheduler API and create/authorize the cap service account holding
-   `compute.instances.delete` (project- or instance-scoped). Maintainer-gated, same
-   class as item 1. Also ratify PROPOSED-CC-7 (Cloud Scheduler as the L1 mechanism +
-   the retry floor) — including the executor's build-time check of whether the
-   native GCE runtime-limit (`terminationTime` + DELETE) can coexist with
-   STOP-on-preemption in the current API; if it can, the maintainer picks native vs
-   Scheduler (native is simpler; the side-plan reading says the shared
-   `instanceTerminationAction` field forbids the combination).
-3. Ratify the PROPOSED-CC-5 allowance numbers ($20 non-compute, $10 rate headroom)
+2. (Rev3, R3.1 — REPLACES the Rev2 Scheduler item) Ratify the resolved cap fork:
+   variant B, the NATIVE absolute runtime limit (`terminationTime = epoch + 900 h`,
+   unified `instanceTerminationAction = STOP`, discard-local-SSD flag) as the hard
+   cap, with verified-deletion cleanup — versus variant A (unified DELETE: true
+   deletion at cap but preemption becomes terminal, breaking the same-instance
+   resume + instance-hours accounting premise). Recommendation and rationale in
+   R3.1. NO Cloud Scheduler API, no OAuth caller SA, no handler deployment is
+   needed under B; deletion IAM (for cleanup/teardown) rides the existing
+   operator + VM service accounts.
+3. (Rev3) Authorize the CAP-PROBE: a sub-dollar live probe (tiny Spot VM + 1 local
+   SSD, short terminationTime + STOP) verifying the three provider semantics the
+   docs leave to inference — timestamp re-arms across stop/resume, past-time
+   restart refusal, STOP-with-discard on a local-SSD VM — BEFORE the build freezes
+   (PROPOSED-CC-13; the mocks-calibrate-plumbing-not-semantics lesson applied to
+   provider mechanics). Est. $0.10-0.30.
+4. Budget resource per R3.3: all-services single-project $300 USD budget with an
+   explicit period, no narrowing filters, VERIFIED notification channels; project
+   live-linked to `KOT_GCP_BILLING_ACCOUNT`; exact name pinned in
+   `KOT_F1K_BUDGET_RESOURCE`. Enable Monitoring API read for channel verification.
+5. Ratify the PROPOSED-CC-5 allowance numbers ($20 non-compute, $10 rate headroom)
    and PROPOSED-CC-9 (2 h wall-clock margin) at the #55 spend-GO. Arithmetic, not
    policy, is what the code enforces.
-4. The construction spend-GO itself (#55) — explicitly out of scope here.
+6. The construction spend-GO itself (#55) — explicitly out of scope here.
 
 ## 10. Assumption register (PROPOSED — the executor registers on commit; no ids minted here)
 
@@ -688,24 +745,45 @@ insufficient.
   `F1K-CONSTRUCTION-SIDE-PLAN.md` section 4 (the budgets-do-not-cap-spend claim there
   is LIT-BACKED to the vendor doc it links; the review restates both with vendor
   links — stopped instances retain chargeable resources, budgets do not cap spend).
-- PROPOSED-CC-7 [STIPULATED, NEW Rev2]: the L1 hard cap is a Cloud Scheduler job
-  (cron-encoded absolute deadline, OIDC-authenticated Compute `instances.delete` on
-  exactly this instance, durable retry config at a reviewed floor), chosen over (a)
-  the native GCE runtime-limit — the operative side-plan reading is that its shared
-  `instanceTerminationAction` field would force DELETE-on-preemption, destroying the
-  STOP-resume estate premise — and (b) DELETE-on-preemption leaner-B. Resolution
-  path: the executor verifies the shared-field constraint against the current GCE
-  API at build time; if separable, surface the native option to the maintainer
-  (section 9 item 2). Owner: coordinator.
-- PROPOSED-CC-8 [STIPULATED, NEW Rev2]: the L2 guest terminal fallback is
-  `poweroff -f` after delete-retry exhaustion — it needs no cloud auth and stops
-  compute billing; the residual (PD/retained-resource charges until L1 deletes) is
-  disclosed, not hidden.
+- PROPOSED-CC-7 [RESOLVED in Rev3 — see R3.1]: the shared-field question is
+  ANSWERED from the vendor doc (the runtime-limit action and the Spot preemption
+  action are ONE unified `instanceTerminationAction`), so Rev2's Scheduler-as-L1
+  is WITHDRAWN; the hard cap is the NATIVE absolute `terminationTime` with the
+  unified STOP action (variant B). Two provider behaviors remain doc-inferred and
+  are pinned by the mandatory CAP-PROBE (PROPOSED-CC-13) before build freeze:
+  re-arming of the absolute time across stop/resume, and past-time restart
+  refusal mechanics.
+- PROPOSED-CC-8 [STIPULATED, NEW Rev2; role narrowed in Rev3]: the L2 guest
+  terminal fallback is `poweroff -f` after delete-retry exhaustion — no cloud auth
+  needed; under Rev3 it is pure defense-in-depth beneath the native cap (covers a
+  late/failed provider STOP); the residual (retained-resource charges until
+  cleanup deletes) is disclosed, not hidden.
 - PROPOSED-CC-9 [STIPULATED, NEW Rev2]: 2 h transition/termination margin on every
   wall-clock sufficiency check. Maintainer may tighten at the #55 GO.
-- PROPOSED-CC-10 [STIPULATED, NEW Rev2]: the budget attestation validates the exact
-  `KOT_F1K_BUDGET_RESOURCE` (billing-account parent, USD, $300, single-project
-  filter, thresholds, notification config); "any $300 budget" never passes.
+- PROPOSED-CC-10 [STIPULATED, NEW Rev2; extended Rev3 per R3.3]: the budget
+  attestation validates the exact `KOT_F1K_BUDGET_RESOURCE` (billing-account
+  parent, USD, $300, single-project filter, NO other narrowing filters, explicit
+  period, thresholds, VERIFIED notification channels, live project-to-account
+  linkage); "any $300 budget" never passes.
+- PROPOSED-CC-11 [STIPULATED, NEW Rev3]: variant B (native STOP cap + verified
+  cleanup) over variant A (unified DELETE) because A makes every Spot preemption
+  terminal — destroying same-instance resume, the instance-hours <= wall-clock
+  accounting premise behind the frozen affordability decision, and the write-once
+  epoch continuity (each re-provision would need a maintainer clock decision).
+  B's post-cap residual is bounded to stopped-VM storage (order $0.5-0.6/day),
+  tripwired by the $300 budget and removed by verified cleanup. Maintainer
+  ratifies (section 9 item 2).
+- PROPOSED-CC-12 [STIPULATED, NEW Rev3]: post-cap cleanup = the control-box
+  cap-reaper (LC-14, nohup watchdog pattern): sleep to deadline, then
+  delete -> poll operation to DONE -> verify absence, unbounded retries with
+  backoff; best-effort by design, because its failure now leaks only stopped-VM
+  storage. An off-box Cloud Scheduler + handler cleanup remains OPTIONAL and, if
+  ever built, MUST follow the delta-check mechanics (OAuth access tokens not OIDC;
+  handler polls to DONE + verifies absence + returns non-2xx until confirmed;
+  minute-FLOORED UTC cron; retries until absence).
+- PROPOSED-CC-13 [STIPULATED, NEW Rev3]: the sub-dollar CAP-PROBE (section 9 item
+  3) is MANDATORY before build freeze; its recorded results gate the oracle's
+  provider-semantics assumptions (group 30).
 
 ---
 
@@ -724,6 +802,14 @@ Rev2 rebuilds the cap as layered, independently-verified mechanisms and amends t
 landed option-B code where the defects live.
 
 ### R2.1 Defect #1 — the hard cap (ADOPTED, with a layered architecture)
+
+**(Rev3: THIS SECTION'S L1 MECHANISM IS SUPERSEDED.** The Rev2 delta-check showed
+the Cloud Scheduler L1 as specified here is not a functioning hard cap (OIDC
+rejected by googleapis.com, no async-operation completion, minute-granularity
+recurring cron, finite retries). Rev3 replaces it with the NATIVE GCE absolute
+runtime limit — see R3.1, which governs. The layer PRINCIPLE (provider-side cap,
+guest defense-in-depth, budget tripwire, verify-before-cancel) survives; the
+Scheduler machinery does not.)
 
 Disposition: ADOPTED. The guest timer is DEMOTED to defense-in-depth; the doc no
 longer represents it as the hard cap anywhere.
@@ -784,9 +870,15 @@ one project (an account-wide or other-project budget REFUSES); well-formed
 thresholds; notification configuration present. It returns a CLOSED attestation
 which preflight (LC-7) passes through for direct handoff population, and
 `validate_handoff` (LC-8) now also enforces the `billingAccounts/<id>/budgets/<id>`
-format on `resource_name`; exact-resource equality is enforced live at continue and
-again inside guard (the pure validator cannot know the deployment's resource name —
-the live checks bind it).
+format on `resource_name`; exact-resource equality is enforced live at continue
+(the pure validator cannot know the deployment's resource name — the live check
+binds it). (Rev3 correction, per the delta-check: Rev2's claim that the GUARD
+re-fetches the budget live was not wired and is WITHDRAWN — the guest deliberately
+lacks budget IAM. The honest wiring: the budget is verified live CONTROL-BOX-side
+(preflight + continue); the guard verifies the budget ATTESTATION bytes against
+the sha carried with the handoff, and post-launch live re-checks are the
+control-box cap-reaper/monitor's job, best-effort, alongside the budget's own
+threshold alerts.)
 
 ### R2.3 Defect #3 — real attestation provenance + armed-hours recompute (ADOPTED)
 
@@ -885,15 +977,15 @@ file, and `build_carriers.py` stays byte-identical:
 |---|---|---|---|
 | LC-1 | `_selfdelete_exec_start` + `render_selfdelete_unit` (`f1k_ops.py:5119,:5131`) | extended retry loop; `Restart=on-failure`, `RestartSec`, `StartLimitIntervalSec=0`; terminal `poweroff -f` fallback | defect #1: 6x30s-then-give-up left the VM billable |
 | LC-2 | `verify_selfdelete_armed` (`:5204`) | verify restart policy + fallback presence; return closed attestation incl. `action:"DELETE"`, `mechanism` | defects #1/#3 |
-| LC-3 | NEW `arm_provider_cap` / `verify_provider_cap` | create/verify the L1 Cloud Scheduler delete job (schedule == deadline, exact target, OIDC SA, ENABLED, retry floor); injectable `scheduler_transport` | defect #1: the real hard cap |
+| LC-3 | (Rev3: REVISED to LC-3v3) NEW `verify_provider_cap` | live `instances.get` scheduling read-back: `terminationTime == epoch+900h`, unified action STOP, SPOT, discard-local-SSD flag; injectable `compute_transport`. Rev2's Scheduler job create/verify is DROPPED from the load-bearing path (R3.1) | defect #1: the real hard cap, now native |
 | LC-4 | NEW `verify_delete_iam` | guest-side `testIamPermissions` incl. `compute.instances.delete` + L1-SA IAM-binding read | defect #1: capability, not config |
 | LC-5 | NEW `verify_cap_armed` | composite closed cap attestation (L1+L2+IAM; equal deadlines required); the ONLY source for handoff `instance_termination_action` / `termination_timestamp_utc` | defect #3 |
 | LC-6 | `assure_billing_budget` (`:5290`) | required exact resource + project; validate account/currency/amount/filter/thresholds/notifications; closed attestation return | defect #2 |
-| LC-7 | `preflight_launch_gate` (`:5434`) | consume LC-5 + LC-6; new `scheduler_transport`/`iam_transport`/budget params; attestations passed through in the result | defects #1/#2/#3 wiring |
+| LC-7 | `preflight_launch_gate` (`:5434`) | consume LC-5 + LC-6; new `compute_transport` (Rev3) / `iam_transport` / budget params; attestations passed through in the result | defects #1/#2/#3 wiring |
 | LC-8 | `validate_handoff` (`:2758`, decimals at `:2997`, budget at `:3052`) | recompute `armed_hours_decimal` from timestamps (ROUND_CEILING/6 dp, exact equality); timestamp ordering; budget `resource_name` format | defects #2/#3 |
 | LC-9 | `resolve_live_instance_identity` (`:548`, boot id `:527`) | injectable `bootid_transport` (default local, preserving on-VM use) | boot-id false-refuse |
 | LC-10 | `cmd_provision` (`f1k_gcp.py:550`) | pre-create epoch capture/persist + L1 arm; post-create binding + read-back; fail-closed delete of the new VM on persistence failure | defect #5 |
-| LC-11 | `cmd_teardown` (`f1k_gcp.py:604`) | also delete the L1 scheduler job | hygiene |
+| LC-11 | (Rev3: REVISED to LC-11v3) `cmd_teardown` (`f1k_gcp.py:604`) | frozen ordering invariant: delete VM -> poll zonal operation to DONE (error-checked) -> verify absence (`instances.get` 404) -> ONLY THEN remove external cleanup machinery (reaper entry / optional job); any VM-delete failure LEAVES everything armed + exits nonzero; the epoch mirror is never deleted (historical record) | delta-check #4 teardown ordering |
 | LC-12 | `_resolve_epoch_launch` (`:5040`) | `require_mirror` mode for the launch context: mirror-absent-with-local-present refuses | oracle gap 22 |
 
 Each LC item: implemented by the executor, covered by new b0/b1/continue oracle
@@ -919,7 +1011,195 @@ claimed.
 
 ---
 
-## Self-check (Rev2 — re-run in full; honest report)
+## Revision 3 — cap-mechanism fork resolution + Rev2 delta-check corrections
+
+Source verdict: `poc/gpt56-review/f1k-cc-rev2-deltacheck/last-message.json`
+(GPT-5.6, NEW-DEFECT / STILL-REJECT). The delta-check CONFIRMED, conditional on a
+functioning cap: the guard STOP/DELETE axes (Rev1 defect #4) and the epoch
+capture/persist/arm-before-create ordering (Rev1 defect #5) — Rev3 does not regress
+either. It also confirmed the armed-hours core bypass is dead and the budget core
+checks are right. Everything below amends the remaining findings.
+
+### R3.1 The fork, resolved: NATIVE runtime limit, variant B (STOP-unified)
+
+PREMISE: [LIT-BACKED: GCE "Limit the runtime of a VM" doc, docs.cloud.google.com/compute/docs/instances/limit-vm-runtime, fetched 2026-07-23]
+the vendor doc answers the PROPOSED-CC-7 questions directly: (1) `terminationTime`
+is an ABSOLUTE timestamp; `maxRunDuration` is a duration whose termination
+timestamp "is recalculated by adding that duration to the VM's latest start time" —
+so for a fixed 900 h wall-clock cap only `terminationTime` is correct; (2) the
+runtime-limit action is `instanceTerminationAction`, values STOP or DELETE — the
+SAME, UNIFIED field that governs Spot preemption (the doc treats it as one field
+with no per-trigger variants), so DELETE-at-limit forces DELETE-on-preemption and
+STOP-at-limit coexists with STOP-on-preemption; (3) limits run 30 s to 120 days
+(900 h ~ 37.5 d fits); termination "might take up to 30 seconds longer" (absorbed
+by the PROPOSED-CC-9 margin); (4) local-SSD VMs require
+discard-local-SSDs-at-termination when the action is STOP; and (5) — decisive —
+"the time must be in the future; otherwise, any requests to create or rerun the VM
+fail until you update or remove the time": a PAST `terminationTime` blocks restart
+PROVIDER-SIDE, so post-cap compute cannot resume without a deliberate, auditable
+scheduling update.
+
+Decision (PROPOSED-CC-11, maintainer ratifies): the hard cap is the NATIVE
+combination `provisioningModel=SPOT` + unified `instanceTerminationAction=STOP` +
+absolute `terminationTime = epoch + 900 h` + discard-local-SSD-at-termination, set
+INSIDE the provision create request. This is the "correct combination giving BOTH
+preemption-resume AND a hard <= 900 h bound" the delta-check asked for: preemption
+STOPs and resumes the same instance (premise preserved — including the
+instance-hours <= wall-clock accounting behind the frozen affordability decision);
+at the cap the provider STOPs the VM (compute + local-SSD billing ends); past the
+cap the provider refuses restarts. What variant B deliberately gives up is
+DELETION at the cap: a stopped VM retains its boot disk (order $0.5-0.6/day for
+the 100 GB pd-ssd — stopped instances stop compute charges but retain attached-
+resource charges, per the vendor stop/suspend doc), so deletion is decoupled into
+a VERIFIED CLEANUP: the control-box cap-reaper (LC-14) and `teardown` (LC-11v3)
+both implement delete -> poll the zonal operation to DONE (error-checked) ->
+verify instance ABSENCE -> only then remove cleanup machinery; retries continue
+until absence is confirmed. The cleanup's failure mode leaks cents per day,
+tripwired by the $300 budget — categorically different from Rev2's
+running-VM-forever leak.
+
+Variant A (unified DELETE) — true deletion at the cap, zero post-cap residual, and
+the simplest possible machinery — is REJECTED as default because the unified field
+makes every Spot preemption DELETE the instance: the same-instance resume premise,
+the write-once epoch continuity (each re-provision would demand a maintainer
+clock decision), and the frozen affordability accounting all break. It remains the
+maintainer's documented alternative (section 9 item 2); under A the /1 handoff
+DELETE literal and Rev1 wonu semantics stand unchanged.
+
+Does native collapse the delta-check's #1-#3? YES — by elimination, not repair:
+OAuth-vs-OIDC (#1), async-operation completion at the deadline (#2), and cron
+granularity/finite-retry semantics (#3) were all defects of an EXTERNAL caller in
+the load-bearing path; the native cap has no external caller, no auth, no
+schedule encoding, and no retry semantics — the provider enforces its own
+scheduling field. Those mechanics survive ONLY in the non-load-bearing cleanup
+layer, where they are still specified correctly (PROPOSED-CC-12: OAuth access
+tokens, poll-to-DONE + absence + non-2xx-until-confirmed, minute-FLOORED UTC cron,
+retries-until-absence) should the optional off-box variant ever be built.
+
+Residual doc-inference (honest): the vendor doc does not explicitly state that the
+absolute `terminationTime` CONFIG re-arms after a preemption stop -> resume (the
+read-only timestamp is "cleared" while stopped; the rerun-fails-when-past rule
+implies the config persists). This and the local-SSD STOP path are pinned by the
+MANDATORY sub-dollar CAP-PROBE (PROPOSED-CC-13) before build freeze: tiny Spot VM
++ 1 local SSD + short terminationTime + STOP; verify (a) it stops at the time,
+(b) the config survives a manual stop/start and re-arms, (c) a past-time restart
+is refused, (d) discard-at-termination behaves. The probe's recorded results gate
+oracle group 30.
+
+### R3.2 Contract impact (schema /2)
+
+Under variant B the handoff provider block cannot honestly carry the /1 literal
+`instance_termination_action == "DELETE"` (the live unified field is STOP; the
+wonu lesson forbids attesting what is not there). LC-8v3 bumps the handoff schema
+to `kot-f1k-construction-handoff/2`: the provider block carries a `cap` sub-object
+(mechanism `gce-termination-time`, action `STOP` marked as the unified
+shared-with-preemption action, intended time + live read-back) and a `cleanup`
+sub-object (verified-deletion semantics + reaper identity). `validate_handoff`
+refuses /1; `build_runtime_license` and the b0 fixtures follow. The two-axes wonu
+pin re-lands in /2 form: the cap attestation is populated ONLY from the LC-5
+composite (whose L1 leg is the live scheduling read-back), never by echoing a
+provisioning flag, and guard step 3'(b) asserts the preemption-axis value (STOP)
+live and separately. If the maintainer picks variant A, /1 stands and this item
+is dropped — the schema choice follows the fork.
+
+### R3.3 Budget attestation, closed (delta-check #2 partial -> closed)
+
+LC-6v3 extends R2.2: REJECT any narrowing filter beyond the single-project scope
+(`services`, resource ancestors, labels, subaccounts; credit treatment must be
+the default all-credits basis); REQUIRE an explicit budget period (calendar or
+custom) covering the campaign window; REQUIRE live project-to-billing-account
+linkage (billing projects describe: account name == `KOT_GCP_BILLING_ACCOUNT` AND
+billing enabled); REQUIRE EFFECTIVE notifications — `monitoringNotificationChannels`
+non-empty with every channel fetched and in VERIFIED/enabled state (Monitoring API
+read), not merely present. All folded into the closed attestation preflight
+returns.
+
+### R3.4 Attestation freshness (delta-check #3 residual -> closed)
+
+LC-8v3: `validate_handoff(record, *, now_utc)` requires
+`campaign_started_at_utc <= now_utc + 60 s` and
+`campaign_started_at_utc <= created_at_utc <= now_utc + 60 s`; the guard repeats
+the check with its own fresh clock at license load (guard step 3'(e)). A future
+start can no longer understate exposure in either the validator or the guard.
+
+### R3.5 Guard budget-refetch honesty (delta-check note -> closed)
+
+Rev2's guard-live-budget-refetch claim is WITHDRAWN (the guest lacks budget IAM by
+design). Wiring as corrected in R2.2's Rev3 note: control-box live verification at
+preflight + continue; guard verifies the attestation BYTES against the handoff-
+carried sha; post-launch periodic live re-checks belong to the control-box
+reaper/monitor (best-effort, disclosed) plus the budget's own threshold alerts.
+
+### R3.6 Oracle additions (groups 28-38; group 17 becomes conditional)
+
+Group 17 (Scheduler-job cases) applies ONLY if the optional off-box cleanup is
+built; groups 19/25 (L2), 18 (IAM), and all others stand. New mandatory groups:
+
+28. Provision request body: terminationTime == epoch+900h, unified action STOP,
+    SPOT, discard-local-SSD flag all asserted in the $0 plan/provision oracle;
+    any missing -> refuse BEFORE create.
+29. Post-create read-back mismatch or failure -> fail-closed delete of the new VM
+    with poll-to-DONE + absence verified (order-recording fake asserts the full
+    sequence and the nonzero exit).
+30. Provider-semantics gate: the CAP-PROBE checklist (stop-at-time, config re-arm
+    across stop/start, past-time restart refusal, discard behavior) exists and its
+    recorded live results are GREEN; the oracle refuses build-complete status
+    without them (PROPOSED-CC-13).
+31. Phase-4 L1 re-probe: scheduling patched/removed between preflight and cancel
+    (fake returns drifted terminationTime / missing limit / wrong action) ->
+    refuse BEFORE `shutdown -c`.
+32. Teardown ordering: delete -> DONE -> absence -> cleanup-removal asserted by
+    ordinal; VM-delete failure or operation error -> cleanup NOT removed, nonzero
+    exit; absence-check failure -> retries, never proceeds.
+33. Budget extras: services/labels/ancestors/subaccounts filters present ->
+    refuse; project not live-linked to the expected billing account -> refuse;
+    unverified/disabled notification channel -> refuse; missing period -> refuse.
+34. Future start: `campaign_started_at_utc` beyond now+60 s, or > created_at ->
+    validator refuses AND guard (fresh clock) refuses.
+35. config-cost (LC-13): missing evidence file / tampered sha / arithmetic or
+    instance-binding mismatch -> refuse; `--prior-usd`/`--prior-hours` supplied
+    at all (including zero) -> hard error; evidence-derived values flow into the
+    emitted config.
+36. Guard budget honesty: guard fixture asserts NO live budget call is attempted
+    guest-side; attestation byte-sha verification only.
+37. Cleanup on a stopped instance: reaper fake deletes a TERMINATED-state
+    instance -> poll DONE -> absence verified; transient delete failures ->
+    retry-until-absent (exercises the delete path itself, not just config —
+    closing the delta-check's group-20 gap).
+38. Schema /2 (if variant B): /1 handoff refused; /2 fixture with the live-STOP
+    cap attestation passes; a /2 handoff whose cap block echoes the provisioning
+    flag value without the LC-5 composite -> refused (the wonu pin, /2 form).
+
+### R3.7 New/changed LC items (Rev3)
+
+| LC | Site | Change |
+|---|---|---|
+| LC-3v3 | `f1k_ops.py` | `verify_provider_cap` = live scheduling read-back (replaces the Scheduler job create/verify) |
+| LC-8v3 | `validate_handoff` | + `now_utc` freshness param (R3.4); + schema /2 provider block (R3.2, variant-B branch); + budget resource format |
+| LC-6v3 | `assure_billing_budget` | + no-extra-filters, period, live linkage, verified channels (R3.3) |
+| LC-10v3 | `cmd_provision` | cap fields INSIDE the create request; immediate post-create read-back; verified-completion cleanup delete on failure (R3.1) |
+| LC-11v3 | `cmd_teardown` | frozen delete->DONE->absence->cleanup ordering (R2.7 table, revised row) |
+| LC-13 | NEW: `cmd_config_cost` (`f1k_bringup_gate.py:1787`) | require + validate `--prior-evidence`; refuse manual `--prior-usd`/`--prior-hours` outright (delta-check #5) |
+| LC-14 | NEW: control-box cap-reaper entrypoint (`f1k_gcp.py`) | post-deadline verified deletion loop (delete -> DONE -> absence, retries until absent), nohup watchdog pattern; best-effort by design (PROPOSED-CC-12) |
+
+### R3.8 Delta-check disposition summary
+
+| Delta-check finding | Disposition |
+|---|---|
+| #1 OIDC-vs-OAuth | ADOPTED-BY-ELIMINATION — no external caller in the load-bearing cap (native); OAuth spec retained for the optional cleanup only (R3.1) |
+| #2 async completion | ADOPTED-BY-ELIMINATION for the cap; ADOPTED as poll-DONE+absence for cleanup, teardown, and the provision fail-closed delete (R3.1, LC-11v3, LC-14) |
+| #3 cron granularity/retries | ADOPTED-BY-ELIMINATION — no schedule encoding in the native cap; minute-floored UTC cron specified for the optional cleanup only |
+| #4 L1 TOCTOU + teardown ordering | ADOPTED — phase-4 re-probes BOTH L1 (scheduling read-back) and L2; teardown ordering frozen delete->DONE->absence->cleanup with failure leaving caps armed (phase 15, LC-11v3) |
+| #5 config-cost binding | ADOPTED — LC-13 makes `cmd_config_cost` require the evidence and refuse manual priors including zero |
+| Budget partial | CLOSED — R3.3 extensions |
+| Attestation residual (future start) | CLOSED — R3.4 freshness in validator + guard |
+| Guard budget-refetch not wired | CLOSED — claim withdrawn; honest control-box-side wiring stated (R3.5) |
+| Oracle gaps | CLOSED — groups 28-38 (R3.6) |
+| Confirmed-fixed #4/#5 (Rev1 numbering) | PRESERVED — axes check unchanged; epoch ordering strengthened (cap inside the create request; verified-completion cleanup) |
+
+---
+
+## Self-check (Rev2 — superseded by the Rev3 self-check below; retained for the record)
 
 1. End-to-end runnable on Single-VM-Spot: YES — phases 0-6 fully ordered with the
    Rev2 amendments; staging delta exhaustive (section 8, items 1-8 + the L1
@@ -957,3 +1237,47 @@ claimed.
 8. No @handle/account strings. Re-checked by grep after Rev2.
 9. Nothing committed, deployed, registered, or run: this file remains the sole
    artifact; no git/bd/gcloud state was mutated by its author in either revision.
+
+---
+
+## Self-check (Rev3 — re-run in full; honest report)
+
+1. The cap-mechanism fork is RESOLVED from the vendor doc, not guessed: unified
+   `instanceTerminationAction` confirmed; absolute-vs-duration semantics
+   confirmed; past-time restart refusal confirmed; the two remaining doc-inferred
+   behaviors (config re-arm across stop/resume; local-SSD STOP path) are pinned by
+   a mandatory sub-dollar CAP-PROBE before build freeze rather than assumed
+   (R3.1, PROPOSED-CC-13). The recommendation (variant B) and the rejected
+   alternative (variant A) are both stated with reasons; the maintainer call is
+   flagged, and the design is buildable on B with A documented as the delta.
+2. The load-bearing cap now has NO external caller, auth, schedule encoding, or
+   retry semantics — delta-check #1/#2/#3 are eliminated, not patched; their
+   mechanics are retained correctly-specified ONLY in the optional non-load-
+   bearing cleanup (R3.1, PROPOSED-CC-12). Deletion is decoupled into verified
+   cleanup (delete -> DONE -> absence) whose failure leaks bounded stopped-VM
+   storage, disclosed with a dollar order.
+3. Delta-check #4 closed: phase 4 re-probes BOTH L1 and L2 immediately before the
+   max-life cancel; teardown ordering frozen with VM-delete failure leaving all
+   caps armed (phase 15, LC-11v3). Delta-check #5 closed mechanically: LC-13
+   names the real site (`cmd_config_cost`, f1k_bringup_gate.py:1787), requires
+   the evidence, and refuses manual priors including zero.
+4. Budget closed per R3.3 (no extra filters, explicit period, live linkage,
+   verified channels); attestation freshness closed per R3.4 (validator `now_utc`
+   + guard fresh-clock repeat); the unwired guard budget-refetch claim is
+   withdrawn and replaced with the honest control-box-side wiring (R3.5).
+5. Confirmed-fixed items preserved, not regressed: the STOP/DELETE axes check
+   survives in /2 form with the preemption axis asserted live and the cap
+   attestation sourced only from the LC-5 composite; epoch ordering is
+   strengthened — the cap rides inside the create request, with immediate
+   read-back and verified-completion cleanup on failure (R3.1/R3.2).
+6. Load-bearing claims tagged: the new R3.1 premise line opens with a complete
+   [LIT-BACKED: vendor doc URL, fetch date] tag; `tools/registry/claims-check.py`
+   re-run after Rev3: PASS (count reported in the hand-back); stipulated choices
+   remain inline-tagged PROPOSED-CC-1..13 (registered by the executor at commit);
+   no EXTRAPOLATION is a premise of anything (PROPOSED-CC-6 remains
+   load_bearing: false).
+7. No `ASM-<number>` minted — PROPOSED-CC-* only. Re-checked by grep after Rev3.
+8. No @handle/account strings. Re-checked by grep after Rev3.
+9. Nothing committed, deployed, registered, or run across all three revisions;
+   the only tool actions besides reads were documentation fetches of public GCP
+   docs and edits to this file.
