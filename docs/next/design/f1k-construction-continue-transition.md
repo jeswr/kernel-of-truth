@@ -1,11 +1,20 @@
 <!-- Provenance: Fable (architecture-advisor), 2026-07-23, bead kernel-of-truth-700k
-     (+ folds in kernel-of-truth-wonu). Design/spec ONLY: nothing here is committed as
-     executed work, deployed, or run by the author. The coordinator's executor builds
-     this and a cross-vendor (GPT-5.6) review gate runs BEFORE any construction dollar.
-     Supersedes-in-part: the plan-v4 REJECT's #3 staging characterization (stale against
-     the landed bringup-deploy; see section 1). Defers-to: poc/gcp/F1K-CONSTRUCTION-
-     SIDE-PLAN.md sections 2-3 (handoff schema + guard 15-step pre-spend order) and the
-     landed option-B units in poc/gcp/f1k_ops.py (commit 153b9576, review-clean). -->
+     (+ folds in kernel-of-truth-wonu). REVISION 2 (same date): incorporates the
+     GPT-5.6 spend-safety review REJECT
+     (poc/gpt56-review/f1k-cc-transition-review/last-message.json) — all 5 blocking
+     defects + all engineering corrections; several fixes amend the LANDED option-B
+     module (flagged in the LC register, section R2.7). Design/spec ONLY: nothing here
+     is committed as executed work, deployed, or run by the author. The coordinator's
+     executor builds this and a cross-vendor (GPT-5.6) review gate runs BEFORE any
+     construction dollar. Supersedes-in-part: the plan-v4 REJECT's #3 staging
+     characterization (stale; see section 1) AND the side-plan guard step 3 (replaced;
+     see R2.4). Defers-to: poc/gcp/F1K-CONSTRUCTION-SIDE-PLAN.md sections 2-3
+     (handoff schema + guard order, as amended by R2.4). -->
+
+<!-- REV2 READING ORDER: sections 1-10 are the Rev1 body with in-place corrections
+     marked "(Rev2)"; section "Revision 2" holds the defect-by-defect dispositions,
+     the hard-cap architecture, and the landed-code change register. Where the body
+     and the Revision 2 section conflict, Revision 2 governs. -->
 
 # F1-K `construction-continue` transition — implementable design
 
@@ -15,14 +24,17 @@ bring-up verdict to guard-wrapped Spot construction on the SAME GCE instance
 build spec for the executor; the paid construction RUN remains separately gated on the
 maintainer spend-GO (issue #55) and is out of scope here.
 
-Scope choice (a STIPULATED design choice, PROPOSED-CC-1; the executor registers it
-as an ASM at commit): this design targets the lean-B contract already frozen in
-`poc/gcp/f1k_ops.py` (schemas `kot-f1k-construction-ready/1`, `kot-f1k-bringup-gate/2`,
-`kot-f1k-construction-handoff/1`, `kot-f1k-runtime-license/1`, `kot-f1k-rate-evidence/1`)
-and changes NO landed validator, scientific pin, frozen window, sampling rule, or
-builder byte [STIPULATED design choice PROPOSED-CC-1: the review-clean contract module
-is the fixed interface; the transition is built AROUND it, so a contract edit re-enters
-review only if a genuine defect is found].
+Scope choice (a STIPULATED design choice, PROPOSED-CC-1 as REVISED in Rev2; the
+executor registers it as an ASM at commit): this design targets the lean-B contract
+schemas frozen in `poc/gcp/f1k_ops.py` (`kot-f1k-construction-ready/1`,
+`kot-f1k-bringup-gate/2`, `kot-f1k-construction-handoff/1`,
+`kot-f1k-runtime-license/1`, `kot-f1k-rate-evidence/1`) and changes NO scientific
+pin, frozen window, sampling rule, or builder byte. Rev1's stronger claim ("changes
+no landed validator") is WITHDRAWN: the spend-safety review found genuine defects in
+the landed option-B units themselves, so Rev2 specifies a bounded set of landed-code
+amendments (the LC register, section R2.7) — exactly the "contract edit re-enters
+review only if a genuine defect is found" clause firing. Every LC item requires
+re-verification and fresh oracle cases before any provision.
 
 ---
 
@@ -140,12 +152,17 @@ Phase 0 — pure checks, $0, no mutation anywhere:
    and correctly refuses (remedy: re-finalize READY on the current boot, re-gate).
 4. RATE-EQUALITY GATE (section 3): live rate canonically equals the collect-frozen
    gate rate; NO-GO on mismatch or quote failure.
-5. Wall-clock sufficiency: `remaining_h = 900 - elapsed_hours(epoch)` must be `>=`
-   the gate's +1SE projected instance-hours plus reserve-hours
-   (`projection.instance_hours.hi` + `8/rate`); refuse `ERR_F1K_CONTINUE_WALLCLOCK`
-   otherwise — never launch a run the 900 h self-delete is already guaranteed to kill
-   [STIPULATED policy PROPOSED-CC-3: +1SE branch chosen as the conservative bound; a
-   refusal here is a maintainer surface, not a retry].
+5. Wall-clock sufficiency (Rev2-hardened, R2.6-WC): `remaining_h = 900 -
+   elapsed_hours(epoch)` must be `>=` the gate's +1SE projected instance-hours plus
+   reserve-hours plus the transition/termination margin, with the projection values
+   extracted from the RAW gate JSON via `parse_float=str` (no binary-float
+   pass-through) and all arithmetic ROUND_CEILING; refuse `ERR_F1K_CONTINUE_WALLCLOCK`
+   otherwise — never launch a run the 900 h cap is already guaranteed to kill
+   [STIPULATED policy PROPOSED-CC-3 + PROPOSED-CC-9 (2 h margin): +1SE branch chosen
+   as the conservative bound; a refusal here is a maintainer surface, not a retry].
+   This phase-0 check is a pre-filter only: the guard RECOMPUTES it with a fresh
+   clock immediately before engine start and re-checks projected completion against
+   the absolute deadline minus margin at every checkpoint (R2.4).
 6. Single-shot: refuse `ERR_F1K_CONTINUE_ALREADY` if
    `/home/ubuntu/f1k-gate/construction-handoff.json` exists on the VM, or the guard
    rundir's `construction-events.jsonl` is non-empty. A second attempt is an explicit
@@ -166,19 +183,29 @@ Phase 0 — pure checks, $0, no mutation anywhere:
 Phase 1 — VM mutation, still $0 exposure risk:
 
 10. Materialize the B1 epoch VM-local cache at `/home/ubuntu/f1k-gate/launch-epoch.json`
-    from the GCS mirror (authoritative copy; `_resolve_epoch_launch` semantics —
-    mirror-only is valid, disagreement refuses). The epoch itself is written ONCE at
-    provision time (section 4.1).
-11. Render + install the B2 self-delete units (`render_selfdelete_unit` with
-    `deadline = compute_selfdelete_deadline(epoch)`), `systemctl daemon-reload`,
+    from the GCS mirror. (Rev2) In the launch context the MIRROR is mandatory:
+    a mirror object that is absent while a local copy exists REFUSES
+    (`require_mirror` semantics, LC-12) — mirror loss is a durability failure, not a
+    fallback. The epoch itself is written ONCE at provision time, CAPTURED BEFORE the
+    create request (section 4.1, Rev2/R2.5).
+11. Render + install the Rev2-HARDENED L2 guest units (LC-1: extended retry loop,
+    `Restart=on-failure`, terminal no-auth `poweroff -f` fallback) with
+    `deadline = compute_selfdelete_deadline(epoch)`, `systemctl daemon-reload`,
     enable + start the timer. Idempotent: identical unit text re-install is a no-op;
-    differing text refuses.
+    differing text refuses. (Rev2) The guest units are DEFENSE-IN-DEPTH ONLY; the
+    hard cap is the provider-side L1 delete job armed at PROVISION time (R2.1).
 
 Phase 2 — the single pre-spend gate:
 
-12. `preflight_launch_gate` (section 4) with real transports. `go: false` refuses and
-    STOPS — deliberately leaving the B2 timer armed (an armed self-delete on a VM we
-    are keeping is conservative, and `teardown` remains available).
+12. `preflight_launch_gate` (section 4, Rev2-extended per LC-7) with real transports:
+    B1 epoch + derived deadline, L1 provider cap job verification (LC-3), hardened
+    L2 guest-timer verification (LC-2), guest-side deletion-IAM dry-run
+    (`testIamPermissions` including `compute.instances.delete`, executed FROM the VM
+    with its own credentials — proves auth + API reachability + permission
+    end-to-end without deleting, LC-4), exact-budget-resource attestation (LC-6),
+    and the B4 rate window. `go: false` refuses and STOPS — deliberately leaving
+    every cap layer armed (an armed cap on a VM we are keeping is conservative, and
+    `teardown` remains available).
 
 Phase 3 — artifact placement (atomic, sha-read-back):
 
@@ -191,18 +218,30 @@ Phase 3 — artifact placement (atomic, sha-read-back):
 
 Phase 4 — backstop swap (ordering is the point):
 
-15. ONLY after preflight verified B2 armed: cancel the bring-up guest max-life
-    (`sudo shutdown -c`). Order recorded in the continue transcript; the oracle
-    asserts verify-before-cancel (this is F1K-CONSTRUCTION-LAUNCH-ARCH's "cancel the
-    bring-up shutdown only after the provider delete is verified", adapted to the
-    landed systemd mechanism).
+15. ONLY after preflight verified the FULL cap stack — L1 provider delete job
+    (config + retry floor + SA IAM binding), hardened L2 guest units, AND the
+    guest-side deletion-IAM dry-run — AND after an immediate re-probe of the L2
+    timer (`is-active`, narrowing the preflight-to-cancel TOCTOU window, oracle
+    group 25): cancel the bring-up guest max-life (`sudo shutdown -c`). Order
+    recorded in the continue transcript; the oracle asserts verify-before-cancel
+    (this is F1K-CONSTRUCTION-LAUNCH-ARCH's "cancel the bring-up shutdown only after
+    the provider delete is verified", now implemented with a genuinely provider-side
+    delete, R2.1).
 
 Phase 5 — handoff production (section 4.2 for the provider block):
 
-16. Build `construction-handoff.json` per the frozen contract; self-validate with
-    `validate_handoff` AND `build_runtime_license(ready, gate, handoff)` locally —
-    a handoff the guard would refuse is never uploaded. Atomic-write locally, scp to
-    `/home/ubuntu/f1k-gate/construction-handoff.json`, read back sha.
+16. Build `construction-handoff.json` per the contract (as amended by LC-8);
+    self-validate with `validate_handoff` AND `build_runtime_license(ready, gate,
+    handoff)` locally — a handoff the guard would refuse is never uploaded.
+    Atomic-write locally, scp to `/home/ubuntu/f1k-gate/construction-handoff.json`,
+    read back sha. (Rev2, R2.6-#8) In the same phase, produce
+    `prior-spend-evidence.json` (`kot-f1k-prior-spend/1`): epoch launch,
+    `campaign_started_at_utc`, bring-up elapsed hours (ROUND_CEILING 6 dp), the
+    licensed rate, and `bringup_cost_usd_decimal = elapsed x rate` (ROUND_CEILING) —
+    written to `/home/ubuntu/f1k-gate/` and kept on the control box; its sha is in
+    the continue receipt, and the config-cost basis step MUST consume it (named
+    runbook step; oracle-asserted). Bring-up spend is thereby BOUND as evidence, not
+    carried by a later manual argument.
 
 Phase 6 — guard launch via systemd (guard remains the SOLE builder launcher):
 
@@ -280,20 +319,37 @@ service account for no benefit:
 | `instance_name`, `zone`, `project_id` | the landed `INSTANCE_NAME`/`ZONE`/`PROJECT` constants |
 | `deadline_utc` | `compute_selfdelete_deadline(epoch_launch)` — derived, never operator-supplied (preflight independently re-derives from the persisted epoch and refuses mismatch) |
 | `billing_account` | new required env `KOT_GCP_BILLING_ACCOUNT` |
+| `budget_resource_name`, `project_id` (Rev2, LC-6/LC-7) | new required env `KOT_F1K_BUDGET_RESOURCE` (exact `billingAccounts/<id>/budgets/<id>`) + the landed `PROJECT` — the budget check validates THIS resource, never "any budget" |
 | `machine_type`, `local_ssd_count` | `n2d-highmem-8`, `2` (landed constants) |
-| `s_per_prefill` | the gate artifact's blended s/prefill (the measured value the projection used) — B4's product window then re-checks affordability shape at the live rate |
-| `systemctl_transport` | SSH wrapper: the five fixed read-only queries (`is-active`, `oncalendar`, `persistent`, `triggered-unit`, `exec-start`) via `gcloud compute ssh ubuntu@<vm> -- systemctl show ...`, each mapped to the exact string the verifier expects; any SSH failure raises -> preflight returns NO-GO |
-| `budget_transport` | Billing Budgets API get via gcloud, control-box credentials |
+| `s_per_prefill` | (Rev2, R2.6-B4) the gate artifact's blended s/prefill extracted by re-parsing the RAW gate JSON with `json.loads(..., parse_float=str)` and feeding the literal token to `canonical_decimal` — the artifact stores a JSON float and `_check_rate_window` refuses floats, so passing the parsed float would false-refuse EVERY real preflight; the literal-token re-parse is exact and needs no landed `/2` schema change |
+| `systemctl_transport` | SSH wrapper: the read-only queries (`is-active`, `oncalendar`, `persistent`, `triggered-unit`, `exec-start`, and Rev2 LC-2's `restart-policy`) via `gcloud compute ssh ubuntu@<vm> -- systemctl show ...`, each mapped to the exact string the verifier expects; any SSH failure raises -> preflight returns NO-GO |
+| `budget_transport` | Billing Budgets API get via gcloud, control-box credentials — full LC-6 validation |
 | `catalog_transport` | the landed live Cloud Billing Catalog HTTP transport |
+| `scheduler_transport` (NEW, LC-3) | Cloud Scheduler jobs describe via gcloud — verifies the L1 provider cap job (R2.1) |
+| `iam_transport` (NEW, LC-4) | guest-side `instances.testIamPermissions` (SSH-invoked, VM credentials) + control-plane IAM-binding read for the L1 job's service account |
 
-Epoch origin: `cmd_provision` is extended to call `write_launch_epoch(now)`
-immediately after a successful `instances create`, writing the control-box local
-cache AND the GCS mirror (write-once; identical re-write idempotent; overwrite
-refuses — B1 semantics) [MEASURED contract: `poc/gcp/f1k_ops.py:4963-5037`]. This
-anchors the 900 h wall-clock cap at VM CREATION, covering bring-up + construction
-on the one instance — strictly conservative, and it is what makes preflight's
-`elapsed < 900` and seam ARMED-899 coherent. Provision refuses if an epoch already
-exists for a live VM name (reuse-gate parity).
+Boot-id note (Rev2, R2.6-BOOTID): phase-0 identity resolution uses LC-9's injectable
+`bootid_transport` (SSH `cat /proc/sys/kernel/random/boot_id` as `ubuntu@<vm>`);
+the landed function always read the LOCAL boot id, so a control-box call could never
+match the guest and would false-refuse every launch.
+
+Epoch origin (REVISED in Rev2 — R2.5; Rev1's "immediately after a successful
+`instances create`" is WITHDRAWN as non-conservative): `cmd_provision` (LC-10)
+captures `t_epoch = UTC now` BEFORE issuing the create request and durably persists
+it (control-box local + GCS mirror, write-once B1 semantics
+[MEASURED contract: `poc/gcp/f1k_ops.py:4963-5037`]) BEFORE the VM exists, keyed to
+(project, zone, instance name). The L1 provider cap job (R2.1) is armed at
+`t_epoch + 900 h` also BEFORE create. Only then does `instances create` run. After
+create: write + mirror `epoch-binding.json` carrying the numeric instance id, and
+READ BACK epoch + mirror + binding; if durable persistence or read-back fails, the
+just-created VM is IMMEDIATELY deleted and provision exits nonzero — a paid VM
+without a durable epoch never survives. Because `t_epoch` predates actual creation
+by the provisioning latency, the deadline can only be EARLIER than creation+900 h —
+the conservative direction. This anchors the cap at (before) VM creation, covering
+bring-up + construction on the one instance, and makes preflight's `elapsed < 900`
+and seam ARMED-899 coherent. Provision refuses if an epoch already exists for a live
+VM name (reuse-gate parity). Build-order consequence (R2.5): ALL epoch/cap code
+lands BEFORE any `provision` run, not merely before `bringup-deploy`.
 
 Fail-closed statement (binding): preflight returns `{"go": false, reason}` on ANY
 error — including transport exceptions — and `construction-continue` treats anything
@@ -308,27 +364,39 @@ provisioning flag `--instance-termination-action STOP` (`f1k_gcp.py:579`)
 governs SPOT PREEMPTION (same-instance stop/resume, which keeps instance-hours <=
 wall-clock and preserves the estate accounting), while `validate_handoff`'s required
 `"DELETE"` (`f1k_ops.py:2986-2995`) attests the 900 h WALL-CLOCK CAP action,
-implemented by the B2 systemd self-delete (`_selfdelete_exec_start`,
+implemented at Rev1 by the B2 systemd self-delete (`_selfdelete_exec_start`,
 `f1k_ops.py:5119-5128`). The diagnosis was ratified in the bead kernel-of-truth-wonu
-notes, 2026-07-19.
+notes, 2026-07-19. (Rev2: the CAP action is now implemented by the L1 provider-side
+delete plus the hardened L2 guest units — R2.1; the two-axes distinction itself
+stands unchanged.)
 
-Producer rule (normative, with the inline comment the wonu bead requires at the
-populate site):
+Producer rule (normative, REVISED in Rev2 per review defect #3 — the landed
+`verify_selfdelete_armed` returns NO action field, so Rev1's "copied from it" was
+not structurally implementable; the fix is a real closed attestation, LC-5):
 
-- `provider.instance_termination_action` := the literal `"DELETE"`, set ONLY from the
-  CAP mechanism: the producer copies it from a successful
-  `verify_selfdelete_armed(...)` result (which proved the timer is active,
-  persistent, armed at exactly `epoch+900h`, and that its triggered service deletes
-  THIS instance/zone/project). It is NEVER read from, derived from, or compared
-  against the GCP `--instance-termination-action` provisioning flag. Comment at the
-  site: `# CAP axis (900h systemd self-delete), NOT the Spot-preemption STOP flag —
-  see bead wonu; echoing the GCP flag here produces a correct fail-closed refusal at
-  validate_handoff and strands the launch.`
+- `provider.instance_termination_action` := copied from
+  `verify_cap_armed(...)["action"]` — the NEW composite closed cap attestation
+  (LC-5) that composes (a) L1 provider delete-job verification (LC-3), (b) hardened
+  L2 guest-timer verification (LC-2, which itself now returns
+  `action: "DELETE"` + `mechanism: "guest-timer"`), and (c) the deletion-IAM dry-run
+  (LC-4), and that carries `action`/`target`/`deadline_utc`/`mechanisms`/`iam`
+  fields. The attestation exists ONLY if every leg succeeded this run. The value is
+  NEVER read from, derived from, or compared against the GCP
+  `--instance-termination-action` provisioning flag. Comment at the site:
+  `# CAP axis (900h provider-side delete + guest fallback), NOT the Spot-preemption
+  STOP flag — see bead wonu; echoing the GCP flag here produces a correct
+  fail-closed refusal at validate_handoff and strands the launch.`
 - `provider.termination_time_utc` := `compute_selfdelete_deadline(epoch_launch)` (the
   intended deadline).
-- `provider.termination_timestamp_utc` := `verify_selfdelete_armed()["deadline_utc"]`
-  (the READ-BACK attestation). `validate_handoff` requires the two equal — that
-  equality is the "read-back DELETE" proof.
+- `provider.termination_timestamp_utc` := `verify_cap_armed()["deadline_utc"]`
+  (the READ-BACK attestation — the L1 job's verified schedule and the L2 timer's
+  verified OnCalendar, which LC-5 requires to be identical before it returns at
+  all). `validate_handoff` requires the two handoff fields equal — and (LC-8)
+  additionally RECOMPUTES `armed_hours_decimal` from
+  `campaign_started_at_utc -> termination_time_utc` under the producer's
+  ROUND_CEILING/6 dp rule, requiring exact equality plus timestamp ordering, so an
+  understated `"armed_hours_decimal"` (the review's `"1"`-against-899 h case) can no
+  longer satisfy the $300 arithmetic.
 - `provider.campaign_started_at_utc` := the continue-run UTC now (construction spend
   start), never GREEN time.
 - `provider.armed_hours_decimal` := exact hours between `campaign_started_at_utc` and
@@ -345,10 +413,12 @@ populate site):
   #55 GO and the oracle only asserts arithmetic coherence, not the values].
 - `provider.budget.*` := the verified $300 project-scoped budget resource from the B3
   check.
-- Fail-closed statement: if `verify_selfdelete_armed` did not succeed this run, the
-  producer has no value to copy and REFUSES — the handoff cannot be written with an
-  unverified cap attestation, so the STOP-echo hazard the wonu bead names is
-  structurally unreachable, not merely discouraged.
+- Fail-closed statement: if `verify_cap_armed` did not succeed this run — any of
+  the L1/L2/IAM legs failing — the producer has no attestation to copy from and
+  REFUSES; the handoff cannot be written with an unverified cap attestation, so the
+  STOP-echo hazard the wonu bead names is structurally unreachable, not merely
+  discouraged. The guard independently repeats the same composite verification
+  before engine start and periodically thereafter (R2.4).
 
 ---
 
@@ -357,16 +427,35 @@ populate site):
 The construction unit's `ExecStart` is `guard --handoff <canonical path>`, so the
 transition is runnable ONLY with the B3 guard delta landed. This design adopts the
 already-in-repo spec — `poc/gcp/F1K-CONSTRUCTION-SIDE-PLAN.md` section 3 (the 15-step
-pre-spend order) and its B3 unit — as the guard-side contract, and constrains it to:
+pre-spend order) and its B3 unit — as the guard-side contract, WITH ONE EXPLICIT
+AMENDMENT (Rev2, R2.4, review defect #4): the side-plan's step 3 ("live GCE
+`instanceTerminationAction=DELETE` + provider `terminationTimestamp`") is REPLACED —
+followed literally it ALWAYS refuses, because provisioning correctly sets the
+preemption action to STOP; omitted silently, it would drop the independent cap
+verification. The replacement step 3' is:
+
+- (a) live `scheduling.provisioningModel == SPOT`;
+- (b) live GCE `instanceTerminationAction == STOP` — asserting the PREEMPTION axis
+  is the resume-preserving value (a DELETE-on-preemption mis-provision refuses);
+- (c) `verify_cap_armed()` live (L1 provider job + hardened L2 timer + deletion-IAM
+  dry-run, LC-5) with deadline exactly `epoch + 900 h`;
+- (d) wall-clock sufficiency recomputed with a fresh clock, `parse_float=str`
+  extraction, ROUND_CEILING, and the PROPOSED-CC-9 margin.
+
+The rest of the contract stands:
 
 - `--handoff PATH` loads READY + gate from the handoff's canonical refs (byte-sha
   equality), then `build_runtime_license(ready, gate, handoff)`; all legacy guard
   flags become optional and, if supplied, must equal the license values exactly;
-- live identity (numeric ID + boot_id + SPOT) and live-rate canonical equality with
-  the license are re-verified INSIDE guard before reset consumption, the engagement
-  probe, or any engine start; a per-poll rate sentry kills the process group and
-  writes a durable terminal `rate-drift` event via the landed terminal-stop mechanics
-  on drift or quote outage;
+- live identity (numeric ID + guest boot_id via LC-9 + SPOT) and live-rate canonical
+  equality with the license are re-verified INSIDE guard before reset consumption,
+  the engagement probe, or any engine start; the guard also independently RECOMPUTES
+  `armed_hours_decimal` and the $300 envelope from the handoff timestamps (repeating
+  LC-8's arithmetic, defect #3);
+- (Rev2) every checkpoint poll repeats: the rate sentry (drift/outage -> kill +
+  durable terminal `rate-drift` event via the landed terminal-stop mechanics), step
+  3'(c) cap re-verification, and step 3'(d) projected-completion vs
+  absolute-deadline-minus-margin (breach -> kill, same terminal mechanics);
 - everything downstream of license load — reset authority, argv-unity, probe, builder
   launch, checkpoints `{240,1056,2304}`, kill path — is the LANDED guard, unchanged
   [MEASURED: `poc/gcp/f1k_bringup_gate.py:1374-1510` read this pass].
@@ -391,12 +480,15 @@ Mandatory assertions (each a named check; the executor may add more, remove none
 Staging completeness (plan-v4 #3):
 1. Happy path: fixture GREEN + READY + fake transports -> continue runs phases 0-6,
    produces a handoff that `validate_handoff` AND `build_runtime_license` accept.
-2. Every path the license references (builder, driver, engine, weights, tokenizer
+2. Every path the license references (builder, engine, weights, tokenizer
    artifact, dump patch, token sidecar, pin, rundir/workdir/out parents, payload
    manifests, `f1k_bringup_gate.py` at the payload root) EXISTS in the fixture root —
-   asserted by enumerating the runtime-license paths and stat-ing each. A fixture
-   with `f1k_driver.py` deleted FAILS this check (regression pin against the original
-   #3 gap).
+   asserted by enumerating the runtime-license paths and stat-ing each. (Rev2
+   correction: the runtime-license schema has NO driver field, so the driver cannot
+   be "enumerated from the license" — `f1k_driver.py` is asserted separately at its
+   KNOWN staged path `<payload_root>/poc/glm52-probe/f1k-harness/f1k_driver.py`.) A
+   fixture with `f1k_driver.py` deleted FAILS that separate check (regression pin
+   against the original #3 gap).
 3. The produced `service.exec_argv` is exactly
    `[interpreter, <root>/f1k_bringup_gate.py, guard, --handoff, <canonical handoff
    path>]` and the fake systemd unit's ExecStart parses to it.
@@ -413,8 +505,9 @@ Rate equality (plan-v4 #4):
 
 Preflight wiring + wonu:
 8. All B-fakes green -> preflight consulted exactly once, `go: true` observed, and
-   the recorded call order satisfies: selfdelete-verify (inside preflight) BEFORE
-   max-life cancel BEFORE handoff write BEFORE unit start (#2-adjacent ordering).
+   the recorded call order satisfies: cap-verification legs (L1 + L2 + IAM, inside
+   preflight) BEFORE max-life cancel BEFORE handoff write BEFORE unit start
+   (#2-adjacent ordering).
 9. Each preflight leg individually broken -> continue refuses at phase 2 with no
    later-phase calls recorded: epoch missing / future / mirror-local split; timer
    inactive / deadline drift / non-persistent / wrong triggered unit / unbound target
@@ -441,10 +534,15 @@ Ordering + preconditions (plan-v4 #2 and single-shot):
 16. NO teardown call exists anywhere in the continue path (the fakes would record
     it); teardown remains a separate explicit entrypoint.
 
+(Rev2) Groups 17-27 — the spend-safety review's oracle gaps — are specified in
+section R2.6 and are equally mandatory.
+
 Regression baseline: the four landed oracles (`bringup-deploy --selftest`, worker
-`--selftest`, `gate --selftest`, `f1k_ops.py selftest`) still pass, and
-`build_carriers.py` remains byte-identical `a92be3e4...` — the continue build touches
-neither.
+`--selftest`, `gate --selftest`, `f1k_ops.py selftest`) are re-run and EXTENDED for
+every LC item (section R2.7) — Rev2 changes landed option-B code, so "still pass
+unchanged" no longer applies to `f1k_ops.py selftest`; its b0/b1 suites gain the LC
+cases and the whole suite must be green. `build_carriers.py` remains byte-identical
+`a92be3e4...` — the build still touches no scientific file.
 
 ---
 
@@ -496,9 +594,14 @@ sections 7/8 and NEXT-ACTION, is:
   nothing — the enforced bounds are the watchdog `--max-hours`, the guest max-life,
   and the $300 budget tripwire]. The superseded on-demand figure is cited as history,
   not silently dropped, and no "~$2-3" phrasing survives without its upper edge.
-- Bring-up dollars and instance-hours are carried into the eventual config-cost basis
-  (they share the 900 h wall clock with construction under the provision-time epoch —
-  section 4.1), so they cannot disappear from the analysis basis.
+- (Rev2, R2.6-#8) Bring-up dollars and instance-hours are carried into the eventual
+  config-cost basis by an EXECUTABLE step, not a narrative promise:
+  `construction-continue` phase 5 produces `prior-spend-evidence.json`
+  (epoch, campaign start, elapsed bring-up hours ROUND_CEILING, licensed rate, and
+  the derived bring-up cost), sha-recorded in the continue receipt; the config-cost
+  basis step consumes it by name and the oracle asserts both its production and its
+  arithmetic. They also share the 900 h wall clock with construction under the
+  pre-create epoch (section 4.1), so they cannot disappear from the analysis basis.
 
 ---
 
@@ -524,29 +627,51 @@ The delta — everything `construction-continue` adds, exhaustively:
 | 2 | `live-rate-evidence.json` (canonical bytes) | `/home/ubuntu/f1k-gate/` | atomic scp + sha read-back |
 | 3 | `construction-handoff.json` | `/home/ubuntu/f1k-gate/` | produced phase 5, atomic scp + sha read-back |
 | 4 | B1 epoch VM-local cache | `/home/ubuntu/f1k-gate/launch-epoch.json` | from the GCS mirror (authoritative) |
-| 5 | B2 self-delete timer + service units | `/etc/systemd/system/` | rendered, installed, started, verified via preflight |
+| 5 | hardened L2 guest timer + service units (LC-1) | `/etc/systemd/system/` | rendered, installed, started, verified via preflight |
 | 6 | `kot-f1k-construction.service` (guard ExecStart) | `/etc/systemd/system/` | installed + started + verified phase 6 |
-| 7 | guest max-life CANCELLATION | VM | only after B2 verified (phase 4) |
+| 7 | guest max-life CANCELLATION | VM | only after the full cap stack verified + L2 re-probe (phase 4) |
+| 8 | `prior-spend-evidence.json` (Rev2) | `/home/ubuntu/f1k-gate/` + control box | produced phase 5, sha in the receipt |
+
+NOT in the continue delta but part of the Rev2 transition surface: the L1 provider
+cap job (Cloud Scheduler delete at `epoch + 900 h`) is armed at PROVISION time,
+before the VM exists (R2.1/R2.5), and only VERIFIED here.
 
 Code deltas shipped with the build (not staged at continue time): the
-`construction-continue` entrypoint + `f1k_ops` import + provision epoch-write +
-`ubuntu@` SSH targeting in `f1k_gcp.py`; the guard `--handoff` (B3) delta in
-`f1k_bringup_gate.py`; both land BEFORE any bring-up deploy.
+`construction-continue` entrypoint + `f1k_ops` import + the LC-10/LC-11 provision
+and teardown changes + `ubuntu@` SSH targeting in `f1k_gcp.py`; the guard
+`--handoff` (B3) delta incl. step 3' in `f1k_bringup_gate.py`; the LC-1..9 + LC-12
+amendments in `f1k_ops.py`. ALL of it lands as ONE reviewed bundle BEFORE any
+`provision` run (R2.5) — Rev1's "before any bring-up deploy" was necessary but
+insufficient.
 
 ---
 
 ## 9. Open items for the maintainer (none block the executor build)
 
 1. `KOT_GCP_BILLING_ACCOUNT` + the $300 Billing Budget resource must exist before a
-   real run (known GCP env/IAM setup gate; preflight fails closed without it).
-2. Ratify the PROPOSED-CC-5 allowance numbers ($20 non-compute, $10 rate headroom) at
-   the #55 spend-GO. Arithmetic, not policy, is what the code enforces.
-3. The construction spend-GO itself (#55) — explicitly out of scope here.
+   real run — and (Rev2) the budget must be SINGLE-PROJECT-FILTERED to this project,
+   USD, exactly $300, with thresholds + notification config; its exact resource name
+   is pinned in `KOT_F1K_BUDGET_RESOURCE` (known GCP env/IAM setup gate; preflight
+   fails closed without it).
+2. (Rev2, R2.1) The L1 provider cap needs one-time GCP setup: enable the Cloud
+   Scheduler API and create/authorize the cap service account holding
+   `compute.instances.delete` (project- or instance-scoped). Maintainer-gated, same
+   class as item 1. Also ratify PROPOSED-CC-7 (Cloud Scheduler as the L1 mechanism +
+   the retry floor) — including the executor's build-time check of whether the
+   native GCE runtime-limit (`terminationTime` + DELETE) can coexist with
+   STOP-on-preemption in the current API; if it can, the maintainer picks native vs
+   Scheduler (native is simpler; the side-plan reading says the shared
+   `instanceTerminationAction` field forbids the combination).
+3. Ratify the PROPOSED-CC-5 allowance numbers ($20 non-compute, $10 rate headroom)
+   and PROPOSED-CC-9 (2 h wall-clock margin) at the #55 spend-GO. Arithmetic, not
+   policy, is what the code enforces.
+4. The construction spend-GO itself (#55) — explicitly out of scope here.
 
 ## 10. Assumption register (PROPOSED — the executor registers on commit; no ids minted here)
 
-- PROPOSED-CC-1 [STIPULATED]: the review-clean `f1k_ops.py` contract (153b9576) is
-  the fixed interface; this design edits no validator. Owner: coordinator.
+- PROPOSED-CC-1 [STIPULATED, REVISED Rev2]: the lean-B contract SCHEMAS are the
+  fixed interface; the option-B implementation is amended ONLY per the LC register
+  (R2.7), each item re-verified with fresh oracle cases. Owner: coordinator.
 - PROPOSED-CC-2 [STIPULATED]: all VM SSH/SCP targets `ubuntu@` so `$HOME =
   /home/ubuntu` matches the frozen canonical paths; mechanically verified at $0 by
   the remote-home check. Resolution path: the check itself on first provision.
@@ -561,40 +686,274 @@ Code deltas shipped with the build (not staged at continue time): the
   estate; the per-attempt bring-up cost band section 7.3. Resolution path: first real
   preemption observation + the GCP docs citations already carried in
   `F1K-CONSTRUCTION-SIDE-PLAN.md` section 4 (the budgets-do-not-cap-spend claim there
-  is LIT-BACKED to the vendor doc it links).
+  is LIT-BACKED to the vendor doc it links; the review restates both with vendor
+  links — stopped instances retain chargeable resources, budgets do not cap spend).
+- PROPOSED-CC-7 [STIPULATED, NEW Rev2]: the L1 hard cap is a Cloud Scheduler job
+  (cron-encoded absolute deadline, OIDC-authenticated Compute `instances.delete` on
+  exactly this instance, durable retry config at a reviewed floor), chosen over (a)
+  the native GCE runtime-limit — the operative side-plan reading is that its shared
+  `instanceTerminationAction` field would force DELETE-on-preemption, destroying the
+  STOP-resume estate premise — and (b) DELETE-on-preemption leaner-B. Resolution
+  path: the executor verifies the shared-field constraint against the current GCE
+  API at build time; if separable, surface the native option to the maintainer
+  (section 9 item 2). Owner: coordinator.
+- PROPOSED-CC-8 [STIPULATED, NEW Rev2]: the L2 guest terminal fallback is
+  `poweroff -f` after delete-retry exhaustion — it needs no cloud auth and stops
+  compute billing; the residual (PD/retained-resource charges until L1 deletes) is
+  disclosed, not hidden.
+- PROPOSED-CC-9 [STIPULATED, NEW Rev2]: 2 h transition/termination margin on every
+  wall-clock sufficiency check. Maintainer may tighten at the #55 GO.
+- PROPOSED-CC-10 [STIPULATED, NEW Rev2]: the budget attestation validates the exact
+  `KOT_F1K_BUDGET_RESOURCE` (billing-account parent, USD, $300, single-project
+  filter, thresholds, notification config); "any $300 budget" never passes.
 
 ---
 
-## Self-check (mandatory, performed before hand-back)
+## Revision 2 — spend-safety review corrections
 
-1. End-to-end runnable on Single-VM-Spot: YES — precondition GREEN-on-this-instance;
-   phases 0-6 fully ordered; staging delta enumerated exhaustively (section 8, items
-   1-7 + the two code deltas); build-order constraint stated (B3 before deploy);
-   nothing depends on an undefined variable or an operator-invented value.
-2. Rate-equality gate: fail-closed (NO-GO on mismatch AND on quote outage), zero
-   tolerance on canonical Decimal forms, round-trip-safe because both sides pass
-   through the single normalizing canonicalizer and floats are refused as inputs;
-   drift remedy specified ($0 re-collect/re-gate). Section 3.
-3. preflight_launch_gate wired (phase 2, full transport table, epoch origin at
-   provision) and wonu resolved: `instance_termination_action` populated ONLY from
-   the `verify_selfdelete_armed` attestation with the required inline comment;
-   STOP-echo structurally unreachable; fail-closed statements present. Section 4.
-4. $0 oracle validates without spend: injectable fakes only, 16 named assertion
-   groups covering GO/NO-GO logic, staging completeness, preflight legs, wonu
-   regression pin, ordering, single-shot, and no-teardown. Section 6.
-5. Plan-v4 findings: #2 resolved (mechanical interlock + ordering + normative text),
-   #3 resolved (runnable transition; stale sub-claim documented), #4 resolved
-   (equality at four enforcement points + remedy), #8 resolved (formula + un-trimmed
-   worst case + enforced bounds). Section 7.
-6. Load-bearing claims tagged: every marker-form premise line opens with a complete
-   [MEASURED: file:line at commit] tag (`tools/registry/claims-check.py` run this
-   pass: PASS, 5 marked premise lines); stipulated design choices are inline-tagged
-   with PROPOSED-CC ids in non-marker prose, because the lint requires marker-form
-   STIPULATED to cite a REGISTERED ASM-id, which cannot exist before the executor's
-   commit — the executor registers PROPOSED-CC-1..6 at commit and may then promote
-   those lines to marker form; the single EXTRAPOLATION (PROPOSED-CC-6) is
+Source verdict: `poc/gpt56-review/f1k-cc-transition-review/last-message.json`
+(GPT-5.6, REJECT; its file:line citations verified against the tree this pass).
+The reviewer CONFIRMED sound — and Rev2 does not disturb — the canonical-Decimal
+zero-tolerance rate-equality gate and the `_construction_payload_files()` staging of
+`build_carriers.py` + `f1k_driver.py`.
+
+The review's central finding, accepted in full: Rev1's 900 h and $300 backstops were
+NOT mechanically fail-closed — the guest systemd timer attests configuration, not
+deletion capability, and the budget check attests "a $300 budget exists somewhere".
+Rev2 rebuilds the cap as layered, independently-verified mechanisms and amends the
+landed option-B code where the defects live.
+
+### R2.1 Defect #1 — the hard cap (ADOPTED, with a layered architecture)
+
+Disposition: ADOPTED. The guest timer is DEMOTED to defense-in-depth; the doc no
+longer represents it as the hard cap anywhere.
+
+The Rev2 cap stack, in enforcement order:
+
+- L1 — THE HARD CAP, provider control-plane (PROPOSED-CC-7): a Cloud Scheduler job
+  armed at PROVISION time (before the VM exists, R2.5) at the cron-encoded absolute
+  deadline `epoch + 900 h`, making an OIDC-authenticated Compute API
+  `instances.delete` call bound to exactly this project/zone/instance, with a
+  durable retry configuration at a reviewed floor. Properties that make it the hard
+  cap: it runs from the provider's control plane, so it is independent of guest
+  auth, guest network, guest wedge, AND of the VM's run state — it deletes a
+  STOPped (preempted) VM too, which closes the review's stopped-at-deadline hole
+  (deletion ends retained-resource charges; the boot disk is created inline by
+  `provision` and auto-deletes with the instance — executor verifies the
+  auto-delete flag at build time). An orphaned job would re-fire at the same cron
+  date a year later against a nonexistent instance (404, harmless); `teardown`
+  (LC-11) deletes the job anyway.
+- L2 — guest-side, best-effort (LC-1/LC-2, PROPOSED-CC-8): the hardened systemd
+  timer/service — extended retry loop, `Restart=on-failure` with
+  `StartLimitIntervalSec=0`, and a terminal `poweroff -f` fallback that needs NO
+  cloud credentials and stops compute billing even under total IAM/API failure
+  (residual: retained-resource charges continue until L1 deletes — disclosed).
+- L3 — the $300 budget, tripwire only (LC-6, PROPOSED-CC-10): exact-resource,
+  project-filtered attestation; never claimed as a cap (budgets do not cap spend —
+  vendor-documented, cited in the review and side-plan section 4).
+- Pre-cancel gate: the bring-up guest max-life is cancelled ONLY after L1 + L2 +
+  the deletion-IAM dry-run all verified (phase 4), with an L2 `is-active` re-probe
+  immediately before the cancel.
+
+IAM verification before the max-life cancel (LC-4): `instances.testIamPermissions`
+for `compute.instances.delete` executed FROM the VM with its own metadata
+credentials — an end-to-end dry run of auth + API reachability + permission along
+the L2 path without deleting; plus a control-plane read asserting the L1 job's
+service-account IAM binding. Honest residual, stated not hidden: these prove
+capability AT ARM TIME, not at the deadline; the deadline-time residual is
+"Compute API unavailable for the entire L1 retry window AND the guest too wedged to
+poweroff" — two independent failure modes that must coincide, with the L3 alert as
+the final tripwire. No layer is claimed invoice-exact, consistent with the
+launch-arch memo's standing rule.
+
+Is the cap now genuinely provider-enforced? YES at the architecture level: the
+primary deletion path executes in the provider control plane on an absolute
+schedule fixed before the VM existed, independent of everything on the instance.
+The one open verification (PROPOSED-CC-7 resolution path) is the executor's
+build-time check of whether the native GCE runtime-limit could replace Cloud
+Scheduler without forcing DELETE-on-preemption; either outcome leaves a
+provider-side cap in place.
+
+### R2.2 Defect #2 — exact budget attestation (ADOPTED)
+
+Disposition: ADOPTED. `assure_billing_budget` (LC-6) gains required
+`budget_resource_name` (env `KOT_F1K_BUDGET_RESOURCE`) + `project_id`; it fetches
+THAT resource and validates: billing-account parent == `KOT_GCP_BILLING_ACCOUNT`;
+currency USD; amount exactly 300 units / 0 nanos; budget filter naming EXACTLY this
+one project (an account-wide or other-project budget REFUSES); well-formed
+thresholds; notification configuration present. It returns a CLOSED attestation
+which preflight (LC-7) passes through for direct handoff population, and
+`validate_handoff` (LC-8) now also enforces the `billingAccounts/<id>/budgets/<id>`
+format on `resource_name`; exact-resource equality is enforced live at continue and
+again inside guard (the pure validator cannot know the deployment's resource name —
+the live checks bind it).
+
+### R2.3 Defect #3 — real attestation provenance + armed-hours recompute (ADOPTED)
+
+Disposition: ADOPTED. Rev1's "DELETE copied from `verify_selfdelete_armed`" was not
+implementable against the landed return shape — conceded. Fixes: (a) LC-2 extends
+the guest verifier's return with `action`/`mechanism`; (b) LC-5 introduces
+`verify_cap_armed()`, the composite closed cap attestation (L1 + L2 + IAM legs; it
+exists only if all legs succeeded, and it requires the L1 schedule and L2
+OnCalendar deadlines to be identical) — the handoff producer copies
+`instance_termination_action` and `termination_timestamp_utc` from IT (section 4.2,
+revised); (c) LC-8 makes `validate_handoff` RECOMPUTE `armed_hours_decimal` from
+`campaign_started_at_utc -> termination_time_utc` under the producer's
+ROUND_CEILING/6 dp rule with exact-equality + timestamp-ordering requirements,
+killing the understated-armed-hours bypass of the $300 arithmetic; (d) the guard
+independently repeats the recompute and the composite verification (R2.4).
+
+### R2.4 Defect #4 — the contradictory inherited guard step (ADOPTED)
+
+Disposition: ADOPTED. The side-plan's guard step 3 is EXPLICITLY REPLACED by step 3'
+(section 5): live SPOT check; live preemption action == STOP asserted (the resume
+premise, refusing a DELETE-on-preemption mis-provision); `verify_cap_armed()` live
+with deadline == `epoch + 900 h`; fresh wall-clock sufficiency with margin. Step 3'
+runs immediately before engine start AND repeats at every checkpoint poll together
+with the rate sentry and the projected-completion-vs-deadline check. The
+independent cap verification the original step promised is therefore kept — in a
+form that can actually pass on a correctly-provisioned VM.
+
+### R2.5 Defect #5 — epoch anchoring (ADOPTED)
+
+Disposition: ADOPTED. Rev1's post-create epoch write is WITHDRAWN. LC-10: capture
+`t_epoch` BEFORE the create request; durably persist epoch (+ arm the L1 job)
+BEFORE create; bind the numeric instance id in a mirrored `epoch-binding.json`
+after create; READ BACK epoch + mirror + binding, and on any persistence/read-back
+failure DELETE the just-created VM immediately and exit nonzero. Deadline error
+from provisioning latency is now strictly in the conservative (earlier) direction.
+Build-order rule strengthened accordingly: the ENTIRE Rev2 code set lands as one
+reviewed bundle BEFORE any `provision` run (sections 4.1 and 8).
+
+### R2.6 Engineering corrections (ALL ADOPTED)
+
+- B4 float false-refuse: the blended s/prefill (and every projection value continue
+  consumes) is extracted from the RAW gate JSON with `json.loads(...,
+  parse_float=str)` and fed to `canonical_decimal` — exact, no binary-float
+  pass-through, no landed `/2` schema change (section 4.1 table).
+- Control-box boot-id false-refuse: LC-9 adds an injectable `bootid_transport` to
+  `resolve_live_instance_identity` (default = local read, preserving the on-VM
+  READY writer); the control box passes the SSH guest read (section 4.1 note).
+- Wall-clock sufficiency: phase-0 pre-filter hardened (raw-decimal extraction,
+  ROUND_CEILING, PROPOSED-CC-9 margin) + guard-side recompute immediately before
+  engine start + repeated at every checkpoint against the absolute deadline minus
+  margin (sections 2.1 step 5 and 5).
+- Oracle driver enumeration: corrected — the runtime license has no driver field;
+  `f1k_driver.py` is asserted at its known staged path (section 6 assertion 2).
+- Plan-v4 #8 executable binding: `prior-spend-evidence.json` produced at phase 5,
+  consumed by the config-cost step by name, oracle-asserted (sections 2.1 and 7.3).
+- Expanded $0 oracle — groups 17-27, all mandatory:
+  17. L1 cap job: absent / wrong schedule / wrong target instance / wrong service
+      account / state PAUSED / retry config below floor -> preflight NO-GO each.
+  18. Deletion IAM: `testIamPermissions` missing `compute.instances.delete` /
+      transport failure / API unreachable -> NO-GO, all BEFORE any max-life cancel.
+  19. L2 hardening: unit text lacking `Restart=on-failure` or the poweroff fallback
+      -> LC-2 verify refuses; simulated retry exhaustion -> fallback invocation
+      asserted on the order-recording fake.
+  20. Stopped-at-deadline: fixture instance state TERMINATED -> the L1 leg of
+      `verify_cap_armed` passes on control-plane config alone (structural assertion
+      that L1 does not depend on guest run state); the L2 leg's non-execution is
+      covered by L1 (documented assertion).
+  21. Epoch anchoring order: the provision fake asserts epoch-persist and L1-arm
+      call ordinals PRECEDE the create ordinal; mirror-put failure or read-back
+      mismatch after create -> the fake records the immediate instance-delete call
+      and nonzero exit.
+  22. Mirror-absent-while-local-exists -> LC-12 `require_mirror` refusal in the
+      launch context (mirror loss is not a fallback).
+  23. Budget scope: account-wide (no project filter) / wrong-project filter / wrong
+      currency / wrong resource name / amount 300.01 -> refuse each.
+  24. Armed-hours integrity: real 899 h interval with `"armed_hours_decimal":"1"`
+      -> `validate_handoff` refuses (LC-8 recompute); reversed/equal timestamps
+      refuse.
+  25. TOCTOU narrowing: L2 timer reported inactive at the phase-4 re-probe ->
+      continue refuses BEFORE `shutdown -c` (order-recording fake).
+  26. Guard-side: pre-start rate outage/drift -> refuse before probe; poll-time
+      outage/drift -> kill + durable `rate-drift` terminal event; checkpoint
+      projected-completion past deadline-minus-margin -> kill; step 3' cap
+      re-verification failure at a poll -> kill.
+  27. Mechanics: remote sha read-back failure on any scp -> refuse; systemd
+      `ActiveState != active` / `MainPID == 0` / ExecStart mismatch -> named
+      nonzero exit, no retry loop.
+
+### R2.7 Landed option-B change register (EVERY item re-enters review with fresh oracle cases)
+
+LOAD-BEARING: [MEASURED: review verdict poc/gpt56-review/f1k-cc-transition-review/last-message.json + repo reads at 153b9576]
+the following amend LANDED, previously review-clean code; none touches a scientific
+file, and `build_carriers.py` stays byte-identical:
+
+| LC | Function / site | Change | Why |
+|---|---|---|---|
+| LC-1 | `_selfdelete_exec_start` + `render_selfdelete_unit` (`f1k_ops.py:5119,:5131`) | extended retry loop; `Restart=on-failure`, `RestartSec`, `StartLimitIntervalSec=0`; terminal `poweroff -f` fallback | defect #1: 6x30s-then-give-up left the VM billable |
+| LC-2 | `verify_selfdelete_armed` (`:5204`) | verify restart policy + fallback presence; return closed attestation incl. `action:"DELETE"`, `mechanism` | defects #1/#3 |
+| LC-3 | NEW `arm_provider_cap` / `verify_provider_cap` | create/verify the L1 Cloud Scheduler delete job (schedule == deadline, exact target, OIDC SA, ENABLED, retry floor); injectable `scheduler_transport` | defect #1: the real hard cap |
+| LC-4 | NEW `verify_delete_iam` | guest-side `testIamPermissions` incl. `compute.instances.delete` + L1-SA IAM-binding read | defect #1: capability, not config |
+| LC-5 | NEW `verify_cap_armed` | composite closed cap attestation (L1+L2+IAM; equal deadlines required); the ONLY source for handoff `instance_termination_action` / `termination_timestamp_utc` | defect #3 |
+| LC-6 | `assure_billing_budget` (`:5290`) | required exact resource + project; validate account/currency/amount/filter/thresholds/notifications; closed attestation return | defect #2 |
+| LC-7 | `preflight_launch_gate` (`:5434`) | consume LC-5 + LC-6; new `scheduler_transport`/`iam_transport`/budget params; attestations passed through in the result | defects #1/#2/#3 wiring |
+| LC-8 | `validate_handoff` (`:2758`, decimals at `:2997`, budget at `:3052`) | recompute `armed_hours_decimal` from timestamps (ROUND_CEILING/6 dp, exact equality); timestamp ordering; budget `resource_name` format | defects #2/#3 |
+| LC-9 | `resolve_live_instance_identity` (`:548`, boot id `:527`) | injectable `bootid_transport` (default local, preserving on-VM use) | boot-id false-refuse |
+| LC-10 | `cmd_provision` (`f1k_gcp.py:550`) | pre-create epoch capture/persist + L1 arm; post-create binding + read-back; fail-closed delete of the new VM on persistence failure | defect #5 |
+| LC-11 | `cmd_teardown` (`f1k_gcp.py:604`) | also delete the L1 scheduler job | hygiene |
+| LC-12 | `_resolve_epoch_launch` (`:5040`) | `require_mirror` mode for the launch context: mirror-absent-with-local-present refuses | oracle gap 22 |
+
+Each LC item: implemented by the executor, covered by new b0/b1/continue oracle
+cases, and included in the cross-vendor re-review BEFORE any `provision` run. The
+b0/b1 suites' counts will change; "23/23 unchanged" no longer applies and is not
+claimed.
+
+### R2.8 Per-defect disposition summary
+
+| Review item | Disposition |
+|---|---|
+| #1 guest timer not a hard cap | ADOPTED — L1 provider-side Scheduler delete armed pre-create as THE cap; L2 hardened + poweroff fallback demoted to defense-in-depth; IAM dry-run before max-life cancel; stopped-at-deadline closed by L1 (R2.1) |
+| #2 budget not project-verified | ADOPTED — exact-resource closed attestation (R2.2) |
+| #3 attestation fiction + armed-hours | ADOPTED — `verify_cap_armed` composite + LC-8 recompute + guard repeat (R2.3) |
+| #4 contradictory guard step | ADOPTED — step 3 explicitly replaced by step 3'; periodic re-verification (R2.4) |
+| #5 epoch anchoring | ADOPTED — pre-create capture, pre-create L1 arm, fail-closed post-create delete (R2.5) |
+| B4 float | ADOPTED — `parse_float=str` literal-token extraction (R2.6) |
+| boot-id | ADOPTED — LC-9 injectable transport (R2.6) |
+| wall-clock | ADOPTED — hardened + guard recompute + checkpoint repeat (R2.6) |
+| oracle driver enumeration | ADOPTED-WITH-MODIFICATION — known-path assertion instead of license enumeration, keeping the regression pin (R2.6) |
+| plan-v4 #8 binding | ADOPTED — executable `prior-spend-evidence.json` (R2.6) |
+| oracle gaps | ADOPTED — groups 17-27 (R2.6) |
+
+---
+
+## Self-check (Rev2 — re-run in full; honest report)
+
+1. End-to-end runnable on Single-VM-Spot: YES — phases 0-6 fully ordered with the
+   Rev2 amendments; staging delta exhaustive (section 8, items 1-8 + the L1
+   provision-time job + the code deltas); build-order rule strengthened to
+   before-any-provision (R2.5); nothing depends on an undefined variable or an
+   operator-invented value.
+2. Rate-equality gate: unchanged from Rev1 (reviewer-confirmed sound) — fail-closed,
+   zero tolerance on canonical Decimal forms, round-trip-safe, drift remedy
+   specified. Section 3.
+3. preflight_launch_gate wired (Rev2-extended transports incl. scheduler/IAM legs;
+   epoch pre-create) and wonu resolved STRUCTURALLY this time: the termination
+   action is copied from the new `verify_cap_armed` composite attestation which
+   cannot exist unless every cap leg verified; Rev1's non-implementable
+   `verify_selfdelete_armed` provenance claim is withdrawn and corrected (R2.3).
+4. $0 oracle: 16 Rev1 assertion groups + 11 Rev2 groups (17-27) covering
+   delete-IAM/outage, stopped-at-deadline, epoch ordering + fail-closed provision
+   delete, mirror-required, budget scope, armed-hours integrity, TOCTOU re-probe,
+   guard poll-time kills, and systemd/sha mechanics — all injectable fakes, no
+   spend. Sections 6 + R2.6.
+5. Review findings: all 5 blocking defects ADOPTED with mechanical fixes; all
+   engineering corrections ADOPTED (one with a stated modification); the two
+   reviewer-confirmed-sound elements left undisturbed. R2.8 table. Honest note:
+   defects #1/#2/#3 were defects in the LANDED option-B module that Rev1 built on
+   top of without catching — Rev1's "changes no landed validator" scope claim is
+   withdrawn, and the LC register (R2.7) flags every landed-code change for
+   re-verification.
+6. Load-bearing claims tagged: marker-form premise lines open with complete
+   [MEASURED: ...] tags (`tools/registry/claims-check.py` re-run after Rev2: PASS —
+   count reported in the hand-back); stipulated choices are inline-tagged
+   PROPOSED-CC-1..10 in non-marker prose (the lint requires marker-form STIPULATED
+   to cite a registered ASM-id, which cannot exist pre-commit; the executor
+   registers them at commit); the single EXTRAPOLATION (PROPOSED-CC-6) remains
    load_bearing: false with a resolution path and is a premise of nothing.
-7. No `ASM-<number>` minted — PROPOSED-CC-* only. Checked by grep before hand-back.
-8. No @handle/account strings. Checked by grep before hand-back.
-9. Nothing committed, deployed, registered, or run: this file is the sole artifact;
-   no git/bd/gcloud state was mutated by its author.
+7. No `ASM-<number>` minted — PROPOSED-CC-* only. Re-checked by grep after Rev2.
+8. No @handle/account strings. Re-checked by grep after Rev2.
+9. Nothing committed, deployed, registered, or run: this file remains the sole
+   artifact; no git/bd/gcloud state was mutated by its author in either revision.
