@@ -485,14 +485,29 @@ def project_ledger(rate: float, s_per_prefill: float,
 # ---------------------------------------------------------------------------
 # gcloud helpers
 # ---------------------------------------------------------------------------
+# round-4 (build-review): gcloud `compute/allow_partial_error` DEFAULTS TRUE
+# since CLI 472.0.0, so a FAILED zonal `instances list` can return (rc=0,
+# stdout="[]") with only a stderr warning — a rc=0 empty list is then NOT proof
+# of absence. Every gcloud invocation runs with the property forced FALSE via
+# this env so a failed list surfaces as rc!=0 (-> unknown -> present).
+_COMPUTE_STRICT_ENV = "CLOUDSDK_COMPUTE_ALLOW_PARTIAL_ERROR"
+
+
+def _gcloud_env():
+    env = dict(os.environ)
+    env[_COMPUTE_STRICT_ENV] = "false"
+    return env
+
+
 def gcloud(*args, check=True, capture=False):
     cmd = ["gcloud"] + list(args) + ["--project", PROJECT, "--quiet"]
+    env = _gcloud_env()
     if capture:
-        r = subprocess.run(cmd, capture_output=True, text=True)
+        r = subprocess.run(cmd, capture_output=True, text=True, env=env)
         if check and r.returncode != 0:
             die("GCLOUD", " ".join(cmd) + "\n" + r.stderr)
         return r
-    r = subprocess.run(cmd)
+    r = subprocess.run(cmd, env=env)
     if check and r.returncode != 0:
         die("GCLOUD", "exit %d: %s" % (r.returncode, " ".join(cmd)))
     return r
@@ -509,16 +524,20 @@ def gcloud(*args, check=True, capture=False):
 # re-confirms absence structurally or raises the uncapped-VM hazard.
 
 
-def _classify_list_presence(rc: int, stdout, *, name: str) -> str:
+def _classify_list_presence(rc: int, stdout, *, name: str,
+                            partial_error_disabled: bool) -> str:
     """PURE classifier for `instances list --filter=name=NAME --format=json`.
 
-    Absence is confirmed ONLY when the query SUCCEEDED (rc==0) AND stdout is a
-    NON-EMPTY string parsing to a genuine JSON LIST with zero name matches.
-    (re-review BLOCKING-1) BLANK / whitespace / None stdout is NEVER synthesized
-    into [] — it is 'unknown' (still-present), because successful JSON-formatted
-    output must be parseable and a blank stdout is not proof of an empty result.
-    rc!=0, non-JSON, null, {}, truncated, a non-list, or a non-matching name are
-    all 'unknown' too. Free text is never consulted."""
+    Absence is confirmed ONLY when the query SUCCEEDED (rc==0), stdout is a
+    NON-EMPTY string parsing to a genuine JSON LIST with zero name matches, AND
+    the call was made with `compute/allow_partial_error` DISABLED
+    (partial_error_disabled=True). (round-4) With partial-error ENABLED — the
+    gcloud default — a FAILED zonal list can return (rc=0, "[]") on a stderr
+    warning, so a rc=0 empty list is NOT trustworthy absence; the classifier
+    then returns 'unknown' (fail-closed-present). A NAME MATCH is always
+    'present' (fail-safe) regardless of the flag. (BLOCKING-1) blank/whitespace/
+    None/null/{}/truncated/non-list/non-matching -> 'unknown'. Free text is
+    never consulted."""
     if rc != 0:
         return "unknown"
     if not isinstance(stdout, str):
@@ -534,9 +553,12 @@ def _classify_list_presence(rc: int, stdout, *, name: str) -> str:
         return "unknown"            # null / {} / scalar -> unknown
     names = [it.get("name") for it in items if isinstance(it, dict)]
     if name in names:
-        return "present"
+        return "present"            # a present result is always fail-safe
     if not items:
-        return "absent"             # rc==0 + non-empty stdout parsing to [] == absent
+        # rc==0 + non-empty stdout parsing to [] IS absence — but ONLY if the
+        # invocation forced partial-error off; otherwise the [] may be a
+        # partially-failed query -> fail-closed-present.
+        return "absent" if partial_error_disabled else "unknown"
     return "unknown"                # non-empty but no name match -> unexpected
 
 
@@ -564,17 +586,23 @@ def _classify_delete_operation(op) -> str:
 
 
 def _describe_presence(runner=None) -> str:
-    """Structured tristate presence via `instances list --filter`. `runner` is
-    injectable (returns (rc, stdout)) so the $0 oracle exercises the real
-    classifier on raw shapes."""
+    """Structured tristate presence via `instances list --filter`. Production
+    runs through gcloud() which forces `compute/allow_partial_error=false`, so a
+    rc=0 empty list is trustworthy absence (partial_error_disabled=True).
+
+    `runner` is injectable and returns (rc, stdout, partial_error_disabled) so
+    the $0 oracle exercises the real classifier on raw shapes — including the
+    partial-error case where the flag is False and (rc=0, "[]") must NOT be
+    trusted as absence."""
     if runner is None:
         r = gcloud("compute", "instances", "list", "--zones", ZONE,
                    "--filter", "name=%s" % INSTANCE_NAME, "--format=json",
                    check=False, capture=True)
-        rc, stdout = r.returncode, r.stdout
+        rc, stdout, ped = r.returncode, r.stdout, True   # gcloud() forced false
     else:
-        rc, stdout = runner()
-    return _classify_list_presence(rc, stdout, name=INSTANCE_NAME)
+        rc, stdout, ped = runner()
+    return _classify_list_presence(rc, stdout, name=INSTANCE_NAME,
+                                   partial_error_disabled=ped)
 
 
 def vm_exists() -> bool:
@@ -2102,43 +2130,53 @@ _PERMISSION_REPRODUCER = (
 
 def _classifier_oracle(check):
     """BLOCKING-1: exercise the PRODUCTION structured classifiers with the ACTUAL
-    raw output shapes (not injected already-classified values)."""
+    raw output shapes (not injected already-classified values). Presence is
+    classified WITH partial-error disabled unless a case says otherwise."""
     n = "kot-f1k-run"
-    check(_classify_list_presence(0, "[]", name=n) == "absent",
-          "CLASSIFY presence: rc=0 + EMPTY structured JSON list == absent")
-    check(_classify_list_presence(0, json.dumps([{"name": n, "id": "1"}]),
-                                  name=n) == "present",
+
+    def cp(rc, stdout, *, ped=True):
+        return _classify_list_presence(rc, stdout, name=n,
+                                       partial_error_disabled=ped)
+    check(cp(0, "[]") == "absent",
+          "CLASSIFY presence: rc=0 + '[]' + partial-error-DISABLED == absent")
+    check(cp(0, json.dumps([{"name": n, "id": "1"}])) == "present",
           "CLASSIFY presence: rc=0 + name match == present")
-    check(_classify_list_presence(1, "", name=n) == "unknown",
+    check(cp(1, "") == "unknown",
           "CLASSIFY presence: rc!=0 (permission/outage/timeout) == unknown")
-    r = _classify_list_presence(1, _PERMISSION_REPRODUCER, name=n)
+    r = cp(1, _PERMISSION_REPRODUCER)
     check(r == "unknown" and r != "absent",
           "CLASSIFY (BLOCKING-1 reproducer): exact permission text at rc=1 == "
           "unknown, NEVER absent (free text is not consulted)")
+    # round-4 (build-review): a partial-error list (rc=0, '[]') produced WITHOUT
+    # the disable-flag is NOT trusted as absence -> unknown -> present.
+    pe = cp(0, "[]\n", ped=False)
+    check(pe == "unknown" and pe != "absent",
+          "CLASSIFY (round-4 reproducer): rc=0 + '[]' with partial-error "
+          "ENABLED == unknown, NEVER absent (a partial-failed list is not "
+          "absence proof)")
+    check(cp(0, json.dumps([{"name": n}]), ped=False) == "present",
+          "CLASSIFY (round-4): a NAME MATCH is present regardless of the flag "
+          "(fail-safe)")
+    check(cp(1, "", ped=True) == "unknown",
+          "CLASSIFY (round-4): with partial-error disabled a failed list is "
+          "rc!=0 -> unknown -> present")
     # re-review BLOCKING-1: blank / whitespace / None stdout MUST NOT be
     # synthesized into [] -> unknown (the reproduced (0, ' \n') fail-open).
-    check(_classify_list_presence(0, "", name=n) == "unknown",
+    check(cp(0, "") == "unknown",
           "CLASSIFY presence (re-review): rc=0 + BLANK stdout == unknown (NOT "
           "absent)")
-    check(_classify_list_presence(0, " \n\t", name=n) == "unknown"
-          and _classify_list_presence(0, " \n", name=n) != "absent",
+    check(cp(0, " \n\t") == "unknown" and cp(0, " \n") != "absent",
           "CLASSIFY presence (re-review pinned): rc=0 + WHITESPACE stdout == "
           "unknown, NEVER absent")
-    check(_classify_list_presence(0, None, name=n) == "unknown",
+    check(cp(0, None) == "unknown",
           "CLASSIFY presence (re-review): rc=0 + None stdout == unknown")
-    check(_classify_list_presence(0, "null", name=n) == "unknown"
-          and _classify_list_presence(0, "{}", name=n) == "unknown",
+    check(cp(0, "null") == "unknown" and cp(0, "{}") == "unknown",
           "CLASSIFY presence: rc=0 + null/{} == unknown (not a list)")
-    check(_classify_list_presence(0, "Could not fetch resource: 404 does not "
-                                  "exist", name=n) == "unknown",
+    check(cp(0, "Could not fetch resource: 404 does not exist") == "unknown",
           "CLASSIFY presence: rc=0 + non-JSON free text == unknown (never "
           "absent from text)")
-    check(_classify_list_presence(0, json.dumps([{"name": "other-vm"}]),
-                                  name=n) == "unknown",
+    check(cp(0, json.dumps([{"name": "other-vm"}])) == "unknown",
           "CLASSIFY presence: rc=0 + non-matching name == unknown")
-    check(_classify_list_presence(0, "[]", name=n) == "absent",
-          "CLASSIFY presence: rc=0 + non-blank '[]' == absent (the ONLY "
-          "absence condition)")
     check(_classify_delete_operation({"status": "DONE"}) == "deleted",
           "CLASSIFY delete: DONE + no structured error == deleted")
     check(_raises(lambda: _classify_delete_operation(
@@ -2765,11 +2803,13 @@ _RAW_DEL_OPERR = (0, json.dumps(
 _RAW_DEL_OUTAGE = (1, "")                        # rc!=0 -> re-confirm presence
 
 
-def _presence_from(state):
+def _presence_from(state, *, partial_error_disabled=True):
     """Build a presence_fn that runs the PRODUCTION classifier on the current
-    raw (rc, stdout) list output — so the permission reproducer flows through."""
-    return lambda: _classify_list_presence(state["raw"][0], state["raw"][1],
-                                           name=_N)
+    raw (rc, stdout) list output — so the permission reproducer flows through.
+    partial_error_disabled models whether the list ran with the strict flag."""
+    return lambda: _classify_list_presence(
+        state["raw"][0], state["raw"][1], name=_N,
+        partial_error_disabled=partial_error_disabled)
 
 
 def _real_delete_from(state, del_raw, *, flip_absent=False):
@@ -2828,7 +2868,7 @@ def _provision_oracle(check, *, launch):
           "G28 create request carries T_cap + STOP + discard-local-SSD flag")
 
     def _mk_provision(*, describe_fn, del_raw, presence_raw, order,
-                      flip_absent=False):
+                      flip_absent=False, presence_ped=True):
         st = {"raw": presence_raw}
         store2 = {}
 
@@ -2842,7 +2882,7 @@ def _provision_oracle(check, *, launch):
             now_fn=lambda: launch, mirror=mirror2, create_fn=lambda c: None,
             describe_fn=describe_fn,
             delete_fn=_real_delete_from(st, del_raw, flip_absent=flip_absent),
-            presence_fn=_presence_from(st),
+            presence_fn=_presence_from(st, partial_error_disabled=presence_ped),
             local_epoch_path=os.path.join(d2, "e.json"),
             binding_path=os.path.join(d2, "b.json"), order=order,
             instance_name=_N, zone="us-central1-a",
@@ -2896,6 +2936,20 @@ def _provision_oracle(check, *, launch):
           and "absence" not in order4,
           "G29-PERMISSION exact permission-error presence (rc=1) -> classifier "
           "unknown -> never declares absence (the fail-open reproducer raises)")
+
+    # G29-PARTIAL (round-4 reproducer): read-back bad, delete op DONE, but the
+    # confirming presence is (rc=0, "[]") produced with partial-error ENABLED ->
+    # the REAL classifier returns unknown -> absence NEVER confirmed -> raise.
+    order5 = []
+    pe_refused = None
+    try:
+        _mk_provision(describe_fn=describe_bad, del_raw=_RAW_DEL_DONE,
+                      presence_raw=(0, "[]\n"), presence_ped=False, order=order5)
+    except F1KContinueError as exc:
+        pe_refused = exc.code
+    check(pe_refused == "F1K_PROVISION_READBACK" and "absence" not in order5,
+          "G29-PARTIAL (round-4) rc=0 '[]' with partial-error ENABLED != "
+          "absence -> classifier unknown -> never declares absence")
 
 
 def _teardown_oracle(check):

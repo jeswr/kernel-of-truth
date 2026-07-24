@@ -99,6 +99,11 @@ CAP_PROBE_SCHEMA = "kot-f1k-cap-probe/1"
 CAP_PROBE_CHECKS = (
     "create_body_atomic", "readback_shape", "stop_at_time",
     "restart_past_time_refused", "local_ssd_discard", "testiampermissions",
+    # round-4 (build-review): the probe must VERIFY on the real gcloud that
+    # compute/allow_partial_error is DISABLED and that under it a known-present
+    # instance lists correctly + a known-absent name returns an empty list — so
+    # a rc=0 empty list is trustworthy absence at the real API.
+    "partial_error_disabled",
 )
 
 
@@ -512,6 +517,11 @@ def _gcloud_compute_get(
         "--format=json",
         "--quiet",
     ]
+    # round-4 (build-review): force compute/allow_partial_error off on the
+    # describe too so a partial-failed lookup surfaces as rc!=0, never a
+    # misleading success (defense-in-depth; describe is a single-zone GET).
+    env = dict(os.environ)
+    env["CLOUDSDK_COMPUTE_ALLOW_PARTIAL_ERROR"] = "false"
     try:
         result = subprocess.run(
             command,
@@ -519,6 +529,7 @@ def _gcloud_compute_get(
             text=True,
             timeout=20,
             check=False,
+            env=env,
         )
     except (OSError, subprocess.TimeoutExpired) as exc:
         raise F1KOpsError(
@@ -7547,6 +7558,12 @@ def selftest_b1() -> int:
         "F1K_CAP_PROBE",
         lambda: cp_validate(cap_probe(checks={
             **{k: "PASS" for k in CAP_PROBE_CHECKS}, "stop_at_time": "FAIL"}))))
+    check("CAP-PROBE gate (round-4) refuses a FAILED partial_error_disabled "
+          "check", lambda: refuses(
+        "F1K_CAP_PROBE",
+        lambda: cp_validate(cap_probe(checks={
+            **{k: "PASS" for k in CAP_PROBE_CHECKS},
+            "partial_error_disabled": "FAIL"}))))
     check("CAP-PROBE gate (BLOCKING-2) refuses a wrong project", lambda: refuses(
         "F1K_CAP_PROBE", lambda: cp_validate(cap_probe(
             project_id="other-project"))))
