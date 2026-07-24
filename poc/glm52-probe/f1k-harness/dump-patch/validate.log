@@ -33,11 +33,17 @@
   ok:   dump layer never reaches moe() (dense layer 1) -> nonzero exit
   ok:   [MEASURED] garbage manifest line (wholly non-numeric, not skipped) -> nonzero exit
   ok:   [MEASURED] trailing junk after the required 2T+1 integers -> nonzero exit
+  ok:   [MEASURED] span slot 2147483648 (int wrap) aborts, never a silently ungated position (r3 finding 3) -> nonzero exit
+  ok:   [MEASURED] long-overflowing (ERANGE) span slot aborts (r3) -> nonzero exit
+  ok:   [MEASURED] long-overflowing (ERANGE) token id aborts (r3) -> nonzero exit
+  ok:   [MEASURED] pass-1 T=2147483648 (unrepresentable as int) aborts before kv sizing (r3) -> nonzero exit
+  ok:   [MEASURED] manifest READ ERROR (directory path) aborts (r3) -> nonzero exit
+  ok:   [MEASURED] boundary span slot 2147483646 ACCEPTED and gated (gc==1) — no over-rejection (r3)
 == V6: in-patch unit suite (plain + ASan/UBSan/LSan) ==
   ok:   test_kae_dump plain build: clean, zero warnings
-  ok:   [MEASURED] test_kae_dump (plain): ALL TESTS PASSED (43 checks)
+  ok:   [MEASURED] test_kae_dump (plain): ALL TESTS PASSED (64 checks)
   ok:   test_kae_dump asan build: clean, zero warnings
-  ok:   [MEASURED] test_kae_dump (asan): ALL TESTS PASSED (43 checks)
+  ok:   [MEASURED] test_kae_dump (asan): ALL TESTS PASSED (64 checks)
   ok:   ASan/UBSan/LSan: no diagnostics
 
 MOCK VALIDATION PASS — kot-f1k-dump/1 mock battery green (MOCK SCOPE ONLY: mechanics, not feasibility; the real-engine objdump inertness proof re-runs on Modal at bring-up)

@@ -25,10 +25,19 @@ checks that MUST be measured green before any real construction run):
       KAE_DUMP+KAE=1), missing KAE_DUMP_OUT/LAYERS, duplicate layer,
       out-of-range layer, zero-gated line, malformed token, a dump
       layer moe() never reaches (dense layer), a wholly non-numeric
-      GARBAGE manifest line (must NOT be silently skipped), and TRAILING
-      JUNK after the required 2T+1 integers ALL exit nonzero.
+      GARBAGE manifest line (must NOT be silently skipped), TRAILING
+      JUNK after the required 2T+1 integers, and the r3 (gate-0
+      re-review finding 3) integer-hardening negatives — a span slot of
+      2147483648 (the exact int-wrap that r2 silently UNGATED with exit
+      0), a long-overflowing (ERANGE) span, a long-overflowing token id,
+      an int-overflowing pass-1 T, and a manifest READ ERROR (directory
+      path) — ALL exit nonzero; plus a boundary POSITIVE control (span
+      slot 2147483646 = INT_MAX-1 still accepted and gated — the
+      hardening does not over-reject).
   V6  UNIT SUITE: tests/test_kae_dump.c (the copy that rides IN the patch)
-      builds and passes, plain and under ASan+UBSan+LSan.
+      builds and passes, plain and under ASan+UBSan+LSan — now including
+      the r3 Tests G (strict-parse negatives), H (NaN/Inf/f32-cast-
+      overflow fail-closed, finding 4) and I (/dev/full output failure).
 
 Everything runs from the repo copies; no model, no weights, no network, no
 spend. Real-tree checks (patch applies on the pinned KaE tree, engine
@@ -232,6 +241,18 @@ def main():
     man_garbage.write_text("2 5 6 -1 3\nthis line is garbage not integers\n")
     man_trail = OUT / "man_trail.txt"
     man_trail.write_text("2 5 6 -1 3 99\n")
+    # r3 (gate-0 re-review finding 3) integer-hardening negatives: the r2
+    # parser cast long->int unchecked, so 2147483648 wrapped negative and
+    # kae_bind_spans normalised it to -1 — the line SUCCEEDED with the
+    # malformed position silently ungated. Every case below must abort.
+    man_spanwrap = OUT / "man_spanwrap.txt"
+    man_spanwrap.write_text("2 5 6 -1 2147483648\n")
+    man_spanrange = OUT / "man_spanrange.txt"
+    man_spanrange.write_text("2 5 6 -1 99999999999999999999\n")
+    man_tokrange = OUT / "man_tokrange.txt"
+    man_tokrange.write_text("2 5 99999999999999999999 -1 3\n")
+    man_bigT = OUT / "man_bigT.txt"
+    man_bigT.write_text("2147483648 5 6\n")
     cases = [
         ("KAE_DUMP + KAE_SCORE (phase separation)", man, dict(denv, KAE_SCORE="x")),
         ("KAE_DUMP + KAE=1 (phase separation)",     man, dict(denv, KAE=1)),
@@ -247,10 +268,35 @@ def main():
          man_garbage, dict(denv, KAE_DUMP=man_garbage)),
         ("[MEASURED] trailing junk after the required 2T+1 integers",
          man_trail, dict(denv, KAE_DUMP=man_trail)),
+        ("[MEASURED] span slot 2147483648 (int wrap) aborts, never a "
+         "silently ungated position (r3 finding 3)",
+         man_spanwrap, dict(denv, KAE_DUMP=man_spanwrap)),
+        ("[MEASURED] long-overflowing (ERANGE) span slot aborts (r3)",
+         man_spanrange, dict(denv, KAE_DUMP=man_spanrange)),
+        ("[MEASURED] long-overflowing (ERANGE) token id aborts (r3)",
+         man_tokrange, dict(denv, KAE_DUMP=man_tokrange)),
+        ("[MEASURED] pass-1 T=2147483648 (unrepresentable as int) aborts "
+         "before kv sizing (r3)",
+         man_bigT, dict(denv, KAE_DUMP=man_bigT)),
+        ("[MEASURED] manifest READ ERROR (directory path) aborts (r3)",
+         OUT, dict(denv, KAE_DUMP=OUT)),
     ]
     for label, mpath, env in cases:
         pr = run(eng, mpath, OUT / "fwd_probe.bin", env, expect_rc=1, label=label)
         check(pr.returncode != 0, "%s -> nonzero exit" % label)
+    # boundary POSITIVE control (r3): the hardening must not over-reject —
+    # span slot 2147483646 (= INT_MAX-1, the largest representable slot)
+    # still parses, binds and gates its position.
+    man_big = OUT / "man_bigslot.txt"
+    man_big.write_text("2 100 200 -1 2147483646\n")
+    denv_b = dict(denv)
+    denv_b["KAE_DUMP"] = man_big
+    denv_b["KAE_DUMP_OUT"] = OUT / "bigslot.kaed"
+    run(eng, man_big, OUT / "fwd_bigslot.bin", denv_b, label="bigslot")
+    nb, nlb, Db, layb, perb = parse_kaed(OUT / "bigslot.kaed")
+    check(nb == 1 and perb[0][0] == 1,
+          "[MEASURED] boundary span slot 2147483646 ACCEPTED and gated "
+          "(gc==1) — no over-rejection (r3)")
 
     print("== V6: in-patch unit suite (plain + ASan/UBSan/LSan) ==")
     with tempfile.TemporaryDirectory() as td:

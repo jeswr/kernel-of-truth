@@ -6,6 +6,8 @@
   ok:   CJK token 世界 spans chars [15,17) — 2 chars, not 6 bytes
   ok:   char span [10,14) gates exactly the café token (intersection rule, slot 42)
   ok:   wrong TOK_SHA256 pin -> fail closed, nonzero exit
+  ok:   ABSENT TOK_SHA256 pin -> fail closed, nonzero exit, no output (pin MANDATORY, finding 6)
+  ok:   non-64-hex TOK_SHA256 pin -> fail closed, nonzero exit
   ok:   malformed input line -> fail closed
 
 TOK SELFTEST PASS (MOCK SCOPE ONLY: contract mechanics on a constructed tokenizer; the REAL GLM-5.2 tokenizer.json is pinned + engine-consistency-checked at Modal bring-up, ASM-1971)

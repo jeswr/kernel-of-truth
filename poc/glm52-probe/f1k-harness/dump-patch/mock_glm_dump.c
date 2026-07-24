@@ -42,9 +42,27 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <limits.h>
+#include <errno.h>
 #ifdef KOT_DUMP_PATCH
 #include "kae_dump.h"                 /* the SAME header the patched glm.c links */
 static KaEDump *g_kdump = NULL;       /* mirrors the glm.c file-scope global */
+/* the dump build parses with the SAME strict helper the engine uses (r3,
+ * gate-0 re-review finding 3) */
+#define MOCK_PARSE_INT kaed_parse_int
+#else
+/* ref build (no kae_dump.h): byte-equivalent local copy of kaed_parse_int
+ * so both builds parse the manifest identically (V1 byte-identity feeds the
+ * same lines through both). */
+static int mock_parse_int(char **pp, long lo, long hi, long *out){
+    char *e;
+    errno = 0;
+    long v = strtol(*pp, &e, 10);
+    if(e == *pp || errno == ERANGE || v < lo || v > hi) return -1;
+    *pp = e; *out = v;
+    return 0;
+}
+#define MOCK_PARSE_INT mock_parse_int
 #endif
 
 enum { NLAYERS = 12, VOCAB = 100000, MAXT = 4096 };
@@ -152,11 +170,14 @@ int main(int argc, char **argv){
     FILE *f = fopen(argv[1], "rb"); if(!f){ perror(argv[1]); return 1; }
     FILE *fo = fopen(argv[2], "wb"); if(!fo){ perror(argv[2]); return 1; }
 
-    /* pass 1: n_lines + maxT (mirrors run_kae_dump) */
+    /* pass 1: n_lines + maxT (mirrors run_kae_dump). STRICT r3 parse
+     * (finding 3): an overflowing/unrepresentable T aborts HERE, before
+     * any allocation sizing can wrap. */
     int maxT = 1, n_lines = 0; { char *ln = NULL; size_t cp = 0;
-        while(getline(&ln, &cp, f) > 0){ long t; char *e; t = strtol(ln, &e, 10);
-            if(e == ln){ fprintf(stderr, "[KAE-DUMP] manifest line %d: no leading integer (garbage/blank line) -> abort\n", n_lines); return 1; }
+        while(getline(&ln, &cp, f) > 0){ long t; char *pp = ln;
+            if(MOCK_PARSE_INT(&pp, 1, INT_MAX - 1, &t)){ fprintf(stderr, "[KAE-DUMP] manifest line %d: bad/overflowing leading T (garbage/blank line or unrepresentable integer) -> abort\n", n_lines); return 1; }
             n_lines++; if(t > maxT) maxT = (int)t; }
+        if(ferror(f)){ fprintf(stderr, "[KAE-DUMP] manifest read error (pass 1) -> abort\n"); return 1; }
         free(ln); }
     if(dump_mode && n_lines < 1){ fprintf(stderr, "[KAE-DUMP] empty manifest %s -> abort\n", argv[1]); return 1; }
     if(maxT > MAXT){ fprintf(stderr, "mock: T too large\n"); return 1; }
@@ -171,18 +192,16 @@ int main(int argc, char **argv){
 
     rewind(f); char *ln = NULL; size_t cp = 0; int nreq = 0;
     while(getline(&ln, &cp, f) > 0){
-        char *p = ln, *e;
-        long T = strtol(p, &e, 10);
-        if(e == p){ fprintf(stderr, "[KAE-DUMP] line %d: no leading integer (garbage/blank line) -> abort\n", nreq); return 1; }
-        p = e;
-        if(T < 1 || T > maxT){ fprintf(stderr, "[KAE-DUMP] line %d: bad T=%ld -> abort\n", nreq, T); return 1; }
-        for(long i = 0; i < T; i++){ long v = strtol(p, &e, 10);
-            if(e == p || v < 0 || v >= VOCAB){ fprintf(stderr, "[KAE-DUMP] line %d: bad token id -> abort\n", nreq); return 1; }
-            p = e; ids[i] = (int)v; }
+        char *p = ln;
+        long T, v;
+        if(MOCK_PARSE_INT(&p, 1, maxT, &T)){ fprintf(stderr, "[KAE-DUMP] line %d: bad/overflowing T -> abort\n", nreq); return 1; }
+        for(long i = 0; i < T; i++){
+            if(MOCK_PARSE_INT(&p, 0, (long)VOCAB - 1, &v)){ fprintf(stderr, "[KAE-DUMP] line %d: bad/overflowing token id -> abort\n", nreq); return 1; }
+            ids[i] = (int)v; }
         long gated = 0;
-        for(long i = 0; i < T; i++){ long v = strtol(p, &e, 10);
-            if(e == p || v < -1){ fprintf(stderr, "[KAE-DUMP] line %d: bad span slot -> abort\n", nreq); return 1; }
-            p = e; spans[i] = (v < 0) ? -1 : (int)v; if(spans[i] >= 0) gated++; }
+        for(long i = 0; i < T; i++){
+            if(MOCK_PARSE_INT(&p, -1, INT_MAX - 1, &v)){ fprintf(stderr, "[KAE-DUMP] line %d: bad/overflowing span slot -> abort (a wrapped span would become a silently ungated position, finding 3)\n", nreq); return 1; }
+            spans[i] = (v < 0) ? -1 : (int)v; if(spans[i] >= 0) gated++; }
         /* the line must be EXACTLY the 2T+1 integers: only whitespace may
          * follow the last span; anything else is trailing junk (ASM-2489) */
         while(*p == ' ' || *p == '\t' || *p == '\r' || *p == '\n') p++;
@@ -206,6 +225,7 @@ int main(int argc, char **argv){
 #endif
         nreq++;
     }
+    if(ferror(f)){ fprintf(stderr, "[KAE-DUMP] manifest read error (pass 2) -> abort\n"); return 1; }
 #ifdef KOT_DUMP_PATCH
     if(dump_mode){
         if(nreq != n_lines){ fprintf(stderr, "[KAE-DUMP] processed %d lines != header %d -> abort\n", nreq, n_lines); return 1; }

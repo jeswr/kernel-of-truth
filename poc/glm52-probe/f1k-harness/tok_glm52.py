@@ -7,11 +7,14 @@ the exact subprocess contract build_carriers.py freezes (module docstring
 "TOKENIZER CONTRACT — kot-f1k-tok/1"):
 
   argv    tok_glm52.py <tokenizer.json>
-  env     TOK_SHA256=<64hex>   OPTIONAL but REQUIRED for real runs: sha256
-          the tokenizer.json bytes must hash to (fail closed on mismatch —
-          the same pin the runner passes to build_carriers as
-          --tokenizer-sha/--tokenizer-artifact, re-derived there from the
-          artifact bytes; carrier RE-REVIEW item 8).
+  env     TOK_SHA256=<64hex>   MANDATORY (r3, gate-0 dump-patch re-review
+          finding 6): sha256 the tokenizer.json bytes must hash to; the
+          wrapper fails closed (nonzero exit, no output) if the pin is
+          ABSENT, non-64-hex, or MISMATCHED — r2 warned and proceeded
+          unpinned, which could silently gate the wrong positions in a
+          paid construction. Same pin the runner passes to build_carriers
+          as --tokenizer-sha/--tokenizer-artifact, re-derived there from
+          the artifact bytes (carrier RE-REVIEW item 8).
   stdin   JSONL {"text": <str>}
   stdout  JSONL {"ids": [<int>...], "offsets": [[start, end], ...]}
           Python-str CHARACTER offsets, end-exclusive, one pair per token.
@@ -28,16 +31,20 @@ out-of-range/inconsistent pair on multibyte text and ABORTS the whole batch
 (a silently wrong offset would gate the wrong tokens and corrupt every
 carrier). --selftest exercises exactly that with multibyte fixtures.
 
-BRING-UP CHECK (deferred, $0 here): the wrapper's ids must equal the ids
-the engine's own prefill path (colibri tok.h) produces for the same text —
-verified on the real snapshot at Modal bring-up, alongside the ASM-1971
-weight pin, BEFORE any real dump. This file never fetches anything.
+BRING-UP CHECK (deferred, $0 here; r3 scope per gate-0 dump-patch re-review
+finding 6): the wrapper's ids must equal the ids the engine's own prefill
+path (colibri tok.h) produces for EVERY UNIQUE CONSTRUCTION TEXT — the FULL
+pinned construction corpus, zero mismatches tolerated, never "a few
+samples" — verified on the real snapshot at bring-up, alongside the
+ASM-1971 weight pin, BEFORE any real dump. This file never fetches
+anything.
 
 MOCK NOTE: the $0 pipeline keeps using mock_tokenizer.py; this wrapper is
 for `construct --mode real` only.
 """
 import hashlib
 import json
+import re
 import sys
 
 
@@ -47,9 +54,19 @@ def fail(msg):
 
 
 def load_tokenizer(path, pin):
+    # r3 (gate-0 dump-patch re-review finding 6): the pin is MANDATORY —
+    # an unpinned tokenizer could silently gate the wrong positions in a
+    # paid construction run (ASM-1971 discipline; ASM-2490's fail-closed
+    # posture now covers the pin itself, not only the offsets).
+    if not pin:
+        fail("TOK_SHA256 is not set — the tokenizer.json pin is MANDATORY "
+             "(fail closed; gate-0 dump-patch re-review finding 6)")
+    pin = pin.lower()
+    if not re.fullmatch(r"[0-9a-f]{64}", pin):
+        fail("TOK_SHA256 %r is not 64 hex chars (fail closed)" % pin)
     data = open(path, "rb").read()
     got = hashlib.sha256(data).hexdigest()
-    if pin is not None and got != pin.lower():
+    if got != pin:
         fail("tokenizer.json sha256 %s != pinned TOK_SHA256 %s" % (got, pin))
     try:
         from tokenizers import Tokenizer
@@ -80,10 +97,8 @@ def main():
     if len(args) != 1:
         fail("usage: tok_glm52.py <tokenizer.json>   (or --selftest)")
     tok, got = load_tokenizer(args[0], os.environ.get("TOK_SHA256"))
-    sys.stderr.write("[kot-f1k-tok/1] tokenizer %s sha256=%s%s\n"
-                     % (args[0], got,
-                        "" if os.environ.get("TOK_SHA256") else
-                        " (UNPINNED — real runs must set TOK_SHA256)"))
+    sys.stderr.write("[kot-f1k-tok/1] tokenizer %s sha256=%s (pin verified)\n"
+                     % (args[0], got))
     out = sys.stdout
     for raw in sys.stdin:
         raw = raw.strip()
@@ -158,6 +173,24 @@ def selftest():
                             env=dict(os.environ, TOK_SHA256="0" * 64))
         check(p2.returncode != 0 and b"ERR_F1K_TOK" in p2.stderr,
               "wrong TOK_SHA256 pin -> fail closed, nonzero exit")
+        # fail-closed: ABSENT pin (r3, finding 6 — the pin is MANDATORY;
+        # r2 warned and proceeded unpinned)
+        env_nopin = {k: v for k, v in os.environ.items()
+                     if k != "TOK_SHA256"}
+        p2b = subprocess.run([sys.executable, __file__, path],
+                             input=inp.encode(), stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE, env=env_nopin)
+        check(p2b.returncode != 0 and b"ERR_F1K_TOK" in p2b.stderr
+              and b"TOK_SHA256" in p2b.stderr and not p2b.stdout,
+              "ABSENT TOK_SHA256 pin -> fail closed, nonzero exit, no output "
+              "(pin MANDATORY, finding 6)")
+        # fail-closed: syntactically invalid (non-64-hex) pin
+        p2c = subprocess.run([sys.executable, __file__, path],
+                             input=inp.encode(), stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE,
+                             env=dict(os.environ, TOK_SHA256="nothex"))
+        check(p2c.returncode != 0 and b"ERR_F1K_TOK" in p2c.stderr,
+              "non-64-hex TOK_SHA256 pin -> fail closed, nonzero exit")
         # fail-closed: malformed input
         p3 = subprocess.run([sys.executable, __file__, path],
                             input=b"not json\n", stdout=subprocess.PIPE,

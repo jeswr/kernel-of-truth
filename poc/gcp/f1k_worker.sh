@@ -1434,16 +1434,24 @@ fi
 echo "PASS" > "$GATE/dump-b.status"    # (b) is fail-closed above; reaching here proves it
 hb "dump-precond-b-ok"
 
-step "4/5 DUMP bring-up gate (a): tiny real dump + token-id consistency"
-# A few manifest lines at a small layer subset; kot-f1k-tok/1 ids must equal the
-# ids the real engine prefills.  build_carriers manifest is (A)-time; a tiny
-# construct DUMP is the smallest real exercise of the dump path.
+step "4/5 DUMP bring-up gate (a): tiny real dump + FULL-CORPUS token-id consistency"
+# The tiny dump (a few manifest lines, small layer subset) is the smallest
+# real exercise of the DUMP path.  The tokenizer consistency check is NOT
+# tiny (r3, gate-0 dump-patch re-review finding 6): kot-f1k-tok/1 ids must
+# equal the ids the real engine prefills for EVERY UNIQUE CONSTRUCTION TEXT
+# in the pinned construction-manifest.jsonl (full corpus, zero mismatches
+# tolerated) — "a few samples" is NOT acceptance.  TOK_SHA256 is exported
+# and verified fail-closed by tok_glm52.py itself (pin now MANDATORY, r3).
 : > "$GATE/tiny-dump.status"
 python3 - <<PY 2>&1 | tee "$GATE/tiny-dump.log" || true
-print("SCAFFOLD: the runner runs a tiny real KAE_DUMP over a few manifest")
+print("SCAFFOLD: the runner (1) runs a tiny real KAE_DUMP over a few manifest")
 print("lines (small KAE_DUMP_LAYERS) with KAE_SEED=20260716 and asserts the")
-print("engine [KAE-DUMP] armed echo seed==20260716, then compares tok_glm52.py")
-print("ids for the same texts to the ids the engine actually prefilled.")
+print("engine [KAE-DUMP] armed echo seed==20260716; then (2) tokenizes EVERY")
+print("unique construction text from the pinned construction-manifest.jsonl")
+print("with tok_glm52.py (TOK_SHA256 exported — the wrapper fails closed")
+print("without it) and asserts the ids equal the ids the real engine actually")
+print("prefills for the same texts: FULL-CORPUS equality, zero mismatches")
+print("tolerated, fail closed (r3 finding 6 — never a sample).")
 print("This is finalized ON-BOX with the real construction binary + weights.")
 PY
 echo "RUNNER-CONFIRM-REQUIRED" > "$GATE/tiny-dump.status"

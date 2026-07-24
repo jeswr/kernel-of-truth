@@ -26,7 +26,8 @@ set -euo pipefail
 PRISTINE_GLM_BLOB="1d74f7886022baaf3fa936602f9db3a4d82f7f21"
 KAE_PATCH_SHA256="11f8b45884878111480192ee086c92b22acaa1aaf3238b2d46c47f952e9dd9cb"
 EXPECTED_KAE_CHECKS=44         # f1k.json pins.harness_manifest
-EXPECTED_DUMP_CHECKS=43        # test_kae_dump.c (this patch)
+EXPECTED_DUMP_CHECKS=64        # test_kae_dump.c (this patch, r3: +21 checks —
+                               # Tests G strict-parse, H non-finite, I /dev/full)
 ALLOWED_DIFF_FUNCS="moe main"  # ONLY functions the dump patch wires (ASM-2486:
                                # g_kdump is file-scope, so model_init and
                                # layer_forward stay identical, unlike the KaE

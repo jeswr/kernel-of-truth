@@ -29,7 +29,7 @@
 |---|---|
 | `bringup.sh` | Instance bring-up: clone colibri @ `a78a06fc5acc4b0dc0f9ef03987c66b0559d1250`, verify + apply the gate-0 KaE patch (sha256-pinned), build, **assert 44/44 `test_kae` checks**, prove **inert-by-default** (per-function machine-code equivalence with `KAE` unset), and **document** (not execute) the model-fetch step. Fail-closed throughout. |
 | `f1k_driver.py` | The run driver implementing the frozen protocol exactly: `--phase pilot` / `--phase guard` / `--phase test`, per-item checkpoint/resume, rows + sidecar in `analysis/f1k.py`'s exact schema, the `[R9-PROV]` carrier-construction provenance gate at ingest, `--mock` for the $0 end-to-end validation. Every frozen constant cites its source in-line. |
-| `build_carriers.py` | The carrier-construction GENERATOR (sha-pinned in the frozen record): `manifest` ((A)-time, $0) → `construct --mode mock\|real` (96×16×3 = 4,608 forward passes; mode+sha-bound checkpoints; engine seed-echo verified, incl. on cached resume) → `verify --expect-mode mock\|real` (REQUIRED; never mode-blind) → `selftest` (11 fail-closed probes). |
+| `build_carriers.py` | The carrier-construction GENERATOR (sha-pinned in the frozen record): `manifest` ((A)-time, $0) → `construct --mode mock\|real` (96×16×3 = 4,608 forward passes; mode+sha-bound checkpoints; engine seed-echo verified, incl. on cached resume) → `verify --expect-mode mock\|real` (REQUIRED; never mode-blind) → `selftest` (22 probes: 21 fail-closed + 1 positive control). |
 | `pilot.sh` | Pilot bring-up wrapper: preflight pins → `(L,g)` selection over the 4-member family-blind panel → affordability / power / placebo gates at pilot n → addenda (5)/(7) + (6)-inputs artifacts. |
 | `mock_colibri.py` | Deterministic stub of the engine's `KAE_SCORE` path (exact interface; mock only). |
 | `mock_colibri_dump.py` / `mock_tokenizer.py` | Deterministic stubs of the `kot-f1k-dump/1` hidden-state dump and `kot-f1k-tok/1` tokenizer contracts (construction seams; mock only, $0). |
@@ -202,13 +202,16 @@ the coordinator's driver-vs-protocol audit map. **No invented thresholds.**
   by the REAL generator (mock dump engine, nc=96 / D=6144) accepted by the
   untouched driver end-to-end under mock disclosure, AND **refused** by the
   REAL-mode ingest gate (the re-review item-8 exploit, proven closed).
-- **Generator `selftest`**: 19 fail-closed probes (mode-bound checkpoints,
+- **Generator `selftest`**: 22 probes (mode-bound checkpoints,
   A(iv) enforcement, manifest fresh-derivation, engine echo fresh + cached,
   artifact-derived shas, cached-content integrity, mode-blind verify
   refused; round-10: replaced-vector/hashless/all-zero checkpoints
   rejected, relabeled-mock-under-real rejected, real-claiming-under-mock
   rejected, production-dir mock construct/verify refused, all-zero table
-  set rejected by verify non-degeneracy).
+  set rejected by verify non-degeneracy; r3 dump-re-review finding 4:
+  NaN-sum KAED and gated_count-vs-manifest-mismatch KAED each rejected
+  consumer-side in `run_dump`, plus an uncorrupted-dump positive control
+  proving no over-rejection).
 
 ## Governance self-check (this pass)
 

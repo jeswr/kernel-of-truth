@@ -16,7 +16,16 @@
  *      layer that moe() never reached aborts the line);
  *   E. the KAED bytes are exactly the contract (magic, header, layer order,
  *      per-line gated_count + f32-cast sums);
- *   F. per-line bind/reset semantics (rebind replaces, reset disarms).
+ *   F. per-line bind/reset semantics (rebind replaces, reset disarms);
+ *   G. (r3, gate-0 re-review finding 3) kaed_parse_int rejects int
+ *      overflow, long overflow (ERANGE), non-numeric and out-of-range
+ *      input — the r2 long->int wrap that silently UNGATED a malformed
+ *      span can no longer parse;
+ *   H. (r3, gate-0 re-review finding 4) a NaN/Inf accumulator and an
+ *      f64-finite-but-f32-overflowing sum each fail the line closed;
+ *   I. (r3, finding 4) output failure (/dev/full, Linux — the pinned
+ *      KAED platform, ASM-2491) surfaces as a nonzero return by
+ *      kaed_finish at the latest.
  * Exit 0 = all pass; nonzero = a failure (printed).
  * ==========================================================================*/
 #include <stdio.h>
@@ -186,6 +195,103 @@ int main(void){
     kaed_capture(kd, 5, 0, S, D, x);
     CHECK(kd->cnt[0] == 0, "capture after reset accumulates nothing");
     kaed_free(kd);
+
+    printf("== Test G: strict manifest integer parse (r3, finding 3) ==\n");
+    {
+        char buf[64]; char *p; long v;
+        /* the exact REJECT reproducer: 2147483648 wraps negative as int */
+        strcpy(buf, "2147483648"); p = buf;
+        CHECK(kaed_parse_int(&p, -1, INT_MAX - 1, &v) != 0,
+              "span 2147483648 (int wrap) REJECTED, not silently ungated");
+        strcpy(buf, "-2147483649"); p = buf;
+        CHECK(kaed_parse_int(&p, -1, INT_MAX - 1, &v) != 0,
+              "span -2147483649 REJECTED (below lo)");
+        strcpy(buf, "99999999999999999999"); p = buf;
+        CHECK(kaed_parse_int(&p, -1, INT_MAX - 1, &v) != 0,
+              "long-overflowing integer REJECTED (strtol ERANGE)");
+        strcpy(buf, "-99999999999999999999"); p = buf;
+        CHECK(kaed_parse_int(&p, -1, INT_MAX - 1, &v) != 0,
+              "negative long overflow REJECTED (strtol ERANGE)");
+        strcpy(buf, "junk"); p = buf;
+        CHECK(kaed_parse_int(&p, -1, INT_MAX - 1, &v) != 0,
+              "non-numeric input REJECTED (no digits)");
+        strcpy(buf, ""); p = buf;
+        CHECK(kaed_parse_int(&p, -1, INT_MAX - 1, &v) != 0,
+              "empty input REJECTED");
+        strcpy(buf, "2147483647"); p = buf;
+        CHECK(kaed_parse_int(&p, -1, INT_MAX - 1, &v) != 0,
+              "INT_MAX itself REJECTED (hi = INT_MAX-1: v >= INT_MAX never parses)");
+        strcpy(buf, "2147483646"); p = buf;
+        CHECK(kaed_parse_int(&p, -1, INT_MAX - 1, &v) == 0 && v == 2147483646L
+              && *p == '\0',
+              "boundary 2147483646 ACCEPTED exactly, pointer advanced (no over-rejection)");
+        strcpy(buf, " -1 7"); p = buf;
+        CHECK(kaed_parse_int(&p, -1, INT_MAX - 1, &v) == 0 && v == -1
+              && kaed_parse_int(&p, -1, INT_MAX - 1, &v) == 0 && v == 7,
+              "whitespace-led -1 then 7 parse in sequence (ungated slot convention intact)");
+    }
+
+    printf("== Test H: non-finite sums fail the line closed (r3, finding 4) ==\n");
+    printf("  (the [KAE-DUMP] non-finite error messages below are EXPECTED test output)\n");
+    kd = kaed_arm(CSV, opath, D, NLAYERS);
+    CHECK(kd != NULL, "arm for the non-finite battery");
+    CHECK(kaed_write_header(kd, 4) == 0, "header written");
+    /* H1: NaN reaches the accumulator through the capture path itself */
+    CHECK(kaed_bind_line(kd, SPANS, S) == 0, "bind NaN line");
+    fill_x(x, 0, S); x[1*D + 2] = (float)NAN;      /* gated position 1 */
+    kaed_capture(kd, 5, 0, S, D, x);
+    kaed_capture(kd, 2, 0, S, D, x);
+    kaed_capture(kd, 9, 0, S, D, x);
+    CHECK(kaed_write_line(kd, 0, 3) != 0,
+          "NaN in a gated hidden state -> write_line fails closed");
+    /* H2: +Inf through the capture path */
+    kaed_reset_line(kd);
+    CHECK(kaed_bind_line(kd, SPANS, S) == 0, "bind Inf line");
+    fill_x(x, 0, S); x[2*D + 0] = (float)INFINITY; /* gated position 2 */
+    kaed_capture(kd, 5, 0, S, D, x);
+    kaed_capture(kd, 2, 0, S, D, x);
+    kaed_capture(kd, 9, 0, S, D, x);
+    CHECK(kaed_write_line(kd, 1, 3) != 0,
+          "Inf in a gated hidden state -> write_line fails closed");
+    /* H3: f64 accumulator FINITE but its f32 cast overflows to Inf */
+    kaed_reset_line(kd);
+    CHECK(kaed_bind_line(kd, SPANS, S) == 0, "bind cast-overflow line");
+    fill_x(x, 0, S);
+    kaed_capture(kd, 5, 0, S, D, x);
+    kaed_capture(kd, 2, 0, S, D, x);
+    kaed_capture(kd, 9, 0, S, D, x);
+    kd->acc[0] = 1e300;                            /* finite f64, > FLT_MAX */
+    CHECK(kaed_write_line(kd, 2, 3) != 0,
+          "finite f64 sum overflowing the f32 cast -> write_line fails closed");
+    /* H4: control — a clean rebind after the failures still writes */
+    kaed_reset_line(kd);
+    CHECK(kaed_bind_line(kd, SPANS, S) == 0, "bind clean control line");
+    fill_x(x, 0, S);
+    kaed_capture(kd, 5, 0, S, D, x);
+    kaed_capture(kd, 2, 0, S, D, x);
+    kaed_capture(kd, 9, 0, S, D, x);
+    CHECK(kaed_write_line(kd, 3, 3) == 0,
+          "finite control line after the failures still writes (no sticky poison)");
+    kaed_free(kd);
+
+    printf("== Test I: output failure fails closed (/dev/full; Linux, ASM-2491) ==\n");
+    printf("  (the [KAE-DUMP] write/flush error messages below are EXPECTED test output)\n");
+    kd = kaed_arm(CSV, "/dev/full", D, NLAYERS);
+    CHECK(kd != NULL, "arm to /dev/full (fopen succeeds; failure surfaces at write/flush)");
+    if(kd){
+        int any_fail = 0;
+        if(kaed_write_header(kd, 1) != 0) any_fail = 1;
+        kaed_bind_line(kd, SPANS, S);
+        fill_x(x, 0, S);
+        kaed_capture(kd, 5, 0, S, D, x);
+        kaed_capture(kd, 2, 0, S, D, x);
+        kaed_capture(kd, 9, 0, S, D, x);
+        if(kaed_write_line(kd, 0, 3) != 0) any_fail = 1;
+        if(kaed_finish(kd) != 0) any_fail = 1;
+        CHECK(any_fail,
+              "ENOSPC output: some stage returns nonzero (kaed_finish at the latest)");
+        kaed_free(kd);
+    }
 
     printf("\n%s (%d failure%s)\n", fails ? "TESTS FAILED" : "ALL TESTS PASSED",
            fails, fails == 1 ? "" : "s");

@@ -12,7 +12,7 @@ index f5b1a72..be86a03 100644
  
  backend_cuda.o: backend_cuda.cu backend_cuda.h
 diff --git a/c/glm.c b/c/glm.c
-index 90a4e15..b543472 100644
+index 90a4e15..21157bf 100644
 --- a/c/glm.c
 +++ b/c/glm.c
 @@ -36,6 +36,7 @@
@@ -49,7 +49,7 @@ index 90a4e15..b543472 100644
      float *logit=falloc(E), *choice=falloc(E);
      int sI=c->moe_inter*c->n_shared;
      /* ---- FASE A: routing di tutte le S posizioni ---- */
-@@ -1978,6 +1991,80 @@ static void run_kae_score(Model *m, const char *path){
+@@ -1978,6 +1991,86 @@ static void run_kae_score(Model *m, const char *path){
      free(ln); free(ids); free(spans); free(x); free(lo); free(row); fclose(f);
  }
  
@@ -70,21 +70,28 @@ index 90a4e15..b543472 100644
 + * emit i32 gated_count | f32 sum[nl*D] to KAE_DUMP_OUT (KAED format,
 + * kae_dump.h). Results NEVER travel on stdout (codex blocker-1 discipline).
 + * EVERY malformed manifest line fails closed: a wholly non-numeric/garbage
-+ * line, a bad T / token id / span slot, trailing junk after the required
-+ * 2T+1 integers, a zero-gated line and a per-slot count violation ALL
-+ * ABORT with a nonzero exit (fail closed, ASM-2488/2489): a partial or
-+ * silently skipped pass would corrupt the §2.4 mean-difference tables
++ * line, a bad T / token id / span slot, an integer that overflows long
++ * (ERANGE) or is not exactly representable as int (r3, gate-0 re-review
++ * finding 3 — parsed ONLY via kaed_parse_int, so the r2 long->int wrap
++ * that silently UNGATED a span like 2147483648 can no longer parse),
++ * trailing junk after the required 2T+1 integers, a zero-gated line, a
++ * manifest READ ERROR and a per-slot count violation ALL ABORT with a
++ * nonzero exit (fail closed, ASM-2488/2489): a partial or silently
++ * skipped pass would corrupt the §2.4 mean-difference tables
 + * downstream. */
 +static void run_kae_dump(Model *m, const char *path){
 +    Cfg *c=&m->c; int D=c->hidden;
 +    KaEDump *kd=g_kdump;
 +    if(!kd){ fprintf(stderr,"[KAE-DUMP] not armed\n"); exit(1); }
 +    FILE *f=fopen(path,"rb"); if(!f){perror(path);exit(1);}
-+    /* pass 1: n_lines (KAED header needs it up front) + maxT for kv sizing */
++    /* pass 1: n_lines (KAED header needs it up front) + maxT for kv sizing.
++     * STRICT r3 parse (finding 3): an overflowing/unrepresentable T aborts
++     * HERE, before any allocation sizing can wrap. */
 +    int maxT=1, n_lines=0; { char *ln=NULL; size_t cp=0;
-+        while(getline(&ln,&cp,f)>0){ long t; char *e; t=strtol(ln,&e,10);
-+            if(e==ln){ fprintf(stderr,"[KAE-DUMP] manifest line %d: no leading integer (garbage/blank line) -> abort\n",n_lines); exit(1); }
++        while(getline(&ln,&cp,f)>0){ long t; char *pp=ln;
++            if(kaed_parse_int(&pp,1,INT_MAX-1,&t)){ fprintf(stderr,"[KAE-DUMP] manifest line %d: bad/overflowing leading T (garbage/blank line or unrepresentable integer) -> abort\n",n_lines); exit(1); }
 +            n_lines++; if(t>maxT) maxT=(int)t; }
++        if(ferror(f)){ fprintf(stderr,"[KAE-DUMP] manifest read error (pass 1) -> abort\n"); exit(1); }
 +        free(ln); }
 +    if(n_lines<1){ fprintf(stderr,"[KAE-DUMP] empty manifest %s -> abort\n",path); exit(1); }
 +    kv_alloc(m,maxT);
@@ -94,18 +101,16 @@ index 90a4e15..b543472 100644
 +    if(kaed_write_header(kd,n_lines)) exit(1);
 +    rewind(f); char *ln=NULL; size_t cp=0; int nreq=0; double t0=now_s();
 +    while(getline(&ln,&cp,f)>0){
-+        char *p=ln,*e;
-+        long T=strtol(p,&e,10);
-+        if(e==p){ fprintf(stderr,"[KAE-DUMP] line %d: no leading integer (garbage/blank line) -> abort\n",nreq); exit(1); }
-+        p=e;
-+        if(T<1||T>maxT){ fprintf(stderr,"[KAE-DUMP] line %d: bad T=%ld -> abort\n",nreq,T); exit(1); }
-+        for(long i=0;i<T;i++){ long v=strtol(p,&e,10);
-+            if(e==p||v<0||v>=c->vocab){ fprintf(stderr,"[KAE-DUMP] line %d: bad token id -> abort\n",nreq); exit(1); }
-+            p=e; ids[i]=(int)v; }
++        char *p=ln;
++        long T,v;
++        if(kaed_parse_int(&p,1,maxT,&T)){ fprintf(stderr,"[KAE-DUMP] line %d: bad/overflowing T -> abort\n",nreq); exit(1); }
++        for(long i=0;i<T;i++){
++            if(kaed_parse_int(&p,0,(long)c->vocab-1,&v)){ fprintf(stderr,"[KAE-DUMP] line %d: bad/overflowing token id -> abort\n",nreq); exit(1); }
++            ids[i]=(int)v; }
 +        long gated=0;
-+        for(long i=0;i<T;i++){ long v=strtol(p,&e,10);
-+            if(e==p||v<-1){ fprintf(stderr,"[KAE-DUMP] line %d: bad span slot -> abort\n",nreq); exit(1); }
-+            p=e; spans[i]=(v<0)?-1:(int)v; if(spans[i]>=0) gated++; }
++        for(long i=0;i<T;i++){
++            if(kaed_parse_int(&p,-1,INT_MAX-1,&v)){ fprintf(stderr,"[KAE-DUMP] line %d: bad/overflowing span slot -> abort (a wrapped span would become a silently ungated position, finding 3)\n",nreq); exit(1); }
++            spans[i]=(v<0)?-1:(int)v; if(spans[i]>=0) gated++; }
 +        /* the line must be EXACTLY the 2T+1 integers: only whitespace may
 +         * follow the last span; anything else is trailing junk (ASM-2489) */
 +        while(*p==' '||*p=='\t'||*p=='\r'||*p=='\n') p++;
@@ -120,6 +125,7 @@ index 90a4e15..b543472 100644
 +        if(++nreq%16==0) fprintf(stderr,"[kae-dump %d line | %.1fs | RSS %.2f GB]\n",
 +            nreq, now_s()-t0, rss_gb());
 +    }
++    if(ferror(f)){ fprintf(stderr,"[KAE-DUMP] manifest read error (pass 2) -> abort\n"); exit(1); }
 +    if(nreq!=n_lines){ fprintf(stderr,"[KAE-DUMP] processed %d lines != header %d -> abort\n",nreq,n_lines); exit(1); }
 +    if(kaed_finish(kd)) exit(1);
 +    fprintf(stderr,"[kae-dump done: %d lines, %d layers, D=%d | %.1fs]\n",
@@ -130,7 +136,7 @@ index 90a4e15..b543472 100644
  static void generate(Model *m, const int *prompt, int np, int n_new, int *out){
      kv_alloc(m,np+n_new+g_draft+2);
      for(int i=0;i<np;i++) out[i]=prompt[i];
-@@ -2713,6 +2800,15 @@ int main(int argc, char **argv){
+@@ -2713,6 +2806,15 @@ int main(int argc, char **argv){
      g_topp = getenv("TOPP")?atof(getenv("TOPP")):0;
      g_kae  = getenv("KAE")?atoi(getenv("KAE")):0;          /* F1-K KaE ADD (DRAFT, gate-0); inert unless KAE=1 */
      g_kae_g= getenv("KAE_G")?atof(getenv("KAE_G")):1.f;
@@ -146,7 +152,7 @@ index 90a4e15..b543472 100644
      g_mlock  = getenv("MLOCK")?atoi(getenv("MLOCK")):-1;   /* -1 auto (ON macOS), 0 off, 1 force / auto (ON macOS), 0 off, 1 force */
      g_spec = getenv("SPEC")?atoi(getenv("SPEC")):1;
      g_draft = getenv("DRAFT")?atoi(getenv("DRAFT")):-1;   /* -1 = auto: 3 se MTP, 0 senza */
-@@ -2783,6 +2879,21 @@ int main(int argc, char **argv){
+@@ -2783,6 +2885,21 @@ int main(int argc, char **argv){
                       m.kae->nc, m.kae->nl, g_kae_g,
                       m.kae->span_n ? "loaded (default)" : "per-item (none at load)");
      }
@@ -168,7 +174,7 @@ index 90a4e15..b543472 100644
      if(g_draft<0) g_draft = m.has_mtp ? 3 : 0;
      if(getenv("DSA_TOPK")) m.c.index_topk=atoi(getenv("DSA_TOPK"));   /* override per test */
      printf("loaded in %.2fs | resident dense: %.2f MB | layers=%d experts=%d | MTP %s (draft=%d)\n",
-@@ -2821,6 +2932,12 @@ int main(int argc, char **argv){
+@@ -2821,6 +2938,12 @@ int main(int argc, char **argv){
      /* F1-K KaE scoring (design §R1.1) — DRAFT, gate-0: single-prefill label-logit,
       * candidate-independent, per-item span binding. Runs for every arm (KAE=0 baseline
       * included); takes precedence over the continuation-loglikelihood SCORE path. */
@@ -183,10 +189,10 @@ index 90a4e15..b543472 100644
      /* modo scoring per benchmark: SCORE=<requests.txt> -> log-likelihood per riga */
 diff --git a/c/kae_dump.h b/c/kae_dump.h
 new file mode 100644
-index 0000000..1a21a24
+index 0000000..8389bcb
 --- /dev/null
 +++ b/c/kae_dump.h
-@@ -0,0 +1,239 @@
+@@ -0,0 +1,294 @@
 +#ifndef KAE_DUMP_H
 +#define KAE_DUMP_H
 +/* ============================================================================
@@ -229,15 +235,27 @@ index 0000000..1a21a24
 + *     [0, n_layers), no duplicates; output file must open.
 + *   - per line: zero gated positions is an ERROR (contract: the generator
 + *     never emits one); ANY malformed line (garbage line, bad T/token/span,
-+ *     trailing junk after the required 2T+1 ints) ABORTS (construction
-+ *     integrity over availability, ASM-2489 — unlike KAE_SCORE's per-item
-+ *     skip, a silently dropped construction pass would corrupt §2.4 means).
++ *     an integer that overflows long (ERANGE) or is not exactly
++ *     representable as int, trailing junk after the required 2T+1 ints)
++ *     ABORTS (construction integrity over availability, ASM-2489 — unlike
++ *     KAE_SCORE's per-item skip, a silently dropped construction pass would
++ *     corrupt §2.4 means). r3 (gate-0 re-review finding 3): manifest
++ *     integers are parsed ONLY via kaed_parse_int below — the r2 long->int
++ *     cast let a span like 2147483648 wrap negative and become a silently
++ *     UNGATED position with exit 0.
 + *   - per line, per slot: the number of gated rows actually accumulated
 + *     must equal the manifest's gated count (ASM-2488). This catches a
 + *     requested layer that never reaches moe() (dense layer, layer never
 + *     executed), a chunked prefill visiting a position twice, and a
 + *     hidden-dim mismatch — each of which would otherwise corrupt sums
 + *     silently.
++ *   - per line, per cell (r3, gate-0 re-review finding 4): every f64
++ *     accumulator must be FINITE, and its f32 cast must be FINITE, at
++ *     write time — a NaN/Inf hidden state (or an f64 sum that overflows
++ *     f32) previously reached the KAED bytes with exit 0 and would have
++ *     surfaced only at carrier non-degeneracy, after more paid batches.
++ *     The immediate consumer (build_carriers.py run_dump) re-checks both
++ *     finiteness and gated_count independently.
 + *
 + * KAED format (little-endian, same x86-64 assumption as kae.h's KAEC,
 + * ASM-2491):
@@ -250,6 +268,8 @@ index 0000000..1a21a24
 +#include <string.h>
 +#include <stdint.h>
 +#include <limits.h>
++#include <errno.h>
++#include <math.h>
 +#include "kae.h"
 +
 +typedef struct KaEDump {
@@ -268,6 +288,25 @@ index 0000000..1a21a24
 +static inline int kaed_slot_of_layer(const KaEDump *kd, int layer){
 +    for(int i = 0; i < kd->nl; i++) if(kd->layer[i] == layer) return i;
 +    return -1;
++}
++
++/* r3 (gate-0 re-review finding 3) — STRICT manifest integer parse.
++ * Reads one whitespace-led base-10 integer at *pp and requires ALL of:
++ * digits present (e != p), no strtol overflow (errno != ERANGE), and
++ * lo <= v <= hi. Callers pass hi <= INT_MAX-1, so a 0-return guarantees
++ * the (int) cast of *out is EXACT — the r2 code cast long->int unchecked,
++ * so 2147483648 wrapped negative and kae_bind_spans normalised it to -1:
++ * a malformed span became a silently UNGATED position on a line that then
++ * SUCCEEDED (contradicting ASM-2489). 0 on success (*pp advanced, *out
++ * set); -1 on ANY malformed/overflowing/out-of-range integer — the caller
++ * MUST abort the line (nonzero process exit, never skip). */
++static inline int kaed_parse_int(char **pp, long lo, long hi, long *out){
++    char *e;
++    errno = 0;
++    long v = strtol(*pp, &e, 10);
++    if(e == *pp || errno == ERANGE || v < lo || v > hi) return -1;
++    *pp = e; *out = v;
++    return 0;
 +}
 +
 +/* Arm the dump: parse KAE_DUMP_LAYERS (csv), validate against the model
@@ -297,6 +336,11 @@ index 0000000..1a21a24
 +    if(!kd->layer){ fprintf(stderr, "[KAE-DUMP] alloc layer list failed\n"); free(kd); return NULL; }
 +    const char *p = layers_csv;
 +    while(*p){
++        /* overflow-closed WITHOUT kaed_parse_int: ERANGE clamps to
++         * LONG_MIN/LONG_MAX, and n_layers < INT_MAX, so the [0, n_layers)
++         * range check below already rejects every overflowing value —
++         * unlike the manifest span parse (finding 3), no wrapped value can
++         * pass it. */
 +        char *e; long v = strtol(p, &e, 10);
 +        if(e == p || v < 0 || v >= n_layers){
 +            fprintf(stderr, "[KAE-DUMP] bad dump layer id in '%s' (want ints in [0,%d))\n",
@@ -382,8 +426,11 @@ index 0000000..1a21a24
 +}
 +
 +/* Close out the line: enforce the ASM-2488 per-slot invariant (every dump
-+ * slot accumulated EXACTLY gated_expected rows), then emit
-+ * i32 gated_count | f32 sum[nl*D]. 0 on success; nonzero must abort the run. */
++ * slot accumulated EXACTLY gated_expected rows) and the r3 finiteness
++ * invariant (gate-0 re-review finding 4: every f64 accumulator AND its f32
++ * cast must be finite — NaN/Inf previously reached the KAED bytes with
++ * exit 0), then emit i32 gated_count | f32 sum[nl*D]. 0 on success;
++ * nonzero must abort the run. */
 +static inline int kaed_write_line(KaEDump *kd, int line_no, long gated_expected){
 +    if(kd->err){
 +        fprintf(stderr, "[KAE-DUMP] line %d: capture error (see above) -> abort\n", line_no);
@@ -395,7 +442,21 @@ index 0000000..1a21a24
 +                line_no, kd->layer[i], kd->cnt[i], gated_expected);
 +        return -1; }
 +    size_t cells = (size_t)kd->nl * (size_t)kd->D;
-+    for(size_t z = 0; z < cells; z++) kd->tmpf[z] = (float)kd->acc[z];
++    for(size_t z = 0; z < cells; z++){
++        if(!isfinite(kd->acc[z])){
++            fprintf(stderr, "[KAE-DUMP] line %d: NON-FINITE f64 sum at layer %d "
++                    "dim %d -> abort (finding-4 fail-closed: a NaN/Inf dump "
++                    "would corrupt every carrier downstream)\n",
++                    line_no, kd->layer[z / (size_t)kd->D], (int)(z % (size_t)kd->D));
++            return -1; }
++        kd->tmpf[z] = (float)kd->acc[z];
++        if(!isfinite(kd->tmpf[z])){
++            fprintf(stderr, "[KAE-DUMP] line %d: f64 sum %g OVERFLOWS f32 at "
++                    "layer %d dim %d -> abort (finding-4 fail-closed)\n",
++                    line_no, kd->acc[z], kd->layer[z / (size_t)kd->D],
++                    (int)(z % (size_t)kd->D));
++            return -1; }
++    }
 +    int32_t gc = (int32_t)gated_expected;
 +    if(fwrite(&gc, 4, 1, kd->out) != 1 ||
 +       fwrite(kd->tmpf, sizeof(float), cells, kd->out) != cells){
@@ -428,10 +489,10 @@ index 0000000..1a21a24
 +#endif /* KAE_DUMP_H */
 diff --git a/c/tests/test_kae_dump.c b/c/tests/test_kae_dump.c
 new file mode 100644
-index 0000000..7eedaac
+index 0000000..174a7d8
 --- /dev/null
 +++ b/c/tests/test_kae_dump.c
-@@ -0,0 +1,193 @@
+@@ -0,0 +1,299 @@
 +/* ============================================================================
 + * test_kae_dump.c — mock unit tests for the kot-f1k-dump/1 moe()-input dump.
 + * DRAFT FOR GATE-0 REVIEW, NOT DEPLOYED.  No model, no weights, no instance:
@@ -450,7 +511,16 @@ index 0000000..7eedaac
 + *      layer that moe() never reached aborts the line);
 + *   E. the KAED bytes are exactly the contract (magic, header, layer order,
 + *      per-line gated_count + f32-cast sums);
-+ *   F. per-line bind/reset semantics (rebind replaces, reset disarms).
++ *   F. per-line bind/reset semantics (rebind replaces, reset disarms);
++ *   G. (r3, gate-0 re-review finding 3) kaed_parse_int rejects int
++ *      overflow, long overflow (ERANGE), non-numeric and out-of-range
++ *      input — the r2 long->int wrap that silently UNGATED a malformed
++ *      span can no longer parse;
++ *   H. (r3, gate-0 re-review finding 4) a NaN/Inf accumulator and an
++ *      f64-finite-but-f32-overflowing sum each fail the line closed;
++ *   I. (r3, finding 4) output failure (/dev/full, Linux — the pinned
++ *      KAED platform, ASM-2491) surfaces as a nonzero return by
++ *      kaed_finish at the latest.
 + * Exit 0 = all pass; nonzero = a failure (printed).
 + * ==========================================================================*/
 +#include <stdio.h>
@@ -620,6 +690,103 @@ index 0000000..7eedaac
 +    kaed_capture(kd, 5, 0, S, D, x);
 +    CHECK(kd->cnt[0] == 0, "capture after reset accumulates nothing");
 +    kaed_free(kd);
++
++    printf("== Test G: strict manifest integer parse (r3, finding 3) ==\n");
++    {
++        char buf[64]; char *p; long v;
++        /* the exact REJECT reproducer: 2147483648 wraps negative as int */
++        strcpy(buf, "2147483648"); p = buf;
++        CHECK(kaed_parse_int(&p, -1, INT_MAX - 1, &v) != 0,
++              "span 2147483648 (int wrap) REJECTED, not silently ungated");
++        strcpy(buf, "-2147483649"); p = buf;
++        CHECK(kaed_parse_int(&p, -1, INT_MAX - 1, &v) != 0,
++              "span -2147483649 REJECTED (below lo)");
++        strcpy(buf, "99999999999999999999"); p = buf;
++        CHECK(kaed_parse_int(&p, -1, INT_MAX - 1, &v) != 0,
++              "long-overflowing integer REJECTED (strtol ERANGE)");
++        strcpy(buf, "-99999999999999999999"); p = buf;
++        CHECK(kaed_parse_int(&p, -1, INT_MAX - 1, &v) != 0,
++              "negative long overflow REJECTED (strtol ERANGE)");
++        strcpy(buf, "junk"); p = buf;
++        CHECK(kaed_parse_int(&p, -1, INT_MAX - 1, &v) != 0,
++              "non-numeric input REJECTED (no digits)");
++        strcpy(buf, ""); p = buf;
++        CHECK(kaed_parse_int(&p, -1, INT_MAX - 1, &v) != 0,
++              "empty input REJECTED");
++        strcpy(buf, "2147483647"); p = buf;
++        CHECK(kaed_parse_int(&p, -1, INT_MAX - 1, &v) != 0,
++              "INT_MAX itself REJECTED (hi = INT_MAX-1: v >= INT_MAX never parses)");
++        strcpy(buf, "2147483646"); p = buf;
++        CHECK(kaed_parse_int(&p, -1, INT_MAX - 1, &v) == 0 && v == 2147483646L
++              && *p == '\0',
++              "boundary 2147483646 ACCEPTED exactly, pointer advanced (no over-rejection)");
++        strcpy(buf, " -1 7"); p = buf;
++        CHECK(kaed_parse_int(&p, -1, INT_MAX - 1, &v) == 0 && v == -1
++              && kaed_parse_int(&p, -1, INT_MAX - 1, &v) == 0 && v == 7,
++              "whitespace-led -1 then 7 parse in sequence (ungated slot convention intact)");
++    }
++
++    printf("== Test H: non-finite sums fail the line closed (r3, finding 4) ==\n");
++    printf("  (the [KAE-DUMP] non-finite error messages below are EXPECTED test output)\n");
++    kd = kaed_arm(CSV, opath, D, NLAYERS);
++    CHECK(kd != NULL, "arm for the non-finite battery");
++    CHECK(kaed_write_header(kd, 4) == 0, "header written");
++    /* H1: NaN reaches the accumulator through the capture path itself */
++    CHECK(kaed_bind_line(kd, SPANS, S) == 0, "bind NaN line");
++    fill_x(x, 0, S); x[1*D + 2] = (float)NAN;      /* gated position 1 */
++    kaed_capture(kd, 5, 0, S, D, x);
++    kaed_capture(kd, 2, 0, S, D, x);
++    kaed_capture(kd, 9, 0, S, D, x);
++    CHECK(kaed_write_line(kd, 0, 3) != 0,
++          "NaN in a gated hidden state -> write_line fails closed");
++    /* H2: +Inf through the capture path */
++    kaed_reset_line(kd);
++    CHECK(kaed_bind_line(kd, SPANS, S) == 0, "bind Inf line");
++    fill_x(x, 0, S); x[2*D + 0] = (float)INFINITY; /* gated position 2 */
++    kaed_capture(kd, 5, 0, S, D, x);
++    kaed_capture(kd, 2, 0, S, D, x);
++    kaed_capture(kd, 9, 0, S, D, x);
++    CHECK(kaed_write_line(kd, 1, 3) != 0,
++          "Inf in a gated hidden state -> write_line fails closed");
++    /* H3: f64 accumulator FINITE but its f32 cast overflows to Inf */
++    kaed_reset_line(kd);
++    CHECK(kaed_bind_line(kd, SPANS, S) == 0, "bind cast-overflow line");
++    fill_x(x, 0, S);
++    kaed_capture(kd, 5, 0, S, D, x);
++    kaed_capture(kd, 2, 0, S, D, x);
++    kaed_capture(kd, 9, 0, S, D, x);
++    kd->acc[0] = 1e300;                            /* finite f64, > FLT_MAX */
++    CHECK(kaed_write_line(kd, 2, 3) != 0,
++          "finite f64 sum overflowing the f32 cast -> write_line fails closed");
++    /* H4: control — a clean rebind after the failures still writes */
++    kaed_reset_line(kd);
++    CHECK(kaed_bind_line(kd, SPANS, S) == 0, "bind clean control line");
++    fill_x(x, 0, S);
++    kaed_capture(kd, 5, 0, S, D, x);
++    kaed_capture(kd, 2, 0, S, D, x);
++    kaed_capture(kd, 9, 0, S, D, x);
++    CHECK(kaed_write_line(kd, 3, 3) == 0,
++          "finite control line after the failures still writes (no sticky poison)");
++    kaed_free(kd);
++
++    printf("== Test I: output failure fails closed (/dev/full; Linux, ASM-2491) ==\n");
++    printf("  (the [KAE-DUMP] write/flush error messages below are EXPECTED test output)\n");
++    kd = kaed_arm(CSV, "/dev/full", D, NLAYERS);
++    CHECK(kd != NULL, "arm to /dev/full (fopen succeeds; failure surfaces at write/flush)");
++    if(kd){
++        int any_fail = 0;
++        if(kaed_write_header(kd, 1) != 0) any_fail = 1;
++        kaed_bind_line(kd, SPANS, S);
++        fill_x(x, 0, S);
++        kaed_capture(kd, 5, 0, S, D, x);
++        kaed_capture(kd, 2, 0, S, D, x);
++        kaed_capture(kd, 9, 0, S, D, x);
++        if(kaed_write_line(kd, 0, 3) != 0) any_fail = 1;
++        if(kaed_finish(kd) != 0) any_fail = 1;
++        CHECK(any_fail,
++              "ENOSPC output: some stage returns nonzero (kaed_finish at the latest)");
++        kaed_free(kd);
++    }
 +
 +    printf("\n%s (%d failure%s)\n", fails ? "TESTS FAILED" : "ALL TESTS PASSED",
 +           fails, fails == 1 ? "" : "s");

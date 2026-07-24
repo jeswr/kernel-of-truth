@@ -678,8 +678,28 @@ def run_dump(engine_cmd, layers, manifest_rows, token_rows, dump_dir, tag):
         off += 4
         if gc <= 0:
             fail("KAED line %d gated_count %d <= 0" % (i, gc))
+        # ---- r3 CONSUMER-side re-verification (gate-0 dump-patch
+        # re-review finding 4) — independent of the engine's own checks:
+        # (a) gc must equal THIS line's manifest span>=0 count (the same
+        #     quantity ASM-2488 enforces engine-side, re-derived here from
+        #     the token rows the harness itself wrote);
+        # (b) every sum cell must be FINITE — a NaN/Inf dump previously
+        #     surfaced only at carrier non-degeneracy, after further paid
+        #     batches/checkpoints had already run.
+        exp_gc = sum(1 for s in token_rows[i]["spans"] if s >= 0)
+        if gc != exp_gc:
+            fail("KAED line %d gated_count %d != the manifest's span>=0 "
+                 "count %d — consumer-side ASM-2488 re-check (finding 4); "
+                 "refusing the dump" % (i, gc, exp_gc))
         sums = struct.unpack_from("<%df" % stride, raw, off)
         off += 4 * stride
+        if not all(map(math.isfinite, sums)):
+            bad_j = next(j for j, s in enumerate(sums)
+                         if not math.isfinite(s))
+            fail("KAED line %d cell %d is NON-FINITE (%r) — contaminated "
+                 "dump refused BEFORE any mean-difference arithmetic "
+                 "(consumer-side finiteness check, finding 4)"
+                 % (i, bad_j, sums[bad_j]))
         per_line.append((gc, sums))
     if off != len(raw):
         fail("KAED trailing bytes in %s" % out)
@@ -1599,6 +1619,65 @@ def cmd_selftest(_args):
             ok = e.code == 2
         probe("engine echo ABSENT rejected", ok)
 
+        # ---- probes 4c/4d (r3, gate-0 dump-patch re-review finding 4):
+        # run_dump's CONSUMER-side KAED re-verification. Each wrapper runs
+        # the mock engine to completion (exit 0, valid echo, valid KAED)
+        # and THEN corrupts the dump bytes — (4c) one sum cell -> NaN,
+        # (4d) gated_count -> gc+1 (disagreeing with the manifest's
+        # span>=0 count). Both must be rejected harness-side even though
+        # the engine reported success.
+        corrupt_tmpl = (
+            "import os, runpy, struct, sys\n"
+            "sys.argv = [sys.argv[0]]\n"
+            "try:\n"
+            "    runpy.run_path(%r, run_name='__main__')\n"
+            "except SystemExit as e:\n"
+            "    if e.code not in (0, None):\n"
+            "        raise\n"
+            "out = os.environ['KAE_DUMP_OUT']\n"
+            "raw = bytearray(open(out, 'rb').read())\n"
+            "nl, = struct.unpack_from('<i', raw, 8)\n"
+            "%s\n"
+            "open(out, 'wb').write(bytes(raw))\n")
+        nan_eng = tmp / "nan_dump_engine.py"
+        nan_eng.write_text(corrupt_tmpl % (
+            str(HERE / "mock_colibri_dump.py"),
+            "struct.pack_into('<f', raw, 16 + 4 * nl + 4, float('nan'))"),
+            "utf-8")
+        try:
+            run_dump([sys.executable, str(nan_eng)], [3], one_row, toks,
+                     tmp / "dump4c", "probe4c")
+            ok = False
+        except SystemExit as e:
+            ok = e.code == 2
+        probe("KAED with a NaN sum cell REJECTED consumer-side "
+              "(finding 4)", ok)
+        badgc_eng = tmp / "badgc_dump_engine.py"
+        badgc_eng.write_text(corrupt_tmpl % (
+            str(HERE / "mock_colibri_dump.py"),
+            "gc, = struct.unpack_from('<i', raw, 16 + 4 * nl)\n"
+            "struct.pack_into('<i', raw, 16 + 4 * nl, gc + 1)"),
+            "utf-8")
+        try:
+            run_dump([sys.executable, str(badgc_eng)], [3], one_row, toks,
+                     tmp / "dump4d", "probe4d")
+            ok = False
+        except SystemExit as e:
+            ok = e.code == 2
+        probe("KAED gated_count != manifest span>=0 count REJECTED "
+              "consumer-side (finding 4 / ASM-2488 re-check)", ok)
+        # ---- probe 4e (r3 positive control — no over-rejection): an
+        # UNCORRUPTED mock dump passes the new consumer-side checks and
+        # returns the expected per-line shape.
+        pl, gD, _echo = run_dump(
+            [sys.executable, str(HERE / "mock_colibri_dump.py")], [3],
+            one_row, toks, tmp / "dump4e", "probe4e")
+        exp0 = sum(1 for s in toks[0]["spans"] if s >= 0)
+        probe("UNCORRUPTED dump ACCEPTED by the finding-4 consumer checks "
+              "(positive control: gc == span>=0 count, all sums finite)",
+              len(pl) == 1 and pl[0][0] == exp0 and gD == D_EXPECTED
+              and all(map(math.isfinite, pl[0][1])))
+
         # ---- probe 5 (re-review item 8): a REAL construct whose asserted
         # sha does NOT equal the artifact's derived digest is rejected —
         # 64-hex syntax alone is never accepted.
@@ -1862,7 +1941,8 @@ def cmd_selftest(_args):
               "exit %s" % code)
 
     print("SELFTEST: %d/%d probes PASS (carrier-HOLD fixes 1/2/3/5 + "
-          "re-review items 2/5/8 + round-10 content gaps 1/2/3)"
+          "re-review items 2/5/8 + round-10 content gaps 1/2/3 + r3 "
+          "dump-re-review finding-4 consumer-side KAED checks)"
           % (n_pass, n_pass))
     return 0
 

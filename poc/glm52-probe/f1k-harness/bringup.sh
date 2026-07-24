@@ -121,9 +121,15 @@ import re, sys
 allowed = set(sys.argv[1].split())
 
 def funcs(path):
+    # r3 port of the real-checks.sh parser (gate-0 dump-patch re-review
+    # finding 8.2): [\w.] also matches gcc clone symbols (moe.constprop.0,
+    # x.isra.0) so a clone label is never silently swallowed into the
+    # previous function's body — with the old <(\w+)> regex a clone
+    # following a changed function was mis-attributed and the comparison
+    # false-flagged (or worse, missed) neighbours.
     out, name = {}, None
     for line in open(path):
-        m = re.match(r'^[0-9a-f]+ <(\w+)>:$', line)
+        m = re.match(r'^[0-9a-f]+ <([\w.]+)>:$', line)
         if m:
             name = m.group(1); out[name] = []
             continue
@@ -142,7 +148,8 @@ diff = [f for f in shared if a[f] != b[f]]
 extra = sorted(set(b) - set(a))     # patch-added (run_kae_score, kae_*): OK
 print("shared functions: %d; differing: %s; patch-added: %s"
       % (len(shared), diff or "none", extra or "none"))
-bad = [f for f in diff if f not in allowed]
+base = lambda f: f.split('.')[0]    # moe.constprop.0 counts as moe (r3, finding 8.2)
+bad = [f for f in diff if base(f) not in allowed]
 if bad:
     print("ERR_F1K_BRINGUP: functions differ OUTSIDE the allowed set %s: %s"
           % (sorted(allowed), bad), file=sys.stderr)

@@ -40,15 +40,27 @@
  *     [0, n_layers), no duplicates; output file must open.
  *   - per line: zero gated positions is an ERROR (contract: the generator
  *     never emits one); ANY malformed line (garbage line, bad T/token/span,
- *     trailing junk after the required 2T+1 ints) ABORTS (construction
- *     integrity over availability, ASM-2489 — unlike KAE_SCORE's per-item
- *     skip, a silently dropped construction pass would corrupt §2.4 means).
+ *     an integer that overflows long (ERANGE) or is not exactly
+ *     representable as int, trailing junk after the required 2T+1 ints)
+ *     ABORTS (construction integrity over availability, ASM-2489 — unlike
+ *     KAE_SCORE's per-item skip, a silently dropped construction pass would
+ *     corrupt §2.4 means). r3 (gate-0 re-review finding 3): manifest
+ *     integers are parsed ONLY via kaed_parse_int below — the r2 long->int
+ *     cast let a span like 2147483648 wrap negative and become a silently
+ *     UNGATED position with exit 0.
  *   - per line, per slot: the number of gated rows actually accumulated
  *     must equal the manifest's gated count (ASM-2488). This catches a
  *     requested layer that never reaches moe() (dense layer, layer never
  *     executed), a chunked prefill visiting a position twice, and a
  *     hidden-dim mismatch — each of which would otherwise corrupt sums
  *     silently.
+ *   - per line, per cell (r3, gate-0 re-review finding 4): every f64
+ *     accumulator must be FINITE, and its f32 cast must be FINITE, at
+ *     write time — a NaN/Inf hidden state (or an f64 sum that overflows
+ *     f32) previously reached the KAED bytes with exit 0 and would have
+ *     surfaced only at carrier non-degeneracy, after more paid batches.
+ *     The immediate consumer (build_carriers.py run_dump) re-checks both
+ *     finiteness and gated_count independently.
  *
  * KAED format (little-endian, same x86-64 assumption as kae.h's KAEC,
  * ASM-2491):
@@ -61,6 +73,8 @@
 #include <string.h>
 #include <stdint.h>
 #include <limits.h>
+#include <errno.h>
+#include <math.h>
 #include "kae.h"
 
 typedef struct KaEDump {
@@ -79,6 +93,25 @@ typedef struct KaEDump {
 static inline int kaed_slot_of_layer(const KaEDump *kd, int layer){
     for(int i = 0; i < kd->nl; i++) if(kd->layer[i] == layer) return i;
     return -1;
+}
+
+/* r3 (gate-0 re-review finding 3) — STRICT manifest integer parse.
+ * Reads one whitespace-led base-10 integer at *pp and requires ALL of:
+ * digits present (e != p), no strtol overflow (errno != ERANGE), and
+ * lo <= v <= hi. Callers pass hi <= INT_MAX-1, so a 0-return guarantees
+ * the (int) cast of *out is EXACT — the r2 code cast long->int unchecked,
+ * so 2147483648 wrapped negative and kae_bind_spans normalised it to -1:
+ * a malformed span became a silently UNGATED position on a line that then
+ * SUCCEEDED (contradicting ASM-2489). 0 on success (*pp advanced, *out
+ * set); -1 on ANY malformed/overflowing/out-of-range integer — the caller
+ * MUST abort the line (nonzero process exit, never skip). */
+static inline int kaed_parse_int(char **pp, long lo, long hi, long *out){
+    char *e;
+    errno = 0;
+    long v = strtol(*pp, &e, 10);
+    if(e == *pp || errno == ERANGE || v < lo || v > hi) return -1;
+    *pp = e; *out = v;
+    return 0;
 }
 
 /* Arm the dump: parse KAE_DUMP_LAYERS (csv), validate against the model
@@ -108,6 +141,11 @@ static inline KaEDump *kaed_arm(const char *layers_csv, const char *out_path,
     if(!kd->layer){ fprintf(stderr, "[KAE-DUMP] alloc layer list failed\n"); free(kd); return NULL; }
     const char *p = layers_csv;
     while(*p){
+        /* overflow-closed WITHOUT kaed_parse_int: ERANGE clamps to
+         * LONG_MIN/LONG_MAX, and n_layers < INT_MAX, so the [0, n_layers)
+         * range check below already rejects every overflowing value —
+         * unlike the manifest span parse (finding 3), no wrapped value can
+         * pass it. */
         char *e; long v = strtol(p, &e, 10);
         if(e == p || v < 0 || v >= n_layers){
             fprintf(stderr, "[KAE-DUMP] bad dump layer id in '%s' (want ints in [0,%d))\n",
@@ -193,8 +231,11 @@ static inline int kaed_write_header(KaEDump *kd, int n_lines){
 }
 
 /* Close out the line: enforce the ASM-2488 per-slot invariant (every dump
- * slot accumulated EXACTLY gated_expected rows), then emit
- * i32 gated_count | f32 sum[nl*D]. 0 on success; nonzero must abort the run. */
+ * slot accumulated EXACTLY gated_expected rows) and the r3 finiteness
+ * invariant (gate-0 re-review finding 4: every f64 accumulator AND its f32
+ * cast must be finite — NaN/Inf previously reached the KAED bytes with
+ * exit 0), then emit i32 gated_count | f32 sum[nl*D]. 0 on success;
+ * nonzero must abort the run. */
 static inline int kaed_write_line(KaEDump *kd, int line_no, long gated_expected){
     if(kd->err){
         fprintf(stderr, "[KAE-DUMP] line %d: capture error (see above) -> abort\n", line_no);
@@ -206,7 +247,21 @@ static inline int kaed_write_line(KaEDump *kd, int line_no, long gated_expected)
                 line_no, kd->layer[i], kd->cnt[i], gated_expected);
         return -1; }
     size_t cells = (size_t)kd->nl * (size_t)kd->D;
-    for(size_t z = 0; z < cells; z++) kd->tmpf[z] = (float)kd->acc[z];
+    for(size_t z = 0; z < cells; z++){
+        if(!isfinite(kd->acc[z])){
+            fprintf(stderr, "[KAE-DUMP] line %d: NON-FINITE f64 sum at layer %d "
+                    "dim %d -> abort (finding-4 fail-closed: a NaN/Inf dump "
+                    "would corrupt every carrier downstream)\n",
+                    line_no, kd->layer[z / (size_t)kd->D], (int)(z % (size_t)kd->D));
+            return -1; }
+        kd->tmpf[z] = (float)kd->acc[z];
+        if(!isfinite(kd->tmpf[z])){
+            fprintf(stderr, "[KAE-DUMP] line %d: f64 sum %g OVERFLOWS f32 at "
+                    "layer %d dim %d -> abort (finding-4 fail-closed)\n",
+                    line_no, kd->acc[z], kd->layer[z / (size_t)kd->D],
+                    (int)(z % (size_t)kd->D));
+            return -1; }
+    }
     int32_t gc = (int32_t)gated_expected;
     if(fwrite(&gc, 4, 1, kd->out) != 1 ||
        fwrite(kd->tmpf, sizeof(float), cells, kd->out) != cells){

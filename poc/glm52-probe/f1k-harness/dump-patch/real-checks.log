@@ -12,14 +12,14 @@ dump patch applied; reference copies byte-identical to the patch payload
 make: Circular glm <- glm dependency dropped.
 engine built: /tmp/kot-dump-realcheck/c/glm
 
-== 5/6 unit suites: KaE regression (44) + dump (43) ==
+== 5/6 unit suites: KaE regression (44) + dump (64) ==
 test_kae: 44/44 (unchanged by the dump patch)
-test_kae_dump: 43/43
+test_kae_dump: 64/64
 
 == 6/6 inert-by-default machine-level equivalence (KAE_DUMP unset) ==
-shared functions: 79; differing: ['main', 'moe']; new symbols: ['kae_load', 'kaed_arm', 'run_score']; removed: none
+shared functions: 79; differing: ['main', 'moe']; new symbols: ['kae_load', 'kaed_arm', 'run_kae_score']; removed: none
 inert-by-default: every shared function outside ['main', 'moe'] is byte-identical
 
 REAL-SOURCE CHECKS OK: dump patch applies on KaE tree, builds,
-test_kae 44/44 + test_kae_dump 43/43, inertness proven at object level.
+test_kae 44/44 + test_kae_dump 64/64, inertness proven at object level.
 ($0 SCOPE: no model/weights — the same battery re-runs on Modal at bring-up.)
