@@ -1,0 +1,21 @@
+diff --git a/docs/api.md b/docs/api.md
+index 2b92bb6..52c7b60 100644
+--- a/docs/api.md
++++ b/docs/api.md
+@@ -30,10 +30,12 @@ completion requests support JSON responses, SSE streaming, usage counts,
+ 
+ The server is deliberately text-only and serves one generation at a time: the
+ 744B model stays in one persistent process, so concurrent HTTP requests queue
+-instead of loading duplicate model copies. Tools, image/audio input, custom
+-stop sequences, log probabilities, and token penalties return an explicit error
+-rather than being silently ignored. The default bind address is localhost; set
+-`COLI_API_KEY` before exposing the server beyond the machine.
++instead of loading duplicate model copies. Tool-calling **is** supported on this
++path — pass OpenAI `tools` and (optionally) `tool_choice`, mirroring the
++Anthropic endpoint below. Image/audio input, custom stop sequences, log
++probabilities, and token penalties return an explicit error rather than being
++silently ignored. The default bind address is localhost; set `COLI_API_KEY`
++before exposing the server beyond the machine.
+ 
+ Browser access from the Vite development server and Tauri local origins is
+ enabled by default. Repeat `--cors-origin https://your-ui.example` to allow
