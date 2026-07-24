@@ -62,8 +62,23 @@ def run_replication(t: ParamVector, ss, want_selection=False,
     # Families A (UCT/consumer) and B (composite/reviewer) use the exact 6-component
     # REML (reml_composite); the pooled-ANOVA closed form is retired (SPEC-DEFECTS
     # B2 + the family-A finding).  Families C/D unchanged.
-    uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)
-    comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)
+    # A FitFailure (rare non-PD event surviving the reml_composite penalty
+    # guard + the S4.2 pinned second-start retry) aborts the REPLICATION with
+    # the family tagged: the driver counts it per cell (S4.2 ceiling 0.1%) and
+    # scores the rep conservatively (FWER event / power miss).  No component
+    # of a failed replication is ever rejected.
+    uct_anova = reml_composite.get_uct(t)
+    try:
+        uct_anova.fit(Yuct)
+    except reml_composite.FitFailure as e:
+        e.family = 'uct'
+        raise
+    comp_anova = reml_composite.get_comp(t)
+    try:
+        comp_anova.fit(Ycomp)
+    except reml_composite.FitFailure as e:
+        e.family = 'comp'
+        raise
     # UCT contrasts: Delta^UCT_c (c vs T) and Delta^SH_a natural (a vs S(a))
     uct_fit = {c: uct_anova.contrast(_UCT_IDX[c], _UCT_IDX['T']) for c in pins.CANDIDATES}
     shnat_fit = {a: uct_anova.contrast(_UCT_IDX[a], _UCT_IDX['S(%s)' % a])

@@ -36,6 +36,31 @@ from scipy.linalg import cho_factor, cho_solve
 import pins
 from inference import ContrastFit
 
+# Finite penalty returned by fit()'s objective when the deviance is not
+# computable (non-PD cho_factor at an EXTREME phi probe, e.g. a line-search
+# step to s2_blk ~ 1e16 where cond(XtVinvX) exceeds 1/eps — the grid-run-v2
+# measured failure).  Must exceed every real CONVERGED deviance (grid minima
+# are O(1e4); L-BFGS-B's returned fun never exceeds its start value, which is
+# the computable moment/equal-split start) while staying FINITE so the
+# finite-difference gradient stays representable.  The guard fires ONLY where
+# the old code raised: every computable phi returns the unchanged deviance,
+# so non-guarded fits are bit-identical (S4.2 fixture-equivalence preserved).
+PENALTY_DEV = 1e12
+
+
+class FitFailure(RuntimeError):
+    """A replication's exact-REML fit could not be completed even after the
+    S4.2 pinned retry from the second start (fit() applies it internally).
+    Carries .stage ('optimize' | 'hessian'); pipeline tags .family
+    ('uct' | 'comp').  The driver counts these per cell against the S4.2
+    registered ceiling (0.1%) and scores the replication CONSERVATIVELY
+    (FWER: counted as an error event; power: counted as a miss)."""
+
+    def __init__(self, msg, stage):
+        super().__init__(msg)
+        self.stage = stage
+        self.family = None
+
 
 class CompositeREML:
     """Per-cell precomputed exact-REML fitter for a family whose registered model
@@ -312,25 +337,51 @@ class CompositeREML:
 
         def obj(x):
             phi = np.maximum(x, floor)
-            dev, _, _ = self.deviance_fast(phi, data)
+            # NUMERICAL-ROBUSTNESS GUARD (grid-run-v2 fit-failure fix): on the
+            # rare non-PD probe the old code raised LinAlgError out of the rep
+            # loop; return a large FINITE penalty instead so L-BFGS-B
+            # backtracks away.  The deviance is UNCHANGED at every phi where
+            # it is computable — the guard activates ONLY where the old code
+            # crashed, so all other fits are bit-identical.
+            try:
+                dev, _, _ = self.deviance_fast(phi, data)
+            except np.linalg.LinAlgError:
+                return PENALTY_DEV
             return dev
 
         # R10a: profiled REML over nonneg variances; start-1 moments, tight tol.
         res = minimize(obj, x0, method="L-BFGS-B",
                        bounds=[(0.0, None)] * 6,
                        options={"ftol": 1e-15, "gtol": 1e-10, "maxiter": 500})
-        phi = np.maximum(res.x, floor)
-        # second start (equal split) if not converged well
-        if not res.success:
+        best = res
+        # second start (equal split) if not converged well — or if start-1
+        # terminated ON the penalty wall / non-finite (only possible when the
+        # guard fired): the S4.2 pinned retry-once-from-second-start rule.
+        if (not res.success) or (not np.isfinite(res.fun)) or (res.fun >= PENALTY_DEV):
             tot = float(np.var(Ycomp))
             x1 = np.array([tot / 6] * 6)
             res2 = minimize(obj, x1, method="L-BFGS-B", bounds=[(0.0, None)] * 6,
                             options={"ftol": 1e-15, "gtol": 1e-10, "maxiter": 500})
             if res2.fun < res.fun:
-                phi = np.maximum(res2.x, floor)
+                best = res2
+        if (not np.isfinite(best.fun)) or (best.fun >= PENALTY_DEV):
+            # Both pinned starts ended inside the non-PD penalty region: no
+            # computable REML solution found.  Counted fit-failure (S4.2
+            # pinned handling — driver counts + scores conservatively).
+            raise FitFailure("both pinned starts terminated in the non-PD "
+                             "penalty region (no computable REML solution)",
+                             stage="optimize")
+        phi = np.maximum(best.x, floor)
         # observed information = Hessian of the REML deviance at phi (central diff)
-        H = self._hessian(phi, data)
-        Hinv = np.linalg.inv(H)
+        try:
+            H = self._hessian(phi, data)
+            Hinv = np.linalg.inv(H)
+        except np.linalg.LinAlgError as e:
+            # A Richardson-ladder probe (or a singular H) hit the non-PD
+            # region AT the fitted phi: nu-hat would be corrupted if patched,
+            # so it is never fabricated — counted fit-failure instead.
+            raise FitFailure("Hessian/information evaluation failed at the "
+                             "fitted phi (%s)" % e, stage="hessian")
         self._last = dict(phi=phi, Hinv=Hinv, data=data, Ybar=data[0], converged=res.success)
         return self
 
