@@ -1,0 +1,49 @@
+
+[reml_composite guard + fail-closed]
+  deviance_fast surface unchanged (still raises)             PASS
+  normal fit completes                                       PASS
+  reachable-wall fit bit-identical (phi+Hinv)                PASS
+  total non-PD -> FitFailure(optimize)                       PASS
+  extreme computable phi has finite real deviance (domain-OK) PASS
+  non-finite H -> FitFailure(hessian)                        PASS
+  all-NaN Hinv (inv w/o raise) -> FitFailure(hessian)        PASS
+  non-finite nu -> FitFailure(hessian)                       PASS
+  pipeline tags FitFailure.family=comp                       PASS
+
+[driver accounting: governance-7 + P4 conditional]
+  clean: fit_failures==0                                     PASS
+  clean: fwer_events==observed gate (no failures added)      PASS
+  clean: ceiling PASS                                        PASS
+  gov7: fwer_events == OBSERVED (registered gate, NOT +failures) PASS
+  gov7: fwer_cp_upper95 computed on OBSERVED count           PASS
+  gov7: worst-case sensitivity == observed + failures        PASS
+  gov7: worst-case CP-upper on worst-case count              PASS
+  gov7: observed gate CP-upper <= worst-case CP-upper (dominance) PASS
+  counts: fit_failures==2, detail tagged                     PASS
+  ceiling: 2/30 > 1e-3 -> FAIL flag                          PASS
+  determinism: identical re-run (ex-timing)                  PASS
+  P4 clean: n_cond == observed conH (0 failures)             PASS
+  P4 item5: worst-case denom == conH_observed + fit_failures PASS
+  P4 item5: observed numerator retained                      PASS
+  P4 item5: rate == numerator / worst-case denom (deflated)  PASS
+  P4 unconditional CVAL_DEFNSUP rate <= clean (denom R, conservative) PASS
+  P4 unconditional CVAL_CONSUPH_GRAPH rate <= clean (denom R, conservative) PASS
+  P4 unconditional CDEFSUP rate <= clean (denom R, conservative) PASS
+  P4 unconditional CCONSUP_A1 rate <= clean (denom R, conservative) PASS
+
+[verdict run-validity]
+  verdict: all-114 clean -> run_valid True                   PASS
+  verdict: an ERROR cell -> run_valid False                  PASS
+  verdict: missing cell -> run_valid False                   PASS
+  verdict: ceiling breach -> run_valid False                 PASS
+  verdict: ceiling breach recorded                           PASS
+  verdict: missing fit-failure fields -> run_valid False     PASS
+
+[runner resume + migration logic (mirror)]
+  resume: OK cells done                                      PASS
+  resume: ERROR cell RE-RUN (not done)                       PASS
+  migrate: back-fills fields = 0 with provenance             PASS
+  migrate: idempotent (skips already-migrated)               PASS
+  migrate: never touches ERROR cells                         PASS
+
+==== Rev2 SUITE: ALL PASS (39/39) ====

@@ -36,15 +36,16 @@ from scipy.linalg import cho_factor, cho_solve
 import pins
 from inference import ContrastFit
 
-# Finite penalty returned by fit()'s objective when the deviance is not
-# computable (non-PD cho_factor at an EXTREME phi probe, e.g. a line-search
-# step to s2_blk ~ 1e16 where cond(XtVinvX) exceeds 1/eps — the grid-run-v2
-# measured failure).  Must exceed every real CONVERGED deviance (grid minima
-# are O(1e4); L-BFGS-B's returned fun never exceeds its start value, which is
-# the computable moment/equal-split start) while staying FINITE so the
-# finite-difference gradient stays representable.  The guard fires ONLY where
-# the old code raised: every computable phi returns the unchanged deviance,
-# so non-guarded fits are bit-identical (S4.2 fixture-equivalence preserved).
+# Finite steering penalty returned by fit()'s objective ONLY when the deviance
+# is NONCOMPUTABLE (a Cholesky in deviance_fast raises LinAlgError at an extreme
+# phi probe, e.g. a line-search step to s2_blk ~ 1e16 where cond(XtVinvX)
+# exceeds 1/eps — the grid-run-v2 measured failure).  It is large enough to push
+# L-BFGS-B back from the operating region (grid minima O(1e4)) toward the true
+# minimum, and FINITE so the finite-difference gradient stays representable.
+# It is a STEERING wall ONLY: the returned phi is re-validated by _domain_ok, so
+# a fit's acceptance NEVER depends on comparing an objective value against this
+# magnitude (Rev2 — GPT-5.6 review item 2: magnitude is not a classifier; a real
+# but extreme computable phi can carry a genuine deviance far above this value).
 PENALTY_DEV = 1e12
 
 
@@ -329,6 +330,19 @@ class CompositeREML:
         s2w = max(0.5 * s2e, 1e-4)                         # generic reviewer start
         return np.array([s2b, s2ab, s2v, s2av, s2w, s2e])
 
+    def _domain_ok(self, phi, data):
+        """True iff deviance_fast is COMPUTABLE at phi (every factorization
+        succeeds).  This DIRECT domain test is what qualifies a returned
+        estimate — the objective's numeric MAGNITUDE is NEVER used to infer
+        'penalized' (a real but extreme computable phi can have a genuine
+        deviance far above the steering-penalty value; magnitude is not a
+        classifier).  Rev2 fix for GPT-5.6 review item 2."""
+        try:
+            self.deviance_fast(np.maximum(phi, 0.0), data)
+            return True
+        except np.linalg.LinAlgError:
+            return False
+
     def fit(self, Ycomp, tol_dev=1e-12, tol_par=1e-9):
         data = self._prep(Ycomp)
         x0 = self._moment_start(Ycomp)
@@ -337,52 +351,109 @@ class CompositeREML:
 
         def obj(x):
             phi = np.maximum(x, floor)
-            # NUMERICAL-ROBUSTNESS GUARD (grid-run-v2 fit-failure fix): on the
-            # rare non-PD probe the old code raised LinAlgError out of the rep
-            # loop; return a large FINITE penalty instead so L-BFGS-B
-            # backtracks away.  The deviance is UNCHANGED at every phi where
-            # it is computable — the guard activates ONLY where the old code
-            # crashed, so all other fits are bit-identical.
+            # NONCOMPUTABLE-FACTORIZATION POLICY (grid-run-v2 fit-failure fix):
+            # deviance_fast can raise LinAlgError from ANY of its Choleskys
+            # (the Woodbury cap, cho_factor(XtVinvX), or either logdet
+            # factorization) at an extreme phi the optimizer probes.  Return a
+            # large FINITE penalty (finite so the finite-difference gradient
+            # stays representable) purely to STEER L-BFGS-B away.  The penalty
+            # NEVER supplies a returned estimate — the returned phi is
+            # re-validated by _domain_ok below — so PENALTY_DEV's magnitude
+            # carries no acceptance meaning (Rev2: no magnitude-threshold
+            # classification anywhere).  The deviance is UNCHANGED at every
+            # computable phi, so a fit whose path never triggers the guard is
+            # bit-identical (S4.2 fixture-equivalence preserved).
             try:
                 dev, _, _ = self.deviance_fast(phi, data)
             except np.linalg.LinAlgError:
                 return PENALTY_DEV
             return dev
 
-        # R10a: profiled REML over nonneg variances; start-1 moments, tight tol.
-        res = minimize(obj, x0, method="L-BFGS-B",
-                       bounds=[(0.0, None)] * 6,
-                       options={"ftol": 1e-15, "gtol": 1e-10, "maxiter": 500})
-        best = res
-        # second start (equal split) if not converged well — or if start-1
-        # terminated ON the penalty wall / non-finite (only possible when the
-        # guard fired): the S4.2 pinned retry-once-from-second-start rule.
-        if (not res.success) or (not np.isfinite(res.fun)) or (res.fun >= PENALTY_DEV):
+        _OPTS = {"ftol": 1e-15, "gtol": 1e-10, "maxiter": 500}
+
+        def _admissible(res):
+            """A candidate is ADMISSIBLE iff its returned phi is COMPUTABLE
+            (deviance_fast does not raise) AND its objective is finite.  This
+            is the fail-closed qualifier that fixes the GPT-5.6 review item-1
+            escapes (a penalty-region / non-computable / non-finite point can
+            NEVER be returned as an estimate).
+
+            [STIPULATED — measurement-grounded, deviates from the review's
+            literal 'require res.success']: the raw optimizer success flag is
+            NOT the admissibility test.  [MEASURED] on the fixture cell (F1
+            config-0), the reps whose FIRST start reports success=False all
+            terminate with 'ABNORMAL_TERMINATION_IN_LNSRCH' AT the true
+            optimum (res1.fun == res2.fun to ~1e-10, res1.x == res2.x to
+            >4 dp, computable, interior) — a benign line-search stall, NOT a
+            fail-open escape; and the deviance-lowest point is res1 itself.
+            Requiring success would (a) break bit-identity on those reps
+            (perturbing SE by up to ~3.5e-6 against the ~3.4e-6 family-A
+            fixture margin, 1e-5 tol) for no statistical gain, and (b) risk
+            DISCARDING valid boundary optima (which the R10a pin (iv)
+            explicitly retains) whenever the projected-gradient test fails to
+            certify a boundary solution.  Qualifying by computability instead
+            is fail-closed on the REAL defect while preserving the registered
+            'lowest REML deviance' selection bit-for-bit on every valid fit."""
+            return np.isfinite(res.fun) and self._domain_ok(res.x, data)
+
+        # R10a: profiled REML over nonneg variances; start-1 = clipped moments.
+        res1 = minimize(obj, x0, method="L-BFGS-B",
+                        bounds=[(0.0, None)] * 6, options=_OPTS)
+        candidates = [res1]
+        # S4.2 pinned retry rule: run the equal-split second start whenever the
+        # first start is not success-certified OR is non-admissible (penalty /
+        # non-computable / non-finite).  This is a SUPERSET of the registered
+        # 'retry iff not res.success' trigger, so a valid first start (success
+        # AND admissible) never triggers a retry and its selection is
+        # bit-identical; a first start that fell in the guard region always
+        # gets the pinned second start before any FitFailure.
+        if (not res1.success) or (not _admissible(res1)):
             tot = float(np.var(Ycomp))
-            x1 = np.array([tot / 6] * 6)
-            res2 = minimize(obj, x1, method="L-BFGS-B", bounds=[(0.0, None)] * 6,
-                            options={"ftol": 1e-15, "gtol": 1e-10, "maxiter": 500})
-            if res2.fun < res.fun:
-                best = res2
-        if (not np.isfinite(best.fun)) or (best.fun >= PENALTY_DEV):
-            # Both pinned starts ended inside the non-PD penalty region: no
-            # computable REML solution found.  Counted fit-failure (S4.2
-            # pinned handling — driver counts + scores conservatively).
-            raise FitFailure("both pinned starts terminated in the non-PD "
-                             "penalty region (no computable REML solution)",
+            x1 = np.array([tot / 6] * 6)          # pinned equal-split second start
+            candidates.append(minimize(obj, x1, method="L-BFGS-B",
+                                       bounds=[(0.0, None)] * 6, options=_OPTS))
+        admissible = [rc for rc in candidates if _admissible(rc)]
+        if not admissible:
+            # Neither pinned start produced a COMPUTABLE, finite REML solution
+            # (both landed in the non-PD guard region): the registered retry
+            # rule is exhausted -> counted fit-failure (driver counts it per
+            # cell + scores conservatively).
+            raise FitFailure("no pinned start produced a computable, finite "
+                             "REML solution (retry rule exhausted)",
                              stage="optimize")
+        # REGISTERED selection: lowest REML deviance among admissible
+        # candidates — identical to the frozen rule restricted to the
+        # computable domain, so bit-identical on every valid fit.
+        best = min(admissible, key=lambda rc: rc.fun)
         phi = np.maximum(best.x, floor)
-        # observed information = Hessian of the REML deviance at phi (central diff)
+
+        # observed information = Hessian of the REML deviance at phi; FULLY
+        # FAIL-CLOSED (Rev2 fix for review item 3): a raised LinAlgError, a
+        # non-finite Hessian, a non-finite information inverse (np.linalg.inv
+        # can return an all-NaN matrix WITHOUT raising), or a non-finite
+        # Satterthwaite df each raises FitFailure — nu-hat is NEVER fabricated
+        # and contrast() never silently falls back to N-p df.
         try:
             H = self._hessian(phi, data)
+        except np.linalg.LinAlgError as e:
+            raise FitFailure("Hessian evaluation raised at the fitted phi "
+                             "(%s)" % e, stage="hessian")
+        if not np.all(np.isfinite(H)):
+            raise FitFailure("non-finite Hessian at the fitted phi",
+                             stage="hessian")
+        try:
             Hinv = np.linalg.inv(H)
         except np.linalg.LinAlgError as e:
-            # A Richardson-ladder probe (or a singular H) hit the non-PD
-            # region AT the fitted phi: nu-hat would be corrupted if patched,
-            # so it is never fabricated — counted fit-failure instead.
-            raise FitFailure("Hessian/information evaluation failed at the "
-                             "fitted phi (%s)" % e, stage="hessian")
-        self._last = dict(phi=phi, Hinv=Hinv, data=data, Ybar=data[0], converged=res.success)
+            raise FitFailure("information inverse raised at the fitted phi "
+                             "(%s)" % e, stage="hessian")
+        if not np.all(np.isfinite(Hinv)):
+            raise FitFailure("non-finite information inverse (Hinv) at the "
+                             "fitted phi", stage="hessian")
+        if not np.all(np.isfinite(self._nu_monitor(phi, Hinv))):
+            raise FitFailure("non-finite Satterthwaite df at the fitted phi",
+                             stage="hessian")
+        self._last = dict(phi=phi, Hinv=Hinv, data=data, Ybar=data[0],
+                          converged=bool(best.success))
         return self
 
     def _hessian_at(self, phi, data, h):

@@ -114,13 +114,25 @@ def _batch_impl(specs, n_workers, R_override):
     import multiprocessing as mp
     os.makedirs(CELLDIR, exist_ok=True)
     VOL.reload()
+    # RESUME (Rev2 fix for GPT-5.6 review item 6b): only a SUCCESSFUL result
+    # counts as "done".  A cell file carrying an "ERROR" record (the 100
+    # fit-failure cells from the pre-Rev2 run) is UNEVALUABLE and MUST be
+    # re-run under the hardened estimator -> it is NOT added to `done`.
     done = set()
     for f in os.listdir(CELLDIR):
-        if f.startswith("cell_") and f.endswith(".json"):
-            try:
-                done.add(int(f[5:8]))
-            except ValueError:
-                pass
+        if not (f.startswith("cell_") and f.endswith(".json")):
+            continue
+        p = os.path.join(CELLDIR, f)
+        try:
+            rec = json.load(open(p))
+        except Exception:
+            continue
+        if "ERROR" in rec:
+            continue                        # re-run ERROR cells
+        try:
+            done.add(int(rec.get("config_index", int(f[5:8]))))
+        except (ValueError, TypeError):
+            pass
     todo = [(tuple(s), R_override) for s in specs if s[0] not in done]
     ran = []
     if todo:
@@ -216,6 +228,53 @@ def repro_frozen(labels: str = "", R: int = 8000, pin_threads: int = 1):
     return out
 
 
+_MIGRATION_PROV = (
+    "Rev2 legacy back-fill: this cell was banked as a SUCCESSFUL result under "
+    "the pre-Rev2 estimator, which RAISED LinAlgError (durable ERROR record) on "
+    "ANY non-PD probe.  A completed OK cell therefore had ZERO fit-failures BY "
+    "CONSTRUCTION; the fit-failure fields are back-filled = 0, not re-measured.")
+
+
+@app.function(volumes={"/vol": VOL})
+def migrate_legacy():
+    """BLOCKING-6c: back-fill the new fit-failure fields (= 0) on the banked
+    SUCCESSFUL cells that predate Rev2, with explicit provenance.  Idempotent:
+    skips cells already migrated or already carrying the fields; never touches
+    ERROR cells (those are re-run, not migrated).  Commits durably."""
+    import os
+    import json
+    VOL.reload()
+    migrated, skipped = [], []
+    for f in sorted(os.listdir(CELLDIR)):
+        if not (f.startswith("cell_") and f.endswith(".json")):
+            continue
+        p = os.path.join(CELLDIR, f)
+        rec = json.load(open(p))
+        if "ERROR" in rec:
+            skipped.append((rec.get("config_index"), "error-cell"))
+            continue
+        if rec.get("_fitfailure_migration") or "fit_failure_rate" in rec:
+            skipped.append((rec.get("config_index"), "already-migrated"))
+            continue
+        rec["fit_failures"] = 0
+        rec["fit_failure_rate"] = 0.0
+        rec["fit_failure_ceiling"] = 0.001
+        rec["fit_failure_ceiling_pass"] = True
+        rec["fit_failure_detail"] = []
+        # FWER cells: worst-case sensitivity == observed (zero failures).
+        if "fwer_events" in rec:
+            rec["fwer_events_worstcase"] = rec["fwer_events"]
+            rec["fwer_hat_worstcase"] = rec.get("fwer_hat")
+            rec["fwer_cp_upper95_worstcase"] = rec.get("fwer_cp_upper95")
+        rec["_fitfailure_migration"] = _MIGRATION_PROV
+        with open(p, "w") as fh:
+            json.dump(rec, fh, default=str)
+        migrated.append(rec.get("config_index"))
+    VOL.commit()
+    return {"migrated": sorted(x for x in migrated if x is not None),
+            "skipped": skipped}
+
+
 @app.function(volumes={"/vol": VOL})
 def clear_vol():
     """Wipe the Volume cells dir (for a clean tiny-validation reset)."""
@@ -240,6 +299,11 @@ def main(mode: str = "tinyvalidate", repro_r: int = 3000):
     by = {c[2]: c for c in cells}  # label -> first spec
     if mode == "repro":
         print(json.dumps(repro_frozen.remote("", repro_r), indent=2, default=str))
+        return
+    if mode == "migrate":
+        # BLOCKING-6c: back-fill fit-failure fields on the banked OK cells
+        # BEFORE the resume re-run (idempotent).  Run once on the durable Volume.
+        print(json.dumps(migrate_legacy.remote(), indent=2, default=str))
         return
     if mode == "tinyvalidate":
         tiny = [list(by["F3"]), list(by["P3"])]  # one FWER + one power cell
@@ -268,8 +332,14 @@ def main(mode: str = "tinyvalidate", repro_r: int = 3000):
             per = 0.131 if (n_nat, n_nonce) == (96, 160) else 0.094
             return R * per
         specs = [list(c) for c in sorted(cells, key=_est)]
+        # Rev2: back-fill fit-failure fields on the banked OK cells first
+        # (idempotent), THEN resume — the resume re-runs the 100 ERROR cells
+        # under the hardened estimator and skips the 14 migrated OK cells.
+        print("[v2-full] migrating legacy OK cells ...", flush=True)
+        print("[v2-full] migrate_legacy:", json.dumps(migrate_legacy.remote(), default=str), flush=True)
         print(f"[v2-full] launching {len(specs)} cells (SHORTEST-first) on ONE "
-              f"cpu=32 container (durable Volume kot-99a-grid-vol, resumable) ...",
+              f"cpu=32 container (durable Volume kot-99a-grid-vol, resumable; "
+              f"ERROR cells re-run, OK cells skipped) ...",
               flush=True)
         try:
             summary = run_grid_batch.remote(specs, 30, 0)

@@ -3,13 +3,22 @@
 Pure function of the frozen S6/S7 criteria + the raw grid results.  NO science,
 NO interpretation: it only applies the pre-declared thresholds.
 
-S6 FWER  : PASS iff CP-upper95(fwer_events, R) <= tau_FWER = 0.055 (every cell).
+S6 FWER  : PASS iff CP-upper95(fwer_events, R) <= tau_FWER = 0.055 (every cell),
+           where fwer_events is the REGISTERED realised OBSERVED count (S4.2/S9:
+           the numerical guard does NOT change this statistic; the worst-case
+           failures-as-events count is reported as a NON-GATING sensitivity).
            F10 also: whole-branch termination CP-upper95 <= tau_term0 = 0.055.
 S7 power : floored cells PASS iff CP-lower95(path) >= 0.90 at the ESCALATED
            sample-size level (base reported alongside).  P6: termination
            CP-upper95 <= tau_term = 0.025.  (Whether the design MEETS the floors
            is a SCIENTIFIC question for the design owner — reported, not concluded.)
 gate-cal : per (arm, gamma) CP-upper95 <= 1.25*gamma; SD-ratio (mechanism) >= 1.
+
+RUN-VALIDITY (separate from S6/S7 acceptance — Rev2): the run is INVALID (its
+S6/S7 verdicts are NOT an acceptance) unless ALL of: every expected cell is
+present as a SUCCESSFUL result (no ERROR cells, no missing indices), every
+fwer/power cell carries the fit-failure fields, and every cell's per-cell
+fit-failure rate <= the S4.2 ceiling 0.1%.
 """
 import sys
 import os
@@ -22,6 +31,8 @@ TAU_FWER = 0.055
 TAU_TERM0 = 0.055
 TAU_TERM = 0.025
 POWER_FLOOR = 0.90
+FIT_FAILURE_CEILING = 0.001            # S4.2 per-cell run-validity ceiling
+N_EXPECTED_CELLS = 114                 # full 99a grid (S8 config table)
 
 # floored power estimands (S7); the driver path key that carries each
 FLOORED = {"P1": "CVAL_DEFNSUP", "P3": "CVAL_CONSUPH_GRAPH", "P4": "CFMTH_given_conH"}
@@ -37,19 +48,40 @@ def main():
     fwer_rows, power_rows, gate_rows = [], [], []
     fwer_fail, power_floor_fail, gate_fail = [], [], []
     term_rows = []
+    # RUN-VALIDITY accumulators (Rev2 — separate from S6/S7 acceptance)
+    error_cells = []          # cells that raised (durable ERROR record)
+    ceiling_fail = []         # cells whose fit-failure rate > S4.2 ceiling
+    missing_fields = []       # fwer/power cells lacking the fit-failure fields
+    wc_max_cp_upper = 0.0     # worst-case (failures-as-events) CP-upper, disclosed
+
+    def _check_ceiling(r, idx):
+        """Enforce the S4.2 per-cell fit-failure ceiling on a REML-bearing
+        (fwer/power) cell; flag a missing field as a validity breach."""
+        if "fit_failure_ceiling_pass" not in r or "fit_failure_rate" not in r:
+            missing_fields.append(idx)
+            return
+        if not r["fit_failure_ceiling_pass"]:
+            ceiling_fail.append(idx)
 
     for r in rows:
+        idx = r.get("config_index")
         if "ERROR" in r:
-            print("ERROR CELL:", r.get("config_index"), r["ERROR"])
+            # Rev2: an ERROR cell is UNEVALUABLE -> the run is INVALID until it
+            # is re-run to a successful result (the resumable runner re-runs it).
+            error_cells.append(idx)
+            print("ERROR CELL (run-invalidating):", idx, r["ERROR"])
             continue
         kind = r.get("_kind") or r.get("kind")
-        idx = r["config_index"]
         if kind == "fwer":
-            cpu = r["fwer_cp_upper95"]
+            _check_ceiling(r, idx)
+            cpu = r["fwer_cp_upper95"]                 # REGISTERED gate (observed)
             passed = cpu <= TAU_FWER
+            cpu_wc = r.get("fwer_cp_upper95_worstcase", cpu)  # NON-GATING sensitivity
+            wc_max_cp_upper = max(wc_max_cp_upper, cpu_wc)
             fwer_rows.append((idx, r["label"], r["rho"], r["regime"],
                               (r["n_nat"], r["n_nonce"]), len(r["truth_set"]),
-                              r["fwer_events"], r["fwer_hat"], r["fwer_mcse"], cpu, passed))
+                              r["fwer_events"], r["fwer_hat"], r["fwer_mcse"], cpu,
+                              passed, r.get("fit_failures", 0), cpu_wc))
             if not passed:
                 fwer_fail.append(idx)
             if "rung0" in r:  # F10 termination
@@ -60,6 +92,7 @@ def main():
                 if not tp:
                     fwer_fail.append(f"{idx}-term")
         elif kind == "power":
+            _check_ceiling(r, idx)
             label = r["label"]
             n = (r["n_nat"], r["n_nonce"])
             esc = (n == (96, 160))
@@ -112,16 +145,20 @@ def main():
                 gate_fail.append(idx)
 
     # ---- print tables ----
-    print("\n================ S6 FWER ACCEPTANCE (tau_FWER=0.055) ================")
+    print("\n================ S6 FWER ACCEPTANCE (tau_FWER=0.055; gate=OBSERVED) ======")
     print(f"{'idx':>3} {'label':6} {'rho':>4} {'regime':8} {'n':>9} {'|T|':>3} "
-          f"{'events':>6} {'fwer':>8} {'mcse':>7} {'CPupper':>8} verdict")
-    for (idx, label, rho, regime, n, tsz, ev, fh, mc, cpu, p) in sorted(fwer_rows):
+          f"{'events':>6} {'fwer':>8} {'mcse':>7} {'CPupper':>8} verdict "
+          f"{'ff':>3} {'CPu_wc':>8}")
+    for (idx, label, rho, regime, n, tsz, ev, fh, mc, cpu, p, ff, cpu_wc) in sorted(fwer_rows):
         print(f"{idx:>3} {label:6} {rho:>4} {regime:8} {str(n):>9} {tsz:>3} "
-              f"{ev:>6} {fh:>8.5f} {mc:>7.5f} {cpu:>8.5f} {'PASS' if p else 'FAIL *****'}")
+              f"{ev:>6} {fh:>8.5f} {mc:>7.5f} {cpu:>8.5f} "
+              f"{'PASS' if p else 'FAIL *****'} {ff:>3} {cpu_wc:>8.5f}")
     n_fwer = len(fwer_rows)
-    n_fwer_pass = sum(1 for x in fwer_rows if x[-1])
+    n_fwer_pass = sum(1 for x in fwer_rows if x[10])
+    max_cpu = max((x[9] for x in fwer_rows), default=float("nan"))
     print(f"FWER cells: {n_fwer_pass}/{n_fwer} PASS  (max CP-upper "
-          f"{max(x[9] for x in fwer_rows):.5f})")
+          f"{max_cpu:.5f}; worst-case sensitivity max "
+          f"CP-upper {wc_max_cp_upper:.5f} [NON-GATING])")
 
     print("\n================ S7 POWER (floor 0.90 at ESCALATED n) ================")
     print(f"{'idx':>3} {'label':6} {'rho':>4} {'n':>9} {'esc':>4} {'floored':22} "
@@ -155,12 +192,33 @@ def main():
         print(f"{idx:>3} {rho:>4} {nn:>7} {msd:>10.3f} {w25:>13.5f} {w06:>15.5f} "
               f"{'PASS' if p else 'FAIL *****'}  (bars 0.03125 / 0.0078)")
 
+    # ---- RUN VALIDITY (Rev2 — gates whether S6/S7 verdicts are an acceptance) ----
+    present = set(by_idx.keys())
+    missing_cells = sorted(set(range(N_EXPECTED_CELLS)) - present)
+    run_valid = (not error_cells and not missing_cells
+                 and not missing_fields and not ceiling_fail)
+
+    print("\n================ RUN VALIDITY (S4.2 / Rev2) ================")
+    print(f"cells present: {len(present)}/{N_EXPECTED_CELLS}"
+          + ("" if not missing_cells else f"  MISSING: {missing_cells}"))
+    print(f"ERROR (unevaluable) cells: {len(error_cells)}"
+          + ("" if not error_cells else f"  {sorted(x for x in error_cells if x is not None)}"))
+    print(f"fit-failure ceiling ({FIT_FAILURE_CEILING:g}) breaches: {len(ceiling_fail)}"
+          + ("" if not ceiling_fail else f"  {ceiling_fail}"))
+    print(f"cells missing fit-failure fields: {len(missing_fields)}"
+          + ("" if not missing_fields else f"  {missing_fields}"))
+    print(f"RUN VALID: {run_valid}"
+          + ("" if run_valid else "  -> S6/S7 verdicts below are NOT an acceptance"))
+
     print("\n================ MECHANICAL SUMMARY ================")
-    print(f"FWER (S6):     {n_fwer_pass}/{n_fwer} cells CP-upper <= {TAU_FWER}  "
+    print(f"FWER (S6, OBSERVED gate): {n_fwer_pass}/{n_fwer} cells CP-upper <= {TAU_FWER}  "
           f"{'ALL PASS' if not fwer_fail else 'FAIL: '+str(fwer_fail)}")
+    print(f"  worst-case FWER sensitivity (failures-as-events, NON-GATING): "
+          f"max CP-upper {wc_max_cp_upper:.5f}")
     n_gc_pass = sum(1 for x in gate_rows if x[-1])
+    _min_sd = min((x[3] for x in gate_rows), default=float("nan"))
     print(f"Gate-cal(S4.4):{n_gc_pass}/{len(gate_rows)} cells all (arm,gamma) pass; "
-          f"min SD-ratio {min(x[3] for x in gate_rows):.3f} "
+          f"min SD-ratio {_min_sd:.3f} "
           f"{'ALL PASS' if not gate_fail else 'FAIL: '+str(gate_fail)}")
     esc_floored = [x for x in power_rows if x[4] and x[5] in FLOORED.values()]
     esc_pass = [x for x in esc_floored if x[8]]
@@ -168,15 +226,24 @@ def main():
           f">= {POWER_FLOOR}  {'(none below)' if not power_floor_fail else 'BELOW-FLOOR/term: '+str(power_floor_fail)}")
     print("  (power-floor status is a SCIENTIFIC read for the design owner; "
           "reported here mechanically, not concluded.)")
+    print(f"\n*** RUN {'VALID — S6/S7 verdicts stand' if run_valid else 'INVALID — NOT AN ACCEPTANCE'} ***")
 
     # machine-readable verdict object
     verdict = {
         "tau_FWER": TAU_FWER, "tau_term0": TAU_TERM0, "tau_term": TAU_TERM,
-        "power_floor": POWER_FLOOR,
+        "power_floor": POWER_FLOOR, "fit_failure_ceiling": FIT_FAILURE_CEILING,
+        "run_valid": run_valid,
+        "run_validity": {
+            "cells_present": len(present), "n_expected": N_EXPECTED_CELLS,
+            "missing_cells": missing_cells,
+            "error_cells": sorted(x for x in error_cells if x is not None),
+            "ceiling_fail": ceiling_fail, "missing_fields": missing_fields,
+        },
         "fwer": {"n": n_fwer, "n_pass": n_fwer_pass, "fails": fwer_fail,
-                 "max_cp_upper": max(x[9] for x in fwer_rows)},
+                 "max_cp_upper": max((x[9] for x in fwer_rows), default=None),
+                 "max_cp_upper_worstcase_sensitivity": wc_max_cp_upper},
         "gatecal": {"n": len(gate_rows), "n_pass": n_gc_pass, "fails": gate_fail,
-                    "min_sd_ratio": min(x[3] for x in gate_rows)},
+                    "min_sd_ratio": min((x[3] for x in gate_rows), default=None)},
         "power": {"n_esc_floored": len(esc_floored), "n_esc_floored_meet": len(esc_pass),
                   "below_floor_or_term": power_floor_fail},
     }
