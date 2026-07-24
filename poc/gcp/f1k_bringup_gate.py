@@ -1371,6 +1371,261 @@ def _probe_engagement(engine_cmd, env, layers, rundir):
     return evidence
 
 
+def _guard_live_transports():
+    """On-VM transports for the guard's step-3' live checks (VM credentials).
+    DESIGN QUESTIONS (validate live / CAP-PROBE): exact systemctl-show property
+    parsing + gcloud test-iam-permissions surface. The $0 selftest injects
+    fakes; none of this runs at $0."""
+    def systemctl(*, action, unit):
+        q = {"is-active": ["is-active", unit],
+             "oncalendar": ["show", "-p", "TimersCalendar", "--value", unit],
+             "persistent": ["show", "-p", "Persistent", "--value", unit],
+             "triggered-unit": ["show", "-p", "Unit", "--value", unit],
+             "exec-start": ["show", "-p", "ExecStart", "--value", unit],
+             "restart-policy": ["show", "-p", "Restart", "--value", unit]}[action]
+        r = subprocess.run(["systemctl"] + q, capture_output=True, text=True)
+        return r.stdout.strip()
+
+    def iam(*, project_id, zone, instance_name, permissions):
+        r = subprocess.run(
+            ["gcloud", "compute", "instances", "test-iam-permissions",
+             instance_name, "--zone", zone, "--permissions",
+             ",".join(permissions), "--format=json"],
+            capture_output=True, text=True)
+        return json.loads(r.stdout) if r.returncode == 0 and r.stdout else {
+            "permissions": []}
+
+    return {
+        "compute": lambda **k: f1k_ops._gcloud_compute_get(**k),
+        "systemctl": systemctl, "iam": iam,
+        "bootid": None,       # guard runs ON the VM: local /proc IS the guest
+        "metadata": None,     # live GCE metadata on the VM
+        "catalog": f1k_ops._catalog_http_list,
+    }
+
+
+def _guard_handoff_preamble(args, *, transports=None, now_fn=None,
+                            ref_reader=None):
+    """[B3] Build the runtime license from the handoff + run step 3', then
+    DERIVE the guard flags from the license. Fail-closed at every check."""
+    now_fn = now_fn or f1k_ops._utc_now_z
+    tr = transports if transports is not None else _guard_live_transports()
+    reader = ref_reader or (lambda p: Path(p).read_bytes())
+    try:
+        handoff = json.loads(Path(args.handoff).read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        die("F1K_GUARD", "--handoff unreadable/not JSON: %s" % exc)
+
+    def load_ref(ref):
+        try:
+            data = reader(ref["path"])
+        except OSError as exc:
+            die("F1K_GUARD", "handoff ref %s unreadable: %s"
+                % (ref.get("path"), exc))
+        if hashlib.sha256(data).hexdigest() != ref["sha256"]:
+            die("F1K_GUARD", "handoff ref %s sha != recorded (byte drift)"
+                % ref["path"])
+        return json.loads(data)
+
+    ready = load_ref(handoff["ready"])
+    gate = load_ref(handoff["gate"])
+    now = now_fn()
+    try:
+        lic = f1k_ops.build_runtime_license(ready, gate, handoff, now_utc=now)
+    except f1k_ops.F1KOpsError as exc:
+        die("F1K_GUARD", "runtime license refused (%s)" % exc)
+
+    # live identity (numeric id + guest boot_id + SPOT).
+    try:
+        identity = f1k_ops.resolve_live_instance_identity(
+            metadata_transport=tr.get("metadata"),
+            compute_transport=tr["compute"], bootid_transport=tr.get("bootid"))
+    except f1k_ops.F1KOpsError as exc:
+        die("F1K_GUARD", "live identity resolution failed (%s)" % exc)
+    if identity != lic["instance"]:
+        die("F1K_GUARD", "live identity != license identity (preemption?)")
+
+    cap = lic["provider"]["cap"]
+    deadline = cap["termination_time_utc"]
+    # step 3' (a)(b)(c): SPOT + unified STOP + verify_cap_armed live.
+    try:
+        f1k_ops.verify_cap_armed(
+            instance_name=identity["name"], zone=identity["zone"],
+            project_id=identity["project_id"], deadline_utc=deadline,
+            compute_transport=tr["compute"], systemctl_transport=tr["systemctl"],
+            iam_transport=tr["iam"])
+    except f1k_ops.F1KOpsError as exc:
+        die("F1K_GUARD", "step 3' live cap re-verification failed (%s)" % exc)
+
+    # step 3' (d): fresh wall-clock sufficiency vs T_cap (2 h workload margin).
+    def hours_between(a_z, b_z):
+        a = f1k_ops._utc_datetime(a_z, field="a", code="F1K_GUARD")
+        b = f1k_ops._utc_datetime(b_z, field="b", code="F1K_GUARD")
+        return f1k_ops._elapsed_hours(a, b) if b > a else \
+            -f1k_ops._elapsed_hours(b, a)
+    from decimal import Decimal as _D, ROUND_CEILING as _RC
+    proj = json.loads(json.dumps(gate), parse_float=str)["projection"]
+    need = (_D(f1k_ops.canonical_decimal(proj["instance_hours"]["hi"],
+                                         field="hi"))
+            + _D(f1k_ops.canonical_decimal(proj["reserve"]["hours_at_rate"],
+                                           field="reserve"))
+            + _D("2")).quantize(_D("0.000001"), rounding=_RC)
+    remaining = hours_between(now, deadline)
+    if remaining < need:
+        die("F1K_GUARD", "step 3'(d) remaining billable %s h < %s h vs T_cap"
+            % (remaining, need))
+
+    # live-rate equality with the license (step 3' rate sentry, pre-spend).
+    try:
+        live_rate, _ = f1k_ops.resolve_live_rate(
+            project_id=identity["project_id"], zone=identity["zone"],
+            machine_type="n2d-highmem-8",
+            local_ssd_count=lic["rate"]["local_ssd_count"],
+            observed_at_utc=now, catalog_transport=tr["catalog"])
+    except f1k_ops.F1KOpsError as exc:
+        die("F1K_GUARD", "live rate quote failed (%s)" % exc)
+    if f1k_ops.canonical_decimal(live_rate, field="live") != \
+            f1k_ops.canonical_decimal(lic["rate"]["usd_per_hour_decimal"],
+                                      field="lic"):
+        die("F1K_GUARD", "live rate %s != licensed rate %s"
+            % (live_rate, lic["rate"]["usd_per_hour_decimal"]))
+
+    # DERIVE the guard flags from the license; any legacy flag supplied must
+    # equal the derived value exactly.
+    derived = {
+        "gate": handoff["gate"]["path"],
+        "pin": lic["pin"]["path"],
+        "engine_cmd": json.dumps(lic["engine"]["argv"]),
+        "tokenizer_cmd": json.dumps(lic["tokenizer"]["argv"]),
+        "layers": ",".join(str(x) for x in lic["launch"]["layers"]),
+        "tokens": lic["token_sidecar"]["path"],
+        "rundir": lic["paths"]["rundir"],
+        "workdir": lic["paths"]["workdir"],
+    }
+    for flag, value in derived.items():
+        supplied = getattr(args, flag, None)
+        if supplied is not None and supplied != value:
+            die("F1K_GUARD", "--%s %r != license value %r"
+                % (flag.replace("_", "-"), supplied, value))
+        setattr(args, flag, value)
+    if not getattr(args, "builder", None):
+        args.builder = list(lic["builder"]["argv_base"])
+    return lic
+
+
+def _guard_handoff_selftest(check, td):
+    """$0 coverage for the B3 guard --handoff preamble: license build + flag
+    derivation + byte-drift + identity refusals (injectable fakes; NO VM)."""
+    import f1k_gcp as G
+    ready, gate = f1k_ops.build_construction_fixture()
+    gate = json.loads(json.dumps(gate))
+    gate["projection"]["blended_s_per_prefill_central"] = 120.0
+    inst = ready["instance"]
+    launch = "2026-07-24T00:00:00Z"
+    now = "2026-07-24T06:00:00Z"
+    deadline = f1k_ops.compute_selfdelete_deadline(launch_utc=launch)
+    binding = f1k_ops.validate_ready_gate_binding(ready, gate)
+    cap = {"termination_time_utc": deadline, "termination_timestamp_utc": deadline}
+    ev_ref = {"path": f1k_ops.RATE_EVIDENCE_PATH, "sha256": "8" * 64,
+              "schema": f1k_ops.RATE_EVIDENCE_SCHEMA, "observed_at_utc": now}
+    handoff = G._build_construction_handoff(
+        ready=ready, gate=gate, binding=binding, cap=cap,
+        preflight={"budget_resource_name":
+                   "billingAccounts/012345-6789AB-CDEF01/budgets/f1k"},
+        rate_evidence_ref=ev_ref, now_utc=now, deadline=deadline,
+        licensed_rate="0.219", project_id=inst["project_id"])
+    ready_bytes = f1k_ops.canonical_json_bytes(ready)
+    gate_bytes = f1k_ops.canonical_json_bytes(gate)
+    hpath = td / "construction-handoff.json"
+    hpath.write_text(json.dumps(handoff))
+
+    def reader(p):
+        return {f1k_ops.CONSTRUCTION_READY_PATH: ready_bytes,
+                f1k_ops.BRINGUP_GATE_PATH: gate_bytes}[p]
+
+    def fc(*, project_id, zone, instance_name):
+        base = "https://www.googleapis.com/compute/v1/projects/%s" \
+               % inst["project_id"]
+        return {"id": inst["instance_id"], "name": inst["name"],
+                "zone": base + "/zones/" + inst["zone"],
+                "machineType": (base + "/zones/" + inst["zone"]
+                                + "/machineTypes/" + inst["machine_type"]),
+                "selfLink": (base + "/zones/" + inst["zone"] + "/instances/"
+                             + inst["name"]),
+                "lastStartTimestamp": inst["last_start_timestamp"],
+                "scheduling": {"provisioningModel": "SPOT",
+                               "instanceTerminationAction": "STOP",
+                               "terminationTime": deadline,
+                               f1k_ops.DISCARD_LOCAL_SSD_KEY: True}}
+    md = {"instance/id": inst["instance_id"], "instance/name": inst["name"],
+          "project/project-id": inst["project_id"],
+          "project/numeric-project-id": inst["project_number"],
+          "instance/zone": "projects/%s/zones/%s" % (inst["project_number"],
+                                                     inst["zone"]),
+          "instance/machine-type": "projects/%s/machineTypes/%s"
+          % (inst["project_number"], inst["machine_type"])}
+
+    def sysctl(*, action, unit):
+        return {"is-active": "active",
+                "oncalendar": f1k_ops._oncalendar(deadline),
+                "persistent": "yes",
+                "triggered-unit": f1k_ops.SELFDELETE_SERVICE_UNIT,
+                "exec-start": f1k_ops._selfdelete_exec_start(
+                    inst["name"], inst["zone"], inst["project_id"]),
+                "restart-policy": "on-failure"}[action]
+    tr = {"compute": fc, "metadata": lambda p, t: md[p],
+          "bootid": lambda: inst["boot_id"], "systemctl": sysctl,
+          "iam": lambda **k: {"permissions": ["compute.instances.delete"]},
+          "catalog": G._min_catalog()}
+
+    def mk_args():
+        return argparse.Namespace(
+            handoff=str(hpath), gate=None, pin=None, engine_cmd=None,
+            tokenizer_cmd=None, layers=None, tokens=None, rundir=None,
+            workdir=None, builder=[])
+
+    a = mk_args()
+    _guard_handoff_preamble(a, transports=tr, now_fn=lambda: now,
+                            ref_reader=reader)
+    check(a.gate == f1k_ops.BRINGUP_GATE_PATH
+          and a.pin == ready["pin"]["path"]
+          and json.loads(a.engine_cmd) == ready["engine"]["argv"]
+          and json.loads(a.tokenizer_cmd) == ready["tokenizer"]["argv"]
+          and a.tokens == ready["token_sidecar"]["path"]
+          and a.rundir == ready["paths"]["rundir"]
+          and a.builder == ready["builder"]["argv_base"],
+          "B3 guard --handoff builds the license + step 3' + derives every flag")
+
+    def bad_reader(p):
+        return (ready_bytes + b" ") if p == f1k_ops.CONSTRUCTION_READY_PATH \
+            else gate_bytes
+    try:
+        _guard_handoff_preamble(mk_args(), transports=tr, now_fn=lambda: now,
+                                ref_reader=bad_reader)
+        check(False, "B3 must refuse a byte-drifted READY ref")
+    except SystemExit:
+        check(True, "B3 guard --handoff refuses a byte-drifted READY ref")
+
+    tr_bad = dict(tr)
+    tr_bad["bootid"] = lambda: "00000000-0000-4000-8000-000000000000"
+    try:
+        _guard_handoff_preamble(mk_args(), transports=tr_bad, now_fn=lambda: now,
+                                ref_reader=reader)
+        check(False, "B3 must refuse a live boot_id != license")
+    except SystemExit:
+        check(True, "B3 guard --handoff refuses live identity (boot_id) drift")
+
+    tr_cap = dict(tr)
+    tr_cap["compute"] = lambda **k: {**fc(**k), "scheduling": {
+        **fc(**k)["scheduling"], "instanceTerminationAction": "DELETE"}}
+    try:
+        _guard_handoff_preamble(mk_args(), transports=tr_cap, now_fn=lambda: now,
+                                ref_reader=reader)
+        check(False, "B3 must refuse a live DELETE cap action")
+    except SystemExit:
+        check(True, "B3 guard step 3' refuses a live unified DELETE cap action")
+
+
 def cmd_guard(args):
     """[REV-C F3 / REV-D / REV-E] construction-guard: verify license
     -> enforce DURABLE terminal-stop authority (append-only events;
@@ -1384,9 +1639,24 @@ def cmd_guard(args):
       --engine-cmd '<json argv>' --tokenizer-cmd '<json argv>'
       --layers 3,...,77 --tokens tokens-full.jsonl --rundir <dir>
       --workdir <builder workdir> [--poll-seconds N] -- <builder argv
-      WITHOUT --engine-cmd/--tokenizer-cmd: the guard injects them>"""
+      WITHOUT --engine-cmd/--tokenizer-cmd: the guard injects them>
+
+    [B3] with --handoff <path> the guard is SELF-CONTAINED: it loads READY +
+    gate from the handoff's canonical refs, builds the runtime license, runs
+    the step-3' live checks (SPOT + unified STOP + verify_cap_armed live +
+    fresh wall-clock vs T_cap + campaign_started<=now + live-rate equality),
+    and DERIVES every flag below from the license before the landed guard runs
+    unchanged."""
     import signal
     import time
+    if getattr(args, "handoff", None):
+        _guard_handoff_preamble(args)
+    else:
+        for flag in ("gate", "pin", "engine_cmd", "tokenizer_cmd", "layers",
+                     "tokens", "rundir", "workdir"):
+            if getattr(args, flag, None) is None:
+                die("F1K_GUARD", "--%s is required without --handoff"
+                    % flag.replace("_", "-"))
     art = json.loads(Path(args.gate).read_text(encoding="utf-8"))
     pin_path = Path(args.pin).resolve()
     pin_sha, pin_gb = _verify_gate_for_construction(art, pin_path)
@@ -1813,24 +2083,37 @@ def cmd_config_cost(args):
                       "F1K_CONFIG")                         # [REV-E 3]
         usd += _fin(fin["realized"]["usd"],
                     "final %s realized.usd" % fp, "F1K_CONFIG")
-    # [REV-E 3] FINITENESS (round-4 verdict 4): "--prior-hours nan"
-    # passed the old `ph < 0` (False for NaN) -> NaN 900 h basis ->
-    # nan > 900 False at every cap -> fail-open GO. Every operator
-    # numeric on this surface is finite-validated at the parse; the
-    # driver Ledger re-asserts finiteness at init (defense-in-depth).
-    pu = _fin(args.prior_usd, "--prior-usd", "F1K_CONFIG")
-    ph = None if args.prior_hours is None \
-        else _fin(args.prior_hours, "--prior-hours", "F1K_CONFIG")
-    if pu > 0 and ph is None:
-        die("F1K_CONFIG", "--prior-usd %.4f > 0 REQUIRES --prior-hours "
-            "(the instance-hours behind that spend: failed construction "
-            "sessions + metered pre-construction) — realized hours never "
-            "vanish from the cap basis [REV-D 1d]" % pu)
-    block = {"spot_rate_usd_per_hour":
-             _fin(args.rate, "--rate", "F1K_CONFIG",
-                  lo_open=True),                            # [REV-E 3]
+    # [LC-13] prior spend is DERIVED from --prior-evidence
+    # (kot-f1k-prior-spend/1), NEVER hand-entered. Manual --prior-usd /
+    # --prior-hours are REFUSED outright — any supplied value, including zero,
+    # is a hard error (delta-check #5): the enforcing consumer replaces the
+    # runbook promise, so bring-up dollars/hours cannot silently vanish from
+    # (or be fabricated into) the 900 h basis.
+    if getattr(args, "prior_usd", None) is not None or \
+            getattr(args, "prior_hours", None) is not None:
+        die("F1K_CONFIG", "--prior-usd/--prior-hours are REFUSED (LC-13): "
+            "prior bring-up spend is DERIVED from --prior-evidence "
+            "(kot-f1k-prior-spend/1); any manual value, INCLUDING zero, is a "
+            "hard error — the evidence is the only lawful source")
+    _fin(args.rate, "--rate", "F1K_CONFIG", lo_open=True)   # [REV-E 3] finite
+    try:
+        rate_str = f1k_ops.canonical_decimal(args.rate, field="rate")
+    except (ValueError, f1k_ops.F1KOpsError) as exc:
+        die("F1K_CONFIG", "--rate is not a canonical decimal: %s" % exc)
+    try:
+        ev = json.loads(Path(args.prior_evidence).read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        die("F1K_CONFIG", "--prior-evidence unreadable/not JSON: %s" % exc)
+    try:
+        derived = f1k_ops.validate_prior_spend(ev, rate=rate_str)
+    except f1k_ops.F1KOpsError as exc:
+        die("F1K_CONFIG", "prior-spend evidence invalid (%s)" % exc)
+    pu = _fin(derived["prior_usd"], "prior-evidence cost", "F1K_CONFIG")
+    ph = _fin(derived["prior_hours"], "prior-evidence hours", "F1K_CONFIG")
+    block = {"spot_rate_usd_per_hour": _fin(args.rate, "--rate", "F1K_CONFIG",
+                                            lo_open=True),
              "usd_spent_prior": round(pu + usd, 4),
-             "prior_instance_hours": round(ph or 0.0, 4),
+             "prior_instance_hours": round(ph, 4),
              "construction_instance_hours": round(hours, 4)}
     _merge_config_block(args.config, "cost", block)
     return 0
@@ -2544,19 +2827,37 @@ def selftest():
         except SystemExit:
             check(True, "case 17 fail-closed: sidecar bytes != the "
                         "ARTIFACT-recorded sha refused")
+        # [LC-13] prior spend is DERIVED from a kot-f1k-prior-spend/1 record.
+        ev17 = f1k_ops.build_prior_spend(
+            launch_epoch_utc="2026-07-18T00:00:00Z",
+            campaign_started_at_utc="2026-07-18T17:48:00Z",
+            licensed_rate="0.174", instance_id="1234567890123456789")
+        ev17_path = td / "prior-spend-17.json"
+        ev17_path.write_text(json.dumps(ev17))
+        d17 = f1k_ops.validate_prior_spend(ev17, rate="0.174")
         cmd_config_cost(argparse.Namespace(
             final=[str(rd16 / "construction-guard-final.json")],
-            prior_usd="3.1", prior_hours="17.8", rate="0.174",
-            config=str(cfg17)))
+            prior_evidence=str(ev17_path), prior_usd=None, prior_hours=None,
+            rate="0.174", config=str(cfg17)))
         cost17 = json.loads(cfg17.read_text())["cost"]
         check(abs(cost17["usd_spent_prior"]
-                  - (3.1 + fin16["realized"]["usd"])) < 1e-6
-              and cost17["prior_instance_hours"] == 17.8
+                  - (float(d17["prior_usd"]) + fin16["realized"]["usd"])) < 1e-6
+              and abs(cost17["prior_instance_hours"]
+                      - float(d17["prior_hours"])) < 1e-6
               and abs(cost17["construction_instance_hours"]
                       - fin16["realized"]["instance_hours"]) < 1e-9,
-              "case 17 config-cost: guard-final realized figures + the "
-              "prior hours become the REQUIRED Ledger basis (never "
-              "silent zeros) [REV-D]")
+              "case 17 config-cost: guard-final realized + the "
+              "evidence-DERIVED prior become the REQUIRED Ledger basis "
+              "(never silent zeros, never hand-entered) [LC-13]")
+        try:
+            cmd_config_cost(argparse.Namespace(
+                final=[str(rd16 / "construction-guard-final.json")],
+                prior_evidence=str(ev17_path), prior_usd="0", prior_hours=None,
+                rate="0.174", config=str(cfg17)))
+            check(False, "case 17b must refuse a manual --prior-usd")
+        except SystemExit:
+            check(True, "case 17b fail-closed: manual --prior-usd (even "
+                        "'0') REFUSED — prior comes only from evidence [LC-13]")
         # case 18 [REV-C F5i]: ONE projection model, mechanically — the
         # gate copy hashes to the frozen constant AND byte-matches the
         # driver's vendored copy.
@@ -2921,50 +3222,60 @@ def selftest():
         # the cost block the driver Ledger REQUIRES.
         cfg22 = td / "config22.json"
         cfg22.write_text("{}")
+        ev22 = f1k_ops.build_prior_spend(
+            launch_epoch_utc="2026-07-01T00:00:00Z",
+            campaign_started_at_utc="2026-07-16T20:00:00Z",
+            licensed_rate="0.174", instance_id="1234567890123456789")
+        ev22_path = td / "prior-spend-22.json"
+        ev22_path.write_text(json.dumps(ev22))
+        d22 = f1k_ops.validate_prior_spend(ev22, rate="0.174")
+        # [LC-13] manual prior-hours (even a value) is REFUSED outright.
         try:
             cmd_config_cost(argparse.Namespace(
                 final=[str(rd16 / "construction-guard-final.json")],
-                prior_usd="3.1", prior_hours=None, rate="0.174",
-                config=str(cfg22)))
-            check(False, "case 22 must refuse prior USD without hours")
+                prior_evidence=str(ev22_path), prior_usd=None,
+                prior_hours="380.0", rate="0.174", config=str(cfg22)))
+            check(False, "case 22a must refuse a manual --prior-hours")
         except SystemExit:
-            check(True, "case 22a fail-closed: --prior-usd > 0 without "
-                        "--prior-hours refused (failed-session hours "
-                        "can no longer vanish from the 900 h basis)")
+            check(True, "case 22a fail-closed: manual --prior-hours REFUSED "
+                        "outright — prior hours come only from evidence [LC-13]")
         cmd_config_cost(argparse.Namespace(
             final=[str(rd16 / "construction-guard-final.json")],
-            prior_usd="3.1", prior_hours="380.0", rate="0.174",
-            config=str(cfg22)))
+            prior_evidence=str(ev22_path), prior_usd=None, prior_hours=None,
+            rate="0.174", config=str(cfg22)))
         c22 = json.loads(cfg22.read_text())["cost"]
-        check(c22["prior_instance_hours"] == 380.0
+        check(abs(c22["prior_instance_hours"] - float(d22["prior_hours"])) < 1e-6
               and abs(c22["usd_spent_prior"]
-                      - (3.1 + fin16["realized"]["usd"])) < 1e-6,
-              "case 22b prior hours THREADED into cost.prior_instance_"
-              "hours — the driver Ledger requires the key and its "
-              "addendum-(7) 900 h basis consumes it (driver-mock "
-              "counterpart proves the STOP flip)")
-        # [REV-E 3] FINITENESS (round-4 verdict 4; PIN_GB defect class):
-        # nan/inf operator numerics refused at the parse — nan > 900 is
-        # False, so a NaN basis was a fail-open GO.
-        fin22 = []
-        for kw22 in ({"prior_hours": "nan"}, {"prior_hours": "inf"},
-                     {"prior_usd": "nan"}, {"prior_usd": "inf"},
-                     {"rate": "nan"}):
+                      - (float(d22["prior_usd"])
+                         + fin16["realized"]["usd"])) < 1e-6,
+              "case 22b evidence-DERIVED prior hours THREADED into "
+              "cost.prior_instance_hours — the driver Ledger requires the "
+              "key and its 900 h basis consumes it [LC-13]")
+        # [LC-13] tamper: a mutated evidence field breaks its sha/arithmetic.
+        ev22_bad = dict(ev22)
+        ev22_bad["bringup_cost_usd_decimal"] = "0"
+        ev22_bad_path = td / "prior-spend-22-bad.json"
+        ev22_bad_path.write_text(json.dumps(ev22_bad))
+        rate_bad = []
+        for name, kw22 in (("tampered cost", {"prior_evidence":
+                                              str(ev22_bad_path)}),
+                           ("nan rate", {"rate": "nan"}),
+                           ("missing evidence", {"prior_evidence":
+                                                 str(td / "nope.json")})):
             try:
                 cmd_config_cost(argparse.Namespace(**{
                     **dict(final=[str(rd16 /
                                       "construction-guard-final.json")],
-                           prior_usd="3.1", prior_hours="1.0",
-                           rate="0.174", config=str(cfg22)),
-                    **kw22}))
-                fin22.append(kw22)
+                           prior_evidence=str(ev22_path), prior_usd=None,
+                           prior_hours=None, rate="0.174",
+                           config=str(cfg22)), **kw22}))
+                rate_bad.append(name)
             except SystemExit:
                 pass
-        check(not fin22,
-              "case 22c NON-FINITE cost inputs refused at config-cost "
-              "[REV-E]: nan/inf --prior-hours, nan/inf --prior-usd, "
-              "nan --rate all die at the parse%s"
-              % ("" if not fin22 else " (LEAKED: %s)" % fin22))
+        check(not rate_bad,
+              "case 22c config-cost fails closed on a tampered evidence sha/"
+              "arithmetic, a nan --rate, and a missing evidence file [LC-13]%s"
+              % ("" if not rate_bad else " (LEAKED: %s)" % rate_bad))
         try:
             cmd_checkpoint(argparse.Namespace(
                 gate=str(td / "gate-art16.json"),
@@ -2986,6 +3297,8 @@ def selftest():
               "at checkpoint; nan --poll-seconds refused BEFORE any "
               "engine start (no probe evidence — time.sleep(nan) would "
               "otherwise ValueError MID-construction [MEASURED])")
+        # [B3] guard --handoff license-driven launch preamble + step 3'.
+        _guard_handoff_selftest(check, td)
     print()
     print("SELFTEST: %d/%d %s"
           % (n_checks - len(fails), n_checks,
@@ -3063,25 +3376,32 @@ def main():
     #   [REV-C] resumed construction: passes already cached at guard start
     p.add_argument("--out", default="")
     p = sub.add_parser("guard")
-    # [REV-C F3] construction-guard (see cmd_guard)
-    p.add_argument("--gate", required=True)
-    p.add_argument("--pin", required=True)
-    p.add_argument("--engine-cmd", required=True,
+    # [REV-C F3] construction-guard (see cmd_guard).
+    # [B3 --handoff] with --handoff the guard loads READY+gate from the
+    # handoff's canonical refs, builds the runtime license, runs step 3' live
+    # checks, and DERIVES every flag below from the license; the legacy flags
+    # are then optional and, if supplied, must equal the license values.
+    p.add_argument("--handoff", default=None,
+                   help="[B3] canonical construction-handoff.json path; "
+                        "self-contained license-driven guard launch")
+    p.add_argument("--gate", default=None)
+    p.add_argument("--pin", default=None)
+    p.add_argument("--engine-cmd", default=None,
                    help="JSON argv of the CONSTRUCTION engine — the "
                         "guard OWNS this value [REV-D]: it PROBES it and "
                         "INJECTS it into the builder argv itself "
                         "(operator-supplied --engine-cmd in the builder "
                         "argv is refused)")
-    p.add_argument("--tokenizer-cmd", required=True,
+    p.add_argument("--tokenizer-cmd", default=None,
                    help="JSON argv of the builder's tokenizer — "
                         "guard-injected into the builder argv [REV-D] "
                         "(same ownership rule as --engine-cmd)")
-    p.add_argument("--layers", required=True,
+    p.add_argument("--layers", default=None,
                    help="comma layer list (same as build_carriers --layers)")
-    p.add_argument("--tokens", required=True,
+    p.add_argument("--tokens", default=None,
                    help="the gate run's tokens-full.jsonl sidecar")
-    p.add_argument("--rundir", required=True)
-    p.add_argument("--workdir", required=True,
+    p.add_argument("--rundir", default=None)
+    p.add_argument("--workdir", default=None,
                    help="the builder's --workdir (concept-*.json appear "
                         "here — the checkpoint progress signal)")
     p.add_argument("--poll-seconds", default="60")
@@ -3096,11 +3416,17 @@ def main():
     p = sub.add_parser("config-cost")
     # [REV-C F3] guard-final realized figures -> config.cost (executable)
     p.add_argument("--final", action="append", required=True)
-    p.add_argument("--prior-usd", required=True)
+    # [LC-13] prior spend is DERIVED from the evidence file; manual priors are
+    # REFUSED (kept defined so a user supplying them gets a clear hard error).
+    p.add_argument("--prior-evidence", required=True,
+                   help="[LC-13] kot-f1k-prior-spend/1 record (schema/sha/"
+                        "arithmetic/rate-bound); the ONLY lawful prior source")
+    p.add_argument("--prior-usd", default=None,
+                   help="[LC-13] REFUSED — any value incl. zero is a hard "
+                        "error; use --prior-evidence")
     p.add_argument("--prior-hours", default=None,
-                   help="[REV-D 1d] instance-hours behind --prior-usd "
-                        "(failed sessions + pre-construction); REQUIRED "
-                        "when --prior-usd > 0")
+                   help="[LC-13] REFUSED — any value incl. zero is a hard "
+                        "error; use --prior-evidence")
     p.add_argument("--rate", required=True)
     p.add_argument("--config", required=True)
     sub.add_parser("selftest")

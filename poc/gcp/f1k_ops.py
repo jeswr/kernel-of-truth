@@ -54,10 +54,34 @@ _RFC3339_RE = re.compile(
     r"(?P<zone>Z|[+-][0-9]{2}:[0-9]{2})\Z"
 )
 _SHA256_RE = re.compile(r"[0-9a-f]{64}\Z")
+# Cloud Billing budget resource name: billingAccounts/<id>/budgets/<id>
+# (LC-8v3 / R3.3 — the handoff must carry the EXACT budget resource, not a
+# free-form string; "any $300 budget" never validates).
+_BUDGET_RESOURCE_RE = re.compile(
+    r"billingAccounts/[A-Za-z0-9-]{3,60}/budgets/[A-Za-z0-9-]{1,64}\Z"
+)
 
 CONSTRUCTION_READY_SCHEMA = "kot-f1k-construction-ready/1"
 BRINGUP_GATE_SCHEMA = "kot-f1k-bringup-gate/2"
-CONSTRUCTION_HANDOFF_SCHEMA = "kot-f1k-construction-handoff/1"
+# Rev4/variant-B: the construction handoff is /2 — the provider block carries
+# a live-STOP `cap` sub-object (native GCE terminationTime) and a `cleanup`
+# sub-object (verified post-cap deletion). The /1 literal-DELETE form is the
+# rejected variant-A record and is REFUSED by validate_handoff.
+CONSTRUCTION_HANDOFF_SCHEMA = "kot-f1k-construction-handoff/2"
+CONSTRUCTION_HANDOFF_SCHEMA_V1 = "kot-f1k-construction-handoff/1"
+# The unified provider action for BOTH Spot preemption and the runtime-limit
+# cap (GCE treats instanceTerminationAction as one field — R3.1/R3.2).
+CAP_MECHANISM = "gce-termination-time"
+CAP_ACTION = "STOP"
+CLEANUP_MECHANISM = "control-box-reaper"
+CLEANUP_ACTION = "DELETE"
+# DESIGN QUESTION (flagged for the CAP-PROBE, PROPOSED-CC-13): the exact GCE
+# scheduling field that reflects "discard Local SSD at STOP-termination" is
+# doc-inferred, not yet API-confirmed. verify_provider_cap reads THIS key from
+# the live scheduling block and requires a truthy value. The CAP-PROBE settles
+# the real field name before build freeze; the fake supplies this key in the
+# $0 oracle. If the probe finds a different field, change this one constant.
+DISCARD_LOCAL_SSD_KEY = "discardLocalSsdsAtTermination"
 READY_GATE_BINDING_SCHEMA = "kot-f1k-ready-gate-binding/1"
 RUNTIME_LICENSE_SCHEMA = "kot-f1k-runtime-license/1"
 RATE_EVIDENCE_SCHEMA = "kot-f1k-rate-evidence/1"
@@ -545,13 +569,55 @@ def _read_boot_id() -> str:
     return canonical
 
 
+def _resolve_boot_id(bootid_transport=None) -> str:
+    """LC-9: resolve the boot id from an injected transport or the local /proc.
+
+    bootid_transport() -> str (a raw boot_id). Default = the local read
+    (on-VM path). The control box injects an SSH guest read so the boot id
+    compared is the GUEST's, not the control box's.
+    """
+    if bootid_transport is None:
+        return _read_boot_id()
+    try:
+        raw = bootid_transport()
+    except F1KOpsError:
+        raise
+    except Exception as exc:  # noqa: BLE001 — fail closed
+        raise F1KOpsError(
+            "F1K_IDENTITY", "boot_id transport failed: %s" % exc
+        ) from exc
+    if not isinstance(raw, str):
+        raise F1KOpsError(
+            "F1K_IDENTITY", "boot_id transport did not return a string"
+        )
+    raw = raw.strip()
+    try:
+        parsed = uuid.UUID(raw)
+    except ValueError as exc:
+        raise F1KOpsError(
+            "F1K_IDENTITY", "transport boot_id is not a valid UUID"
+        ) from exc
+    canonical = str(parsed)
+    if raw.lower() != canonical:
+        raise F1KOpsError(
+            "F1K_IDENTITY", "transport boot_id is not canonical"
+        )
+    return canonical
+
+
 def resolve_live_instance_identity(
-    *, metadata_transport=None, compute_transport=None
+    *, metadata_transport=None, compute_transport=None, bootid_transport=None
 ) -> dict:
     """Resolve and cross-bind local metadata to Compute instances.get.
 
     compute_transport is called with keyword arguments project_id, zone, and
     instance_name. It must return a full Compute instance object.
+
+    LC-9: bootid_transport is injectable. Default = the LOCAL /proc read (the
+    on-VM READY writer path, unchanged). The control box injects an SSH guest
+    read (`cat /proc/sys/kernel/random/boot_id` as ubuntu@<vm>) so a
+    control-box-side identity resolution compares the GUEST boot id, not the
+    control box's own — otherwise every continue launch would false-refuse.
     """
     def metadata(path):
         return read_live_instance_metadata(
@@ -723,7 +789,7 @@ def resolve_live_instance_identity(
         field="Compute lastStartTimestamp",
         code="F1K_IDENTITY",
     )
-    boot_id = _read_boot_id()
+    boot_id = _resolve_boot_id(bootid_transport)
 
     # Detect an injected or otherwise unstable identity resolution.
     if metadata("instance/id") != instance_id:
@@ -2755,9 +2821,20 @@ def validate_ready_gate_binding(ready, gate):
     }
 
 
-def validate_handoff(record):
-    """Validate the closed lean-B construction handoff /1."""
+def validate_handoff(record, *, now_utc=None):
+    """Validate the closed variant-B construction handoff /2 (LC-8v3).
+
+    now_utc (RFC3339, default = real current UTC) anchors the freshness rule
+    (R3.4/R4.4): campaign_started_at_utc <= now_utc STRICTLY (no skew) AND
+    campaign_started_at_utc <= created_at_utc <= now_utc — so a hand-built
+    FUTURE campaign start cannot understate exposure by any amount. The guard
+    repeats this with its OWN fresh clock at license load.
+    """
     code = "F1K_HANDOFF"
+    now_ts = _utc_timestamp(
+        now_utc if now_utc is not None else _utc_now_z(),
+        field="now_utc", code=code,
+    )
     handoff = _closed_contract_object(
         record,
         field="handoff",
@@ -2776,6 +2853,12 @@ def validate_handoff(record):
         ),
         code=code,
     )
+    if handoff["schema"] == CONSTRUCTION_HANDOFF_SCHEMA_V1:
+        raise F1KOpsError(
+            code,
+            "handoff schema is the rejected variant-A /1 (literal DELETE); "
+            "variant B requires /2 with a live-STOP cap block",
+        )
     if (
         handoff["schema"]
         != CONSTRUCTION_HANDOFF_SCHEMA
@@ -2783,10 +2866,10 @@ def validate_handoff(record):
     ):
         raise F1KOpsError(
             code,
-            "handoff schema/mode is not lean-B "
-            "initial /1",
+            "handoff schema/mode is not variant-B "
+            "initial /2",
         )
-    _contract_timestamp(
+    created_at_ts = _contract_timestamp(
         handoff["created_at_utc"],
         field="handoff.created_at_utc",
         code=code,
@@ -2960,9 +3043,8 @@ def validate_handoff(record):
         field="handoff.provider",
         keys=(
             "campaign_started_at_utc",
-            "termination_time_utc",
-            "termination_timestamp_utc",
-            "instance_termination_action",
+            "cap",
+            "cleanup",
             "frozen_hours_max_decimal",
             "armed_hours_decimal",
             "non_compute_allowance_usd_decimal",
@@ -2973,25 +3055,82 @@ def validate_handoff(record):
         ),
         code=code,
     )
-    for name in (
-        "campaign_started_at_utc",
-        "termination_time_utc",
-        "termination_timestamp_utc",
-    ):
-        _contract_timestamp(
-            provider[name],
-            field="handoff.provider." + name,
-            code=code,
-        )
+    campaign_started = _contract_timestamp(
+        provider["campaign_started_at_utc"],
+        field="handoff.provider.campaign_started_at_utc",
+        code=code,
+    )
+
+    # /2 cap block (variant B, R3.2): the native STOP runtime-limit cap. Its
+    # fields are populated ONLY from the LC-5 verify_cap_armed composite; a
+    # hand-built cap block echoing a provisioning flag is refused structurally
+    # (the composite cannot exist unless every live leg verified).
+    cap = _closed_contract_object(
+        provider["cap"],
+        field="handoff.provider.cap",
+        keys=(
+            "mechanism",
+            "action",
+            "termination_time_utc",
+            "termination_timestamp_utc",
+        ),
+        code=code,
+    )
+    cap_intended = _contract_timestamp(
+        cap["termination_time_utc"],
+        field="handoff.provider.cap.termination_time_utc",
+        code=code,
+    )
+    cap_readback = _contract_timestamp(
+        cap["termination_timestamp_utc"],
+        field="handoff.provider.cap.termination_timestamp_utc",
+        code=code,
+    )
     if (
-        provider["termination_time_utc"]
-        != provider["termination_timestamp_utc"]
-        or provider["instance_termination_action"]
-        != "DELETE"
+        cap["mechanism"] != CAP_MECHANISM
+        or cap["action"] != CAP_ACTION
+        or cap_intended != cap_readback
     ):
         raise F1KOpsError(
             code,
-            "provider deletion is not read-back DELETE",
+            "provider cap is not the read-back native STOP terminationTime "
+            "(mechanism=%s action=STOP intended==read-back)" % CAP_MECHANISM,
+        )
+
+    cleanup = _closed_contract_object(
+        provider["cleanup"],
+        field="handoff.provider.cleanup",
+        keys=("mechanism", "action", "verified"),
+        code=code,
+    )
+    if (
+        cleanup["mechanism"] != CLEANUP_MECHANISM
+        or cleanup["action"] != CLEANUP_ACTION
+        or cleanup["verified"] != "delete-poll-done-absence"
+    ):
+        raise F1KOpsError(
+            code,
+            "provider cleanup block is not the verified reaper deletion "
+            "(mechanism/action/verified)",
+        )
+
+    # Freshness + ordering (R3.4/R4.4): campaign_started <= created_at <= now,
+    # strict, no skew allowance. The producer captures the start strictly
+    # before writing the handoff, so legitimate ordering always holds; a
+    # hand-built FUTURE start refuses.
+    started_dt = _utc_datetime(
+        campaign_started, field="campaign_started_at_utc", code=code
+    )
+    created_dt = _utc_datetime(
+        created_at_ts, field="created_at_utc", code=code
+    )
+    now_dt = _utc_datetime(now_ts, field="now_utc", code=code)
+    if not (started_dt <= created_dt <= now_dt):
+        raise F1KOpsError(
+            code,
+            "provider campaign start / handoff creation / now are not "
+            "ordered campaign_started <= created_at <= now (future-start or "
+            "clock-ahead exposure understatement)",
         )
 
     decimals = {}
@@ -3019,7 +3158,27 @@ def validate_handoff(record):
         raise F1KOpsError(
             code,
             "provider wall-clock envelope exceeds "
-            "lean-B limits",
+            "variant-B limits",
+        )
+    # LC-8: RECOMPUTE armed_hours from campaign_started -> cap.termination_time
+    # under the producer's ROUND_CEILING / 6 dp rule and require exact equality
+    # plus strict timestamp ordering — an understated "armed_hours_decimal"
+    # can no longer satisfy the $300 arithmetic.
+    cap_deadline_dt = _utc_datetime(
+        cap_intended, field="cap.termination_time_utc", code=code
+    )
+    if not (started_dt < cap_deadline_dt):
+        raise F1KOpsError(
+            code,
+            "provider campaign start is not strictly before the cap "
+            "termination time",
+        )
+    recomputed_armed = _hours_ceiling(started_dt, cap_deadline_dt)
+    if recomputed_armed != decimals["armed_hours_decimal"]:
+        raise F1KOpsError(
+            code,
+            "provider armed_hours_decimal %s != recomputed %s (LC-8)"
+            % (decimals["armed_hours_decimal"], recomputed_armed),
         )
     with localcontext() as context:
         context.prec = 80
@@ -3064,6 +3223,12 @@ def validate_handoff(record):
         field="handoff.provider.budget.resource_name",
         code=code,
     )
+    if not _BUDGET_RESOURCE_RE.fullmatch(budget["resource_name"]):
+        raise F1KOpsError(
+            code,
+            "provider budget.resource_name is not a "
+            "billingAccounts/<id>/budgets/<id> resource (LC-8)",
+        )
     if (
         _contract_decimal(
             budget["amount_usd_decimal"],
@@ -3276,11 +3441,16 @@ def verify_artifact(
     }
 
 
-def build_runtime_license(ready, gate, handoff):
-    """Build the normalized lean-B license used by launch and guard."""
+def build_runtime_license(ready, gate, handoff, *, now_utc=None):
+    """Build the normalized variant-B license used by launch and guard.
+
+    now_utc is threaded to validate_handoff's freshness rule (R3.4); the guard
+    passes its OWN fresh clock at license load so a stale/future campaign start
+    refuses at the spend authority, not only at production.
+    """
     ready = validate_ready(ready)
     gate = validate_gate(gate)
-    handoff = validate_handoff(handoff)
+    handoff = validate_handoff(handoff, now_utc=now_utc)
     binding = validate_ready_gate_binding(
         ready, gate
     )
@@ -3374,7 +3544,564 @@ def build_runtime_license(ready, gate, handoff):
     }
 
 
+PRIOR_SPEND_SCHEMA = "kot-f1k-prior-spend/1"
+
+
+def build_prior_spend(*, launch_epoch_utc, campaign_started_at_utc,
+                      licensed_rate, instance_id) -> dict:
+    """Build the kot-f1k-prior-spend/1 record (Rev2 R2.6-#8 / LC-13).
+
+    Carries the bring-up epoch, campaign start, ROUND_CEILING 6-dp elapsed
+    hours, the licensed rate, and bringup_cost = elapsed x rate (ROUND_CEILING),
+    self-hashed. LC-13 makes `cmd_config_cost` REQUIRE this record and refuse
+    manual prior dollars/hours, so bring-up spend is BOUND as evidence with an
+    enforcing consumer — it can never vanish from the 900 h analysis basis.
+    """
+    from decimal import ROUND_CEILING
+    launch_dt = _utc_datetime(
+        launch_epoch_utc, field="launch_epoch_utc", code="F1K_PRIOR")
+    started_dt = _utc_datetime(
+        campaign_started_at_utc, field="campaign_started_at_utc",
+        code="F1K_PRIOR")
+    if not (launch_dt < started_dt):
+        raise F1KOpsError(
+            "F1K_PRIOR",
+            "campaign start must be strictly after the launch epoch")
+    elapsed = _hours_ceiling(launch_dt, started_dt)
+    rate = canonical_decimal(licensed_rate, field="licensed_rate")
+    with localcontext() as ctx:
+        ctx.prec = 80
+        cost = (elapsed * Decimal(rate)).quantize(
+            Decimal("0.000001"), rounding=ROUND_CEILING)
+    ident = _strict_string(
+        instance_id, field="instance_id", pattern=_NUMERIC_ID_RE)
+    record = {
+        "schema": PRIOR_SPEND_SCHEMA,
+        "launch_epoch_utc": _utc_timestamp(
+            launch_epoch_utc, field="launch_epoch_utc", code="F1K_PRIOR"),
+        "campaign_started_at_utc": _utc_timestamp(
+            campaign_started_at_utc, field="campaign_started_at_utc",
+            code="F1K_PRIOR"),
+        "bringup_elapsed_hours_decimal": str(elapsed),
+        "licensed_rate_usd_per_hour_decimal": rate,
+        "bringup_cost_usd_decimal": str(cost),
+        "instance_id": ident,
+    }
+    record["sha256"] = hashlib.sha256(
+        canonical_json_bytes(record)).hexdigest()
+    return record
+
+
+def validate_prior_spend(record, *, rate=None, instance_id=None) -> dict:
+    """Validate a kot-f1k-prior-spend/1 record: schema/sha/arithmetic/binding
+    (LC-13). Returns the DERIVED {prior_usd, prior_hours} as canonical strings.
+    Fails closed on any tamper; manual override is impossible by construction —
+    the derived values come only from the self-consistent record."""
+    code = "F1K_PRIOR"
+    obj = _closed_contract_object(
+        record, field="prior-spend", keys=(
+            "schema", "launch_epoch_utc", "campaign_started_at_utc",
+            "bringup_elapsed_hours_decimal",
+            "licensed_rate_usd_per_hour_decimal", "bringup_cost_usd_decimal",
+            "instance_id", "sha256"), code=code)
+    if obj["schema"] != PRIOR_SPEND_SCHEMA:
+        raise F1KOpsError(code, "prior-spend schema is not %s"
+                          % PRIOR_SPEND_SCHEMA)
+    unhashed = {k: obj[k] for k in obj if k != "sha256"}
+    expected = hashlib.sha256(canonical_json_bytes(unhashed)).hexdigest()
+    if not isinstance(obj["sha256"], str) or obj["sha256"] != expected:
+        raise F1KOpsError(code, "prior-spend sha256 does not recompute")
+    rebuilt = build_prior_spend(
+        launch_epoch_utc=obj["launch_epoch_utc"],
+        campaign_started_at_utc=obj["campaign_started_at_utc"],
+        licensed_rate=obj["licensed_rate_usd_per_hour_decimal"],
+        instance_id=obj["instance_id"])
+    if (rebuilt["bringup_elapsed_hours_decimal"]
+            != obj["bringup_elapsed_hours_decimal"]
+            or rebuilt["bringup_cost_usd_decimal"]
+            != obj["bringup_cost_usd_decimal"]):
+        raise F1KOpsError(
+            code, "prior-spend arithmetic (elapsed/cost) does not recompute")
+    if rate is not None and canonical_decimal(rate, field="rate") != \
+            obj["licensed_rate_usd_per_hour_decimal"]:
+        raise F1KOpsError(
+            code, "prior-spend rate %s != config rate %s"
+            % (obj["licensed_rate_usd_per_hour_decimal"], rate))
+    if instance_id is not None and obj["instance_id"] != instance_id:
+        raise F1KOpsError(
+            code, "prior-spend instance_id %s != expected %s"
+            % (obj["instance_id"], instance_id))
+    return {
+        "prior_usd": obj["bringup_cost_usd_decimal"],
+        "prior_hours": obj["bringup_elapsed_hours_decimal"],
+        "instance_id": obj["instance_id"],
+        "licensed_rate": obj["licensed_rate_usd_per_hour_decimal"],
+    }
+
+
 # --- governance layer (ledger/lease/attestation) pending issue #53 A/B/C ---
+
+
+def build_construction_fixture():
+    """Shared valid variant-B (ready, gate) fixture — the b0 records()
+    triple, exposed module-level so the construction-continue $0 oracle reuses
+    the exact canonical shapes (no divergent hand-rolled fixture)."""
+    instance = {
+        "instance_id":
+            "1234567890123456789",
+        "name": "kot-f1k-run",
+        "project_id": "test-project",
+        "project_number": "987654321",
+        "zone": "us-central1-a",
+        "machine_type": "n2d-highmem-8",
+        "provisioning_model": "SPOT",
+        "last_start_timestamp":
+            "2026-07-18T12:00:00Z",
+        "boot_id":
+            "12345678-1234-5678-9234-567812345678",
+    }
+    root = "/home/ubuntu/f1k"
+    python = "/usr/bin/python3"
+    builder = (
+        root
+        + "/poc/glm52-probe/f1k-harness/"
+        "build_carriers.py"
+    )
+    source_sha = "a" * 64
+    bundle_sha = "b" * 64
+    engine_sha = "c" * 64
+    weights_sha = "d" * 64
+    tokenizer_sha = "e" * 64
+    dump_sha = "f" * 64
+    tokens_sha = "1" * 64
+    pin_sha = "2" * 64
+    result_sha = "3" * 64
+    tokenizer_artifact = (
+        "/mnt/nvme/glm52_i4/tokenizer.json"
+    )
+    weights_artifact = (
+        "/home/ubuntu/f1k-gate/"
+        "glm52-weights-hash.json"
+    )
+    dump_artifact = (
+        root
+        + "/dump-patch/kot-f1k-dump.patch"
+    )
+    paths = {
+        "rundir":
+            "/home/ubuntu/f1k-gate/guard",
+        "workdir":
+            "/mnt/nvme/kot-f1k/construction/work",
+        "out":
+            "/mnt/nvme/kot-f1k/construction/out",
+    }
+    argv = [
+        python,
+        builder,
+        "construct",
+        "--mode",
+        "real",
+        "--layers",
+        ",".join(
+            str(layer)
+            for layer in range(3, 78)
+        ),
+        "--tokenizer-sha",
+        tokenizer_sha,
+        "--tokenizer-artifact",
+        tokenizer_artifact,
+        "--engine-weights-sha",
+        weights_sha,
+        "--engine-weights-artifact",
+        weights_artifact,
+        "--dump-patch-sha",
+        dump_sha,
+        "--dump-patch-artifact",
+        dump_artifact,
+        "--out",
+        paths["out"],
+        "--workdir",
+        paths["workdir"],
+    ]
+    ready = {
+        "schema": CONSTRUCTION_READY_SCHEMA,
+        "status": "READY",
+        "created_at_utc":
+            "2026-07-18T12:00:00Z",
+        "instance": copy.deepcopy(instance),
+        "timing_results": {
+            "boot_id": instance["boot_id"],
+            "result_set_sha256": result_sha,
+            "pin_sha256": pin_sha,
+            "t1_sample_ids": ["s000"],
+            "t2_sample_ids": [
+                "s000",
+                "s001",
+            ],
+        },
+        "payload": {
+            "root": root,
+            "source_manifest": {
+                "path": (
+                    root
+                    + "/data/f1k-carriers-v1/"
+                    "generator/"
+                    "construction-manifest.jsonl"
+                ),
+                "sha256": source_sha,
+            },
+            "bundle_manifest": {
+                "path":
+                    root + "/bundle-manifest.json",
+                "sha256": bundle_sha,
+                "file_count": 12,
+            },
+        },
+        "builder": {
+            "path": builder,
+            "sha256":
+                CONSTRUCTION_BUILDER_SHA256,
+            "argv_base": argv,
+        },
+        "engine": {
+            "argv": [
+                "/home/ubuntu/"
+                "colibri-construct/c/glm",
+                "64",
+                "4",
+                "8",
+            ],
+            "executable_path":
+                "/home/ubuntu/"
+                "colibri-construct/c/glm",
+            "sha256": engine_sha,
+            "weights_artifact_path":
+                weights_artifact,
+            "weights_artifact_sha256":
+                weights_sha,
+        },
+        "tokenizer": {
+            "argv": [
+                python,
+                root + "/tok_glm52.py",
+                tokenizer_artifact,
+            ],
+            "artifact_path": tokenizer_artifact,
+            "sha256": tokenizer_sha,
+        },
+        "dump_patch": {
+            "artifact_path": dump_artifact,
+            "sha256": dump_sha,
+        },
+        "token_sidecar": {
+            "path": (
+                "/home/ubuntu/f1k-gate/"
+                "gate-tokens/tokens-full.jsonl"
+            ),
+            "sha256": tokens_sha,
+        },
+        "pin": {
+            "path": (
+                "/home/ubuntu/f1k-gate/"
+                "pin_bringup.stats"
+            ),
+            "sha256": pin_sha,
+            "pin_gb": 40.0,
+        },
+        "launch": {
+            "layers": list(range(3, 78)),
+            "environment": {
+                "SNAP":
+                    "/mnt/nvme/glm52_i4",
+                "TOK_SHA256": tokenizer_sha,
+                "OMP_NUM_THREADS": "8",
+                "OMP_DYNAMIC": "FALSE",
+                "OMP_PROC_BIND": "close",
+                "OMP_WAIT_POLICY": "active",
+                "COLI_OMP_TUNED": "1",
+            },
+        },
+        "paths": copy.deepcopy(paths),
+        "engine_tests": [
+            {
+                "name": name,
+                "path": (
+                    "/home/ubuntu/f1k-gate/"
+                    + name
+                    + ".evidence"
+                ),
+                "sha256":
+                    format(index + 4, "x") * 64,
+                "verdict": "PASS",
+            }
+            for index, name in enumerate(
+                (
+                    "kae",
+                    "dump-a",
+                    "dump-b",
+                    "dump-c",
+                    "functional-inertness",
+                    "tokenizer-engine-agreement",
+                )
+            )
+        ],
+    }
+
+    gate = {
+        "schema": BRINGUP_GATE_SCHEMA,
+        "verdict": "GREEN",
+        "reasons": [],
+        "checks": {
+            name: True
+            for name in (
+                "rate_in_window",
+                "f_le_threshold",
+                "central_hours_in_window",
+                "central_usd_in_window",
+                "hi_band_below_caps",
+                "dump_preconditions_pass",
+                "functional_inertness_pass",
+                "lo_band_above_floors",
+                "prefills_ge_min",
+                "tokenizer_real",
+                "pin_regime_pinned",
+                "pin_engagement_pass",
+            )
+        },
+        "f": {
+            "blended": 1.45,
+            "threshold": 1.6,
+            "branch": "LE",
+            "per_population": {
+                "construction": 1.45
+            },
+            "convention": "fixture",
+        },
+        "tokenizer": {
+            "mode": "REAL",
+            "mock_f": None,
+            "sha256": tokenizer_sha,
+        },
+        "corpus_sha256": {
+            "construction-manifest.jsonl":
+                source_sha,
+            "test.jsonl": "a" * 64,
+            "dev.jsonl": "b" * 64,
+            "guard.jsonl": "c" * 64,
+        },
+        "sample": {
+            "seed": 20260718,
+            "rule": {
+                "quantile_edges": [0.0, 1.0],
+                "bin_alloc": [2],
+                "cont_tokens": 8,
+                "pop_floor": {
+                    "construction": 1
+                },
+                "t1_n": 1,
+                "text": "fixture",
+            },
+            "realized_bin_edges_Tp": [10, 20],
+            "n": 2,
+            "t1_sample_ids": ["s000"],
+            "entries": [
+                {
+                    "sample_id": "s000",
+                    "key":
+                        "construction:0000",
+                    "pop": "construction",
+                    "bin": 0,
+                    "W": 4,
+                    "T": 6,
+                    "Tp": 14,
+                    "why": "stratified",
+                },
+                {
+                    "sample_id": "s001",
+                    "key":
+                        "construction:0001",
+                    "pop": "construction",
+                    "bin": 0,
+                    "W": 5,
+                    "T": 7,
+                    "Tp": 15,
+                    "why": "campaign-max-T",
+                },
+            ],
+        },
+        "model": {
+            "type": "fixture",
+            "knots_raw": [{"T": 14.0}],
+            "knots_isotonic": [{"T": 14.0}],
+            "isotonic_repairs": [],
+            "se_rule": "fixture",
+            "cont_tokens_addend": 8,
+        },
+        "pin": {
+            "pin_file_sha256": pin_sha,
+            "pin_gb": 40.0,
+            "pin_file_path":
+                ready["pin"]["path"],
+            "regime": "pinned-bringup",
+            "derivation": {},
+            "role": "fixture",
+            "note": "fixture",
+        },
+        "model_bundle": {
+            "add7_src_sha256": "9" * 64,
+            "tokens_full_sha256": tokens_sha,
+            "rule": "fixture",
+        },
+        "pin_engagement": {
+            "pass": True,
+            "problems": [],
+            "rule": "fixture",
+        },
+        "rate": {
+            "usd_per_hour": 0.219,
+            "usd_per_hour_decimal": "0.219",
+            "source": "fixture",
+        },
+        "projection": {
+            "prefills": 11011,
+            "replace_included": False,
+            "instance_hours": {
+                "central": 700.0,
+                "hi": 750.0,
+                "lo": 650.0,
+            },
+            "usd_total": {
+                "central": 153.3,
+                "hi": 164.25,
+                "lo": 142.35,
+            },
+            "blended_s_per_prefill_central":
+                228.86,
+            "hours_by_population_central": {
+                "construction": 100.0
+            },
+            "per_average_naive_hours_RETIRED":
+                690.0,
+            "per_average_divergence_pct": 1.45,
+            "reserve": {
+                "usd": 8.0,
+                "hours_at_rate": 36.53,
+                "rule": "fixture",
+                "usd_central_with_reserve":
+                    161.3,
+                "hours_central_with_reserve":
+                    736.5,
+            },
+        },
+        "dump_gate": {
+            "a": "PASS",
+            "b": "PASS",
+            "c": "PASS",
+            "functional_inertness": "PASS",
+            "rule": "fixture",
+        },
+        "thresholds": {
+            "instance_hours": [260.6, 900.0],
+            "usd_total": [73.0, 155.0],
+            "rate_window": [0.0811, 0.5948],
+            "prefills_min": 11011,
+        },
+        "semantics": "fixture",
+    }
+
+    binding = validate_ready_gate_binding(
+        ready, gate
+    )
+    handoff = {
+        "schema": CONSTRUCTION_HANDOFF_SCHEMA,
+        "created_at_utc":
+            "2026-07-18T12:01:00Z",
+        "mode": "initial",
+        "instance": copy.deepcopy(instance),
+        "ready": {
+            "path": CONSTRUCTION_READY_PATH,
+            "sha256": hashlib.sha256(
+                canonical_json_bytes(ready)
+            ).hexdigest(),
+            "schema": CONSTRUCTION_READY_SCHEMA,
+            "status": "READY",
+        },
+        "gate": {
+            "path": BRINGUP_GATE_PATH,
+            "sha256": hashlib.sha256(
+                canonical_json_bytes(gate)
+            ).hexdigest(),
+            "schema": BRINGUP_GATE_SCHEMA,
+            "verdict": "GREEN",
+        },
+        "binding": binding,
+        "rate": {
+            "usd_per_hour_decimal": "0.219",
+            "local_ssd_count": 2,
+            "evidence": {
+                "path": RATE_EVIDENCE_PATH,
+                "sha256": "8" * 64,
+                "schema": RATE_EVIDENCE_SCHEMA,
+                "observed_at_utc":
+                    "2026-07-18T12:00:30Z",
+            },
+        },
+        "provider": {
+            "campaign_started_at_utc":
+                "2026-07-18T12:00:00Z",
+            "cap": {
+                "mechanism":
+                    "gce-termination-time",
+                "action": "STOP",
+                "termination_time_utc":
+                    "2026-08-24T23:00:00Z",
+                "termination_timestamp_utc":
+                    "2026-08-24T23:00:00Z",
+            },
+            "cleanup": {
+                "mechanism":
+                    "control-box-reaper",
+                "action": "DELETE",
+                "verified":
+                    "delete-poll-done-absence",
+            },
+            "frozen_hours_max_decimal": "900",
+            "armed_hours_decimal": "899",
+            "non_compute_allowance_usd_decimal":
+                "50",
+            "rate_headroom_usd_decimal": "10",
+            "compute_ceiling_usd_decimal":
+                "196.881",
+            "total_envelope_usd_decimal":
+                "256.881",
+            "budget": {
+                "resource_name":
+                    "billingAccounts/123/"
+                    "budgets/456",
+                "amount_usd_decimal": "300",
+                "project_id": "test-project",
+            },
+        },
+        "paths": copy.deepcopy(paths),
+        "service": {
+            "manager": "systemd",
+            "unit_name":
+                "kot-f1k-construction.service",
+            "user": "ubuntu",
+            "working_directory": root,
+            "exec_argv": [
+                python,
+                root + "/f1k_bringup_gate.py",
+                "guard",
+                "--handoff",
+                CONSTRUCTION_HANDOFF_PATH,
+            ],
+            "restart_policy": "no",
+            "enabled_on_boot": False,
+        },
+    }
+    return ready, gate
+
 
 
 def selftest_b0() -> int:
@@ -3820,12 +4547,22 @@ def selftest_b0() -> int:
             "provider": {
                 "campaign_started_at_utc":
                     "2026-07-18T12:00:00Z",
-                "termination_time_utc":
-                    "2026-08-24T23:00:00Z",
-                "termination_timestamp_utc":
-                    "2026-08-24T23:00:00Z",
-                "instance_termination_action":
-                    "DELETE",
+                "cap": {
+                    "mechanism":
+                        "gce-termination-time",
+                    "action": "STOP",
+                    "termination_time_utc":
+                        "2026-08-24T23:00:00Z",
+                    "termination_timestamp_utc":
+                        "2026-08-24T23:00:00Z",
+                },
+                "cleanup": {
+                    "mechanism":
+                        "control-box-reaper",
+                    "action": "DELETE",
+                    "verified":
+                        "delete-poll-done-absence",
+                },
                 "frozen_hours_max_decimal": "900",
                 "armed_hours_decimal": "899",
                 "non_compute_allowance_usd_decimal":
@@ -4823,6 +5560,15 @@ def selftest() -> int:
 # cap is the upper bound of instance_hours in [260.6, 900] h
 # (analysis/f1k.py, pinned) and registry/experiments/f1k.json (ASM-2405 context).
 SELFDELETE_CAP_HOURS = Decimal("900")
+# Rev4 R4.1 (PROPOSED-CC-14): the provider may take up to 30 s AFTER the
+# configured terminationTime to begin STOPPING, so a raw epoch+900h cannot
+# support a hard <=900 h compute bound. T_cap = epoch + 900 h - 10 min. The
+# 10 min margin exceeds the documented worst case by >1 order of magnitude and
+# costs 0.019% of the window; CPU charges cease at STOPPING, so the
+# RUNNING-billable window is provably < 900 h. compute_selfdelete_deadline is
+# the SINGLE deadline derivation, so L1/L2/handoff/preflight/re-probe/guard all
+# share this one conservative value.
+SELFDELETE_MARGIN_MINUTES = 10
 # $300 is the maintainer's protective GCE billing ceiling (a superset of the
 # $155 frozen construction-compute cap, ASM-2374). NOT caller-overridable.
 BILLING_CEILING_USD = "300"
@@ -4879,6 +5625,25 @@ def _elapsed_hours(start: datetime, end: datetime) -> Decimal:
     with localcontext() as ctx:
         ctx.prec = 50
         return Decimal(total_us) / Decimal(3_600_000_000)
+
+
+def _utc_now_z() -> str:
+    """Current UTC as a second-resolution RFC3339 Z string."""
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S") + "Z"
+
+
+def _hours_ceiling(start: datetime, end: datetime, *, dp: int = 6) -> Decimal:
+    """Exact hours between two aware datetimes, quantized UP to `dp` decimals.
+
+    ROUND_CEILING so the armed-hours envelope OVER-states exposure — the
+    conservative direction for a spend cap (LC-8 recompute).
+    """
+    from decimal import ROUND_CEILING
+    exact = _elapsed_hours(start, end)
+    quant = Decimal(1).scaleb(-dp)
+    with localcontext() as ctx:
+        ctx.prec = 80
+        return exact.quantize(quant, rounding=ROUND_CEILING)
 
 
 def _exact_product(a: Decimal, b: Decimal) -> Decimal:
@@ -5037,18 +5802,32 @@ def write_launch_epoch(
     }
 
 
-def _resolve_epoch_launch(*, local_path, mirror_transport) -> str:
+def _resolve_epoch_launch(
+    *, local_path, mirror_transport, require_mirror=False
+) -> str:
     """Return the single authoritative launch_utc from the durable sources.
 
     The mirror (when supplied) is authoritative because it survives Spot
     preemption; a present local copy must agree with it. Fails closed if no
     durable source exists or the sources disagree.
+
+    LC-12: in `require_mirror` mode (the launch context) a mirror object that
+    is ABSENT while a local copy EXISTS is a durability failure, not a
+    fallback — it REFUSES (F1K_B_MIRROR_REQUIRED). Mirror loss must never be
+    silently papered over by the fast-path local cache when spend is at stake.
     """
     launches = {}
+    mirror_present = False
     if mirror_transport is not None:
         data = _mirror_get(mirror_transport)
         if data is not None:
+            mirror_present = True
             launches["mirror"] = _load_epoch_bytes(data, source="mirror")
+    if require_mirror and mirror_transport is None:
+        raise F1KOpsError(
+            "F1K_B_MIRROR_REQUIRED",
+            "launch context requires a durable mirror_transport",
+        )
     if os.path.exists(local_path):
         try:
             with open(local_path, "rb") as handle:
@@ -5059,6 +5838,12 @@ def _resolve_epoch_launch(*, local_path, mirror_transport) -> str:
             raise F1KOpsError(
                 "F1K_B_EPOCH_SHAPE", "cannot read local epoch: %s" % exc
             ) from exc
+    if require_mirror and "local" in launches and not mirror_present:
+        raise F1KOpsError(
+            "F1K_B_MIRROR_REQUIRED",
+            "launch context: a local epoch exists but the durable mirror is "
+            "ABSENT — mirror loss is not a fallback (LC-12)",
+        )
     if not launches:
         raise F1KOpsError(
             "F1K_B_EPOCH_MISSING", "no durable launch epoch is available"
@@ -5096,15 +5881,21 @@ def read_elapsed_hours(
 
 
 def compute_selfdelete_deadline(*, launch_utc) -> str:
-    """Return the 900 h wall-clock self-delete deadline as a UTC Z timestamp."""
+    """Return T_cap = epoch + 900 h - 10 min as a UTC Z timestamp (Rev4 R4.1).
+
+    The single, authoritative provider deadline. The 10 min conservative margin
+    (SELFDELETE_MARGIN_MINUTES) absorbs the documented up-to-30 s
+    termination-start delay so the running-billable window is provably < 900 h.
+    Second granularity (systemd OnCalendar is second-resolved). A fractional-
+    second launch is floored, so the deadline is at most one second early —
+    conservative for a spend cap.
+    """
     launch_dt = _utc_datetime(
         launch_utc, field="launch_utc", code="F1K_B_EPOCH_TIME"
     )
-    # 900 h cap; second granularity (systemd OnCalendar is second-resolved). A
-    # fractional-second launch is floored, so the deadline is at most one second
-    # early — conservative for a spend cap.
     deadline = launch_dt.replace(microsecond=0) + timedelta(
-        hours=int(SELFDELETE_CAP_HOURS)
+        hours=int(SELFDELETE_CAP_HOURS),
+        minutes=-int(SELFDELETE_MARGIN_MINUTES),
     )
     return deadline.strftime("%Y-%m-%dT%H:%M:%S") + "Z"
 
@@ -5116,15 +5907,24 @@ def _oncalendar(deadline_utc: str) -> str:
     return dt.strftime("%Y-%m-%d %H:%M:%S UTC")
 
 
+# LC-1: the L2 guest fallback is defense-in-depth beneath the native L1 cap.
+# The retry loop is EXTENDED (20 attempts x 30 s ~= 10 min) and, on exhaustion,
+# a terminal `poweroff -f` needs NO cloud credentials and stops COMPUTE billing
+# even under total IAM/API failure (PROPOSED-CC-8). Residual (disclosed): boot
+# PD + attached Local SSDs keep billing until the L1 cap / reaper deletes the
+# instance. The ExecStart is verified BYTE-EXACT by verify_selfdelete_armed, so
+# any drift between this string and the rendered unit fails closed.
+_SELFDELETE_ATTEMPTS = 20
+
+
 def _selfdelete_exec_start(name, zone_text, project_id) -> str:
-    # A retry loop tolerates a delete that fires before networking is up (a
-    # missed timer firing during boot) without a single-shot failure being
-    # final. --project binds the deletion target explicitly.
+    seq = " ".join(str(i) for i in range(1, _SELFDELETE_ATTEMPTS + 1))
     return (
-        "/bin/bash -c 'for i in 1 2 3 4 5 6; do "
+        "/bin/bash -c 'for i in %s; do "
         "/usr/bin/gcloud compute instances delete %s "
         "--zone %s --project %s --quiet && exit 0; sleep 30; "
-        "done; exit 1'" % (name, zone_text, project_id)
+        "done; /usr/sbin/poweroff -f; exit 1'"
+        % (seq, name, zone_text, project_id)
     )
 
 
@@ -5147,14 +5947,21 @@ def render_selfdelete_unit(
     )
     oncalendar = _oncalendar(deadline_utc)
     exec_start = _selfdelete_exec_start(name, zone_text, project)
+    # LC-1: Restart=on-failure with StartLimitIntervalSec=0 (never rate-limited
+    # out) hardens the guest fallback; the ExecStart already ends in
+    # `poweroff -f`, so an exhausted-retry oneshot exits nonzero and is
+    # restarted, and the poweroff terminal stops compute billing with no auth.
     service_text = (
         "[Unit]\n"
         "Description=F1-K wall-clock spend-cap self-delete "
-        "(900 h hard cap)\n"
+        "(guest defense-in-depth beneath the native cap)\n"
         "Wants=network-online.target\n"
         "After=network-online.target\n"
+        "StartLimitIntervalSec=0\n"
         "[Service]\n"
         "Type=oneshot\n"
+        "Restart=on-failure\n"
+        "RestartSec=30\n"
         "ExecStart=%s\n" % exec_start
     )
     timer_text = (
@@ -5214,6 +6021,12 @@ def verify_selfdelete_armed(
         action="persistent"     -> "yes"/"true"/"1" iff Persistent set
         action="triggered-unit" -> the service the timer triggers
         action="exec-start"     -> the service's ExecStart command line
+        action="restart-policy" -> the service's Restart= value (LC-2)
+
+    LC-2: also verifies the hardened Restart=on-failure policy and — via the
+    byte-exact ExecStart match — the terminal `poweroff -f` fallback, and
+    returns a CLOSED attestation carrying `action`/`mechanism` so the LC-5
+    composite has a real value to compose (no fiction — the wonu lesson).
     """
     if systemctl_transport is None:
         raise F1KOpsError(
@@ -5277,8 +6090,31 @@ def verify_selfdelete_armed(
             "self-delete ExecStart is not the exact bound delete of "
             "%s/%s/%s: %r" % (project, zone_text, name, exec_start),
         )
+    # LC-2: the byte-exact ExecStart above proves the terminal `poweroff -f`
+    # fallback is present (it is part of _selfdelete_exec_start); the restart
+    # policy is verified independently here — a unit lacking Restart=on-failure
+    # refuses (defect #1: a give-up single-shot left the VM billable).
+    if "/usr/sbin/poweroff -f" not in expected_exec:  # invariant guard
+        raise F1KOpsError(
+            "F1K_B_SELFDELETE_TARGET",
+            "self-delete fallback is not the terminal poweroff -f",
+        )
+    restart = _systemctl_query(
+        systemctl_transport,
+        action="restart-policy", unit=SELFDELETE_SERVICE_UNIT,
+    )
+    if restart.strip() != "on-failure":
+        raise F1KOpsError(
+            "F1K_B_SELFDELETE_RESTART",
+            "self-delete service Restart policy is %r, expected "
+            "on-failure (LC-2 hardening)" % (restart,),
+        )
     return {
         "armed": True,
+        "action": "DELETE",
+        "mechanism": "systemd-selfdelete",
+        "restart_policy": "on-failure",
+        "fallback": "poweroff-f",
         "deadline_utc": _utc_timestamp(
             deadline_utc, field="deadline_utc", code="F1K_B_DEADLINE_TIME"
         ),
@@ -5287,70 +6123,481 @@ def verify_selfdelete_armed(
     }
 
 
-def assure_billing_budget(*, billing_account, budget_transport=None) -> dict:
-    """Verify a $300 Cloud Billing budget with alert thresholds exists.
+def verify_provider_cap(
+    *, instance_name, zone, project_id, deadline_utc, compute_transport=None,
+) -> dict:
+    """LC-3v3: verify the NATIVE GCE runtime-limit cap (variant B, the hard
+    cap) via a live `instances.get` scheduling read-back.
 
-    Billing data lags hours, so this is a last-resort backstop, NOT a
-    real-time cap (the wall-clock self-delete is the real bound). The $300
-    ceiling is fixed (BILLING_CEILING_USD), not caller-overridable.
+    Requires scheduling.terminationTime == T_cap (the conservative
+    epoch+900h-10min deadline), instanceTerminationAction == STOP (the unified
+    action shared with Spot preemption), provisioningModel == SPOT, and the
+    discard-local-SSD-at-termination flag set. The cap is READ from live
+    scheduling — never inferred from a provisioning flag we set (the wonu
+    two-axes rule, R3.2). Fails closed on any drift or transport error.
 
-    budget_transport(action="get", billing_account=...) ->
-        {"amount_usd": "300", "threshold_rules": [ {..}, ... ]} or None
+    compute_transport(project_id, zone, instance_name) -> full instance dict
+    (the same shape resolve_live_instance_identity consumes).
+    """
+    if compute_transport is None:
+        raise F1KOpsError(
+            "F1K_B_CAP", "verify_provider_cap requires a compute_transport"
+        )
+    name = _strict_string(
+        instance_name, field="instance_name", pattern=_INSTANCE_NAME_RE
+    )
+    zone_text = _strict_string(zone, field="zone", pattern=_ZONE_RE)
+    project = _strict_string(
+        project_id, field="project_id", pattern=_PROJECT_ID_RE
+    )
+    expected_deadline = _utc_timestamp(
+        deadline_utc, field="deadline_utc", code="F1K_B_DEADLINE_TIME"
+    )
+    try:
+        instance = compute_transport(
+            project_id=project, zone=zone_text, instance_name=name
+        )
+    except F1KOpsError:
+        raise
+    except Exception as exc:  # noqa: BLE001 — fail closed on any transport error
+        raise F1KOpsError(
+            "F1K_B_CAP_TRANSPORT",
+            "live scheduling read-back failed: %s" % exc,
+        ) from exc
+    if not isinstance(instance, dict):
+        raise F1KOpsError(
+            "F1K_B_CAP", "compute transport returned a non-object"
+        )
+    scheduling = instance.get("scheduling")
+    if not isinstance(scheduling, dict):
+        raise F1KOpsError(
+            "F1K_B_CAP", "instance scheduling block is missing"
+        )
+    provisioning = scheduling.get("provisioningModel")
+    if provisioning != "SPOT":
+        raise F1KOpsError(
+            "F1K_B_CAP_MODEL",
+            "scheduling.provisioningModel %r != SPOT" % (provisioning,),
+        )
+    action = scheduling.get("instanceTerminationAction")
+    if action != CAP_ACTION:
+        raise F1KOpsError(
+            "F1K_B_CAP_ACTION",
+            "scheduling.instanceTerminationAction %r != %s (the unified cap "
+            "action); a DELETE mis-provision would delete on every preemption"
+            % (action, CAP_ACTION),
+        )
+    live_deadline = _utc_timestamp(
+        scheduling.get("terminationTime"),
+        field="scheduling.terminationTime", code="F1K_B_CAP_TIME",
+    )
+    if live_deadline != expected_deadline:
+        raise F1KOpsError(
+            "F1K_B_CAP_DRIFT",
+            "live terminationTime %r != T_cap %r"
+            % (live_deadline, expected_deadline),
+        )
+    discard = scheduling.get(DISCARD_LOCAL_SSD_KEY)
+    if discard is not True:
+        raise F1KOpsError(
+            "F1K_B_CAP_DISCARD",
+            "scheduling.%s is not set true — a STOP cap on a local-SSD VM "
+            "requires discard-local-SSD-at-termination" % DISCARD_LOCAL_SSD_KEY,
+        )
+    return {
+        "armed": True,
+        "mechanism": CAP_MECHANISM,
+        "action": CAP_ACTION,
+        "provisioning_model": "SPOT",
+        "termination_time_utc": expected_deadline,
+        "termination_timestamp_utc": live_deadline,
+        "discard_local_ssd": True,
+        "target": "%s/%s/%s" % (project, zone_text, name),
+    }
+
+
+def verify_delete_iam(
+    *, instance_name, zone, project_id, iam_transport=None,
+) -> dict:
+    """LC-4: guest-side dry-run proving compute.instances.delete IS permitted.
+
+    An end-to-end auth + API-reachability + permission check via
+    instances.testIamPermissions, executed with the VM's own credentials, that
+    DELETES NOTHING — capability, not config. Backs the cleanup/teardown
+    deletion path under Rev3. Fails closed if the permission is not granted or
+    the transport errors.
+
+    iam_transport(project_id, zone, instance_name, permissions) ->
+        {"permissions": [<granted subset>]}
+    """
+    if iam_transport is None:
+        raise F1KOpsError(
+            "F1K_B_IAM", "verify_delete_iam requires an iam_transport"
+        )
+    name = _strict_string(
+        instance_name, field="instance_name", pattern=_INSTANCE_NAME_RE
+    )
+    zone_text = _strict_string(zone, field="zone", pattern=_ZONE_RE)
+    project = _strict_string(
+        project_id, field="project_id", pattern=_PROJECT_ID_RE
+    )
+    required = ["compute.instances.delete"]
+    try:
+        response = iam_transport(
+            project_id=project, zone=zone_text, instance_name=name,
+            permissions=list(required),
+        )
+    except F1KOpsError:
+        raise
+    except Exception as exc:  # noqa: BLE001 — fail closed
+        raise F1KOpsError(
+            "F1K_B_IAM_TRANSPORT",
+            "testIamPermissions dry-run failed: %s" % exc,
+        ) from exc
+    if not isinstance(response, dict):
+        raise F1KOpsError(
+            "F1K_B_IAM", "testIamPermissions returned a non-object"
+        )
+    granted = response.get("permissions")
+    if (
+        not isinstance(granted, list)
+        or "compute.instances.delete" not in granted
+    ):
+        raise F1KOpsError(
+            "F1K_B_IAM_DELETE",
+            "compute.instances.delete is not granted (dry-run): %r"
+            % (granted,),
+        )
+    return {
+        "verified": True,
+        "permissions": ["compute.instances.delete"],
+        "target": "%s/%s/%s" % (project, zone_text, name),
+    }
+
+
+def verify_cap_armed(
+    *, instance_name, zone, project_id, deadline_utc,
+    compute_transport=None, systemctl_transport=None, iam_transport=None,
+) -> dict:
+    """LC-5: the composite CLOSED cap attestation.
+
+    Composes L1 (native scheduling read-back, verify_provider_cap), L2 (the
+    hardened guest self-delete timer, verify_selfdelete_armed) and the
+    deletion-IAM dry-run (verify_delete_iam). It EXISTS only if every leg
+    succeeds THIS run and the L1 terminationTime and L2 OnCalendar deadlines
+    are identical. It is the ONLY lawful source for the handoff `cap` block
+    (wonu, /2 form) — the handoff producer copies action/deadline FROM here,
+    never from an echoed provisioning flag.
+    """
+    l1 = verify_provider_cap(
+        instance_name=instance_name, zone=zone, project_id=project_id,
+        deadline_utc=deadline_utc, compute_transport=compute_transport,
+    )
+    l2 = verify_selfdelete_armed(
+        deadline_utc=deadline_utc, instance_name=instance_name,
+        zone=zone, project_id=project_id,
+        systemctl_transport=systemctl_transport,
+    )
+    iam = verify_delete_iam(
+        instance_name=instance_name, zone=zone, project_id=project_id,
+        iam_transport=iam_transport,
+    )
+    if l1["termination_time_utc"] != l2["deadline_utc"]:
+        raise F1KOpsError(
+            "F1K_B_CAP_DEADLINE_SPLIT",
+            "L1 native cap deadline %s != L2 guest timer deadline %s — the "
+            "layers must arm the ONE T_cap"
+            % (l1["termination_time_utc"], l2["deadline_utc"]),
+        )
+    return {
+        "armed": True,
+        "mechanism": CAP_MECHANISM,
+        "action": CAP_ACTION,
+        "termination_time_utc": l1["termination_time_utc"],
+        "termination_timestamp_utc": l1["termination_timestamp_utc"],
+        "deadline_utc": l1["termination_time_utc"],
+        "target": l1["target"],
+        "l1": l1,
+        "l2": l2,
+        "iam": iam,
+        "cleanup": {
+            "mechanism": CLEANUP_MECHANISM,
+            "action": CLEANUP_ACTION,
+            "verified": "delete-poll-done-absence",
+        },
+    }
+
+
+# Narrowing budgetFilter keys that MUST be absent (R3.3): a budget scoped to
+# specific services / labels / resource ancestors / subaccounts / specific
+# credit types is NOT a project-wide $300 tripwire and is REFUSED.
+_BUDGET_NARROWING_KEYS = (
+    "services",
+    "labels",
+    "resourceAncestors",
+    "subaccountsBudgetScope",
+    "creditTypes",
+    "calendarPeriodBudgetScope",
+)
+_BUDGET_DEFAULT_CREDIT_TREATMENT = "INCLUDE_ALL_CREDITS"
+
+
+def assure_billing_budget(
+    *, billing_account, budget_resource_name=None, project_id=None,
+    budget_transport=None, channel_transport=None, linkage_transport=None,
+) -> dict:
+    """LC-6v3: verify the EXACT $300 project-scoped Cloud Billing budget.
+
+    Billing data lags hours, so a budget is a DELAYED-ALERT tripwire, NEVER a
+    spending cap (vendor-documented). The point of this attestation is that the
+    named resource is exactly the protective tripwire we think it is:
+
+      - `budget_resource_name` is the EXACT billingAccounts/<id>/budgets/<id>
+        (env KOT_F1K_BUDGET_RESOURCE); its parent account == `billing_account`;
+      - amount USD, exactly 300 units / 0 nanos (BILLING_CEILING_USD);
+      - budgetFilter names EXACTLY this one project (`projects/<project_id>`) and
+        carries NO narrowing filter (services/labels/ancestors/subaccounts/
+        credit types) and the default all-credits treatment (R3.3);
+      - an explicit period (calendarPeriod XOR customPeriod);
+      - non-empty thresholdRules;
+      - EFFECTIVE notifications: every monitoringNotificationChannel fetched and
+        in a VERIFIED + enabled state (Monitoring API read);
+      - the project is LIVE-LINKED to `billing_account` with billing enabled.
+
+    Fails closed on ANY defect. Returns a closed attestation preflight passes
+    through for direct handoff population.
+
+    budget_transport(action="get", resource_name=<name>) -> budgets.get object
+    linkage_transport(project_id=<id>) -> projects.getBillingInfo object
+    channel_transport(name=<channel>) -> notificationChannels.get object
     """
     if budget_transport is None:
         raise F1KOpsError(
             "F1K_B_BUDGET",
             "assure_billing_budget requires a budget_transport",
         )
-    _strict_string(billing_account, field="billing_account")
-    expected = canonical_decimal(
-        BILLING_CEILING_USD, field="billing ceiling"
-    )
-    try:
-        budget = budget_transport(
-            action="get", billing_account=billing_account
+    account = _strict_string(billing_account, field="billing_account")
+    if budget_resource_name is None or project_id is None:
+        raise F1KOpsError(
+            "F1K_B_BUDGET",
+            "assure_billing_budget requires budget_resource_name + project_id "
+            "(LC-6v3: 'any $300 budget' never validates)",
         )
+    resource = _strict_string(
+        budget_resource_name, field="budget_resource_name",
+        pattern=_BUDGET_RESOURCE_RE,
+    )
+    project = _strict_string(
+        project_id, field="project_id", pattern=_PROJECT_ID_RE
+    )
+    if not resource.startswith(account + "/budgets/"):
+        raise F1KOpsError(
+            "F1K_B_BUDGET_RESOURCE",
+            "budget resource %r is not a budget of billing account %r"
+            % (resource, account),
+        )
+    expected = canonical_decimal(BILLING_CEILING_USD, field="billing ceiling")
+    if channel_transport is None or linkage_transport is None:
+        raise F1KOpsError(
+            "F1K_B_BUDGET",
+            "assure_billing_budget requires channel_transport + "
+            "linkage_transport (verified channels + live project linkage)",
+        )
+
+    try:
+        budget = budget_transport(action="get", resource_name=resource)
     except F1KOpsError:
         raise
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:  # noqa: BLE001 — fail closed on any transport error
         raise F1KOpsError(
             "F1K_B_BUDGET_TRANSPORT", "budget get failed: %s" % exc
         ) from exc
     if budget is None:
         raise F1KOpsError(
-            "F1K_B_BUDGET_ABSENT", "no billing budget is configured"
+            "F1K_B_BUDGET_ABSENT",
+            "budget %r does not exist" % resource,
         )
     if not isinstance(budget, dict):
         raise F1KOpsError("F1K_B_BUDGET_SHAPE", "budget is not an object")
+    if budget.get("name") != resource:
+        raise F1KOpsError(
+            "F1K_B_BUDGET_RESOURCE",
+            "fetched budget name %r != requested resource %r"
+            % (budget.get("name"), resource),
+        )
+
+    # amount: specifiedAmount USD 300 / 0 nanos
+    amount_block = budget.get("amount")
+    specified = (
+        amount_block.get("specifiedAmount")
+        if isinstance(amount_block, dict) else None
+    )
+    if not isinstance(specified, dict):
+        raise F1KOpsError(
+            "F1K_B_BUDGET_AMOUNT",
+            "budget has no specifiedAmount (a last-period/dynamic budget is "
+            "not a fixed $300 tripwire)",
+        )
+    if specified.get("currencyCode") != "USD":
+        raise F1KOpsError(
+            "F1K_B_BUDGET_CURRENCY",
+            "budget currency %r != USD" % (specified.get("currencyCode"),),
+        )
+    nanos = specified.get("nanos", 0)
+    if isinstance(nanos, bool) or not isinstance(nanos, int) or nanos != 0:
+        raise F1KOpsError(
+            "F1K_B_BUDGET_AMOUNT",
+            "budget amount nanos %r != 0" % (nanos,),
+        )
     try:
         amount = canonical_decimal(
-            budget.get("amount_usd"), field="budget amount_usd"
+            specified.get("units"), field="budget amount units"
         )
     except (ValueError, TypeError) as exc:
         raise F1KOpsError(
             "F1K_B_BUDGET_AMOUNT",
-            "budget amount_usd is malformed: %s" % exc,
+            "budget amount units is malformed: %s" % exc,
         ) from exc
     if amount != expected:
         raise F1KOpsError(
             "F1K_B_BUDGET_AMOUNT",
             "budget amount %s != required %s" % (amount, expected),
         )
-    thresholds = budget.get("threshold_rules")
+
+    # budgetFilter: EXACTLY this one project, no narrowing, explicit period.
+    bfilter = budget.get("budgetFilter")
+    if not isinstance(bfilter, dict):
+        raise F1KOpsError(
+            "F1K_B_BUDGET_FILTER", "budget has no budgetFilter"
+        )
+    projects = bfilter.get("projects")
+    if (
+        not isinstance(projects, list)
+        or projects != ["projects/%s" % project]
+    ):
+        raise F1KOpsError(
+            "F1K_B_BUDGET_SCOPE",
+            "budgetFilter.projects %r != exactly ['projects/%s'] — an "
+            "account-wide or other-project budget is not this tripwire"
+            % (projects, project),
+        )
+    present_narrowing = [
+        key for key in _BUDGET_NARROWING_KEYS if bfilter.get(key)
+    ]
+    if present_narrowing:
+        raise F1KOpsError(
+            "F1K_B_BUDGET_FILTER",
+            "budgetFilter carries narrowing filters %r — a narrowed budget "
+            "does not tripwire the whole project" % (present_narrowing,),
+        )
+    treatment = bfilter.get("creditTypesTreatment")
+    if treatment not in (None, _BUDGET_DEFAULT_CREDIT_TREATMENT):
+        raise F1KOpsError(
+            "F1K_B_BUDGET_FILTER",
+            "budgetFilter.creditTypesTreatment %r != default all-credits"
+            % (treatment,),
+        )
+    has_calendar = bool(bfilter.get("calendarPeriod"))
+    has_custom = bool(bfilter.get("customPeriod"))
+    if has_calendar == has_custom:
+        raise F1KOpsError(
+            "F1K_B_BUDGET_PERIOD",
+            "budgetFilter must carry exactly one explicit period "
+            "(calendarPeriod XOR customPeriod)",
+        )
+
+    thresholds = budget.get("thresholdRules")
     if not isinstance(thresholds, list) or not thresholds:
         raise F1KOpsError(
-            "F1K_B_BUDGET_ALERT", "budget has no alert thresholds"
+            "F1K_B_BUDGET_ALERT", "budget has no threshold rules"
         )
     for rule in thresholds:
         if not isinstance(rule, dict):
             raise F1KOpsError(
                 "F1K_B_BUDGET_ALERT",
-                "budget alert rule is not an object: %r" % (rule,),
+                "budget threshold rule is not an object: %r" % (rule,),
             )
+
+    # notifications: non-empty AND every channel VERIFIED + enabled.
+    notifications = budget.get("notificationsRule")
+    channels = (
+        notifications.get("monitoringNotificationChannels")
+        if isinstance(notifications, dict) else None
+    )
+    if not isinstance(channels, list) or not channels:
+        raise F1KOpsError(
+            "F1K_B_BUDGET_NOTIFY",
+            "budget has no monitoringNotificationChannels",
+        )
+    verified_channels = []
+    for channel in channels:
+        if not isinstance(channel, str) or not channel:
+            raise F1KOpsError(
+                "F1K_B_BUDGET_NOTIFY",
+                "notification channel is malformed: %r" % (channel,),
+            )
+        try:
+            info = channel_transport(name=channel)
+        except F1KOpsError:
+            raise
+        except Exception as exc:  # noqa: BLE001 — fail closed
+            raise F1KOpsError(
+                "F1K_B_BUDGET_NOTIFY",
+                "channel %r fetch failed: %s" % (channel, exc),
+            ) from exc
+        if not isinstance(info, dict):
+            raise F1KOpsError(
+                "F1K_B_BUDGET_NOTIFY",
+                "channel %r returned a non-object" % (channel,),
+            )
+        if (
+            info.get("verificationStatus") != "VERIFIED"
+            or info.get("enabled") is not True
+        ):
+            raise F1KOpsError(
+                "F1K_B_BUDGET_NOTIFY",
+                "channel %r is not VERIFIED+enabled (status=%r enabled=%r)"
+                % (channel, info.get("verificationStatus"),
+                   info.get("enabled")),
+            )
+        verified_channels.append(channel)
+
+    # live project-to-billing-account linkage + billing enabled.
+    try:
+        linkage = linkage_transport(project_id=project)
+    except F1KOpsError:
+        raise
+    except Exception as exc:  # noqa: BLE001 — fail closed
+        raise F1KOpsError(
+            "F1K_B_BUDGET_LINKAGE",
+            "project billing-info fetch failed: %s" % exc,
+        ) from exc
+    if not isinstance(linkage, dict):
+        raise F1KOpsError(
+            "F1K_B_BUDGET_LINKAGE", "billing-info returned a non-object"
+        )
+    if (
+        linkage.get("billingAccountName") != account
+        or linkage.get("billingEnabled") is not True
+    ):
+        raise F1KOpsError(
+            "F1K_B_BUDGET_LINKAGE",
+            "project %s is not live-linked to %s with billing enabled "
+            "(account=%r enabled=%r)"
+            % (project, account, linkage.get("billingAccountName"),
+               linkage.get("billingEnabled")),
+        )
+
     return {
         "present": True,
+        "resource_name": resource,
+        "billing_account": account,
+        "project_id": project,
         "amount_usd": amount,
+        "period": "calendar" if has_calendar else "custom",
         "threshold_count": len(thresholds),
+        "verified_channel_count": len(verified_channels),
+        "linkage_verified": True,
     }
 
 
@@ -5434,23 +6681,32 @@ def guard_rate_within_window(
 def preflight_launch_gate(
     *, now_utc, local_epoch_path, instance_name, zone, project_id,
     deadline_utc, billing_account, machine_type, local_ssd_count,
-    s_per_prefill, mirror_transport=None, systemctl_transport=None,
-    budget_transport=None, catalog_transport=None, observed_at_utc=None,
+    s_per_prefill, budget_resource_name=None,
+    mirror_transport=None, systemctl_transport=None,
+    compute_transport=None, iam_transport=None,
+    budget_transport=None, channel_transport=None, linkage_transport=None,
+    catalog_transport=None, observed_at_utc=None,
 ) -> dict:
     """Single pre-spend gate: GO only if EVERY provider-native check passes.
 
-    Fails closed on ANY error (returns NO-GO, never raises). Checks:
-    (1) the durable launch epoch resolves and elapsed wall-clock < 900 h;
-    (2) deadline_utc == launch(from the PERSISTED epoch) + 900 h — the deadline
-        is derived from the durable epoch, never from a caller value;
-    (3) the self-delete timer is active + persistent + triggers a service that
-        deletes THIS instance, armed at exactly that deadline;
-    (4) the $300 billing budget exists; (5) the live Spot rate is in-window.
+    Fails closed on ANY error (returns NO-GO, never raises). Checks (LC-7):
+    (1) the durable launch epoch resolves (mirror REQUIRED, LC-12) and elapsed
+        wall-clock < 900 h;
+    (2) deadline_utc == T_cap derived from the PERSISTED epoch — never a caller
+        value;
+    (3) the COMPOSITE cap (verify_cap_armed, LC-5): live native scheduling
+        read-back (terminationTime==T_cap, unified STOP, SPOT, discard flag) +
+        the hardened L2 guest timer + the deletion-IAM dry-run, with the L1/L2
+        deadlines equal;
+    (4) the EXACT $300 project-scoped budget (LC-6v3); (5) the live Spot rate is
+        in-window. The cap + budget closed attestations are passed through in
+        the result for direct handoff population.
     """
     result = {}
     try:
         launch = _resolve_epoch_launch(
-            local_path=local_epoch_path, mirror_transport=mirror_transport
+            local_path=local_epoch_path, mirror_transport=mirror_transport,
+            require_mirror=True,
         )
         launch_dt = _utc_datetime(
             launch, field="launch_utc", code="F1K_B_EPOCH_TIME"
@@ -5475,19 +6731,25 @@ def preflight_launch_gate(
         ) != expected_deadline:
             raise F1KOpsError(
                 "F1K_B_DEADLINE_MISMATCH",
-                "deadline %r != persisted-launch+900h %r"
+                "deadline %r != persisted-launch T_cap %r"
                 % (deadline_utc, expected_deadline),
             )
-        selfdelete = verify_selfdelete_armed(
-            deadline_utc=deadline_utc,
+        cap = verify_cap_armed(
             instance_name=instance_name,
             zone=zone,
             project_id=project_id,
+            deadline_utc=deadline_utc,
+            compute_transport=compute_transport,
             systemctl_transport=systemctl_transport,
+            iam_transport=iam_transport,
         )
         budget = assure_billing_budget(
             billing_account=billing_account,
+            budget_resource_name=budget_resource_name,
+            project_id=project_id,
             budget_transport=budget_transport,
+            channel_transport=channel_transport,
+            linkage_transport=linkage_transport,
         )
         rate = guard_rate_within_window(
             project_id=project_id,
@@ -5502,10 +6764,14 @@ def preflight_launch_gate(
             "elapsed_hours": canonical_decimal(
                 elapsed, field="elapsed_hours"
             ) if elapsed > 0 else "0",
-            "deadline_utc": selfdelete["deadline_utc"],
-            "selfdelete_target": selfdelete["target"],
+            "deadline_utc": cap["deadline_utc"],
+            "cap": cap,
+            "cap_target": cap["target"],
+            "budget": budget,
             "budget_amount_usd": budget["amount_usd"],
+            "budget_resource_name": budget["resource_name"],
             "rate_usd_per_hour": rate["rate_usd_per_hour"],
+            "rate_evidence_sha256": rate["rate_evidence_sha256"],
         }
     except F1KOpsError as exc:
         return {"go": False, "reason": str(exc)}
@@ -5563,7 +6829,7 @@ def selftest_b1() -> int:
 
     def fake_systemctl(
         active="active", oncal=None, persistent="yes",
-        triggered=None, exec_start=None,
+        triggered=None, exec_start=None, restart="on-failure",
     ):
         t_oncal = oncal if oncal is not None else _oncalendar(deadline)
         t_trig = triggered if triggered is not None else SELFDELETE_SERVICE_UNIT
@@ -5578,22 +6844,97 @@ def selftest_b1() -> int:
                 "persistent": persistent,
                 "triggered-unit": t_trig,
                 "exec-start": t_exec,
+                "restart-policy": restart,
             }[action]
         return transport
 
-    def budget(amount="300", rules=None):
-        rules = ({"threshold_percent": "1.0"},) if rules is None else rules
+    # LC-3v3: a fake live scheduling read-back (variant-B native cap).
+    def fake_compute(
+        term=None, action="STOP", model="SPOT", discard=True,
+    ):
+        t_term = term if term is not None else deadline
 
-        def transport(*, action, billing_account):
+        def transport(*, project_id, zone, instance_name):
+            sched = {
+                "provisioningModel": model,
+                "instanceTerminationAction": action,
+            }
+            if t_term is not None:
+                sched["terminationTime"] = t_term
+            if discard is not None:
+                sched[DISCARD_LOCAL_SSD_KEY] = discard
+            return {"scheduling": sched}
+        return transport
+
+    # LC-4: a fake deletion-IAM dry-run.
+    def fake_iam(granted=("compute.instances.delete",)):
+        def transport(*, project_id, zone, instance_name, permissions):
+            return {"permissions": list(granted)}
+        return transport
+
+    # LC-6v3: a fake budgets.get object (exact $300 project-scoped budget).
+    def budget(
+        name="billingAccounts/012345-6789AB-CDEF01/budgets/f1k",
+        units="300", nanos=0, currency="USD",
+        projects=("projects/test-project",), narrowing=None,
+        treatment=None, period="calendar", rules=None,
+        channels=("projects/test-project/notificationChannels/ch0",),
+        absent=False,
+    ):
+        rules = ({"thresholdPercent": 0.5},) if rules is None else rules
+
+        def transport(*, action, resource_name):
             if action != "get":
                 raise AssertionError("bad budget action")
-            if amount is None:
+            if absent:
                 return None
-            obj = {"threshold_rules": list(rules)}
-            if amount is not False:
-                obj["amount_usd"] = amount
+            bfilter = {}
+            if projects is not None:
+                bfilter["projects"] = list(projects)
+            if period == "calendar":
+                bfilter["calendarPeriod"] = "MONTH"
+            elif period == "custom":
+                bfilter["customPeriod"] = {
+                    "startDate": {"year": 2026, "month": 7, "day": 1}
+                }
+            if treatment is not None:
+                bfilter["creditTypesTreatment"] = treatment
+            if narrowing:
+                bfilter.update(narrowing)
+            obj = {
+                "name": name,
+                "budgetFilter": bfilter,
+                "thresholdRules": list(rules),
+            }
+            amt = {"currencyCode": currency}
+            if units is not False:
+                amt["units"] = units
+            amt["nanos"] = nanos
+            obj["amount"] = {"specifiedAmount": amt}
+            if channels is not None:
+                obj["notificationsRule"] = {
+                    "monitoringNotificationChannels": list(channels)
+                }
             return obj
         return transport
+
+    def fake_channel(status="VERIFIED", enabled=True):
+        def transport(*, name):
+            return {
+                "name": name,
+                "verificationStatus": status,
+                "enabled": enabled,
+            }
+        return transport
+
+    def fake_linkage(account="billingAccounts/012345-6789AB-CDEF01",
+                     enabled=True):
+        def transport(*, project_id):
+            return {"billingAccountName": account, "billingEnabled": enabled}
+        return transport
+
+    BUDGET_RESOURCE = "billingAccounts/012345-6789AB-CDEF01/budgets/f1k"
+    BILLING_ACCOUNT = "billingAccounts/012345-6789AB-CDEF01"
 
     def min_catalog():
         def make_sku(sku_id, desc, fam, grp, usage, unit, nanos):
@@ -5744,10 +7085,10 @@ def selftest_b1() -> int:
         lambda: compute_selfdelete_deadline(
             launch_utc="2026-07-20T00:00:00.0000001Z")))
 
-    # --- B2: self-delete --------------------------------------------------
-    check("B2 deadline = launch + exactly 900 h", lambda: (
+    # --- B2: self-delete (T_cap = launch + 900 h - 10 min) ----------------
+    check("B2 deadline = launch + 900 h - 10 min (T_cap, Rev4 R4.1)", lambda: (
         compute_selfdelete_deadline(launch_utc="2026-07-20T00:00:00Z")
-        == "2026-08-26T12:00:00Z"))
+        == "2026-08-26T11:50:00Z"))
 
     check("B2 render binds instance/zone/project + persistent + accuracy",
           lambda: (
@@ -5801,27 +7142,177 @@ def selftest_b1() -> int:
             deadline_utc=deadline, instance_name="kot-f1k-run",
             zone="us-central1-a", project_id="test-project",
             systemctl_transport=None)))
+    # LC-1/LC-2 hardening: Restart=on-failure + terminal poweroff fallback.
+    check("B2 (LC-2) attestation carries action/mechanism/restart/fallback",
+          lambda: (verify()["action"] == "DELETE"
+                   and verify()["restart_policy"] == "on-failure"
+                   and verify()["fallback"] == "poweroff-f"))
+    check("B2 (LC-2) refuses a service missing Restart=on-failure",
+          lambda: refuses("F1K_B_SELFDELETE_RESTART",
+                          lambda: verify(restart="no")))
+    check("B2 (LC-1) rendered unit carries Restart=on-failure + poweroff -f",
+          lambda: ("Restart=on-failure"
+                   in render_selfdelete_unit(
+                       instance_name="kot-f1k-run", zone="us-central1-a",
+                       project_id="test-project",
+                       deadline_utc=deadline)["service_text"]
+                   and "/usr/sbin/poweroff -f"
+                   in render_selfdelete_unit(
+                       instance_name="kot-f1k-run", zone="us-central1-a",
+                       project_id="test-project",
+                       deadline_utc=deadline)["service_text"]))
 
-    # --- B3: billing budget ----------------------------------------------
+    # --- LC-3v3: native provider cap (live scheduling read-back) ----------
+    def prov_cap(**kw):
+        return verify_provider_cap(
+            instance_name="kot-f1k-run", zone="us-central1-a",
+            project_id="test-project", deadline_utc=deadline,
+            compute_transport=fake_compute(**kw))
+    check("LC-3 accepts a live STOP terminationTime==T_cap SPOT+discard cap",
+          lambda: (prov_cap()["armed"] is True
+                   and prov_cap()["action"] == "STOP"
+                   and prov_cap()["mechanism"] == "gce-termination-time"))
+    check("LC-3 refuses a DELETE unified action (deletes on preemption)",
+          lambda: refuses("F1K_B_CAP_ACTION",
+                          lambda: prov_cap(action="DELETE")))
+    check("LC-3 refuses a non-SPOT model", lambda: refuses(
+        "F1K_B_CAP_MODEL", lambda: prov_cap(model="STANDARD")))
+    check("LC-3 refuses a drifted terminationTime", lambda: refuses(
+        "F1K_B_CAP_DRIFT", lambda: prov_cap(term="2030-01-01T00:00:00Z")))
+    check("LC-3 refuses a raw epoch+900h (non-conservative) deadline",
+          lambda: refuses("F1K_B_CAP_DRIFT",
+                          lambda: prov_cap(term="2026-08-26T12:00:00Z")))
+    check("LC-3 refuses a missing discard-local-SSD flag", lambda: refuses(
+        "F1K_B_CAP_DISCARD", lambda: prov_cap(discard=None)))
+    check("LC-3 refuses without a compute transport", lambda: refuses(
+        "F1K_B_CAP",
+        lambda: verify_provider_cap(
+            instance_name="kot-f1k-run", zone="us-central1-a",
+            project_id="test-project", deadline_utc=deadline,
+            compute_transport=None)))
+
+    # --- LC-4: deletion-IAM dry-run ---------------------------------------
+    def del_iam(**kw):
+        return verify_delete_iam(
+            instance_name="kot-f1k-run", zone="us-central1-a",
+            project_id="test-project", iam_transport=fake_iam(**kw))
+    check("LC-4 accepts a granted compute.instances.delete dry-run",
+          lambda: del_iam()["verified"] is True)
+    check("LC-4 refuses when delete permission is not granted", lambda: refuses(
+        "F1K_B_IAM_DELETE",
+        lambda: del_iam(granted=("compute.instances.get",))))
+    check("LC-4 refuses a raising iam transport", lambda: refuses(
+        "F1K_B_IAM_TRANSPORT",
+        lambda: verify_delete_iam(
+            instance_name="kot-f1k-run", zone="us-central1-a",
+            project_id="test-project",
+            iam_transport=lambda **k: (_ for _ in ()).throw(OSError("down")))))
+
+    # --- LC-5: composite closed cap attestation ---------------------------
+    def cap_armed(**kw):
+        common = dict(
+            compute_transport=fake_compute(),
+            systemctl_transport=fake_systemctl(),
+            iam_transport=fake_iam(),
+        )
+        common.update(kw)
+        return verify_cap_armed(
+            instance_name="kot-f1k-run", zone="us-central1-a",
+            project_id="test-project", deadline_utc=deadline, **common)
+    check("LC-5 composite attests STOP cap + guest + IAM at the one T_cap",
+          lambda: (cap_armed()["armed"] is True
+                   and cap_armed()["action"] == "STOP"
+                   and cap_armed()["deadline_utc"] == deadline
+                   and cap_armed()["cleanup"]["action"] == "DELETE"))
+    check("LC-5 refuses if the L1 leg (native cap) is broken", lambda: refuses(
+        "F1K_B_CAP_ACTION",
+        lambda: cap_armed(compute_transport=fake_compute(action="DELETE"))))
+    check("LC-5 refuses if the L2 leg (guest timer) is broken", lambda: refuses(
+        "F1K_B_SELFDELETE_INACTIVE",
+        lambda: cap_armed(systemctl_transport=fake_systemctl(
+            active="inactive"))))
+    check("LC-5 refuses if the IAM leg is broken", lambda: refuses(
+        "F1K_B_IAM_DELETE",
+        lambda: cap_armed(iam_transport=fake_iam(
+            granted=("compute.instances.get",)))))
+
+    # --- B3: billing budget (LC-6v3 exact-resource attestation) -----------
     def assure(**kw):
         return assure_billing_budget(
-            billing_account="billingAccounts/X", budget_transport=budget(**kw))
-    check("B3 accepts a $300 budget with alerts",
-          lambda: assure()["present"] is True)
+            billing_account=BILLING_ACCOUNT,
+            budget_resource_name=BUDGET_RESOURCE, project_id="test-project",
+            budget_transport=budget(**kw), channel_transport=fake_channel(),
+            linkage_transport=fake_linkage())
+    check("B3 accepts an exact $300 project-scoped budget",
+          lambda: (assure()["present"] is True
+                   and assure()["verified_channel_count"] == 1
+                   and assure()["linkage_verified"] is True))
+    check("B3 accepts a custom-period budget",
+          lambda: assure(period="custom")["period"] == "custom")
     check("B3 refuses an absent budget", lambda: refuses(
-        "F1K_B_BUDGET_ABSENT", lambda: assure(amount=None)))
+        "F1K_B_BUDGET_ABSENT", lambda: assure(absent=True)))
     check("B3 refuses a wrong-amount budget", lambda: refuses(
-        "F1K_B_BUDGET_AMOUNT", lambda: assure(amount="500")))
-    check("B3 refuses a missing amount", lambda: refuses(
-        "F1K_B_BUDGET_AMOUNT", lambda: assure(amount=False)))
-    check("B3 refuses a budget with no alert thresholds", lambda: refuses(
+        "F1K_B_BUDGET_AMOUNT", lambda: assure(units="500")))
+    check("B3 refuses nonzero nanos", lambda: refuses(
+        "F1K_B_BUDGET_AMOUNT", lambda: assure(nanos=1)))
+    check("B3 refuses a non-USD currency", lambda: refuses(
+        "F1K_B_BUDGET_CURRENCY", lambda: assure(currency="EUR")))
+    check("B3 refuses an account-wide budget (no project filter)",
+          lambda: refuses("F1K_B_BUDGET_SCOPE",
+                          lambda: assure(projects=None)))
+    check("B3 refuses a wrong-project filter", lambda: refuses(
+        "F1K_B_BUDGET_SCOPE",
+        lambda: assure(projects=("projects/other-project",))))
+    check("B3 refuses a services-narrowed budget", lambda: refuses(
+        "F1K_B_BUDGET_FILTER",
+        lambda: assure(narrowing={"services": ["services/6F81-5844-456A"]})))
+    check("B3 refuses a non-default credit treatment", lambda: refuses(
+        "F1K_B_BUDGET_FILTER",
+        lambda: assure(treatment="EXCLUDE_ALL_CREDITS")))
+    check("B3 refuses a budget with no explicit period", lambda: refuses(
+        "F1K_B_BUDGET_PERIOD", lambda: assure(period=None)))
+    check("B3 refuses a budget with no threshold rules", lambda: refuses(
         "F1K_B_BUDGET_ALERT", lambda: assure(rules=())))
-    check("B3 refuses a malformed (non-object) alert rule", lambda: refuses(
-        "F1K_B_BUDGET_ALERT", lambda: assure(rules=(None,))))
+    check("B3 refuses a budget with no notification channels", lambda: refuses(
+        "F1K_B_BUDGET_NOTIFY", lambda: assure(channels=())))
+    check("B3 refuses an unverified notification channel", lambda: refuses(
+        "F1K_B_BUDGET_NOTIFY",
+        lambda: assure_billing_budget(
+            billing_account=BILLING_ACCOUNT,
+            budget_resource_name=BUDGET_RESOURCE, project_id="test-project",
+            budget_transport=budget(),
+            channel_transport=fake_channel(status="UNVERIFIED"),
+            linkage_transport=fake_linkage())))
+    check("B3 refuses a project not live-linked to the billing account",
+          lambda: refuses("F1K_B_BUDGET_LINKAGE",
+                          lambda: assure_billing_budget(
+                              billing_account=BILLING_ACCOUNT,
+                              budget_resource_name=BUDGET_RESOURCE,
+                              project_id="test-project",
+                              budget_transport=budget(),
+                              channel_transport=fake_channel(),
+                              linkage_transport=fake_linkage(enabled=False))))
+    check("B3 refuses a budget resource not under the billing account",
+          lambda: refuses("F1K_B_BUDGET_RESOURCE",
+                          lambda: assure_billing_budget(
+                              billing_account=BILLING_ACCOUNT,
+                              budget_resource_name=(
+                                  "billingAccounts/999999-999999-999999/"
+                                  "budgets/f1k"),
+                              project_id="test-project",
+                              budget_transport=budget(),
+                              channel_transport=fake_channel(),
+                              linkage_transport=fake_linkage())))
+    check("B3 refuses without budget_resource_name + project_id", lambda: refuses(
+        "F1K_B_BUDGET",
+        lambda: assure_billing_budget(
+            billing_account=BILLING_ACCOUNT, budget_transport=budget())))
     check("B3 refuses without a budget transport", lambda: refuses(
         "F1K_B_BUDGET",
         lambda: assure_billing_budget(
-            billing_account="billingAccounts/X", budget_transport=None)))
+            billing_account=BILLING_ACCOUNT,
+            budget_resource_name=BUDGET_RESOURCE, project_id="test-project",
+            budget_transport=None)))
 
     # --- B4: rate window --------------------------------------------------
     check("B4 window accepts interior rate/spp", lambda: (
@@ -5877,7 +7368,7 @@ def selftest_b1() -> int:
             catalog_transport=lambda **k: (_ for _ in ()).throw(
                 OSError("catalog down")))))
 
-    # --- B5: preflight gate ----------------------------------------------
+    # --- B5: preflight gate (LC-7 composite cap + exact budget) -----------
     def b5_gate(**overrides):
         mirror = FakeMirror()
         with tempfile.TemporaryDirectory() as tmp:
@@ -5888,11 +7379,15 @@ def selftest_b1() -> int:
                 now_utc="2026-07-20T06:00:00Z", local_epoch_path=path,
                 instance_name="kot-f1k-run", zone="us-central1-a",
                 project_id="test-project", deadline_utc=deadline,
-                billing_account="billingAccounts/X",
+                billing_account=BILLING_ACCOUNT,
+                budget_resource_name=BUDGET_RESOURCE,
                 machine_type="n2d-highmem-8", local_ssd_count=2,
                 s_per_prefill="120", mirror_transport=mirror,
                 systemctl_transport=fake_systemctl(),
-                budget_transport=budget(), catalog_transport=min_catalog(),
+                compute_transport=fake_compute(), iam_transport=fake_iam(),
+                budget_transport=budget(), channel_transport=fake_channel(),
+                linkage_transport=fake_linkage(),
+                catalog_transport=min_catalog(),
                 observed_at_utc="2026-07-18T00:00:00Z",
             )
             common.update(overrides)
@@ -5901,20 +7396,36 @@ def selftest_b1() -> int:
     check("B5 gate GO when all checks pass", lambda: (
         b5_gate()["go"] is True
         and b5_gate()["rate_usd_per_hour"] == "0.219"
-        and b5_gate()["selfdelete_target"]
+        and b5_gate()["cap"]["action"] == "STOP"
+        and b5_gate()["cap_target"]
         == "test-project/us-central1-a/kot-f1k-run"))
     check("B5 NO-GO on an inactive timer", lambda: (
         b5_gate(systemctl_transport=fake_systemctl(active="inactive"))["go"]
         is False))
+    check("B5 NO-GO on a DELETE unified cap action (L1 leg)", lambda: (
+        "F1K_B_CAP_ACTION" in b5_gate(
+            compute_transport=fake_compute(action="DELETE"))["reason"]))
+    check("B5 NO-GO on a drifted live terminationTime (L1 leg)", lambda: (
+        "F1K_B_CAP_DRIFT" in b5_gate(
+            compute_transport=fake_compute(term="2030-01-01T00:00:00Z"))
+        ["reason"]))
+    check("B5 NO-GO on a missing delete-IAM grant (IAM leg)", lambda: (
+        "F1K_B_IAM_DELETE" in b5_gate(
+            iam_transport=fake_iam(granted=("compute.instances.get",)))
+        ["reason"]))
     check("B5 NO-GO on a wrong self-delete deadline (derived from epoch)",
           lambda: (
         "F1K_B_DEADLINE_MISMATCH" in b5_gate(
             deadline_utc="2030-01-01T00:00:00Z")["reason"]))
-    check("B5 NO-GO on an unbound delete target", lambda: (
+    check("B5 NO-GO on an unbound delete target (L2 leg)", lambda: (
         "F1K_B_SELFDELETE_TARGET" in b5_gate(
             systemctl_transport=fake_systemctl(
                 exec_start=_selfdelete_exec_start(
                     "other-vm", "us-central1-a", "test-project")))["reason"]))
+    check("B5 NO-GO on a wrong-project budget filter", lambda: (
+        "F1K_B_BUDGET_SCOPE" in b5_gate(
+            budget_transport=budget(projects=("projects/other-project",)))
+        ["reason"]))
     check("B5 NO-GO (fail-closed) on a raising budget transport", lambda: (
         b5_gate(budget_transport=lambda **k: (_ for _ in ()).throw(
             OSError("api down")))["go"] is False))
@@ -5923,6 +7434,8 @@ def selftest_b1() -> int:
     check("B5 NO-GO (fail-closed) on a raising catalog transport", lambda: (
         b5_gate(catalog_transport=lambda **k: (_ for _ in ()).throw(
             OSError("catalog down")))["go"] is False))
+    check("B5 NO-GO (LC-12) when the mirror is absent but a local exists",
+          lambda: b5_gate(mirror_transport=FakeMirror())["go"] is False)
 
     print("SELFTEST-B1: %d/%d PASS" % (passed, total))
     return 0 if passed == total else 2
