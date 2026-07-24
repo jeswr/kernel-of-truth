@@ -46,31 +46,62 @@ app = modal.App("kot-99a-grid-v2", image=image)
 CELLDIR = "/vol/cells"
 
 # Required schema per kind for a record to count as a STRUCTURALLY-VALID
-# SUCCESSFUL result (Rev3 — GPT-5.6 review items 6b/6c).  A record that lacks
-# these (e.g. the 10 banked OK-REML cells produced BEFORE the convergence-test
-# qualifier + fit-failure schema) is NOT "done" and MUST be re-run.
+# SUCCESSFUL result (Rev3/Rev4 — GPT-5.6 review items 6b/6c + item 3d).  A record
+# that lacks these (e.g. the 10 banked OK-REML cells produced BEFORE the
+# convergence certificate + fit-failure schema), carries the WRONG kind for its
+# index, or has an inconsistent fit-failure rate is NOT "done" and MUST be re-run.
 _FWER_POWER_REQUIRED = ("fwer_events", "fwer_cp_upper95", "fwer_events_worstcase",
                         "fwer_cp_upper95_worstcase", "fit_failures",
                         "fit_failure_rate", "fit_failure_ceiling_pass",
-                        "fit_failure_detail")
-_GATECAL_REQUIRED = ("arms", "fit_failures", "fit_failure_rate",
+                        "fit_failure_detail", "R")
+_GATECAL_REQUIRED = ("arms", "R", "fit_failures", "fit_failure_rate",
                      "fit_failure_ceiling_pass")
+_RUNG0_LABELS = {"F10", "P6"}
+_POWER_PATHS = ("CVAL_DEFNSUP", "CVAL_CONSUPH_GRAPH", "CDEFSUP", "CCONSUP_A1",
+                "CFMTH_given_conH")
 
 
-def _is_valid_success(rec):
-    """True iff rec is a structurally-valid SUCCESSFUL cell record (no ERROR,
-    known kind, full kind-appropriate schema).  Shared by the resume 'done'
-    test and the migration; kept in lockstep with verdict_99a._valid_success."""
+def _rate_consistent(rec):
+    import math
+    R = rec.get("R"); ff = rec.get("fit_failures"); rate = rec.get("fit_failure_rate")
+    if not (isinstance(R, int) and R > 0):
+        return False
+    if not (isinstance(ff, int) and not isinstance(ff, bool) and 0 <= ff <= R):
+        return False
+    if not (isinstance(rate, (int, float)) and not isinstance(rate, bool)
+            and math.isfinite(rate) and rate >= 0.0):
+        return False
+    return abs(rate - ff / R) <= 1e-9
+
+
+def _is_valid_success(rec, exp_kind=None, exp_label=None):
+    """True iff rec is a structurally-valid SUCCESSFUL cell record: no ERROR,
+    the EXPECTED kind for its index (item 3d — a full-schema FWER record at a
+    gate-cal index must NOT count as done), full kind-appropriate schema,
+    kind-appropriate content (power paths / F10-P6 rung-0), and a fit-failure
+    rate CONSISTENT with fit_failures/R.  Kept in lockstep with
+    verdict_99a._valid_success.  exp_kind/exp_label from grid.enumerate_cells()."""
     if not isinstance(rec, dict) or "ERROR" in rec or "config_index" not in rec:
         return False
     kind = rec.get("_kind") or rec.get("kind")
+    if exp_kind is not None and kind != exp_kind:
+        return False
     if kind in ("fwer", "power"):
-        req = _FWER_POWER_REQUIRED
+        if not all(k in rec for k in _FWER_POWER_REQUIRED):
+            return False
+        if kind == "power" and not (isinstance(rec.get("paths"), dict)
+                                    and all(k in rec["paths"] for k in _POWER_PATHS)):
+            return False
+        if exp_label in _RUNG0_LABELS and not isinstance(rec.get("rung0"), dict):
+            return False
     elif kind == "gatecal":
-        req = _GATECAL_REQUIRED
+        if not all(k in rec for k in _GATECAL_REQUIRED):
+            return False
+        if not (isinstance(rec.get("arms"), dict) and rec["arms"]):
+            return False
     else:
         return False
-    return all(k in rec for k in req)
+    return _rate_consistent(rec)
 
 
 def _compute_cell(arg):
@@ -139,15 +170,18 @@ def _batch_impl(specs, n_workers, R_override):
     import os
     import json
     import multiprocessing as mp
+    import grid
     os.makedirs(CELLDIR, exist_ok=True)
     VOL.reload()
-    # RESUME (Rev3 fix for GPT-5.6 review items 6b/6c): a cell counts as "done"
-    # ONLY if it holds a STRUCTURALLY-VALID SUCCESSFUL record (full schema, no
-    # ERROR) -- NOT merely "no ERROR key".  Consequence: the 100 ERROR cells AND
-    # the 10 banked OK-REML cells (produced before the convergence-test
-    # qualifier, so lacking the fit-failure schema and possibly containing
-    # PREVIOUSLY-ACCEPTED NON-CONVERGED fits) are BOTH re-run; only the 4
-    # gate-cal cells (no exact-REML; migrated to carry the schema) are done.
+    # RESUME (Rev3/Rev4 fix for GPT-5.6 items 6b/6c + 3d): a cell counts as
+    # "done" ONLY if it holds a STRUCTURALLY-VALID SUCCESSFUL record of the
+    # EXPECTED KIND for its index (a full-schema FWER record at a gate-cal index
+    # must NOT suppress the required cell), with full schema + content + a
+    # consistent fit-failure rate -- NOT merely "no ERROR key".  Consequence:
+    # the 100 ERROR cells AND the 10 banked OK-REML cells (pre-certificate,
+    # lacking the schema and possibly holding NON-CONVERGED fits) are BOTH
+    # re-run; only the 4 gate-cal cells (migrated to carry the schema) are done.
+    expected = {c[0]: (c[1], c[2]) for c in grid.enumerate_cells()}  # idx -> (kind, label)
     done = set()
     for f in os.listdir(CELLDIR):
         if not (f.startswith("cell_") and f.endswith(".json")):
@@ -156,8 +190,12 @@ def _batch_impl(specs, n_workers, R_override):
             rec = json.load(open(os.path.join(CELLDIR, f)))
         except Exception:
             continue
-        if _is_valid_success(rec):
-            done.add(int(rec["config_index"]))
+        idx = rec.get("config_index")
+        if idx not in expected:
+            continue                          # unexpected index -> not done
+        ek, el = expected[idx]
+        if _is_valid_success(rec, exp_kind=ek, exp_label=el):
+            done.add(int(idx))
     todo = [(tuple(s), R_override) for s in specs if s[0] not in done]
     ran = []
     if todo:

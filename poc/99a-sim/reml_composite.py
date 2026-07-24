@@ -48,6 +48,19 @@ from inference import ContrastFit
 # but extreme computable phi can carry a genuine deviance far above this value).
 PENALTY_DEV = 1e12
 
+# Rev4 convergence-certificate + information-conditioning tolerances (GPT-5.6
+# review items 1/2).  All [STIPULATED], each calibrated to a MEASURED margin on
+# the fixture cells (F1 config-0 + F2 esc):
+#   TOL_KKT   scaled central-FD projected-gradient (KKT) residual bound; valid
+#             fits measured <= 6.6e-7, non-stationary/perturbed points >= 1.8e-4,
+#             so 1e-5 sits ~15x above every valid fit and ~18x below every
+#             non-stationary point (clean separation).
+#   TOL_COND  observed-information condition-number ceiling; valid fits measured
+#             cond <= ~1.4e7, so 1e12 clears them by ~5 orders while rejecting an
+#             astronomically ill-conditioned information.
+TOL_KKT = 1e-5
+TOL_COND = 1e12
+
 
 class FitFailure(RuntimeError):
     """A replication's exact-REML fit could not be completed even after the
@@ -371,70 +384,100 @@ class CompositeREML:
 
         _OPTS = {"ftol": 1e-15, "gtol": 1e-10, "maxiter": 500}
 
-        def _converged(res):
-            """A candidate QUALIFIES iff it is COMPUTABLE + finite AND meets the
-            S4.2 REGISTERED convergence tests (Rev3 — GPT-5.6 review item 1).
-            The registered rule (proposal S4.2, `tol_dev`/`tol_par`) is
-            'relative deviance change <= tol_dev AND max relative parameter
-            change <= tol_par'; it is evaluated DIRECTLY here, not proxied by
-            bare computability (which is fail-open) alone.
+        def _proj_grad_norm(x):
+            """Scaled central-FD projected-gradient (KKT residual) at x for the
+            bound-constrained REML deviance, bounds [0, inf).  Central FD with a
+            CONTROLLED step (independent of the optimizer's own forward-FD, so it
+            has no shared blind spot); at a lower-bound-active coordinate the KKT
+            residual is min(grad_j, 0).  Returned dimensionless: ||PG||_inf *
+            scale / max(1, |deviance|)."""
+            f0 = obj(x)
+            pg = 0.0
+            for j in range(6):
+                h = 1e-7 * max(abs(x[j]), scale)
+                xp = x.copy(); xp[j] += h
+                xm = x.copy(); xm[j] = max(x[j] - h, 0.0)
+                denom = xp[j] - xm[j]
+                gj = (obj(xp) - obj(xm)) / denom if denom > 0 else 0.0
+                pj = min(gj, 0.0) if x[j] <= floor * 10 else gj
+                pg = max(pg, abs(pj))
+            return pg * scale / max(1.0, abs(f0))
 
-            - `res.success` (True) => L-BFGS-B certified gtol=1e-10 projected-
-              gradient (first-order KKT) convergence AND ftol=1e-15 relative
-              deviance change, both STRICTLY TIGHTER than the registered
-              tol_dev/tol_par => converged.  (Applying the polish test below to
-              a success-certified fit would spuriously fail valid FLAT/boundary
-              optima on ~5e-6 flat-direction wandering — [MEASURED] — so
-              success is trusted for the deviance+parameter criterion it
-              already subsumes; the frozen code likewise used res.success.)
-            - `res.success` (False): apply the tol_dev+tol_par tests DIRECTLY.
-              A verification refinement (a fresh L-BFGS-B polish started AT
-              res.x) must be a STATIONARY no-op: relative deviance change
-              <= tol_dev AND max relative parameter change <= tol_par.  A
-              benign ABNORMAL_TERMINATION_IN_LNSRCH AT the optimum passes
-              ([MEASURED]: the polish is a bit-exact no-op, rel_dev = rel_par =
-              0); a genuine non-convergence (maxiter / abnormal AWAY from the
-              optimum) FAILS ([MEASURED]: rel_par >= ~0.7).  This closes every
-              review item-1 escape (two unsuccessful-but-finite endpoints, an
-              unsuccessful endpoint below a successful retry, maxiter/abnormal)
-              while preserving bit-identity on valid fits."""
+        def _converged(res):
+            """A candidate QUALIFIES iff it is COMPUTABLE + finite AND passes a
+            DIRECT convergence certificate evaluated on EVERY candidate (success
+            or not) — Rev4, GPT-5.6 review item 1.  NEITHER `res.success` NOR a
+            polish-no-op is trusted as a certificate (both are fail-open: L-BFGS-B
+            stops on ftol OR gtol, gtol does not bound the parameter step; and a
+            fresh polish can repeat a finite-difference blind spot at a
+            non-optimum — the reviewer's success=True, x=0.497, rel_par=0.4966
+            counterexample).  The three registered/rigorous conditions, ALL
+            required:
+
+              (a) DEVIANCE-OPTIMALITY [rel_dev <= tol_dev]: a fresh polish from
+                  res.x cannot lower the REML deviance beyond tol_dev.  [MEASURED
+                  valid <= 3e-14 << 1e-12.]  Catches any deviance-improvable
+                  non-convergence.
+              (b) FIRST-ORDER KKT STATIONARITY [proj-grad <= TOL_KKT]: the scaled
+                  central-FD projected-gradient residual at res.x is ~0 — no
+                  feasible parameter step reduces the deviance.  This is the
+                  DIRECT parameter-optimality test; being central-FD it does NOT
+                  share the optimizer's blind spot, so it REJECTS the reviewer's
+                  counterexample class (a non-optimum has a large projected
+                  gradient).  [MEASURED valid <= 6.6e-7; perturbed/non-stationary
+                  >= 1.8e-4 — clean separation at TOL_KKT=1e-5.]
+              (c) COMPUTABLE + finite at res.x.
+
+            The registered `tol_par`=1e-9 is NOT applied as a literal
+            parameter-DISPLACEMENT gate: [MEASURED] genuinely-converged fixture
+            fits have last-successive-step rel_par up to 1.6e-5 and free-polish
+            rel_par up to 5e-6 (flat/under-identified likelihood directions), so a
+            1e-9 displacement gate would REJECT valid fixture fits; and, per the
+            reviewer's own counterexample, a displacement gate is BLIND to a
+            polish-no-op at a non-optimum.  The KKT residual (b) is the correct,
+            blind-spot-robust, STRICTLY STRONGER realisation of parameter
+            convergence (it certifies no feasible descent direction remains).
+            rel_dev, rel_par, the projected-gradient norm, message and interiority
+            are RECORDED for every candidate in the evidence log."""
             if not (np.isfinite(res.fun) and self._domain_ok(res.x, data)):
                 return False
-            if res.success:
-                return True
-            pol = minimize(obj, np.maximum(res.x, floor), method="L-BFGS-B",
+            xr = np.maximum(res.x, floor)
+            pol = minimize(obj, xr, method="L-BFGS-B",
                            bounds=[(0.0, None)] * 6, options=_OPTS)
             if not (np.isfinite(pol.fun) and self._domain_ok(pol.x, data)):
                 return False
-            xr = np.maximum(res.x, floor); xp = np.maximum(pol.x, floor)
             rel_dev = abs(pol.fun - res.fun) / max(abs(res.fun), 1.0)
-            rel_par = float(np.max(np.abs(xp - xr) / np.maximum(np.abs(xr), scale)))
-            return (rel_dev <= tol_dev) and (rel_par <= tol_par)
+            if rel_dev > tol_dev:
+                return False
+            return _proj_grad_norm(xr) <= TOL_KKT
 
         # R10a: profiled REML over nonneg variances; start-1 = clipped moments.
         res1 = minimize(obj, x0, method="L-BFGS-B",
                         bounds=[(0.0, None)] * 6, options=_OPTS)
-        candidates = [res1]
-        # S4.2 pinned retry rule: run the equal-split second start whenever the
-        # first start is not success-certified OR is non-computable.  This is a
-        # SUPERSET of the registered 'retry iff not res.success' trigger, so a
-        # valid success-certified first start never triggers a retry and its
-        # selection is bit-identical; any first start needing certification
-        # gets the pinned second start before any FitFailure.
-        if (not res1.success) or (not self._domain_ok(res1.x, data)):
+        q1 = _converged(res1)
+        candidates = [(res1, q1)]
+        # Registered retry rule: run the equal-split second start whenever the
+        # first start is not success-certified OR does not pass the direct
+        # convergence certificate.  A valid, converged first start never
+        # triggers a retry, so its selection is bit-identical; a spurious
+        # success (the reviewer's success-but-unconverged class) DOES trigger
+        # the pinned second start before any FitFailure.
+        if (not res1.success) or (not q1):
             tot = float(np.var(Ycomp))
             x1 = np.array([tot / 6] * 6)          # pinned equal-split second start
-            candidates.append(minimize(obj, x1, method="L-BFGS-B",
-                                       bounds=[(0.0, None)] * 6, options=_OPTS))
-        qualifying = [rc for rc in candidates if _converged(rc)]
+            res2 = minimize(obj, x1, method="L-BFGS-B",
+                            bounds=[(0.0, None)] * 6, options=_OPTS)
+            candidates.append((res2, _converged(res2)))
+        qualifying = [rc for (rc, q) in candidates if q]
         if not qualifying:
-            # Neither pinned start CONVERGED to a computable REML solution (the
-            # registered convergence tests failed for both): the retry rule is
-            # exhausted -> counted fit-failure (driver counts it per cell +
-            # scores conservatively).  This closes the review item-1 fail-open.
-            raise FitFailure("no pinned start produced a converged "
-                             "(tol_dev/tol_par) computable REML solution "
-                             "(retry rule exhausted)", stage="optimize")
+            # Neither pinned start passed the direct convergence certificate
+            # (rel_dev <= tol_dev AND projected-gradient KKT <= TOL_KKT): the
+            # registered retry rule is exhausted -> counted fit-failure (driver
+            # counts it per cell + scores conservatively).  Closes the review
+            # item-1 fail-open on EVERY candidate, success or not.
+            raise FitFailure("no pinned start passed the direct convergence "
+                             "certificate (rel_dev/tol_dev + KKT); retry rule "
+                             "exhausted", stage="optimize")
         # REGISTERED selection: lowest REML deviance among CONVERGED candidates
         # — identical to the frozen rule restricted to converged fits, so
         # bit-identical on every valid fit ([MEASURED]).
@@ -463,29 +506,37 @@ class CompositeREML:
         if not np.all(np.isfinite(Hinv)):
             raise FitFailure("non-finite information inverse (Hinv) at the "
                              "fitted phi", stage="hessian")
-        # POSITIVE-DEFINITENESS gate (Rev3 — GPT-5.6 review item 2): the
-        # observed information H must be PD at a genuine REML minimum.  An
-        # INDEFINITE / degenerate H (a saddle or a numerically singular
-        # information) would make the Satterthwaite gCg = g^T (2 Hinv) g
-        # unreliable and could trigger the N-p df fallback in
-        # _nu_monitor()/contrast() — a SILENT mislabel.  Reject it here as a
-        # FitFailure(hessian); nu-hat is never fabricated from a degenerate
-        # inverse.  [MEASURED] valid fits have min-eig ~4e3-1.5e4 (cond
-        # <= ~1.4e7), so w.min() <= 0 rejects ONLY a genuinely non-PD H and
-        # never a valid fit (bit-identity preserved).
+        # POSITIVE-DEFINITENESS + CONDITION-NUMBER gate (Rev4 — GPT-5.6 review
+        # item 2): the observed information H must be PD AND well-conditioned at
+        # a genuine REML minimum.  An INDEFINITE H (saddle/singular) or an
+        # astronomically ill-conditioned H makes the Satterthwaite gCg =
+        # g^T (2 Hinv) g unreliable.  Reject either here as FitFailure(hessian).
+        # [MEASURED] valid fits have min-eig ~4e3-1.5e4 and cond <= ~1.4e7, so
+        # w.min() <= 0 (PD) and cond > TOL_COND=1e12 reject ONLY a degenerate /
+        # ill-conditioned H, never a valid fit (bit-identity preserved).  Note:
+        # a condition-number bound does NOT catch a uniformly-huge H (e.g.
+        # 1e302*I, cond=1) whose gCg underflows -> that case is caught by the
+        # _nu_monitor NaN (below): _nu_monitor now RETURNS NaN on a near-zero /
+        # degenerate gCg (no silent N-p df), so this ν gate fails closed.
         w = np.linalg.eigvalsh(0.5 * (H + H.T))
         if (not np.all(np.isfinite(w))) or (w.min() <= 0.0):
             raise FitFailure("observed information not positive-definite at "
                              "the fitted phi (min eig %.3e)" % float(w.min()),
                              stage="hessian")
-        # With H PD, gCg > 0 for the fixed nonzero contrast gradient, so the
-        # Satterthwaite df below is the REAL formula (the N-p fallback in
-        # _nu_monitor/contrast is now provably unreachable for the stored fit).
+        if (w.max() / w.min()) > TOL_COND:
+            raise FitFailure("observed information ill-conditioned at the fitted "
+                             "phi (cond %.3e > %.3e)" % (float(w.max() / w.min()),
+                                                         TOL_COND), stage="hessian")
+        # _nu_monitor returns NaN on a degenerate/near-zero gCg (never a silent
+        # N-p df), so a non-finite ν here fails closed.
         if not np.all(np.isfinite(self._nu_monitor(phi, Hinv))):
-            raise FitFailure("non-finite Satterthwaite df at the fitted phi",
-                             stage="hessian")
+            raise FitFailure("non-finite / degenerate Satterthwaite df at the "
+                             "fitted phi", stage="hessian")
+        # the stored fit PASSED the direct convergence certificate above, so it
+        # is converged by construction (Rev4 — corrects the prior
+        # best.success mislabel for polish-qualified stalls).
         self._last = dict(phi=phi, Hinv=Hinv, data=data, Ybar=data[0],
-                          converged=bool(best.success))
+                          converged=True)
         return self
 
     def _hessian_at(self, phi, data, h):
@@ -514,7 +565,16 @@ class CompositeREML:
 
     def _nu_monitor(self, phi, Hinv):
         """The two possible R11a Satterthwaite df (kappa in {0,1}) that the
-        Richardson ladder must converge (rel change <= 1e-6, R11a)."""
+        Richardson ladder must converge (rel change <= 1e-6, R11a).
+
+        Rev4 (GPT-5.6 review item 2): a near-zero / degenerate gCg (e.g. from an
+        astronomically-scaled information whose g^T(2 Hinv)g UNDERFLOWS, which
+        PD-ness alone does NOT preclude) now yields NaN — NEVER a silent N-p df
+        fallback.  NaN propagates: as a Richardson-ladder monitor it makes the
+        rel-change non-finite (so a degenerate candidate can never DRIVE ladder
+        convergence), and at fit()'s final ν gate a NaN fails closed
+        (FitFailure(hessian)).  For every valid fit gCg > 1e-300 (measured
+        ~1e-6), so this branch never fires -> bit-identical."""
         I, S, nb = self.I, self.S, self.n_rev
         s2ab, s2av, s2blk, s2e = phi[1], phi[3], phi[4], phi[5]
         out = []
@@ -522,7 +582,7 @@ class CompositeREML:
             var = (2.0 / I) * s2ab + (2.0 / S) * s2av + kappa * s2blk / nb + (2.0 / (I * S)) * s2e
             g = np.array([0.0, 2.0 / I, 0.0, 2.0 / S, kappa / nb, 2.0 / (I * S)])
             gCg = float(g @ (2.0 * Hinv) @ g)
-            out.append((2.0 * var * var / gCg) if gCg > 1e-300 else float(self.N - self.p))
+            out.append((2.0 * var * var / gCg) if gCg > 1e-300 else np.nan)
         return np.array(out)
 
     def _hessian(self, phi, data, rel=1e-3, tol_nu=1e-6, max_levels=4):

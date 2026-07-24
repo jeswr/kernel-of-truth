@@ -9,6 +9,9 @@
   all-NaN Hinv (inv w/o raise) -> FitFailure(hessian)        PASS
   non-finite nu -> FitFailure(hessian)                       PASS
   indefinite information -> FitFailure(hessian) [PD gate]    PASS
+  H=1e302*I underflow -> FitFailure(hessian) [nu NaN]        PASS
+  _nu_monitor returns NaN (not N-p) on underflowed gCg       PASS
+  ill-conditioned H -> FitFailure(hessian) [cond gate]       PASS
   benign-stall accepted / genuine-non-conv rejected (see bitid evidence log) PASS
   pipeline tags FitFailure.family=comp                       PASS
 
@@ -33,24 +36,28 @@
   P4 unconditional CDEFSUP rate <= clean (denom R, conservative) PASS
   P4 unconditional CCONSUP_A1 rate <= clean (denom R, conservative) PASS
 
-[verdict run-validity]
-  verdict: all-114 clean -> run_valid True                   PASS
+[verdict run-validity: index->kind + content + rate-consistency]
+  verdict: faithful all-114 -> run_valid True                PASS
+  verdict item3 ESCAPE1: 114 FWER (wrong kinds) -> run_valid False PASS
+  verdict item3 ESCAPE2a: power cell w/o paths -> run_valid False PASS
+  verdict item3 ESCAPE2b: F10 cell w/o rung0 -> run_valid False PASS
+  verdict item3 ESCAPE2c: gate-cal malformed arm -> run_valid False PASS
+  verdict item3 ESCAPE3a: NaN fit_failure_rate -> run_valid False PASS
+  verdict item3 ESCAPE3b: fit_failures=40000 rate=0 (inconsistent) -> run_valid False PASS
+  verdict item3: LYING ceiling_pass=True but rate>0.001 -> run_valid False PASS
   verdict: an ERROR cell -> run_valid False                  PASS
   verdict: missing cell -> run_valid False                   PASS
-  verdict: ceiling breach -> run_valid False                 PASS
-  verdict: ceiling breach recorded                           PASS
-  verdict item3: LYING ceiling_pass=True but rate>0.001 -> run_valid False PASS
-  verdict item3: missing schema fields -> run_valid False    PASS
-  verdict item3: duplicate config_index -> run_valid False   PASS
+  verdict: duplicate config_index -> run_valid False         PASS
 
-[runner resume + migration logic (mirror of _is_valid_success)]
-  resume item6b: full-schema REML cell -> done               PASS
-  resume item6b: ERROR cell -> re-run (not done)             PASS
+[runner resume + migration (mirror of _is_valid_success, kind-aware)]
+  resume item3d: FWER record at gate-cal index -> NOT done   PASS
+  resume item3d: correct gate-cal record at gate-cal index -> done PASS
   resume item6c: OLD OK-REML w/o schema -> re-run (not done) PASS
-  resume item6c: migrated gate-cal -> done                   PASS
+  resume item6b: ERROR record -> re-run (not done)           PASS
+  resume item3: rate-inconsistent record -> not done         PASS
   migrate item6c: gate-cal back-filled = 0 with provenance   PASS
-  migrate item6c: idempotent (skips already-migrated)        PASS
-  migrate item6c: REML OK cell NOT migrated (re-run instead) PASS
+  migrate item6c: idempotent                                 PASS
+  migrate item6c: REML OK cell NOT migrated (re-run)         PASS
   migrate item6c: never touches ERROR cells                  PASS
 
-==== Rev3 SUITE: ALL PASS (46/46) ====
+==== Rev4 SUITE: ALL PASS (53/53) ====

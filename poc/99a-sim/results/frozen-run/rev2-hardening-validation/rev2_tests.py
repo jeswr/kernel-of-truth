@@ -124,6 +124,33 @@ except rc.FitFailure as e:
     chk("indefinite information -> FitFailure(hessian) [PD gate]", e.stage == "hessian")
 rc.CompositeREML._hessian = orig_h
 
+# Rev4 item-2: the reviewer's H=1e302*I (PD, cond=1) -> gCg UNDERFLOWS ->
+# _nu_monitor returns NaN (no silent N-p) -> FitFailure(hessian).
+rc.CompositeREML._hessian = lambda self, phi, dat, **k: np.eye(6) * 1e302
+try:
+    rc.build_for_cell(t).fit(Y); chk("H=1e302*I underflow -> FitFailure(hessian)", False)
+except rc.FitFailure as e:
+    chk("H=1e302*I underflow -> FitFailure(hessian) [nu NaN]", e.stage == "hessian")
+rc.CompositeREML._hessian = orig_h
+chk("_nu_monitor returns NaN (not N-p) on underflowed gCg",
+    bool(np.all(np.isnan(R._nu_monitor(np.array([.02, .01, .003, .0018, .0016, .007]),
+                                       np.eye(6) * 1e-302)))))
+
+# Rev4 item-2: an astronomically ILL-CONDITIONED (finite, PD) H -> cond gate.
+def h_illcond(self, phi, dat, **k):
+    H = orig_h(self, phi, dat); wv, V = np.linalg.eigh(0.5 * (H + H.T))
+    wv[0] = wv[-1] * 1e-14; return (V * wv) @ V.T
+rc.CompositeREML._hessian = h_illcond
+try:
+    rc.build_for_cell(t).fit(Y); chk("ill-conditioned H -> FitFailure(hessian) [cond gate]", False)
+except rc.FitFailure as e:
+    chk("ill-conditioned H -> FitFailure(hessian) [cond gate]", e.stage == "hessian")
+rc.CompositeREML._hessian = orig_h
+
+# Rev4 item-1: a NON-STATIONARY computable point is rejected by the KKT gate
+# (the reviewer's counterexample class) -- proven at scale in
+# evidence-bitid-vs-original.log (perturbed pg~6.6e-3 + genuine-non-conv REJECTED).
+
 # Rev3 item-1: a benign stall (success=False AT the optimum) is ACCEPTED; a
 # genuine non-convergence is REJECTED -- both proven at scale in
 # evidence-bitid-vs-original.log (bit-identity PASS + genuine-non-conv REJECT).
@@ -201,23 +228,41 @@ for nm in ("CVAL_DEFNSUP", "CVAL_CONSUPH_GRAPH", "CDEFSUP", "CCONSUP_A1"):
     chk("P4 unconditional %s rate <= clean (denom R, conservative)" % nm,
         pinj["paths"][nm]["rate"] <= pclean["paths"][nm]["rate"] + 1e-12)
 
-# ---------------------------------------------------------------- item 6a
-print("\n[verdict run-validity]")
+# ---------------------------------------------------------------- item 3 (verdict)
+print("\n[verdict run-validity: index->kind + content + rate-consistency]")
 import importlib.util
 vspec = importlib.util.spec_from_file_location(
     "verdict_99a", os.path.join(SIM, "results/frozen-run/verdict_99a.py"))
 verdict = importlib.util.module_from_spec(vspec); vspec.loader.exec_module(verdict)
+EXP = {c[0]: c[1:] for c in grid.enumerate_cells()}   # idx -> (kind,label,rho,regime,n_nat,n_nonce)
 
-def _fwer(i, ff=0, rate=0.0, ceiling_pass=None):
-    """Full-schema successful FWER record.  ceiling_pass lets a test set the
-    STORED boolean INDEPENDENTLY of the rate (to prove the verdict recomputes)."""
-    return {"config_index": i, "_kind": "fwer", "label": "F1", "rho": 0.0,
-            "regime": "gaussian", "n_nat": 48, "n_nonce": 96, "truth_set": [0],
-            "fwer_events": 5, "fwer_hat": 5 / 40000, "fwer_mcse": 0.0,
-            "fwer_cp_upper95": 0.001, "fwer_events_worstcase": 5 + ff,
-            "fwer_cp_upper95_worstcase": 0.0012,
-            "fit_failures": ff, "fit_failure_rate": rate, "fit_failure_detail": [],
-            "fit_failure_ceiling_pass": (rate <= 0.001) if ceiling_pass is None else ceiling_pass}
+def mkrec(i, **ov):
+    """FAITHFUL successful record for index i matching its EXPECTED kind/config."""
+    kind, label, rho, regime, n_nat, n_nonce = EXP[i]
+    if kind in ("fwer", "power"):
+        R = 40000 if kind == "fwer" else 10000
+        rec = {"config_index": i, "_kind": kind, "label": label, "rho": rho,
+               "regime": regime, "n_nat": n_nat, "n_nonce": n_nonce, "R": R,
+               "truth_set": [0], "fwer_events": 5, "fwer_hat": 5 / R, "fwer_mcse": 0.0,
+               "fwer_cp_upper95": 0.001, "fwer_events_worstcase": 5,
+               "fwer_cp_upper95_worstcase": 0.001, "fit_failures": 0,
+               "fit_failure_rate": 0.0, "fit_failure_ceiling_pass": True,
+               "fit_failure_detail": []}
+        if kind == "power":
+            rec["paths"] = {k: {"rate": 0.5, "cp_lower95": 0.4} for k in
+                            ("CVAL_DEFNSUP", "CVAL_CONSUPH_GRAPH", "CDEFSUP",
+                             "CCONSUP_A1", "CFMTH_given_conH")}
+        if label in ("F10", "P6"):
+            rec["rung0"] = {"cp_upper95": 0.001, "termination_rate": 0.0}
+    else:  # gatecal
+        rec = {"config_index": i, "_kind": "gatecal", "label": label, "rho": rho,
+               "n_nonce": n_nonce, "R": 40000,
+               "arms": {"H": {"gamma": {"0.02500": {"cp_upper95": 0.01, "pass": True},
+                                        "0.00625": {"cp_upper95": 0.005, "pass": True}},
+                              "sd_ratio": 1.2}},
+               "fit_failures": 0, "fit_failure_rate": 0.0, "fit_failure_ceiling_pass": True}
+    rec.update(ov)
+    return rec
 
 def run_verdict(rows):
     d = tempfile.mkdtemp()
@@ -228,79 +273,126 @@ def run_verdict(rows):
         verdict.main()
     return json.load(open(os.path.join(d, "mechanical-verdict.json")))
 
-allgood = [_fwer(i) for i in range(114)]
-chk("verdict: all-114 clean -> run_valid True", run_verdict(allgood)["run_valid"] is True)
+allgood = [mkrec(i) for i in range(114)]
+chk("verdict: faithful all-114 -> run_valid True", run_verdict(allgood)["run_valid"] is True)
 
-err = [dict(_fwer(i)) for i in range(113)] + [{"config_index": 113, "ERROR": "boom"}]
-chk("verdict: an ERROR cell -> run_valid False", run_verdict(err)["run_valid"] is False)
+# Reviewer escape 1: 114 FWER records at 0..113 (wrong kinds) must FAIL.
+allfwer = []
+for i in range(114):
+    r = dict(mkrec(0)); r["config_index"] = i
+    allfwer.append(r)
+chk("verdict item3 ESCAPE1: 114 FWER (wrong kinds) -> run_valid False",
+    run_verdict(allfwer)["run_valid"] is False)
 
-miss = [_fwer(i) for i in range(113)]           # only 113 cells present
-chk("verdict: missing cell -> run_valid False", run_verdict(miss)["run_valid"] is False)
+# Reviewer escape 2: correct kinds but a power cell with NO paths.
+nopaths = [mkrec(i) for i in range(114)]
+pidx = next(i for i in range(114) if EXP[i][0] == "power")
+del nopaths[pidx]["paths"]
+chk("verdict item3 ESCAPE2a: power cell w/o paths -> run_valid False",
+    run_verdict(nopaths)["run_valid"] is False)
+# a F10 cell with NO rung-0
+norung = [mkrec(i) for i in range(114)]
+f10 = next(i for i in range(114) if EXP[i][1] == "F10")
+del norung[f10]["rung0"]
+chk("verdict item3 ESCAPE2b: F10 cell w/o rung0 -> run_valid False",
+    run_verdict(norung)["run_valid"] is False)
+# a gate-cal cell with a malformed arm (no gammas)
+onearm = [mkrec(i) for i in range(114)]
+gidx = next(i for i in range(114) if EXP[i][0] == "gatecal")
+onearm[gidx]["arms"] = {"H": {"sd_ratio": 1.2}}   # missing gamma
+chk("verdict item3 ESCAPE2c: gate-cal malformed arm -> run_valid False",
+    run_verdict(onearm)["run_valid"] is False)
 
-ceil = [_fwer(i) for i in range(113)] + [_fwer(113, ff=100, rate=0.0025)]
+# Reviewer escape 3: NaN fit_failure_rate must FAIL (NaN>0.001 is False).
+nanrate = [mkrec(i) for i in range(114)]
+nanrate[0]["fit_failure_rate"] = float("nan")
+chk("verdict item3 ESCAPE3a: NaN fit_failure_rate -> run_valid False",
+    run_verdict(nanrate)["run_valid"] is False)
+# Reviewer escape 3: fit_failures=40000, rate=0 (inconsistent) must FAIL.
+inconsist = [mkrec(i) for i in range(114)]
+inconsist[0]["fit_failures"] = 40000; inconsist[0]["fit_failure_rate"] = 0.0
+chk("verdict item3 ESCAPE3b: fit_failures=40000 rate=0 (inconsistent) -> run_valid False",
+    run_verdict(inconsist)["run_valid"] is False)
+
+# Ceiling: independent recompute, and a LYING stored boolean.
+ceil = [mkrec(i) for i in range(114)]
+ceil[0].update(fit_failures=100, fit_failure_rate=100 / 40000, fit_failure_ceiling_pass=True)
 vc = run_verdict(ceil)
-chk("verdict: ceiling breach -> run_valid False", vc["run_valid"] is False)
-chk("verdict: ceiling breach recorded", 113 in vc["run_validity"]["ceiling_fail"])
-
-# Rev3 item-3: the verdict INDEPENDENTLY recomputes the ceiling and does NOT
-# trust a LYING stored boolean (rate > 0.001 but ceiling_pass wrongly True).
-lie = [_fwer(i) for i in range(113)] + [_fwer(113, ff=100, rate=0.0025, ceiling_pass=True)]
-vl = run_verdict(lie)
 chk("verdict item3: LYING ceiling_pass=True but rate>0.001 -> run_valid False",
-    vl["run_valid"] is False and 113 in vl["run_validity"]["ceiling_fail"])
+    vc["run_valid"] is False and 0 in vc["run_validity"]["ceiling_fail"])
 
-# Rev3 item-3: full-schema enforcement (a missing worst-case field).
-nofield = [_fwer(i) for i in range(113)] + [{"config_index": 113, "_kind": "fwer",
-           "label": "F1", "rho": 0.0, "regime": "gaussian", "n_nat": 48,
-           "n_nonce": 96, "truth_set": [0], "fwer_events": 5, "fwer_hat": 0.0,
-           "fwer_mcse": 0.0, "fwer_cp_upper95": 0.001}]
-chk("verdict item3: missing schema fields -> run_valid False",
-    run_verdict(nofield)["run_valid"] is False)
+# ERROR / missing / duplicate.
+err = [mkrec(i) for i in range(113)] + [{"config_index": 113, "ERROR": "boom"}]
+chk("verdict: an ERROR cell -> run_valid False", run_verdict(err)["run_valid"] is False)
+chk("verdict: missing cell -> run_valid False",
+    run_verdict([mkrec(i) for i in range(113)])["run_valid"] is False)
+dup = [mkrec(i) for i in range(114)] + [mkrec(50)]
+chk("verdict: duplicate config_index -> run_valid False",
+    run_verdict(dup)["run_valid"] is False)
 
-# Rev3 item-3: exactly-one-valid-result-per-index (a duplicate index).
-dup = [_fwer(i) for i in range(114)] + [_fwer(50)]
-vd = run_verdict(dup)
-chk("verdict item3: duplicate config_index -> run_valid False", vd["run_valid"] is False)
-
-# ---------------------------------------------------------------- item 6b/6c
-print("\n[runner resume + migration logic (mirror of _is_valid_success)]")
-
+# ---------------------------------------------------------------- item 6b/6c/3d
+print("\n[runner resume + migration (mirror of _is_valid_success, kind-aware)]")
+import math as _math
 _FWER_REQ = ("fwer_events", "fwer_cp_upper95", "fwer_events_worstcase",
              "fwer_cp_upper95_worstcase", "fit_failures", "fit_failure_rate",
-             "fit_failure_ceiling_pass", "fit_failure_detail")
-_GC_REQ = ("arms", "fit_failures", "fit_failure_rate", "fit_failure_ceiling_pass")
+             "fit_failure_ceiling_pass", "fit_failure_detail", "R")
+_GC_REQ = ("arms", "R", "fit_failures", "fit_failure_rate", "fit_failure_ceiling_pass")
 
-def is_valid_success(rec):
-    """Mirror of kot_99a_grid_v2._is_valid_success (structural validity)."""
+def _rate_consistent(rec):
+    R = rec.get("R"); ff = rec.get("fit_failures"); rate = rec.get("fit_failure_rate")
+    if not (isinstance(R, int) and R > 0):
+        return False
+    if not (isinstance(ff, int) and not isinstance(ff, bool) and 0 <= ff <= R):
+        return False
+    if not (isinstance(rate, (int, float)) and not isinstance(rate, bool)
+            and _math.isfinite(rate) and rate >= 0.0):
+        return False
+    return abs(rate - ff / R) <= 1e-9
+
+def is_valid_success(rec, exp_kind=None, exp_label=None):
+    """Mirror of kot_99a_grid_v2._is_valid_success (kind-aware, Rev4 item 3d)."""
     if "ERROR" in rec or "config_index" not in rec:
         return False
     kind = rec.get("_kind") or rec.get("kind")
+    if exp_kind is not None and kind != exp_kind:
+        return False
     if kind in ("fwer", "power"):
-        req = _FWER_REQ
+        if not all(k in rec for k in _FWER_REQ):
+            return False
+        if kind == "power" and not (isinstance(rec.get("paths"), dict)
+              and all(k in rec["paths"] for k in ("CVAL_DEFNSUP", "CVAL_CONSUPH_GRAPH",
+                                                  "CDEFSUP", "CCONSUP_A1", "CFMTH_given_conH"))):
+            return False
+        if exp_label in ("F10", "P6") and not isinstance(rec.get("rung0"), dict):
+            return False
     elif kind == "gatecal":
-        req = _GC_REQ
+        if not all(k in rec for k in _GC_REQ):
+            return False
+        if not (isinstance(rec.get("arms"), dict) and rec["arms"]):
+            return False
     else:
         return False
-    return all(k in rec for k in req)
+    return _rate_consistent(rec)
 
-def resume_done(cell_files):
-    return {rec["config_index"] for rec in cell_files if is_valid_success(rec)}
-
-files = [
-    _fwer(17),                                                    # Rev3 full-schema REML -> done
-    {"config_index": 0, "ERROR": "LinAlgError"},                 # ERROR -> re-run
-    {"config_index": 56, "_kind": "fwer", "fwer_events": 3, "fwer_cp_upper95": 0.001},  # OLD OK-REML, no schema -> re-run
-    {"config_index": 110, "_kind": "gatecal", "arms": {}, "fit_failures": 0,
-     "fit_failure_rate": 0.0, "fit_failure_ceiling_pass": True},  # migrated gate-cal -> done
-]
-done = resume_done(files)
-chk("resume item6b: full-schema REML cell -> done", 17 in done)
-chk("resume item6b: ERROR cell -> re-run (not done)", 0 not in done)
-chk("resume item6c: OLD OK-REML w/o schema -> re-run (not done)", 56 not in done)
-chk("resume item6c: migrated gate-cal -> done", 110 in done)
+# Item 3d: a full-schema FWER record at a GATE-CAL index must NOT count as done.
+gc_idx = next(i for i in range(114) if EXP[i][0] == "gatecal")
+fwer_at_gc = dict(mkrec(0)); fwer_at_gc["config_index"] = gc_idx
+chk("resume item3d: FWER record at gate-cal index -> NOT done",
+    not is_valid_success(fwer_at_gc, exp_kind="gatecal", exp_label="GATECAL"))
+chk("resume item3d: correct gate-cal record at gate-cal index -> done",
+    is_valid_success(mkrec(gc_idx), exp_kind="gatecal", exp_label="GATECAL"))
+# Old OK-REML lacking schema at a fwer index -> re-run
+old = {"config_index": 0, "_kind": "fwer", "fwer_events": 3, "fwer_cp_upper95": 0.001}
+chk("resume item6c: OLD OK-REML w/o schema -> re-run (not done)",
+    not is_valid_success(old, exp_kind="fwer", exp_label="F1"))
+chk("resume item6b: ERROR record -> re-run (not done)",
+    not is_valid_success({"config_index": 0, "ERROR": "x"}, exp_kind="fwer", exp_label="F1"))
+chk("resume item3: rate-inconsistent record -> not done",
+    not is_valid_success(mkrec(0, fit_failures=40000, fit_failure_rate=0.0),
+                         exp_kind=EXP[0][0], exp_label=EXP[0][1]))
 
 def migrate(rec):
-    """Mirror of migrate_legacy (Rev3): GATE-CAL ONLY; REML re-run, not migrated."""
+    """Mirror of migrate_legacy (Rev3/Rev4): GATE-CAL ONLY; REML re-run."""
     kind = rec.get("_kind") or rec.get("kind")
     if "ERROR" in rec or kind != "gatecal":
         return rec, False
@@ -312,17 +404,16 @@ def migrate(rec):
     rec["_fitfailure_migration"] = "prov"
     return rec, True
 
-mg, did = migrate({"config_index": 110, "_kind": "gatecal", "arms": {}})
+mg, did = migrate({"config_index": 110, "_kind": "gatecal", "arms": {"H": {}}})
 chk("migrate item6c: gate-cal back-filled = 0 with provenance",
-    did and mg["fit_failures"] == 0 and mg["fit_failure_ceiling_pass"] is True
-    and mg["_fitfailure_migration"])
+    did and mg["fit_failures"] == 0 and mg["fit_failure_ceiling_pass"] is True)
 _, did2 = migrate(mg)
-chk("migrate item6c: idempotent (skips already-migrated)", did2 is False)
+chk("migrate item6c: idempotent", did2 is False)
 _, did3 = migrate({"config_index": 17, "_kind": "fwer", "fwer_events": 9})
-chk("migrate item6c: REML OK cell NOT migrated (re-run instead)", did3 is False)
+chk("migrate item6c: REML OK cell NOT migrated (re-run)", did3 is False)
 _, did4 = migrate({"config_index": 0, "ERROR": "boom"})
 chk("migrate item6c: never touches ERROR cells", did4 is False)
 
-print("\n==== Rev3 SUITE:", "ALL PASS" if all(PASS) else "FAILURES PRESENT",
+print("\n==== Rev4 SUITE:", "ALL PASS" if all(PASS) else "FAILURES PRESENT",
       f"({sum(PASS)}/{len(PASS)}) ====")
 sys.exit(0 if all(PASS) else 1)

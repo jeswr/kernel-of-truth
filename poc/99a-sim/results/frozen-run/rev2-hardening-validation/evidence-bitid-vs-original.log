@@ -1,20 +1,36 @@
-[per-stall evidence]
-    comp idx0 rep3: msg='ABNORMAL_TERMINATION_IN_LNSRCH' polish rel_dev=0.00e+00 rel_par=0.00e+00 n_at_bound=0 -> qualifies=True
-    comp idx0 rep12: msg='ABNORMAL_TERMINATION_IN_LNSRCH' polish rel_dev=0.00e+00 rel_par=0.00e+00 n_at_bound=0 -> qualifies=True
-    comp idx0 rep23: msg='ABNORMAL_TERMINATION_IN_LNSRCH' polish rel_dev=1.21e-16 rel_par=0.00e+00 n_at_bound=0 -> qualifies=True
-    comp idx0 rep44: msg='ABNORMAL_TERMINATION_IN_LNSRCH' polish rel_dev=0.00e+00 rel_par=0.00e+00 n_at_bound=0 -> qualifies=True
-  comp idx0 reps=120: phi+Hinv+contrast diffs=0  success=False stalls=4 (3.3%)  rev2_fitfail=0
-    uct idx0 rep52: msg='ABNORMAL_TERMINATION_IN_LNSRCH' polish rel_dev=0.00e+00 rel_par=0.00e+00 n_at_bound=0 -> qualifies=True
-    uct idx0 rep71: msg='ABNORMAL_TERMINATION_IN_LNSRCH' polish rel_dev=0.00e+00 rel_par=0.00e+00 n_at_bound=0 -> qualifies=True
-  uct idx0 reps=120: phi+Hinv+contrast diffs=0  success=False stalls=2 (1.7%)  rev2_fitfail=0
-    comp idx25 rep0: msg='ABNORMAL_TERMINATION_IN_LNSRCH' polish rel_dev=0.00e+00 rel_par=0.00e+00 n_at_bound=0 -> qualifies=True
-    comp idx25 rep2: msg='ABNORMAL_TERMINATION_IN_LNSRCH' polish rel_dev=0.00e+00 rel_par=0.00e+00 n_at_bound=0 -> qualifies=True
-  comp idx25 reps=40: phi+Hinv+contrast diffs=0  success=False stalls=2 (5.0%)  rev2_fitfail=0
-    uct idx25 rep31: msg='ABNORMAL_TERMINATION_IN_LNSRCH' polish rel_dev=0.00e+00 rel_par=0.00e+00 n_at_bound=0 -> qualifies=True
-  uct idx25 reps=40: phi+Hinv+contrast diffs=0  success=False stalls=1 (2.5%)  rev2_fitfail=0
+[per-candidate certificate evidence — success=True AND success=False]
+    comp idx0 rep0: success=True msg='CONVERGENCE: REL_REDUCTION' rel_dev=0.00e+00 rel_par=3.58e-16 pg=1.42e-07 n_bound=0 -> cert_accepts=True
+    comp idx0 rep1: success=True msg='CONVERGENCE: REL_REDUCTION' rel_dev=6.74e-15 rel_par=5.05e-08 pg=1.50e-07 n_bound=0 -> cert_accepts=True
+    comp idx0 rep2: success=True msg='CONVERGENCE: REL_REDUCTION' rel_dev=2.42e-16 rel_par=1.48e-10 pg=1.48e-07 n_bound=0 -> cert_accepts=True
+    comp idx0 rep3: success=False msg='ABNORMAL_TERMINATION_IN_LN' rel_dev=0.00e+00 rel_par=0.00e+00 pg=1.47e-07 n_bound=0 -> cert_accepts=True
+    comp idx0 rep4: success=True msg='CONVERGENCE: REL_REDUCTION' rel_dev=4.85e-16 rel_par=9.23e-10 pg=1.47e-07 n_bound=0 -> cert_accepts=True
+    comp idx0 rep5: success=True msg='CONVERGENCE: REL_REDUCTION' rel_dev=0.00e+00 rel_par=2.17e-15 pg=1.45e-07 n_bound=0 -> cert_accepts=True
+  comp idx0 reps=120: phi+Hinv+contrast diffs=0  success=True=116 stalls=4  worst_valid_pg=6.64e-07 (<= TOL_KKT=1e-05)  rev4_fitfail=0
+    uct idx0 rep0: success=True msg='CONVERGENCE: REL_REDUCTION' rel_dev=0.00e+00 rel_par=2.78e-11 pg=2.49e-07 n_bound=0 -> cert_accepts=True
+    uct idx0 rep1: success=True msg='CONVERGENCE: REL_REDUCTION' rel_dev=3.27e-16 rel_par=3.47e-13 pg=2.37e-07 n_bound=0 -> cert_accepts=True
+    uct idx0 rep2: success=True msg='CONVERGENCE: REL_REDUCTION' rel_dev=3.26e-16 rel_par=0.00e+00 pg=2.57e-07 n_bound=0 -> cert_accepts=True
+    uct idx0 rep3: success=True msg='CONVERGENCE: REL_REDUCTION' rel_dev=1.62e-16 rel_par=2.74e-12 pg=2.51e-07 n_bound=0 -> cert_accepts=True
+    uct idx0 rep4: success=True msg='CONVERGENCE: REL_REDUCTION' rel_dev=0.00e+00 rel_par=4.61e-10 pg=2.44e-07 n_bound=0 -> cert_accepts=True
+    uct idx0 rep5: success=True msg='CONVERGENCE: REL_REDUCTION' rel_dev=1.15e-15 rel_par=2.85e-09 pg=2.46e-07 n_bound=0 -> cert_accepts=True
+  uct idx0 reps=120: phi+Hinv+contrast diffs=0  success=True=118 stalls=2  worst_valid_pg=2.77e-07 (<= TOL_KKT=1e-05)  rev4_fitfail=0
+    comp idx25 rep0: success=False msg='ABNORMAL_TERMINATION_IN_LN' rel_dev=0.00e+00 rel_par=0.00e+00 pg=1.21e-07 n_bound=0 -> cert_accepts=True
+    comp idx25 rep1: success=True msg='CONVERGENCE: REL_REDUCTION' rel_dev=1.21e-15 rel_par=3.87e-08 pg=1.63e-07 n_bound=0 -> cert_accepts=True
+    comp idx25 rep2: success=False msg='ABNORMAL_TERMINATION_IN_LN' rel_dev=0.00e+00 rel_par=0.00e+00 pg=1.47e-07 n_bound=0 -> cert_accepts=True
+    comp idx25 rep3: success=True msg='CONVERGENCE: REL_REDUCTION' rel_dev=2.67e-16 rel_par=3.80e-10 pg=1.59e-07 n_bound=0 -> cert_accepts=True
+    comp idx25 rep4: success=True msg='CONVERGENCE: REL_REDUCTION' rel_dev=0.00e+00 rel_par=0.00e+00 pg=1.43e-07 n_bound=0 -> cert_accepts=True
+    comp idx25 rep5: success=True msg='CONVERGENCE: REL_REDUCTION' rel_dev=1.35e-16 rel_par=0.00e+00 pg=9.91e-08 n_bound=0 -> cert_accepts=True
+  comp idx25 reps=40: phi+Hinv+contrast diffs=0  success=True=38 stalls=2  worst_valid_pg=1.86e-07 (<= TOL_KKT=1e-05)  rev4_fitfail=0
+    uct idx25 rep0: success=True msg='CONVERGENCE: REL_REDUCTION' rel_dev=0.00e+00 rel_par=8.72e-12 pg=2.57e-07 n_bound=0 -> cert_accepts=True
+    uct idx25 rep1: success=True msg='CONVERGENCE: REL_REDUCTION' rel_dev=1.62e-13 rel_par=4.01e-07 pg=2.81e-07 n_bound=0 -> cert_accepts=True
+    uct idx25 rep2: success=True msg='CONVERGENCE: REL_REDUCTION' rel_dev=4.76e-15 rel_par=2.12e-08 pg=2.60e-07 n_bound=0 -> cert_accepts=True
+    uct idx25 rep3: success=True msg='CONVERGENCE: REL_REDUCTION' rel_dev=0.00e+00 rel_par=0.00e+00 pg=2.11e-07 n_bound=0 -> cert_accepts=True
+    uct idx25 rep4: success=True msg='CONVERGENCE: REL_REDUCTION' rel_dev=9.29e-14 rel_par=1.31e-06 pg=1.91e-07 n_bound=0 -> cert_accepts=True
+    uct idx25 rep5: success=True msg='CONVERGENCE: REL_REDUCTION' rel_dev=0.00e+00 rel_par=1.38e-15 pg=2.54e-07 n_bound=0 -> cert_accepts=True
+  uct idx25 reps=40: phi+Hinv+contrast diffs=0  success=True=39 stalls=1  worst_valid_pg=2.88e-07 (<= TOL_KKT=1e-05)  rev4_fitfail=0
 
-[genuine-non-convergence rejection]
-  genuine non-conv (maxiter=2): success=False polish rel_par=6.18e-01 -> qualifier REJECTS=True
+[counterexample-class rejection]
+  perturbed non-optimal: pg=6.57e-03 -> REJECTED=True
+  genuine non-conv (maxiter=2): pg=2.79e-02 -> REJECTED=True
 
 FIXTURE-RELEVANT BIT-IDENTITY (phi+Hinv+contrasts): PASS
-GENUINE-NON-CONVERGENCE REJECTED: PASS
+COUNTEREXAMPLE-CLASS REJECTED (perturbed + genuine non-conv): PASS

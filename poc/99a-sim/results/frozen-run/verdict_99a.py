@@ -23,9 +23,12 @@ fit-failure rate <= the S4.2 ceiling 0.1%.
 import sys
 import os
 import json
+import math
 
 SIM = "/home/ec2-user/css/kernel/kernel-of-truth/poc/99a-sim"
 OUTDIR = os.path.join(SIM, "results", "frozen-run", "grid-run-v2")
+sys.path.insert(0, SIM)
+import grid
 
 TAU_FWER = 0.055
 TAU_TERM0 = 0.055
@@ -38,37 +41,103 @@ N_EXPECTED_CELLS = 114                 # full 99a grid (S8 config table)
 FLOORED = {"P1": "CVAL_DEFNSUP", "P3": "CVAL_CONSUPH_GRAPH", "P4": "CFMTH_given_conH"}
 REPORTED = {"P2": "CDEFSUP", "P5": "CCONSUP_A1"}
 
+# EXPECTED index -> (kind, label, rho, regime, n_nat, n_nonce) from the S8
+# enumeration; the SINGLE source of truth for the run scope (Rev4 item 3).
+EXPECTED = {c[0]: tuple(c[1:]) for c in grid.enumerate_cells()}
+# labels whose cells MUST carry a rung-0 whole-branch-termination record
+_RUNG0_LABELS = {"F10", "P6"}
+# the five power path estimands the driver emits (content, not just presence)
+_POWER_PATHS = ("CVAL_DEFNSUP", "CVAL_CONSUPH_GRAPH", "CDEFSUP", "CCONSUP_A1",
+                "CFMTH_given_conH")
+_GATE_GAMMAS = ("0.02500", "0.00625")
 
-# REQUIRED schema per kind (Rev3 — GPT-5.6 item 3: full-schema enforcement).
+# REQUIRED base schema per kind (Rev3/Rev4 — full-schema + content enforcement).
 _FWER_POWER_REQUIRED = ("fwer_events", "fwer_hat", "fwer_cp_upper95",
                         "fwer_events_worstcase", "fwer_cp_upper95_worstcase",
                         "fit_failures", "fit_failure_rate",
-                        "fit_failure_ceiling_pass", "fit_failure_detail")
-_GATECAL_REQUIRED = ("arms", "fit_failures", "fit_failure_rate",
+                        "fit_failure_ceiling_pass", "fit_failure_detail",
+                        "R", "truth_set")
+_GATECAL_REQUIRED = ("arms", "R", "fit_failures", "fit_failure_rate",
                      "fit_failure_ceiling_pass")
 
 
-def _valid_success(rec):
-    """Structural validity of ONE successful cell record (Rev3 item 3).
-    Returns (ok, reason).  A record is valid iff: no ERROR key; a known kind;
-    the FULL kind-appropriate schema is present; and the fit-failure rate is a
-    number.  The CEILING is recomputed INDEPENDENTLY by the caller (the stored
-    boolean is never trusted)."""
+def _num(x):
+    return isinstance(x, (int, float)) and not isinstance(x, bool)
+
+
+def _rate_ok(rec, R):
+    """fit_failure_rate must be FINITE, nonnegative, fit_failures a valid count,
+    and rate CONSISTENT with fit_failures/R (Rev4 item 3c)."""
+    ff = rec.get("fit_failures"); rate = rec.get("fit_failure_rate")
+    if not (isinstance(ff, int) and not isinstance(ff, bool) and 0 <= ff <= R):
+        return False
+    if not (_num(rate) and math.isfinite(rate) and rate >= 0.0):
+        return False
+    return abs(rate - ff / R) <= 1e-9
+
+
+def _valid_success(rec, exp):
+    """Structural + CONTENT + mapping validity of ONE successful cell record
+    against its EXPECTED (kind, label, rho, regime, n_nat, n_nonce) — Rev4
+    item 3.  Returns (ok, reason).  Fail-closed on any mismatch: wrong kind,
+    wrong config, missing schema, missing content (power paths / rung-0 / gate
+    arms+gammas), or a fit-failure rate that is non-finite / negative /
+    inconsistent with fit_failures/R.  The CEILING is recomputed separately."""
     if "ERROR" in rec:
         return False, "error"
+    exp_kind, exp_label, exp_rho, exp_regime, exp_nnat, exp_nnonce = exp
     kind = rec.get("_kind") or rec.get("kind")
+    if kind != exp_kind:
+        return False, "kind %r != expected %r" % (kind, exp_kind)
     if kind in ("fwer", "power"):
-        req = _FWER_POWER_REQUIRED
+        miss = [k for k in _FWER_POWER_REQUIRED if k not in rec]
+        if miss:
+            return False, "missing:" + ",".join(miss)
+        if (rec.get("label") != exp_label or rec.get("rho") != exp_rho
+                or rec.get("regime") != exp_regime or rec.get("n_nat") != exp_nnat
+                or rec.get("n_nonce") != exp_nnonce):
+            return False, "config-mismatch"
+        R = rec.get("R")
+        if not (isinstance(R, int) and R > 0):
+            return False, "bad-R"
+        ev = rec.get("fwer_events")
+        if not (isinstance(ev, int) and 0 <= ev <= R):
+            return False, "bad-fwer_events"
+        if not _rate_ok(rec, R):
+            return False, "rate-inconsistent"
+        if not isinstance(rec.get("fit_failure_detail"), list):
+            return False, "bad-detail"
+        if kind == "power":
+            paths = rec.get("paths")
+            if not isinstance(paths, dict) or any(k not in paths for k in _POWER_PATHS):
+                return False, "missing-power-paths"
+        if exp_label in _RUNG0_LABELS:
+            rung0 = rec.get("rung0")
+            if not (isinstance(rung0, dict) and "cp_upper95" in rung0
+                    and "termination_rate" in rung0):
+                return False, "missing-rung0"
+        return True, "ok"
     elif kind == "gatecal":
-        req = _GATECAL_REQUIRED
-    else:
-        return False, "unknown-kind"
-    miss = [k for k in req if k not in rec]
-    if miss:
-        return False, "missing:" + ",".join(miss)
-    if not isinstance(rec.get("fit_failure_rate"), (int, float)):
-        return False, "bad-fit_failure_rate"
-    return True, "ok"
+        miss = [k for k in _GATECAL_REQUIRED if k not in rec]
+        if miss:
+            return False, "missing:" + ",".join(miss)
+        if rec.get("rho") != exp_rho or rec.get("n_nonce") != exp_nnonce:
+            return False, "config-mismatch"
+        R = rec.get("R")
+        if not (isinstance(R, int) and R > 0):
+            return False, "bad-R"
+        if not _rate_ok(rec, R):
+            return False, "rate-inconsistent"
+        arms = rec.get("arms")
+        if not (isinstance(arms, dict) and arms):
+            return False, "no-arms"
+        for a in arms.values():
+            g = a.get("gamma") if isinstance(a, dict) else None
+            if not (isinstance(g, dict) and all(k in g for k in _GATE_GAMMAS)
+                    and "sd_ratio" in a):
+                return False, "bad-gate-arm"
+        return True, "ok"
+    return False, "unknown-kind %r" % kind
 
 
 def main():
@@ -96,6 +165,10 @@ def main():
     # 0..N-1, the full schema on each, and recomputes the ceiling from the
     # numeric rate (never the stored boolean).
     missing_cells = [i for i in range(N_EXPECTED_CELLS) if i not in idx_rows]
+    unexpected_idx = sorted(i for i in idx_rows if i not in EXPECTED)
+    for u in unexpected_idx:
+        invalid_cells.append((u, "unexpected-index"))
+    valid_idx = set()
     for i in range(N_EXPECTED_CELLS):
         recs = idx_rows.get(i, [])
         if len(recs) == 0:
@@ -108,18 +181,22 @@ def main():
             error_cells.append(i)
             print("ERROR CELL (run-invalidating):", i, rec.get("ERROR"))
             continue
-        ok, why = _valid_success(rec)
+        ok, why = _valid_success(rec, EXPECTED[i])
         if not ok:
             invalid_cells.append((i, why))
             continue
+        valid_idx.add(i)
         # INDEPENDENT ceiling recompute (do NOT trust fit_failure_ceiling_pass)
         if float(rec["fit_failure_rate"]) > FIT_FAILURE_CEILING:
             ceiling_fail.append(i)
 
     for r in rows:
         idx = r.get("config_index")
-        if "ERROR" in r:
-            continue                          # already recorded above
+        # Only tabulate STRUCTURALLY-VALID cells; ERROR/invalid/malformed records
+        # are recorded in the validity pass above and must NOT reach the
+        # (structure-trusting) table code below (Rev4 — fail-closed, no crash).
+        if idx not in valid_idx:
+            continue
         kind = r.get("_kind") or r.get("kind")
         if kind == "fwer":
             cpu = r["fwer_cp_upper95"]                 # REGISTERED gate (observed)
@@ -241,8 +318,7 @@ def main():
 
     # ---- RUN VALIDITY (Rev2/Rev3 — gates whether S6/S7 verdicts are an acceptance) ----
     present = set(idx_rows.keys())
-    n_valid_success = (N_EXPECTED_CELLS - len(missing_cells) - len(error_cells)
-                       - len(invalid_cells))
+    n_valid_success = len(valid_idx & set(range(N_EXPECTED_CELLS)))
     run_valid = (not error_cells and not missing_cells
                  and not invalid_cells and not ceiling_fail
                  and n_valid_success == N_EXPECTED_CELLS)
