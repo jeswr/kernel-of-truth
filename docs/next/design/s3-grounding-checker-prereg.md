@@ -17,8 +17,22 @@
 > rows the coordinator registers at the landing commit.
 >
 > Companion artifact: `docs/next/design/s3-prereg-power-sim.py`
-> (sha256 `1d8645e3c554b1c4b73b33ad62e5aa3d69974e7f22da93ab09e032cc30a1dea9`, Rev2),
+> (sha256 `275e84a83b1d4c0e19e1b4ade2ae5806fe3fe7075c2b8ef6745bae5eb6a37366`, Rev3),
 > the executed planning power simulation (seed 20260724, $0, this box).
+>
+> **This is Revision 3.** The GPT-5.6 delta-check of Rev2
+> (`poc/gpt56-review/s3-prereg-rev2-deltacheck/last-message.json`) returned
+> NEW-DEFECT: 8 of 9 items PASS (and every published Rev2 number reproduces),
+> but the BINDING B-3 repair was not implemented — the sim's C-KERN path
+> Bernoulli-redrew disagreement incidence per replication and `run()` had no
+> realized-artifact input, so the preregistered conditional G-P check on the
+> frozen item×cluster table could not actually be executed. Rev3 fixes the
+> artifact (frozen-incidence mode `dis_counts=` + the `--realized
+> <table.json>` input path, §8), softens the G-D headroom over-claim
+> (power/realism floor, not structural impossibility), and completes the
+> narrow-claim scope in the coverage rider and the PRECERT narrowed headline.
+> Dispositions in §16. Next consumer: the delta-check re-check, then the
+> experiment-designer pipeline.
 >
 > **This is Revision 2.** The GPT-5.6 cross-vendor review of Rev1 returned
 > REVISE (verdict: `poc/gpt56-review/s3-prereg-review/last-message.json`) —
@@ -532,19 +546,27 @@ computed offline from the sha-pinned mask table, BEFORE any powered decode:
   AND
 - disagreeing items span ≥ ⌈C/2⌉ realized clusters (coarse screen only);
 - direction split (K-only-admits / N-only-admits / both-differ) reported.
-**Layout rule (Rev2 — blocking item 3):** these floors do NOT by themselves
-guarantee the §8 power (disagreements may concentrate); the guarantee
-mechanism is G-P — the C-KERN power re-simulation MUST consume the FROZEN
-realized item×cluster disagreement table (the sim's `dis_frac_c` input),
-never an iid assumption. The concentrated-layout stress row in §8 (all
-disagreement confined to half the clusters) is the planning bound for this
-effect; the realized-table re-sim is the binding check.
+**Layout rule (Rev2, mechanism repaired Rev3):** these floors do NOT by
+themselves guarantee the §8 power (disagreements may concentrate); the
+guarantee mechanism is G-P — the C-KERN power re-simulation MUST consume the
+FROZEN realized item×cluster disagreement table in the sim's
+FROZEN-INCIDENCE mode (`dis_counts=` per-cluster counts; incidence — counts
+AND item locations — held constant across replications, only the
+superpopulation outcome draw varying; the sign-flip/bootstrap resample
+signs/cluster assignment, never the incidence), fed through the
+`--realized <table.json>` input path — never an iid or Bernoulli assumption.
+The concentrated-layout stress rows in §8 are the planning bound for this
+effect; the realized-table conditional re-sim is the binding check.
 FAIL ⇒ C-KERN is NOT identifiable/powerable under this design (strict
 unidentifiability only at literal set identity); the crossed cells and M_NN are
-NOT decoded; the experiment proceeds on C-MECH alone; the narrowed headline
-"structured-store admissibility is load-bearing" is claimable ONLY on a
-subsequent C-MECH PASS. [Carried verbatim from scoping Rev3 with the threshold
-now pinned.]
+NOT decoded; the experiment proceeds on C-MECH alone; the narrowed headline —
+Rev3 wording, brought into line with the ratified narrow claim: **"a per-item
+structured-store-derived closed-world answer allowlist improves fixed-slot
+answer selection"** (store-compiled admissibility load-bearing AT THE ANSWER
+SPAN, no wider) — is claimable ONLY on a subsequent C-MECH PASS. [Thresholds
+pinned here; the scoping's broader "structured-store admissibility is
+load-bearing" phrasing is deliberately narrowed per the ratified F-2
+boundary.]
 
 **PROPOSED-CRIT-S3-KILL-2 (derangement gates, final numbers):**
 - *Stage 1 (offline, $0):* 3 seeded P-strict derangements (seeds 20260724001/
@@ -578,19 +600,31 @@ separately-frozen follow-on and is descoped now if exposure < 0.05
 
 ## 8. Power (simulated at the real geometry; the complete licensing rule)
 
-**PROPOSED-PREREG-ROW-S3-04 (final form, Rev2 — the Rev1 artifact is
-superseded; blocking item 1 applied).** Executed planning simulation:
+**PROPOSED-PREREG-ROW-S3-04 (final form, Rev3 — blocking items Rev2-1 and
+Rev3-B3 applied).** Executed planning simulation:
 `docs/next/design/s3-prereg-power-sim.py` (sha
-`1d8645e3c554b1c4b73b33ad62e5aa3d69974e7f22da93ab09e032cc30a1dea9`), seed
-20260724, 2,000 reps/cell, $0, runtime ~44 s on this box. The Rev2 script
+`275e84a83b1d4c0e19e1b4ade2ae5806fe3fe7075c2b8ef6745bae5eb6a37366`), seed
+20260724, 2,000 reps/cell, $0, runtime ~50 s on this box. The script
 implements the FROZEN procedures — MC cluster sign-flip on the equal-cluster
 mean (add-one, two-sided; B_TEST = 2,000 planning resolution vs B = 10,000
 frozen) and cluster percentile bootstrap for TOST/harm (B_BOOT = 1,000
 planning vs 10,000 frozen) — supports arbitrary unequal-m_c layouts (every
 scenario sums to EXACTLY n = 1,920; the 54-cluster layout is 24×35 + 30×36,
 correcting Rev1's 54×36 = 1,944 contradiction), uses no fixed-df critical
-values, accepts a per-cluster disagreement table for C-KERN (`dis_frac_c` —
-the G-P input), and executes EVERY published row below in `run()`. Outcome
+values, and executes EVERY published row below in `run()`. **C-KERN
+disagreement modes (Rev3):** MARGINAL planning mode (`dis_frac_c`
+probabilities, Bernoulli incidence per replication — the iid/concentrated
+planning rows) and FROZEN realized mode (`dis_counts` per-cluster counts —
+incidence, counts AND item locations, held constant across replications;
+only the superpopulation outcome draw varies; within-cluster locations are
+exchangeable so (m_c, k_c) is the table's full information content, pinned
+first-k). The realized-artifact input path `--realized <table.json>`
+(fields: `m_c`, `dis_counts`, optional μ grids and pilot-estimated parameter
+overrides) executes the CONDITIONAL G-P block for both claim families at
+the frozen geometry — verified end-to-end on a C = 80 unequal-layout test
+table during Rev3 authoring. The Rev3 frozen-incidence demo block is
+APPENDED after all Rev2 scenario draws in the master-seed stream, so every
+previously published row is bit-identical (re-verified this run). Outcome
 model: discrete per-item paired utility differences d ∈ {0, ±1, ±3, ±4},
 cluster random effect, movability copulas (ρ_move = 0.5 across the C-MECH
 contrasts, shared cluster effect; ρ = 0.3 across the Δ_mask simple effects).
@@ -616,7 +650,8 @@ by the committed script at the pinned seed):
 |---|---|
 | licensing power at +0.05 / +0.055 / **+0.06**, iid ρ_item = 0.30 (96×20) | 0.491 / 0.666 / **0.832** → 80%-powered ≈ **+0.059** |
 | licensing at +0.06, iid ρ_item = 0.25 / 54-layout ρ = 0.30 | 0.831 / 0.823 |
-| **CONCENTRATED stress** (all disagreement in 48 of 96 clusters at 0.50): licensing at +0.055 / +0.06; TOST at 0 | 0.662 / **0.807**; 0.972 |
+| **CONCENTRATED stress, marginal mode** (48 of 96 clusters at Bernoulli 0.50): licensing at +0.055 / +0.06; TOST at 0 | 0.662 / **0.807**; 0.972 |
+| **FROZEN-INCIDENCE demo, realized mode (Rev3 — the G-P code path):** fixed 10-of-20 in 48 of 96 clusters (realized ρ = 0.25 exactly, constant across reps): licensing at +0.055 / **+0.06**; TOST at 0; harm type-I | 0.655 / **0.828**; 0.975; 0.057 |
 | TOST(±0.04) at true 0: iid ρ = 0.30 / ρ = 0.25 / 54-layout | 0.973 / 0.982 / 0.953 |
 | harm type-I at 0 | 0.049–0.057 |
 
@@ -625,10 +660,16 @@ Readings, stated honestly: the at-floor CONJUNCTION power is ~0.26 (the
 disclosed in §6); the conjunction is 80%-powered at μ* ≈ +0.122 per
 contrast, which at λ = 3 corresponds to ≈ 3.05% of items moving
 wrong→correct against EACH null — hence the G-D headroom gate on the G-arm's
-mask-addressable error rate (§10), without which the design could be
-structurally unable to show the powered effect. The τ = 0.10 TOST shortfall
-(0.789) and the concentration cost (0.832 → 0.807 at +0.06) are planning
-bounds; both are re-checked by G-P at realized values. Superiority and
+mask-addressable error rate (§10), which secures the headroom the powered
+effect realistically needs (a power/realism floor, §10 — not a
+structural-impossibility boundary). The τ = 0.10 TOST shortfall (0.789) and
+the concentration cost (marginal mode 0.832 → 0.807 at +0.06; frozen-
+incidence mode 0.828, the binomial layer removed) are planning bounds; both
+are re-checked by G-P at realized values. Note the frozen-incidence demo
+sits ABOVE the marginal concentrated row — fixing incidence removes a
+variance layer — which is exactly why the conditional check is the honest
+one: it neither borrows iid spread nor pays for binomial noise the realized
+table does not have. Superiority and
 equivalence are powered separately, as required. The F1-K anchor is
 respected: n = 1,920 sits above the F1-K n = 1,573 at a comparable cluster
 count, on a higher-variance (λ-amplified) endpoint, with the cluster-count
@@ -639,7 +680,8 @@ GATE-0 re-simulation (G-P): re-run the SAME committed script at the REALIZED
 geometry — realized C and unequal m_c vector, pilot-estimated f, |d| mix,
 and abstention transitions, τ_used = max(τ̂_pilot, τ_planning) per family
 (§4.3), and for C-KERN the FROZEN realized item×cluster disagreement table
-via `dis_frac_c` (§7) — every primary licensing rule and every TOST must
+in frozen-incidence mode via the `--realized <table.json>` input path (§7) —
+every primary licensing rule and every TOST must
 show power ≥ 0.75, else STOP and re-freeze with maintainer sign-off. Pilot
 estimates feed nuisance parameters ONLY; λ, δ_floor, δ_eq, margins, and
 trees are pinned by THIS document and do not move post-pilot.
@@ -705,17 +747,25 @@ programme memory/largekern]).
 - **G-D (pilot, 120 quarantined items = 24 clusters × 5, all arms + 50-item
   T-B probe):** behaviour gates — per-arm answer rate ≥ 0.50; T-arm raw
   accuracy ≤ 0.90 (ceiling guard); T-arm wrong-rate ≥ 0.05 (exposure/
-  futility floor); **G-arm HEADROOM gate (Rev2 — flagged item 1c): the
-  G-arm's mask-addressable error rate — the fraction of pilot items where
-  G's emitted answer is an option excluded by the K-mask — must be ≥ 0.05,
-  else STOP (futility): under greedy decoding M can only beat G on exactly
-  those items, so below this floor the design is structurally unable to show
-  the powered effect vs G**; sane abstention distributions in ALL arms;
-  P-consistent exposure rate measured (§7 descope rule).
+  futility floor); **G-arm HEADROOM gate (Rev2, reframed Rev3 — a
+  POWER/REALISM floor, not a structural-impossibility boundary): the G-arm's
+  mask-addressable error rate — the fraction of pilot items where G's
+  emitted answer is an option excluded by the K-mask — must be ≥ 0.05, else
+  STOP (futility). Structurally, under greedy decoding M can only beat G on
+  exactly those items; at the 0.05 floor, reaching the 80%-powered
+  conjunction effect (≈ +0.122 ≈ 3.05% of items wrong→correct) already
+  requires converting ~61% of the addressable class, and below the floor
+  the required conversion fraction climbs toward 100% (at 0.0305 headroom
+  it is exactly 100% — theoretically possible, not reliably observable).
+  The gate therefore establishes POSSIBILITY with realistic margin; REALISM
+  of the assumed transitions is then checked by G-P on the pilot-estimated
+  |d| mix [STIPULATED gate pin]**; sane abstention distributions in ALL
+  arms; P-consistent exposure rate measured (§7 descope rule).
 - **G-E (cost):** measured $/paired-item; powered ceiling frozen per §9.
 - **G-P (power re-simulation):** §8 rule — the SAME committed script at the
   realized geometry (unequal m_c), τ_used = max(τ̂_pilot, τ_planning), and
-  the realized disagreement table for C-KERN; ≥ 0.75 everywhere, else STOP.
+  for C-KERN the frozen realized disagreement table in FROZEN-INCIDENCE mode
+  through `--realized <table.json>` (Rev3); ≥ 0.75 everywhere, else STOP.
 - **G-R (reproducibility):** 20 pilot items × all arms re-decoded: 100%
   token-identical or INSTRUMENT flag and fix-before-freeze.
 - **Screen-blindness enforcement (§3.1):** the store-blindness grep runs on
@@ -737,8 +787,9 @@ moot but llama.cpp seed pinned 20260724 anyway. The freeze manifest pins
 sha256 for: OEWN archive; D* slice artifact; both store record sets; engine
 build; compiler; per-item mask table; item file + gold file; prompt/renderer
 templates (per arm); GGUF weights + HF revision; llama.cpp commit + build
-flags; extraction/scoring script; analysis script; the planning sim (Rev2);
-the PV5T audit artifacts (§3.2: schema, prompt template, mapping table,
+flags; extraction/scoring script; analysis script; the planning sim (Rev3)
+and the realized-table JSON fed to `--realized` at G-P; the PV5T audit
+artifacts (§3.2: schema, prompt template, mapping table,
 golden-test suite, provenance-check script, parity script); the
 screen-blindness grep pattern list; the reference incremental evaluator used
 by G-EQ. Verdict generation is the pure-function pipeline on the pinned
@@ -750,9 +801,14 @@ coverage 0.3542 at molecules-v0 on ONE pinned corpus [MEASURED: m0b] and
 α_point 0.24 (Wilson-95 [0.1150, 0.4343]) on the WordNet-10k draw [MEASURED:
 v9 §7] bound all generalisation; a single-host result licenses that host only
 — any cross-host, cross-corpus, or "natural coverage" narration is
-[EXTRAPOLATION] and prohibited as a premise. A C-MECH PASS without the
-cross-vendor audit is MEASURED-UNAUDITED (PASS-pending-audit) until the Codex
-audit lands.
+[EXTRAPOLATION] and prohibited as a premise. **Mechanism boundary (Rev3 —
+the rider now carries the narrowed claim it indexes):** every licensed
+statement is about a per-item, store-derived closed-world answer ALLOWLIST
+at a FIXED answer slot — never about dynamic checking of model-emitted
+subjects, relations, or free assertions, and never "grounding checker"
+simpliciter; readouts restate this boundary wherever the coverage numbers
+appear. A C-MECH PASS without the cross-vendor audit is MEASURED-UNAUDITED
+(PASS-pending-audit) until the Codex audit lands.
 
 ---
 
@@ -792,9 +848,10 @@ audit lands.
   §5, §6, §7
 - ROW-S3-02 arms: M_K/X_KN/X_NK/M_NN/T/G/B + D^policy; T_N/M0 excluded. — §5
 - ROW-S3-03 F0 accounting: unchanged from scoping §4.2. — §5
-- ROW-S3-04 power (Rev2): frozen-procedure sim (sign-flip + cluster
+- ROW-S3-04 power (Rev3): frozen-procedure sim (sign-flip + cluster
   bootstrap), exact-n layouts 96×20 and 24×35+30×36, τ=0.10 + concentrated
-  scenarios, realized-layout G-P input; ≥0.75 gate. — §8
+  scenarios, FROZEN-INCIDENCE mode + `--realized <table.json>` conditional
+  G-P path; ≥0.75 gate. — §8
 - ROW-S3-05 non-degeneracy: thresholds pinned; both masks; common set;
   false-negative exclusion reporting. — §4.2
 - ROW-S3-06 TOST margins: ±0.08 (C-MECH), ±0.04 (C-KERN), each < its floor;
@@ -821,7 +878,7 @@ audit lands.
 
 ---
 
-## 14. MANDATORY SELF-CHECK (Rev2 re-run; the Rev1 result is honestly recorded)
+## 14. MANDATORY SELF-CHECK (Rev3 re-run; prior revisions' results honestly recorded)
 
 Honest record: **Rev1 items 1, 3, and 5 were PASS-as-worded but WRONG in
 substance** — item 1 pinned a δ_floor whose stated derivation was false (the
@@ -830,7 +887,15 @@ construction ... p ≈ 0.008" understated the TOST-at-floor rate produced by
 the frozen bootstrap procedure (~0.02–0.025) because the Rev1 sim used a t
 surrogate; item 5 claimed table rows (C=54, τ=0.10) that the committed
 script could not reproduce, and cited n = 1,944 against the pinned
-n = 1,920. All three are corrected here, not papered over. Rev2 re-run:
+n = 1,920. **Rev2 item 5 was AGAIN partially wrong in substance:** it (and
+the §15 B-3 disposition) claimed the sim "accepts the realized disagreement
+table for G-P", but the artifact only accepted per-cluster PROBABILITIES and
+Bernoulli-redrew incidence per replication with no realized-artifact input —
+the preregistered conditional G-P check was unexecutable (the Rev2
+delta-check's binding defect, fixed in Rev3 by the frozen-incidence mode +
+`--realized` path, §16). The G-D headroom "structurally unable" over-claim
+is likewise corrected to a power/realism floor (§10). All recorded, not
+papered over. Rev3 re-run:
 
 1. **Every open scoping value pinned?** PASS — host + stack + fallback-with-
    re-freeze-rider (§2, §12 M-3); λ = 3 with harm-ratio justification (§6);
@@ -853,14 +918,20 @@ n = 1,920. All three are corrected here, not papered over. Rev2 re-run:
    plus the Rev2 completions: pinned risk–coverage ranking score (§2, §6)
    and the deterministic reasoned/reasonless rule via the reason-coded
    abstention enum (§5).
-5. **Power simulated at the real cluster count, reproducibly?** PASS — the
-   committed Rev2 script implements the frozen sign-flip + cluster-bootstrap
-   procedures, runs EVERY published row (96×20, 24×35+30×36, τ = 0.10,
-   ρ_item ∈ {0.30, 0.25}, concentrated layout) at exactly n = 1,920, and
-   accepts the realized disagreement table for G-P; 80%-powered effects
-   reported (conjunction ≈ +0.122; Δ_mask ≈ +0.059); at-floor conjunction
-   power (~0.26) disclosed. The F1-K C=96/n=1573/μ*=+4.09 lesson is cited
-   and honoured.
+5. **Power simulated at the real cluster count, reproducibly, with the
+   conditional G-P path executable?** PASS — the committed Rev3 script
+   implements the frozen sign-flip + cluster-bootstrap procedures, runs
+   EVERY published row (96×20, 24×35+30×36, τ = 0.10, ρ_item ∈
+   {0.30, 0.25}, concentrated marginal layout, frozen-incidence demo) at
+   exactly n = 1,920 with the Rev2 rows bit-identical (appended-block seed
+   discipline), and NOW ACTUALLY consumes a frozen realized item×cluster
+   disagreement table — fixed counts and locations across replications,
+   resampling only signs/cluster assignment — through the
+   `--realized <table.json>` input path, verified end-to-end on a C = 80
+   unequal-layout test table; 80%-powered effects reported (conjunction
+   ≈ +0.122; Δ_mask ≈ +0.059; frozen-incidence licensing 0.828 at +0.06);
+   at-floor conjunction power (~0.26) disclosed. The F1-K
+   C=96/n=1573/μ*=+4.09 lesson is cited and honoured.
 6. **Load-bearing claims tagged?** PASS — PREMISE lines tagged with refs;
    design choices on STIPULATED pin lines proposed for registration; the
    Rev1 load-bearing tagging errors (the false floor-derivation sentence and
@@ -893,3 +964,24 @@ finding is rebutted; one is partially rebutted with the rebuttal stated.
 | B-7 | Kernel-author family unpinned; screens could overlap a store author | **ADOPTED.** Quad pinned (host alibaba / N-author openai / K-author anthropic / screens anthropic); every screen bound to a store-blind envelope with a fail-closed blinding grep, ledgered; residual same-family edge disclosed in every readout; third-family seat named as restoration path | §2, §3.1, §10 |
 | + | Passing-note scope: common-covered-slice restriction + unobservable mask-false-negative harm | **ADOPTED** as binding scope clauses with exclusion-count reporting | §1, §4.2 |
 | + | M-1 operational; M-2/M-4 load-bearing pre-freeze; M-3 conditionally (fallback ⇒ full re-run + re-freeze) | **ADOPTED** verbatim into §12 | §12 |
+
+---
+
+## 16. Revision 3 — delta-check dispositions
+
+Verdict NEW-DEFECT
+(`poc/gpt56-review/s3-prereg-rev2-deltacheck/last-message.json`): 8 of 9
+items PASS — δ_floor-as-MIE + G-D headroom (minor caveat), G-EQ, the
+reproduced sim numbers, inferential population, PV5T-AUDIT, the 24×5 pilot +
+conservative-τ rule, KOT-HON ranking/reason-codes, and the family quad
+(residual same-family author/screen edge disclosed = acceptable) are left
+UNDISTURBED. One binding defect + two minor items:
+
+| # | Finding (compressed) | Disposition | Where |
+|---|---|---|---|
+| D-1 (BINDING) | `draw_mask()` accepted only per-cluster PROBABILITIES and Bernoulli-redrew disagreement incidence every replication — the frozen per-cluster counts/locations were discarded and an extra binomial layer injected; `run()` had no realized-artifact input; the preregistered conditional G-P check was unexecutable | **ADOPTED.** FROZEN-INCIDENCE mode added (`dis_counts=`): incidence — counts AND first-k-pinned locations, with within-cluster exchangeability making (m_c, k_c) the table's full information content — built once and held constant across replications; only the superpopulation outcome draw varies, and the sign-flip/bootstrap resample signs/cluster assignment, never the incidence. `--realized <table.json>` input path added running the conditional G-P block for BOTH families (m_c, dis_counts, optional μ grids + pilot-parameter overrides); verified end-to-end on a C=80 unequal-layout test table. Demo row at the realized geometry: fixed 10-of-20 in 48 of 96 clusters (ρ = 0.25 exactly) → licensing 0.655/**0.828** at +0.055/+0.06, TOST 0.975, harm type-I 0.057 — ABOVE the marginal concentrated row (0.807 at +0.06) because fixing incidence removes the binomial layer, which is why the conditional check is the honest one. Demo appended after all Rev2 scenario draws: every published Rev2 row re-verified bit-identical. The Rev2 §15/self-check over-claim ("accepts the realized table") is recorded as wrong-in-substance in §14 | §7, §8, §10; s3-prereg-power-sim.py |
+| D-2 (minor) | "Below 0.05 the effect is structurally impossible" too strong — 0.0305 addressable headroom could theoretically support +0.122 | **ADOPTED.** G-D headroom reframed as a POWER/REALISM floor: at 0.05 the powered effect needs ~61% conversion of the addressable class, climbing toward 100% at 0.0305 — possible in principle, not reliably observable; possibility-with-margin is gated at G-D, realism of the transitions at G-P on the pilot |d| mix; §8's "structurally unable" sentence softened to match; tagged as a STIPULATED gate pin | §8, §10 |
+| D-3 (minor) | Coverage rider did not repeat the answer-span boundary despite §15 claiming it did; the PRECERT narrowed headline ("structured-store admissibility is load-bearing") remained broader than the ratified narrow claim | **ADOPTED.** Rider now carries the mechanism boundary verbatim (per-item closed-world answer allowlist at a fixed slot; never dynamic checking, never "grounding checker" simpliciter); the PRECERT narrowed headline is re-worded to "a per-item structured-store-derived closed-world answer allowlist improves fixed-slot answer selection", with the deliberate narrowing from the scoping's phrasing stated | §7, §11 |
+
+No finding is rebutted. Freeze remains gated on the §10 pre-freeze gates and
+the M-2/M-4 maintainer decisions (§12).

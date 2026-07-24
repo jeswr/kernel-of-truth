@@ -14,12 +14,35 @@ Rev2 repairs the Rev1 artifact per the cross-vendor review (blocking item 1):
   - supports ARBITRARY cluster layouts (unequal m_c): every scenario sums to
     EXACTLY n = 1,920 (the C=54 layout is 24x35 + 30x36 = 1,920, not 54x36);
   - no fixed-df critical values anywhere (sign-flip + bootstrap only);
-  - C-KERN accepts a PER-CLUSTER disagreement-rate vector, so the G-P re-run
-    can consume the FROZEN realized item x cluster disagreement table
-    (function `draw_mask(..., dis_frac_c=...)`); a CONCENTRATED-layout
-    stress scenario is included in run();
-  - run() executes EVERY published table row: C=96 and C=54 layouts,
-    tau = 0.10 pessimism, rho_item in {0.30, 0.25}, concentrated layout.
+  - C-KERN has TWO disagreement modes (Rev3 — the Rev2 delta-check's binding
+    defect was that only the first existed):
+      * MARGINAL planning mode (`dis_frac_c=` per-cluster probabilities):
+        disagreement incidence is Bernoulli-redrawn per replication — used
+        for the iid/concentrated PLANNING rows only;
+      * FROZEN realized mode (`dis_counts=` per-cluster integer counts):
+        the disagreement incidence — per-cluster counts AND item locations —
+        is built ONCE and held CONSTANT across all replications; only the
+        superpopulation outcome draw varies, and the sign-flip/bootstrap
+        resample signs/cluster assignment, never the incidence. Item
+        locations within a cluster are exchangeable in this generative
+        model, so the frozen table's full information content is exactly
+        (m_c, k_c); locations are pinned first-k for determinism. This is
+        the CONDITIONAL G-P check the prereg registers.
+  - REALIZED-ARTIFACT INPUT PATH (Rev3): `--realized <table.json>` runs the
+    conditional G-P block on a frozen table:
+      {"m_c": [...], "dis_counts": [...],
+       "mu_grid_kern": [...], "mu_grid_mech": [...],      # optional grids
+       "f_move":, "mag_probs":, "tau_mech":, "tau_mask":}  # optional overrides
+    The pre-freeze G-P step feeds the table computed from the sha-pinned
+    mask-table artifact; BOTH claim families are re-simulated at the
+    realized geometry and the pinned margins, C-KERN in frozen-incidence
+    mode.
+  - run() (no args) executes EVERY published planning row: C=96 and C=54
+    layouts, tau = 0.10 pessimism, rho_item in {0.30, 0.25}, concentrated
+    marginal layout, PLUS a FROZEN-INCIDENCE demo (fixed 10-of-20 in 48 of
+    96 clusters, realized rho = 0.25 exactly) exercising the same code path
+    G-P uses. The demo block is APPENDED at the end of the seed stream, so
+    every previously published row is bit-identical to Rev2.
 
 Note on the answer-rate co-floor: it is a deterministic validity gate on
 realized data, not a stochastic component of the licensing rule; its
@@ -35,6 +58,8 @@ All parameters are STIPULATED planning values; G-P re-runs THIS script at the
 realized geometry with pilot-estimated parameters (and, for C-KERN, the
 realized disagreement table). Master seed pinned: 20260724.
 """
+import argparse
+import json
 import math
 
 import numpy as np
@@ -134,19 +159,49 @@ def draw_mech_pair(rng, mu, m_c, tau=TAU_MECH, reps=REPS):
     return out[0], out[1]
 
 
-def draw_mask(rng, mu_all, m_c, dis_frac_c=None, tau=TAU_MASK, reps=REPS):
-    """Cluster-mean matrices (reps, C) for Delta_mask. dis_frac_c: per-cluster
-    disagreement rates (len C) — pass the REALIZED table for the G-P re-run;
-    default iid RHO_ITEM. mu_all is the all-items (equal-cluster) true mean."""
+def _fixed_incidence(m_c, dis_counts):
+    """FROZEN disagreement incidence: (C, mm) bool with exactly dis_counts[c]
+    True entries among the first m_c[c] valid positions of cluster c.
+    Within-cluster item positions are exchangeable in this generative model,
+    so (m_c, k_c) is the frozen table's full information content; first-k
+    placement keeps the incidence byte-stable across replications and runs."""
+    mm = int(m_c.max())
+    dis_counts = np.asarray(dis_counts, dtype=int)
+    if np.any(dis_counts > m_c) or np.any(dis_counts < 0):
+        raise ValueError("dis_counts must satisfy 0 <= k_c <= m_c per cluster")
+    return np.arange(mm)[None, :] < dis_counts[:, None]
+
+
+def draw_mask(rng, mu_all, m_c, dis_frac_c=None, dis_counts=None,
+              tau=TAU_MASK, reps=REPS):
+    """Cluster-mean matrices (reps, C) for Delta_mask. Two modes:
+
+    dis_counts (FROZEN realized mode — the G-P path, Rev3): per-cluster
+      integer disagreement counts from the sha-pinned mask table; the
+      incidence (counts AND locations) is FIXED across all replications —
+      only the superpopulation outcome draw varies; the sign-flip/bootstrap
+      later resample signs/cluster assignment, never the incidence. Effect
+      scale = mean_c(k_c/m_c), matching the equal-cluster estimand.
+    dis_frac_c (MARGINAL planning mode): per-cluster probabilities;
+      incidence Bernoulli-redrawn each replication (planning rows only).
+    mu_all is the all-items (equal-cluster) true mean."""
     C, mm = len(m_c), int(m_c.max())
-    if dis_frac_c is None:
-        dis_frac_c = np.full(C, RHO_ITEM)
-    rho_bar = float(np.mean(dis_frac_c))
+    if dis_counts is not None:
+        dis_fixed = _fixed_incidence(m_c, dis_counts)
+        rho_bar = float(np.mean(np.asarray(dis_counts, dtype=float) / m_c))
+        if rho_bar <= 0:
+            raise ValueError("zero realized disagreement: C-KERN unidentifiable (PRECERT)")
+        dis = np.broadcast_to(dis_fixed[None, :, :], (reps, C, mm))
+    else:
+        if dis_frac_c is None:
+            dis_frac_c = np.full(C, RHO_ITEM)
+        rho_bar = float(np.mean(dis_frac_c))
     q0 = q_for_mu(mu_all, rho_bar)
     s = tau / (rho_bar * F_MOVE * 2 * E_ABS)
     qc = np.clip(q0 + rng.normal(0, s, (reps, C)), 0.02, 0.98)
     valid = _valid_mask(reps, m_c)
-    dis = (rng.random((reps, C, mm)) < dis_frac_c[None, :, None]) & valid
+    if dis_counts is None:
+        dis = (rng.random((reps, C, mm)) < dis_frac_c[None, :, None]) & valid
     z_sh = rng.normal(size=(reps, C, mm))
     dd = np.zeros((reps, C, mm))
     for _ in range(2):
@@ -280,6 +335,83 @@ def run():
     cm = draw_mask(g, 0.0, LAYOUT_54, dis_frac_c=np.full(54, 0.30))
     print(f"C-KERN [54-layout, iid rho=0.30] at 0: TOST {tost_rate(cm, g, DEQ_KERN):.3f}")
 
+    # Rev3 — FROZEN-INCIDENCE demo (the G-P code path): fixed 10-of-20 in 48
+    # of 96 clusters, 0 elsewhere; realized rho = 480/1920 = 0.25 exactly;
+    # incidence constant across replications. APPENDED after all Rev2 rows so
+    # the published Rev2 numbers are bit-identical.
+    counts_demo = np.array([10] * 48 + [0] * 48)
+    for mu in (0.055, 0.06):
+        g = r()
+        cm = draw_mask(g, mu, LAYOUT_96, dis_counts=counts_demo)
+        print(f"C-KERN [96x20, FROZEN 10-of-20 in 48 clusters] mu_all={mu:.3f}: "
+              f"licensing {license_rate(cm, g, DFLOOR_KERN):.3f}")
+    g = r()
+    cm = draw_mask(g, 0.0, LAYOUT_96, dis_counts=counts_demo)
+    print(f"C-KERN [96x20, FROZEN 10-of-20 in 48 clusters] at 0: "
+          f"TOST {tost_rate(cm, g, DEQ_KERN):.3f}, harm type-I {harm_rate(cm, g):.3f}")
+
+
+def run_realized(path):
+    """The conditional G-P block (Rev3): re-simulate BOTH claim families at
+    the FROZEN realized geometry. `path` is the realized-artifact JSON the
+    pre-freeze G-P step derives from the sha-pinned mask table:
+      m_c            per-cluster certified item counts (required)
+      dis_counts     per-cluster mask-disagreement counts (required)
+      mu_grid_kern   C-KERN true-effect grid (default [DFLOOR_KERN, .055, .06])
+      mu_grid_mech   C-MECH grid (default [DFLOOR_MECH, .11, .12, .13])
+      f_move, mag_probs, tau_mech, tau_mask   pilot-estimated overrides
+    Incidence is FIXED (counts + first-k locations) across replications; the
+    gate rule (prereg §8/§10 G-P) is power >= 0.75 for every primary
+    licensing rule and every TOST."""
+    global F_MOVE, MAG_PROBS, TAU_MECH, TAU_MASK, Z_MOVE
+    with open(path, "r", encoding="utf-8") as fh:
+        t = json.load(fh)
+    m_c = np.asarray(t["m_c"], dtype=int)
+    dis_counts = np.asarray(t["dis_counts"], dtype=int)
+    if len(dis_counts) != len(m_c):
+        raise ValueError("m_c and dis_counts must have equal length C")
+    F_MOVE = float(t.get("f_move", F_MOVE))
+    MAG_PROBS = np.asarray(t.get("mag_probs", MAG_PROBS), dtype=float)
+    TAU_MECH = float(t.get("tau_mech", TAU_MECH))
+    TAU_MASK = float(t.get("tau_mask", TAU_MASK))
+    Z_MOVE = norm_ppf(F_MOVE)
+    rho_real = float(np.mean(dis_counts / m_c))
+    rm = np.random.default_rng(MASTER_SEED)
+
+    def r():
+        return np.random.default_rng(rm.integers(2**63))
+
+    print(f"G-P CONDITIONAL RE-SIM on frozen realized table {path}")
+    print(f"C={len(m_c)}, n={int(m_c.sum())}, disagreement items={int(dis_counts.sum())}, "
+          f"equal-cluster rho_real={rho_real:.4f}; f={F_MOVE}, "
+          f"mag_probs={list(MAG_PROBS)}, tau_mech={TAU_MECH}, tau_mask={TAU_MASK}")
+    for mu in t.get("mu_grid_mech", [DFLOOR_MECH, 0.11, 0.12, 0.13]):
+        g = r()
+        c1, c2 = draw_mech_pair(g, float(mu), m_c)
+        print(f"  C-MECH mu={float(mu):.3f}: CONJUNCTION "
+              f"{conjunction_rate(c1, c2, g, DFLOOR_MECH):.3f}")
+    g = r()
+    c1, _ = draw_mech_pair(g, 0.0, m_c)
+    print(f"  C-MECH TOST(+/-{DEQ_MECH}) at 0: {tost_rate(c1, g, DEQ_MECH):.3f}")
+    for mu in t.get("mu_grid_kern", [DFLOOR_KERN, 0.055, 0.06]):
+        g = r()
+        cm = draw_mask(g, float(mu), m_c, dis_counts=dis_counts)
+        print(f"  C-KERN [FROZEN incidence] mu_all={float(mu):.3f}: "
+              f"licensing {license_rate(cm, g, DFLOOR_KERN):.3f}")
+    g = r()
+    cm = draw_mask(g, 0.0, m_c, dis_counts=dis_counts)
+    print(f"  C-KERN [FROZEN incidence] TOST(+/-{DEQ_KERN}) at 0: "
+          f"{tost_rate(cm, g, DEQ_KERN):.3f}, harm type-I {harm_rate(cm, g):.3f}")
+    print("  gate rule: every primary licensing power and every TOST >= 0.75 (prereg G-P)")
+
 
 if __name__ == "__main__":
-    run()
+    ap = argparse.ArgumentParser(description="S3 prereg planning power sim (Rev3)")
+    ap.add_argument("--realized", metavar="TABLE_JSON", default=None,
+                    help="run the conditional G-P block on a frozen realized "
+                         "item-x-cluster disagreement table")
+    args = ap.parse_args()
+    if args.realized:
+        run_realized(args.realized)
+    else:
+        run()
