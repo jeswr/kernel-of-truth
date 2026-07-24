@@ -49,7 +49,7 @@ Nothing spends until an explicit provisioning entrypoint is invoked; `plan` is
 $0 and asserts the frozen ledger admissibility.
 """
 from __future__ import annotations
-import json, os, re, subprocess, sys, time, hashlib, tempfile
+import json, os, subprocess, sys, time, hashlib, tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -498,61 +498,112 @@ def gcloud(*args, check=True, capture=False):
     return r
 
 
-# BLOCKING-1 (build-review): distinguish a GENUINE 404 (the VM is absent) from
-# ANY other nonzero describe (permission denied / timeout / control-plane
-# outage), which is NOT "absent". A transport outage must NEVER be read as
-# "VM gone" — that was the fail-open money path (an uncapped VM kept running
-# while cleanup reported success).
-_NOT_FOUND_RE = re.compile(
-    r"(?:\bwas not found\b|\bnotFound\b|\bHTTPError 404\b|\b404\b|"
-    r"\bcould not fetch resource\b|\bdoes not exist\b)", re.I)
+# BLOCKING-1 (re-review): STRUCTURED presence/delete classification. Google's
+# scripting guidance says do NOT depend on stderr wording (unstable), so NOTHING
+# below parses free text. Presence is read from `instances list
+# --filter=name=NAME --format=json`: a SUCCEEDED query (rc==0) returning an
+# EMPTY structured JSON array is the ONLY proof of absence; rc!=0
+# (permission/outage/timeout) or any unexpected shape is 'unknown' -> treated as
+# still-present. The delete reads the STRUCTURED operation error from the
+# --format=json stdout; a nonzero delete rc is NEVER inferred as absence — it
+# re-confirms absence structurally or raises the uncapped-VM hazard.
+
+
+def _classify_list_presence(rc: int, stdout, *, name: str) -> str:
+    """PURE classifier for `instances list --filter=name=NAME --format=json`.
+
+    Absence is confirmed ONLY when the query SUCCEEDED (rc==0) AND returned an
+    empty structured JSON array. rc!=0, non-JSON, a non-list, or a non-matching
+    name -> 'unknown' (never absent). Free text is never consulted, so a
+    permission error (rc=1 + "Required 'compute.instances.get' permission ...")
+    classifies as 'unknown' -> still-present -> raise (build-review reproducer)."""
+    if rc != 0:
+        return "unknown"
+    try:
+        items = json.loads((stdout or "").strip() or "[]")
+    except (ValueError, TypeError):
+        return "unknown"
+    if not isinstance(items, list):
+        return "unknown"
+    names = [it.get("name") for it in items if isinstance(it, dict)]
+    if name in names:
+        return "present"
+    if not items:
+        return "absent"          # SUCCEEDED + empty structured list == absent
+    return "unknown"             # non-empty but no name match -> unexpected
+
+
+def _classify_delete_operation(op) -> str:
+    """PURE: given the completed delete operation object, return 'deleted' or
+    raise on the STRUCTURED error/status field. Never parses free text."""
+    if isinstance(op, list):
+        op = op[0] if op else {}
+    if not isinstance(op, dict):
+        raise F1KContinueError(
+            "F1K_DELETE_OP", "delete returned no structured operation object")
+    if op.get("error"):
+        raise F1KContinueError(
+            "F1K_DELETE_OP", "delete operation reported a structured error: %r"
+            % op.get("error"))
+    status = op.get("status")
+    if status not in (None, "DONE"):
+        raise F1KContinueError(
+            "F1K_DELETE_OP", "delete operation not DONE (status=%r)" % status)
+    return "deleted"
 
 
 def _describe_presence() -> str:
-    """Return 'present' | 'absent' | 'unknown'. 'absent' ONLY on a genuine 404;
-    every other error/outage/permission failure is 'unknown' (fail-closed)."""
-    r = gcloud("compute", "instances", "describe", INSTANCE_NAME,
-               "--zone", ZONE, "--format=value(name)", check=False,
-               capture=True)
-    if r.returncode == 0:
-        return "present"
-    if _NOT_FOUND_RE.search((r.stderr or "") + (r.stdout or "")):
-        return "absent"
-    return "unknown"
+    """Structured tristate presence via `instances list --filter`."""
+    r = gcloud("compute", "instances", "list", "--zones", ZONE,
+               "--filter", "name=%s" % INSTANCE_NAME, "--format=json",
+               check=False, capture=True)
+    return _classify_list_presence(r.returncode, r.stdout, name=INSTANCE_NAME)
 
 
 def vm_exists() -> bool:
     """Fail-closed existence: present OR unknown -> 'exists' (True); only a
-    GENUINE confirmed 404 -> absent (False). So a pre-create guard refuses on
-    ambiguity and a watchdog never prematurely declares the VM gone."""
+    STRUCTURALLY-confirmed absence (rc==0 + empty list) -> False. A pre-create
+    guard refuses on ambiguity; a watchdog never prematurely declares the VM
+    gone."""
     return _describe_presence() != "absent"
 
 
 def _blocking_delete() -> str:
-    """Submit the delete and WAIT for the zonal operation to complete
-    (rc-checked: gcloud's blocking delete polls the op to DONE and returns
-    nonzero on op error). Returns 'deleted' (op DONE, no error) or
-    'already-absent' (delete reported 404); RAISES on ANY error/outage so the
-    caller never treats a failed delete as success."""
+    """Submit the delete and WAIT for the zonal operation to complete. Returns
+    'deleted' (structured operation, no error) or 'already-absent' (the VM is
+    STRUCTURALLY confirmed absent). RAISES on ANY op error / outage — a nonzero
+    delete rc is NEVER read as absence from stderr text; absence is re-confirmed
+    only via the structured presence check."""
     r = gcloud("compute", "instances", "delete", INSTANCE_NAME, "--zone", ZONE,
                "--format=json", check=False, capture=True)
     if r.returncode == 0:
-        return "deleted"
-    if _NOT_FOUND_RE.search((r.stderr or "") + (r.stdout or "")):
+        try:
+            op = json.loads((r.stdout or "").strip() or "{}")
+        except (ValueError, TypeError):
+            op = {}
+        return _classify_delete_operation(op)
+    # rc != 0: NEVER infer absence from stderr. Re-confirm absence STRUCTURALLY.
+    if _describe_presence() == "absent":
         return "already-absent"
     raise F1KContinueError(
         "F1K_DELETE_OP",
-        "instances delete failed/outage (rc=%d): %s — cap stays armed"
-        % (r.returncode, (r.stderr or "").strip()[:200]))
+        "instances delete rc=%d and the instance is NOT structurally confirmed "
+        "absent — an uncapped VM may still be running; cap stays armed, MANUAL "
+        "teardown required" % r.returncode)
+
+
+def _git_head_commit():
+    r = subprocess.run(["git", "-C", str(REPO), "rev-parse", "HEAD"],
+                       capture_output=True, text=True)
+    return r.stdout.strip() if r.returncode == 0 else None
 
 
 def _require_cap_probe_green():
-    """BLOCKING oracle item: a real provisioning call MUST be preceded by a
-    recorded GREEN sub-dollar CAP-PROBE (env KOT_F1K_CAP_PROBE_EVIDENCE ->
-    kot-f1k-cap-probe/1). Refuses fail-closed if the evidence is absent, not
-    GREEN, or tampered. The probe RUNNER (which writes the evidence) is the
-    separate maintainer-gated step; this gate makes 'no ordinary create before
-    a green probe' machine-enforced, not a runbook promise."""
+    """BLOCKING-2: a real provisioning call MUST be preceded by a recorded GREEN
+    sub-dollar CAP-PROBE (env KOT_F1K_CAP_PROBE_EVIDENCE -> kot-f1k-cap-probe/1)
+    that actually RAN against THIS project + zone at THIS source commit, within
+    the freshness window. Refuses fail-closed on absent / not-GREEN / tampered /
+    wrong-project-zone-commit / stale / future-dated evidence."""
     path = os.environ.get("KOT_F1K_CAP_PROBE_EVIDENCE", "")
     if not path:
         die("F1K_CAP_PROBE", "KOT_F1K_CAP_PROBE_EVIDENCE unset — no ordinary "
@@ -563,9 +614,11 @@ def _require_cap_probe_green():
     except (OSError, ValueError) as exc:
         die("F1K_CAP_PROBE", "CAP-PROBE evidence unreadable/not JSON: %s" % exc)
     try:
-        f1k_ops.validate_cap_probe_evidence(record)
+        f1k_ops.validate_cap_probe_evidence(
+            record, project_id=PROJECT or None, zone=ZONE,
+            source_commit=_git_head_commit())
     except f1k_ops.F1KOpsError as exc:
-        die("F1K_CAP_PROBE", "CAP-PROBE evidence not GREEN (%s)" % exc)
+        die("F1K_CAP_PROBE", "CAP-PROBE evidence invalid (%s)" % exc)
 
 
 # ---------------------------------------------------------------------------
@@ -1961,6 +2014,58 @@ def _sysexit(fn):
         return exc.code if exc.code is not None else 0
 
 
+def _raises(fn):
+    """True iff fn raises F1KContinueError (a fail-closed refusal)."""
+    try:
+        fn()
+    except F1KContinueError:
+        return True
+    return False
+
+
+# The exact build-review reproducer: a PERMISSION error (rc=1) whose free text
+# contains phrases the old regex matched as "absent". The structured classifier
+# ignores stderr entirely and keys off (rc, structured JSON), so this MUST
+# classify NOT-absent -> still-present -> raise the uncapped-VM hazard.
+_PERMISSION_REPRODUCER = (
+    "Could not fetch resource:\n - Required 'compute.instances.get' permission "
+    "for 'projects/p/zones/us-central1-a/instances/kot-f1k-run' (or the "
+    "resource does not exist / 404)")
+
+
+def _classifier_oracle(check):
+    """BLOCKING-1: exercise the PRODUCTION structured classifiers with the ACTUAL
+    raw output shapes (not injected already-classified values)."""
+    n = "kot-f1k-run"
+    check(_classify_list_presence(0, "[]", name=n) == "absent",
+          "CLASSIFY presence: rc=0 + EMPTY structured JSON list == absent")
+    check(_classify_list_presence(0, json.dumps([{"name": n, "id": "1"}]),
+                                  name=n) == "present",
+          "CLASSIFY presence: rc=0 + name match == present")
+    check(_classify_list_presence(1, "", name=n) == "unknown",
+          "CLASSIFY presence: rc!=0 (permission/outage/timeout) == unknown")
+    r = _classify_list_presence(1, _PERMISSION_REPRODUCER, name=n)
+    check(r == "unknown" and r != "absent",
+          "CLASSIFY (BLOCKING-1 reproducer): exact permission text at rc=1 == "
+          "unknown, NEVER absent (free text is not consulted)")
+    check(_classify_list_presence(0, "Could not fetch resource: 404 does not "
+                                  "exist", name=n) == "unknown",
+          "CLASSIFY presence: rc=0 + non-JSON free text == unknown (never "
+          "absent from text)")
+    check(_classify_list_presence(0, json.dumps([{"name": "other-vm"}]),
+                                  name=n) == "unknown",
+          "CLASSIFY presence: rc=0 + non-matching name == unknown")
+    check(_classify_delete_operation({"status": "DONE"}) == "deleted",
+          "CLASSIFY delete: DONE + no structured error == deleted")
+    check(_raises(lambda: _classify_delete_operation(
+        {"status": "DONE", "error": {"errors": [{"code": "RESOURCE_IN_USE"}]}})),
+        "CLASSIFY delete: structured operation error -> raise")
+    check(_raises(lambda: _classify_delete_operation({"status": "RUNNING"})),
+          "CLASSIFY delete: a not-DONE operation status -> raise")
+    check(_raises(lambda: _classify_delete_operation("string not op")),
+          "CLASSIFY delete: a non-object operation -> raise")
+
+
 def _min_catalog():
     import copy as _copy
     cs = f1k_ops._COMPUTE_SERVICE
@@ -2305,12 +2410,29 @@ def _continue_selftest():
             now_utc=now, deadline=deadline, licensed_rate="0.219",
             project_id=inst["project_id"]))),
         "G38 (BLOCKING-4) producer refuses a non-composite cap dict")
+    # BLOCKING-4 re-review: a self-consistent provenance for a DIFFERENT target
+    # (unrelated instance identity) is refused (cross-binding to the handoff).
+    def wrong_target_provenance():
+        bad = json.loads(json.dumps(h))
+        bad["provider"]["cap"]["provenance"] = f1k_ops.make_cap_provenance(
+            target="other-project/us-central1-a/other-vm",
+            deadline_utc=deadline, oncalendar=f1k_ops._oncalendar(deadline),
+            guest_target="other-project/us-central1-a/other-vm")
+        f1k_ops.validate_handoff(bad, now_utc=now)
+    check(refuses("F1K_HANDOFF", wrong_target_provenance),
+          "G38 (BLOCKING-4) cross-bound provenance with an unrelated target "
+          "-> refused")
 
-    # --- CAP-PROBE gate (build-review): no real create pre-green-probe ---
+    # --- CAP-PROBE gate (BLOCKING-2): project/zone/commit/freshness bound ---
+    head = _git_head_commit() or ("a" * 40)
+
     def probe_rec(**over):
         checks = {k: "PASS" for k in f1k_ops.CAP_PROBE_CHECKS}
         rec = {"schema": f1k_ops.CAP_PROBE_SCHEMA, "verdict": "GREEN",
-               "checks": checks, "observed_at_utc": "2026-07-24T00:00:00Z"}
+               "checks": checks, "project_id": PROJECT or "test-project",
+               "zone": ZONE, "source_commit": head,
+               "gcloud_version": "500.0.0",
+               "observed_at_utc": f1k_ops._utc_now_z()}
         rec.update(over)
         rec["sha256"] = hashlib.sha256(f1k_ops.canonical_json_bytes(
             {k: rec[k] for k in rec if k != "sha256"})).hexdigest()
@@ -2323,12 +2445,24 @@ def _continue_selftest():
         Path(gp).write_text(json.dumps(probe_rec()))
         os.environ["KOT_F1K_CAP_PROBE_EVIDENCE"] = gp
         check(_require_cap_probe_green() is None,
-              "CAP-PROBE gate: a GREEN evidence record permits provisioning")
+              "CAP-PROBE gate: a GREEN, project/zone/commit-bound, fresh "
+              "record permits provisioning")
         bp = os.path.join(tempfile.mkdtemp(), "probe-red.json")
         Path(bp).write_text(json.dumps(probe_rec(verdict="RED")))
         os.environ["KOT_F1K_CAP_PROBE_EVIDENCE"] = bp
         check(_sysexit(_require_cap_probe_green) == 2,
               "CAP-PROBE gate: a non-GREEN probe refuses provisioning")
+        sp = os.path.join(tempfile.mkdtemp(), "probe-stale.json")
+        Path(sp).write_text(json.dumps(probe_rec(
+            observed_at_utc="2000-01-01T00:00:00Z")))
+        os.environ["KOT_F1K_CAP_PROBE_EVIDENCE"] = sp
+        check(_sysexit(_require_cap_probe_green) == 2,
+              "CAP-PROBE gate (BLOCKING-2): a STALE 2000-01-01 probe refuses")
+        wp = os.path.join(tempfile.mkdtemp(), "probe-wrongcommit.json")
+        Path(wp).write_text(json.dumps(probe_rec(source_commit="b" * 40)))
+        os.environ["KOT_F1K_CAP_PROBE_EVIDENCE"] = wp
+        check(_sysexit(_require_cap_probe_green) == 2,
+              "CAP-PROBE gate (BLOCKING-2): a wrong source-commit probe refuses")
     finally:
         if saved_probe is not None:
             os.environ["KOT_F1K_CAP_PROBE_EVIDENCE"] = saved_probe
@@ -2463,6 +2597,8 @@ def _continue_selftest():
             lambda **k: None), require_mirror=True)),
         "G22 local epoch present + mirror absent -> refuse (LC-12)")
 
+    # --- BLOCKING-1: production structured classifiers (raw shapes) ---
+    _classifier_oracle(check)
     # --- G21/28/29 provision epoch-order + cap-in-request + faildelete ---
     _provision_oracle(check, launch=launch)
     # --- G32 teardown ordering ---
@@ -2498,10 +2634,26 @@ def _seed_local_epoch(launch):
     return p
 
 
+# Raw `instances list --filter --format=json` output shapes, fed through the
+# REAL production classifier _classify_list_presence in the money-path oracles
+# (BLOCKING-1: never inject an already-classified value).
+_N = "kot-f1k-run"
+_RAW_PRESENT = (0, json.dumps([{"name": _N, "id": "1"}]))
+_RAW_ABSENT = (0, "[]")
+_RAW_PERMISSION = (1, _PERMISSION_REPRODUCER)   # rc=1 + text -> unknown
+
+
+def _presence_from(state):
+    """Build a presence_fn that runs the PRODUCTION classifier on the current
+    raw (rc, stdout) list output — so the permission reproducer flows through."""
+    return lambda: _classify_list_presence(state["raw"][0], state["raw"][1],
+                                           name=_N)
+
+
 def _provision_oracle(check, *, launch):
     order = []
     made = {"id": "1234567890123456789"}
-    present = {"v": False}
+    state = {"raw": _RAW_ABSENT}
     store = {}
 
     def mirror(*, action, key, data=None):
@@ -2509,9 +2661,6 @@ def _provision_oracle(check, *, launch):
             store[key] = data
             return None
         return store.get(key)
-
-    def now_fn():
-        return launch
 
     def describe_ok():
         dl = f1k_ops.compute_selfdelete_deadline(launch_utc=launch)
@@ -2522,20 +2671,21 @@ def _provision_oracle(check, *, launch):
 
     def create_fn(cap):
         order.append("create")
-        present["v"] = "present"
+        state["raw"] = _RAW_PRESENT
         made["cap"] = cap
 
     def delete_fn():
         order.append("delete")
-        present["v"] = "absent"
+        state["raw"] = _RAW_ABSENT      # a genuine structured absence follows
         return "deleted"
     d = tempfile.mkdtemp()
     res = _provision_execute(
-        now_fn=now_fn, mirror=mirror, create_fn=create_fn,
+        now_fn=lambda: launch, mirror=mirror, create_fn=create_fn,
         describe_fn=describe_ok, delete_fn=delete_fn,
-        presence_fn=lambda: present["v"], local_epoch_path=os.path.join(d, "e.json"),
+        presence_fn=_presence_from(state),
+        local_epoch_path=os.path.join(d, "e.json"),
         binding_path=os.path.join(d, "b.json"), order=order,
-        instance_name="kot-f1k-run", zone="us-central1-a",
+        instance_name=_N, zone="us-central1-a",
         project_id="test-project", sleep_fn=lambda s: None)
     check(order.index("epoch-persist") < order.index("create")
           and res["deadline_utc"] == f1k_ops.compute_selfdelete_deadline(
@@ -2546,15 +2696,8 @@ def _provision_oracle(check, *, launch):
           and made["cap"]["discard_local_ssds_at_termination_timestamp"] is True,
           "G28 create request carries T_cap + STOP + discard-local-SSD flag")
 
-    # G29: post-create read-back mismatch -> fail-closed verified delete, with
-    # the delete polling to a GENUINE-404 absence (not merely 'no longer seen').
-    def _mk_provision(*, describe_fn, delete_fn, presence_seq, order):
-        st = {"i": 0}
-
-        def presence_fn():
-            v = presence_seq[min(st["i"], len(presence_seq) - 1)]
-            st["i"] += 1
-            return v
+    def _mk_provision(*, describe_fn, delete_fn, raw, order):
+        st = {"raw": raw}
         store2 = {}
 
         def mirror2(*, action, key, data=None):
@@ -2566,9 +2709,10 @@ def _provision_oracle(check, *, launch):
         return _provision_execute(
             now_fn=lambda: launch, mirror=mirror2, create_fn=lambda c: None,
             describe_fn=describe_fn, delete_fn=delete_fn,
-            presence_fn=presence_fn, local_epoch_path=os.path.join(d2, "e.json"),
+            presence_fn=_presence_from(st),
+            local_epoch_path=os.path.join(d2, "e.json"),
             binding_path=os.path.join(d2, "b.json"), order=order,
-            instance_name="kot-f1k-run", zone="us-central1-a",
+            instance_name=_N, zone="us-central1-a",
             project_id="test-project", sleep_fn=lambda s: None)
 
     def describe_bad():
@@ -2578,30 +2722,27 @@ def _provision_oracle(check, *, launch):
             "terminationTime": f1k_ops.compute_selfdelete_deadline(
                 launch_utc=launch),
             "onInstanceStopAction": {"discardLocalSsd": True}}}
+    # G29: read-back mismatch -> fail-closed delete -> genuine structured 404.
     order2 = []
     refused = False
     try:
-        _mk_provision(describe_fn=describe_bad,
-                      delete_fn=lambda: "deleted",
-                      presence_seq=["absent"], order=order2)
+        _mk_provision(describe_fn=describe_bad, delete_fn=lambda: "deleted",
+                      raw=_RAW_ABSENT, order=order2)
     except F1KContinueError as exc:
         refused = exc.code == "F1K_PROVISION_READBACK"
     check(refused and order2.index("create") < order2.index("faildelete")
           < order2.index("delete") < order2.index("absence"),
           "G29 read-back mismatch -> fail-closed delete + genuine-404 confirm")
 
-    # G29-OUTAGE (BLOCKING-1): read-back bad, then the delete op itself ERRORS /
-    # the control plane is OUTAGE. The VM is NOT declared gone; provision raises
-    # and never reports a bound success.
+    # G29-OUTAGE (BLOCKING-1): read-back bad, the delete op ERRORS -> raise,
+    # never declares absence.
     order3 = []
     outage_refused = None
-
-    def delete_outage():
-        order3.append("delete")
-        raise F1KContinueError("F1K_DELETE_OP", "control-plane outage")
     try:
-        _mk_provision(describe_fn=describe_bad, delete_fn=delete_outage,
-                      presence_seq=["unknown"], order=order3)
+        _mk_provision(describe_fn=describe_bad,
+                      delete_fn=lambda: (_ for _ in ()).throw(
+                          F1KContinueError("F1K_DELETE_OP", "op outage")),
+                      raw=_RAW_ABSENT, order=order3)
     except F1KContinueError as exc:
         outage_refused = exc.code
     check(outage_refused == "F1K_PROVISION_READBACK"
@@ -2609,33 +2750,33 @@ def _provision_oracle(check, *, launch):
           "G29-OUTAGE delete-op error during faildelete -> raise, NEVER "
           "declares absence (uncapped-VM hazard surfaced)")
 
-    # G29-404-AMBIGUITY: read-back bad, delete succeeds, but describe returns an
-    # OUTAGE ('unknown') forever -> absence NEVER confirmed -> raise (a transport
-    # outage is not a 404).
+    # G29-PERMISSION (BLOCKING-1 reproducer): read-back bad, delete 'succeeds'
+    # but the confirming presence is the PERMISSION reproducer (rc=1) -> the
+    # PRODUCTION classifier returns unknown -> absence NEVER confirmed -> raise.
     order4 = []
     amb_refused = None
     try:
         _mk_provision(describe_fn=describe_bad, delete_fn=lambda: "deleted",
-                      presence_seq=["unknown"], order=order4)
+                      raw=_RAW_PERMISSION, order=order4)
     except F1KContinueError as exc:
         amb_refused = exc.code
     check(amb_refused == "F1K_PROVISION_READBACK"
           and "absence" not in order4,
-          "G29-AMBIGUITY describe-OUTAGE after delete != 404 -> never "
-          "declares absence")
+          "G29-PERMISSION exact permission-error presence (rc=1) -> classifier "
+          "unknown -> never declares absence (the fail-open reproducer raises)")
 
 
 def _teardown_oracle(check):
-    # G32: delete -> genuine-404 absence -> cleanup-removed.
+    # G32: delete -> genuine structured 404 absence -> cleanup-removed.
     order = []
-    present = {"v": "present"}
+    state = {"raw": _RAW_PRESENT}
     removed = {"v": False}
 
     def delete_fn():
         order.append("delete")
-        present["v"] = "absent"
+        state["raw"] = _RAW_ABSENT
         return "deleted"
-    _teardown_execute(presence_fn=lambda: present["v"], delete_fn=delete_fn,
+    _teardown_execute(presence_fn=_presence_from(state), delete_fn=delete_fn,
                       remove_cleanup_fn=lambda: (order.append("cleanup"),
                                                  removed.__setitem__("v", True)),
                       order=order, sleep_fn=lambda s: None)
@@ -2643,54 +2784,53 @@ def _teardown_oracle(check):
           < order.index("cleanup") and removed["v"],
           "G32 teardown order: delete < genuine-404 absence < cleanup-removal")
 
-    # G32-FAIL: delete errors -> raise, cleanup NOT removed (caps armed).
+    # G32-FAIL: delete op errors -> raise, cleanup NOT removed (caps armed).
     order2 = []
     removed2 = {"v": False}
-
-    def delete_fail():
-        order2.append("delete")
-        raise F1KContinueError("F1K_DELETE_OP", "delete op error")
     failed = None
     try:
-        _teardown_execute(presence_fn=lambda: "present", delete_fn=delete_fail,
-                          remove_cleanup_fn=lambda: removed2.__setitem__(
-                              "v", True), order=order2, name="kot-f1k-run",
-                          sleep_fn=lambda s: None)
+        _teardown_execute(
+            presence_fn=_presence_from({"raw": _RAW_PRESENT}),
+            delete_fn=lambda: (_ for _ in ()).throw(
+                F1KContinueError("F1K_DELETE_OP", "delete op error")),
+            remove_cleanup_fn=lambda: removed2.__setitem__("v", True),
+            order=order2, name=_N, sleep_fn=lambda s: None)
     except F1KContinueError as exc:
         failed = exc.code
     check(failed == "F1K_DELETE_OP" and removed2["v"] is False,
           "G32 VM-delete op error leaves cleanup NOT removed (caps armed)")
 
-    # G32-OUTAGE (BLOCKING-1): delete 'succeeds' but presence stays 'unknown'
-    # (describe outage) -> absence never confirmed -> raise, cleanup NOT removed.
+    # G32-PERMISSION (BLOCKING-1): delete 'succeeds' but the confirming presence
+    # is the permission reproducer -> classifier unknown -> raise, no cleanup.
     order3 = []
     removed3 = {"v": False}
     outage = None
     try:
-        _teardown_execute(presence_fn=lambda: "unknown",
-                          delete_fn=lambda: "deleted",
-                          remove_cleanup_fn=lambda: removed3.__setitem__(
-                              "v", True), order=order3, name="kot-f1k-run",
-                          sleep_fn=lambda s: None)
+        _teardown_execute(
+            presence_fn=_presence_from({"raw": _RAW_PERMISSION}),
+            delete_fn=lambda: "deleted",
+            remove_cleanup_fn=lambda: removed3.__setitem__("v", True),
+            order=order3, name=_N, sleep_fn=lambda s: None)
     except F1KContinueError as exc:
         outage = exc.code
     check(outage == "F1K_DELETE_ABSENCE" and removed3["v"] is False
           and "absence" not in order3,
-          "G32-OUTAGE describe-outage != absence -> raise, cleanup NOT removed")
+          "G32-PERMISSION permission-error presence != absence -> raise, "
+          "cleanup NOT removed")
 
 
 def _reaper_oracle(check):
-    # G37: reaper deletes a TERMINATED-state instance; a transient delete-op
-    # ERROR -> retry the WHOLE verified delete until a genuine 404 is confirmed.
+    # G37: reaper deletes a TERMINATED instance; a transient delete-op ERROR ->
+    # retry the WHOLE verified delete until a genuine structured 404.
     order = []
-    state = {"present": "present", "attempts": 0}
+    state = {"raw": _RAW_PRESENT, "attempts": 0}
 
     def delete_fn():
         order.append("delete")
         state["attempts"] += 1
         if state["attempts"] < 2:       # first delete op transiently errors
             raise F1KContinueError("F1K_DELETE_OP", "transient op error")
-        state["present"] = "absent"
+        state["raw"] = _RAW_ABSENT
         return "deleted"
     result = {"ok": False}
 
@@ -2698,8 +2838,8 @@ def _reaper_oracle(check):
         for _ in range(5):
             try:
                 _verified_delete(
-                    delete_fn=delete_fn, presence_fn=lambda: state["present"],
-                    name="kot-f1k-run", order=order, sleep_fn=lambda s: None)
+                    delete_fn=delete_fn, presence_fn=_presence_from(state),
+                    name=_N, order=order, sleep_fn=lambda s: None)
                 result["ok"] = True
                 return
             except F1KContinueError:
@@ -2709,18 +2849,18 @@ def _reaper_oracle(check):
           and order[-1] == "absence",
           "G37 reaper retries the whole verified delete until 404 absence")
 
-    # G37-OUTAGE: describe stays 'unknown' forever -> absence never confirmed
-    # (best-effort loop would retry unbounded; one _verified_delete raises).
+    # G37-PERMISSION: presence is the permission reproducer forever -> classifier
+    # unknown -> absence never confirmed -> one _verified_delete raises.
     order5 = []
     amb = None
     try:
         _verified_delete(delete_fn=lambda: "deleted",
-                         presence_fn=lambda: "unknown", name="kot-f1k-run",
-                         order=order5, sleep_fn=lambda s: None)
+                         presence_fn=_presence_from({"raw": _RAW_PERMISSION}),
+                         name=_N, order=order5, sleep_fn=lambda s: None)
     except F1KContinueError as exc:
         amb = exc.code
     check(amb == "F1K_DELETE_ABSENCE" and "absence" not in order5,
-          "G37-OUTAGE persistent describe-outage never confirms absence")
+          "G37-PERMISSION permission-error presence never confirms absence")
 
 
 def _reaper_selftest():

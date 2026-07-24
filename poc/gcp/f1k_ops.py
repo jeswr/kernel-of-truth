@@ -54,6 +54,9 @@ _RFC3339_RE = re.compile(
     r"(?P<zone>Z|[+-][0-9]{2}:[0-9]{2})\Z"
 )
 _SHA256_RE = re.compile(r"[0-9a-f]{64}\Z")
+# A git commit id (SHA-1 40-hex, or SHA-256 64-hex repos) — the CAP-PROBE
+# source-commit binding (build-review BLOCKING-2).
+_GIT_COMMIT_RE = re.compile(r"[0-9a-f]{40}(?:[0-9a-f]{24})?\Z")
 # Cloud Billing budget resource name: billingAccounts/<id>/budgets/<id>
 # (LC-8v3 / R3.3 — the handoff must carry the EXACT budget resource, not a
 # free-form string; "any $300 budget" never validates).
@@ -137,11 +140,14 @@ def make_cap_provenance(*, target, deadline_utc, oncalendar, guest_target=None):
     return facts
 
 
-def _verify_cap_provenance(prov, *, cap_deadline, code):
+def _verify_cap_provenance(prov, *, cap_deadline, expected_target, code):
     """Require a self-consistent LC-5 composite provenance (BLOCKING-4): a
     closed attestation whose digest recomputes over its bound leg facts, whose
-    deadline matches the cap block, and whose facts are the passing-composite
-    facts. A hand-built cap block lacks this object entirely and is refused."""
+    deadline matches the cap block, and — CROSS-BOUND (re-review) — whose
+    `target`, `guest.target`, and `guest.oncalendar` match THIS handoff's
+    instance identity and T_cap deadline, so provenance carrying unrelated
+    facts is refused. A hand-built cap block lacks this object entirely and is
+    refused."""
     obj = _closed_contract_object(
         prov, field="handoff.provider.cap.provenance", keys=(
             "schema", "mechanism", "action", "provisioning_model",
@@ -157,6 +163,7 @@ def _verify_cap_provenance(prov, *, cap_deadline, code):
     iam = _closed_contract_object(
         obj["iam"], field="cap.provenance.iam", keys=("permissions",),
         code=code)
+    expected_oncalendar = _oncalendar(cap_deadline)
     if (obj["schema"] != CAP_ATTESTATION_SCHEMA
             or obj["mechanism"] != CAP_MECHANISM
             or obj["action"] != CAP_ACTION
@@ -169,6 +176,13 @@ def _verify_cap_provenance(prov, *, cap_deadline, code):
             or "compute.instances.delete" not in iam["permissions"]):
         raise F1KOpsError(
             code, "cap provenance is not a passing verify_cap_armed composite")
+    # CROSS-BINDING to the handoff identity + T_cap (BLOCKING-4 re-review).
+    if (obj["target"] != expected_target
+            or guest["target"] != expected_target
+            or guest["oncalendar"] != expected_oncalendar):
+        raise F1KOpsError(
+            code, "cap provenance facts (target/guest.target/oncalendar) are "
+            "not cross-bound to this handoff's instance identity + T_cap")
     return obj
 READY_GATE_BINDING_SCHEMA = "kot-f1k-ready-gate-binding/1"
 RUNTIME_LICENSE_SCHEMA = "kot-f1k-runtime-license/1"
@@ -3185,10 +3199,14 @@ def validate_handoff(record, *, now_utc=None):
             "provider cap is not the read-back native STOP terminationTime "
             "(mechanism=%s action=STOP intended==read-back)" % CAP_MECHANISM,
         )
-    # BLOCKING-4: the cap block MUST carry the LC-5 composite provenance; a
-    # hand-built {mechanism, action, 2 timestamps} block is refused here.
+    # BLOCKING-4: the cap block MUST carry the LC-5 composite provenance,
+    # cross-bound to THIS handoff's instance identity + T_cap deadline; a
+    # hand-built {mechanism, action, 2 timestamps} block, or a provenance with
+    # unrelated target/oncalendar, is refused here.
+    expected_target = "%s/%s/%s" % (
+        identity["project_id"], identity["zone"], identity["name"])
     _verify_cap_provenance(cap["provenance"], cap_deadline=cap_intended,
-                           code=code)
+                           expected_target=expected_target, code=code)
 
     cleanup = _closed_contract_object(
         provider["cleanup"],
@@ -3637,16 +3655,28 @@ def build_runtime_license(ready, gate, handoff, *, now_utc=None):
     }
 
 
-def validate_cap_probe_evidence(record) -> dict:
-    """Machine-enforced CAP-PROBE gate (build-review oracle item): a real
-    provisioning call MUST be preceded by a recorded GREEN sub-dollar probe
-    that verified the native-cap surface at the live API. Requires schema
-    kot-f1k-cap-probe/1, verdict GREEN, every CAP_PROBE_CHECKS item PASS, and a
-    self-recomputing sha256. Fails closed on any tamper/missing check."""
+CAP_PROBE_MAX_AGE_DAYS = 14
+
+
+def validate_cap_probe_evidence(record, *, project_id=None, zone=None,
+                                source_commit=None, now_utc=None,
+                                max_age_days=CAP_PROBE_MAX_AGE_DAYS) -> dict:
+    """Machine-enforced CAP-PROBE gate: a real provisioning call MUST be
+    preceded by a recorded GREEN sub-dollar probe that actually RAN against
+    THIS project/zone at a known source commit + CLI version, recently.
+
+    BLOCKING-2 (re-review): a public self-hash alone is a hand-buildable
+    record; the evidence is now BOUND to project_id + zone + source_commit +
+    gcloud_version and a freshness window (observed_at within [now -
+    max_age_days, now]; a stale 2000-01-01 or a future-dated record is
+    refused). The caller supplies the EXPECTED project/zone/commit so the
+    record must demonstrate a probe ran against this deployment, not just be a
+    well-formed JSON blob."""
     code = "F1K_CAP_PROBE"
     obj = _closed_contract_object(
         record, field="cap-probe", keys=(
-            "schema", "verdict", "checks", "observed_at_utc", "sha256"),
+            "schema", "verdict", "checks", "project_id", "zone",
+            "source_commit", "gcloud_version", "observed_at_utc", "sha256"),
         code=code)
     if obj["schema"] != CAP_PROBE_SCHEMA:
         raise F1KOpsError(code, "cap-probe schema is not %s" % CAP_PROBE_SCHEMA)
@@ -3654,8 +3684,15 @@ def validate_cap_probe_evidence(record) -> dict:
     if not isinstance(obj["sha256"], str) or obj["sha256"] != \
             hashlib.sha256(canonical_json_bytes(unhashed)).hexdigest():
         raise F1KOpsError(code, "cap-probe sha256 does not recompute")
-    _contract_timestamp(obj["observed_at_utc"], field="cap-probe.observed_at_utc",
-                        code=code)
+    observed = _contract_timestamp(
+        obj["observed_at_utc"], field="cap-probe.observed_at_utc", code=code)
+    _strict_string(obj["project_id"], field="cap-probe.project_id",
+                   pattern=_PROJECT_ID_RE)
+    _strict_string(obj["zone"], field="cap-probe.zone", pattern=_ZONE_RE)
+    _strict_string(obj["source_commit"], field="cap-probe.source_commit",
+                   pattern=_GIT_COMMIT_RE)
+    if not isinstance(obj["gcloud_version"], str) or not obj["gcloud_version"]:
+        raise F1KOpsError(code, "cap-probe gcloud_version is missing")
     checks = obj["checks"]
     if not isinstance(checks, dict) or set(checks) != set(CAP_PROBE_CHECKS):
         raise F1KOpsError(
@@ -3666,7 +3703,32 @@ def validate_cap_probe_evidence(record) -> dict:
         raise F1KOpsError(
             code, "cap-probe is not GREEN (verdict=%r failed=%s)"
             % (obj["verdict"], failed))
-    return {"verdict": "GREEN", "observed_at_utc": obj["observed_at_utc"]}
+    # identity binding (the record must be for THIS deployment).
+    if project_id is not None and obj["project_id"] != project_id:
+        raise F1KOpsError(code, "cap-probe project_id %r != expected %r"
+                          % (obj["project_id"], project_id))
+    if zone is not None and obj["zone"] != zone:
+        raise F1KOpsError(code, "cap-probe zone %r != expected %r"
+                          % (obj["zone"], zone))
+    if source_commit is not None and obj["source_commit"] != source_commit:
+        raise F1KOpsError(code, "cap-probe source_commit %r != expected %r"
+                          % (obj["source_commit"], source_commit))
+    # freshness window (reject stale / future-dated / hand-built).
+    now_ts = _utc_timestamp(
+        now_utc if now_utc is not None else _utc_now_z(),
+        field="now_utc", code=code)
+    obs_dt = _utc_datetime(observed, field="cap-probe.observed_at_utc",
+                           code=code)
+    now_dt = _utc_datetime(now_ts, field="now_utc", code=code)
+    if obs_dt > now_dt:
+        raise F1KOpsError(code, "cap-probe observed_at is in the FUTURE")
+    if (now_dt - obs_dt) > timedelta(days=int(max_age_days)):
+        raise F1KOpsError(
+            code, "cap-probe is stale (older than %d days) — re-run the probe"
+            % int(max_age_days))
+    return {"verdict": "GREEN", "observed_at_utc": observed,
+            "project_id": obj["project_id"], "zone": obj["zone"],
+            "source_commit": obj["source_commit"]}
 
 
 PRIOR_SPEND_SCHEMA = "kot-f1k-prior-spend/1"
@@ -6644,30 +6706,44 @@ def assure_billing_budget(
             "budgetFilter must carry exactly one explicit period "
             "(calendarPeriod XOR customPeriod)",
         )
-    # BLOCKING-3: a truthy-but-EXPIRED customPeriod is NOT an active tripwire
-    # (expired budgets are no longer processed). Require the end date, if
-    # present, to be today or later.
+    # BLOCKING-3: a customPeriod tracks usage ONLY from its start date, so a
+    # FUTURE-start period is not an active cap; and a period whose end date has
+    # passed is EXPIRED (no longer processed). Require startDate <= now and, if
+    # an endDate is present, endDate >= today.
     if has_custom:
-        end = custom.get("endDate")
-        if isinstance(end, dict):
+        today = datetime.now(timezone.utc).replace(
+            hour=0, minute=0, second=0, microsecond=0)
+
+        def _date(field):
+            d = custom.get(field)
+            if not isinstance(d, dict):
+                return None
             try:
-                end_dt = datetime(
-                    int(end["year"]), int(end["month"]), int(end["day"]),
-                    tzinfo=timezone.utc)
+                return datetime(int(d["year"]), int(d["month"]), int(d["day"]),
+                                tzinfo=timezone.utc)
             except (KeyError, TypeError, ValueError) as exc:
                 raise F1KOpsError(
                     "F1K_B_BUDGET_PERIOD",
-                    "customPeriod.endDate is malformed: %s" % exc,
-                ) from exc
-            today = datetime.now(timezone.utc).replace(
-                hour=0, minute=0, second=0, microsecond=0)
-            if end_dt < today:
-                raise F1KOpsError(
-                    "F1K_B_BUDGET_PERIOD",
-                    "customPeriod.endDate %04d-%02d-%02d is in the past — an "
-                    "expired budget is not an active tripwire"
-                    % (end_dt.year, end_dt.month, end_dt.day),
-                )
+                    "customPeriod.%s is malformed: %s" % (field, exc)) from exc
+        start_dt = _date("startDate")
+        if start_dt is None:
+            raise F1KOpsError(
+                "F1K_B_BUDGET_PERIOD",
+                "customPeriod has no startDate — a custom period tracks usage "
+                "only from a required start date")
+        if start_dt > today:
+            raise F1KOpsError(
+                "F1K_B_BUDGET_PERIOD",
+                "customPeriod.startDate %04d-%02d-%02d is in the FUTURE — a "
+                "future-start budget tracks no current usage (not a cap)"
+                % (start_dt.year, start_dt.month, start_dt.day))
+        end_dt = _date("endDate")
+        if end_dt is not None and end_dt < today:
+            raise F1KOpsError(
+                "F1K_B_BUDGET_PERIOD",
+                "customPeriod.endDate %04d-%02d-%02d is in the past — an "
+                "expired budget is not an active tripwire"
+                % (end_dt.year, end_dt.month, end_dt.day))
 
     thresholds = budget.get("thresholdRules")
     if not isinstance(thresholds, list) or not thresholds:
@@ -7429,33 +7505,62 @@ def selftest_b1() -> int:
             oncalendar=_oncalendar(deadline),
             guest_target="test-project/us-central1-a/kot-f1k-run")["digest"]))
 
-    # --- CAP-PROBE evidence gate (build-review oracle item) ---------------
+    # --- CAP-PROBE evidence gate (BLOCKING-2: project/zone/commit/freshness) --
+    PROBE_NOW = "2026-07-24T12:00:00Z"
+    PROBE_COMMIT = "a" * 40
+
     def cap_probe(**over):
         checks = {k: "PASS" for k in CAP_PROBE_CHECKS}
         rec = {"schema": CAP_PROBE_SCHEMA, "verdict": "GREEN",
-               "checks": checks, "observed_at_utc": "2026-07-24T00:00:00Z"}
+               "checks": checks, "project_id": "test-project",
+               "zone": "us-central1-a", "source_commit": PROBE_COMMIT,
+               "gcloud_version": "500.0.0",
+               "observed_at_utc": "2026-07-24T00:00:00Z"}
         rec.update(over)
         rec["sha256"] = hashlib.sha256(
             canonical_json_bytes({k: rec[k] for k in rec
                                   if k != "sha256"})).hexdigest()
         return rec
-    check("CAP-PROBE gate accepts a GREEN all-PASS probe record",
-          lambda: validate_cap_probe_evidence(cap_probe())["verdict"] == "GREEN")
+
+    def cp_validate(rec, **kw):
+        common = dict(project_id="test-project", zone="us-central1-a",
+                      source_commit=PROBE_COMMIT, now_utc=PROBE_NOW)
+        common.update(kw)
+        return validate_cap_probe_evidence(rec, **common)
+    check("CAP-PROBE gate accepts a GREEN, project/zone/commit-bound, fresh "
+          "record", lambda: cp_validate(cap_probe())["verdict"] == "GREEN")
     check("CAP-PROBE gate refuses a non-GREEN verdict", lambda: refuses(
-        "F1K_CAP_PROBE",
-        lambda: validate_cap_probe_evidence(cap_probe(verdict="RED"))))
+        "F1K_CAP_PROBE", lambda: cp_validate(cap_probe(verdict="RED"))))
     check("CAP-PROBE gate refuses a failed check", lambda: refuses(
         "F1K_CAP_PROBE",
-        lambda: validate_cap_probe_evidence(cap_probe(checks={
+        lambda: cp_validate(cap_probe(checks={
             **{k: "PASS" for k in CAP_PROBE_CHECKS}, "stop_at_time": "FAIL"}))))
+    check("CAP-PROBE gate (BLOCKING-2) refuses a wrong project", lambda: refuses(
+        "F1K_CAP_PROBE", lambda: cp_validate(cap_probe(
+            project_id="other-project"))))
+    check("CAP-PROBE gate (BLOCKING-2) refuses a wrong zone", lambda: refuses(
+        "F1K_CAP_PROBE", lambda: cp_validate(cap_probe(zone="us-east1-b"))))
+    check("CAP-PROBE gate (BLOCKING-2) refuses a wrong source commit",
+          lambda: refuses("F1K_CAP_PROBE",
+                          lambda: cp_validate(cap_probe(source_commit="b" * 40))))
+    check("CAP-PROBE gate (BLOCKING-2) refuses a STALE 2000-01-01 record",
+          lambda: refuses("F1K_CAP_PROBE",
+                          lambda: cp_validate(cap_probe(
+                              observed_at_utc="2000-01-01T00:00:00Z"))))
+    check("CAP-PROBE gate (BLOCKING-2) refuses a FUTURE-dated record",
+          lambda: refuses("F1K_CAP_PROBE",
+                          lambda: cp_validate(cap_probe(
+                              observed_at_utc="2099-01-01T00:00:00Z"))))
+    check("CAP-PROBE gate (BLOCKING-2) refuses a missing gcloud_version",
+          lambda: refuses("F1K_CAP_PROBE",
+                          lambda: cp_validate(cap_probe(gcloud_version=""))))
 
     def cap_probe_tampered():
         rec = cap_probe()
         rec["verdict"] = "RED"          # break the sha without recompute
         return rec
     check("CAP-PROBE gate refuses a tampered sha", lambda: refuses(
-        "F1K_CAP_PROBE", lambda: validate_cap_probe_evidence(
-            cap_probe_tampered())))
+        "F1K_CAP_PROBE", lambda: cp_validate(cap_probe_tampered())))
 
     # --- B3: billing budget (LC-6v3 exact-resource attestation) -----------
     def assure(**kw):
