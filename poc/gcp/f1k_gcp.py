@@ -49,7 +49,7 @@ Nothing spends until an explicit provisioning entrypoint is invoked; `plan` is
 $0 and asserts the frozen ledger admissibility.
 """
 from __future__ import annotations
-import json, os, subprocess, sys, time, hashlib, tempfile
+import json, os, re, subprocess, sys, time, hashlib, tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -498,11 +498,74 @@ def gcloud(*args, check=True, capture=False):
     return r
 
 
-def vm_exists() -> bool:
+# BLOCKING-1 (build-review): distinguish a GENUINE 404 (the VM is absent) from
+# ANY other nonzero describe (permission denied / timeout / control-plane
+# outage), which is NOT "absent". A transport outage must NEVER be read as
+# "VM gone" — that was the fail-open money path (an uncapped VM kept running
+# while cleanup reported success).
+_NOT_FOUND_RE = re.compile(
+    r"(?:\bwas not found\b|\bnotFound\b|\bHTTPError 404\b|\b404\b|"
+    r"\bcould not fetch resource\b|\bdoes not exist\b)", re.I)
+
+
+def _describe_presence() -> str:
+    """Return 'present' | 'absent' | 'unknown'. 'absent' ONLY on a genuine 404;
+    every other error/outage/permission failure is 'unknown' (fail-closed)."""
     r = gcloud("compute", "instances", "describe", INSTANCE_NAME,
                "--zone", ZONE, "--format=value(name)", check=False,
                capture=True)
-    return r.returncode == 0
+    if r.returncode == 0:
+        return "present"
+    if _NOT_FOUND_RE.search((r.stderr or "") + (r.stdout or "")):
+        return "absent"
+    return "unknown"
+
+
+def vm_exists() -> bool:
+    """Fail-closed existence: present OR unknown -> 'exists' (True); only a
+    GENUINE confirmed 404 -> absent (False). So a pre-create guard refuses on
+    ambiguity and a watchdog never prematurely declares the VM gone."""
+    return _describe_presence() != "absent"
+
+
+def _blocking_delete() -> str:
+    """Submit the delete and WAIT for the zonal operation to complete
+    (rc-checked: gcloud's blocking delete polls the op to DONE and returns
+    nonzero on op error). Returns 'deleted' (op DONE, no error) or
+    'already-absent' (delete reported 404); RAISES on ANY error/outage so the
+    caller never treats a failed delete as success."""
+    r = gcloud("compute", "instances", "delete", INSTANCE_NAME, "--zone", ZONE,
+               "--format=json", check=False, capture=True)
+    if r.returncode == 0:
+        return "deleted"
+    if _NOT_FOUND_RE.search((r.stderr or "") + (r.stdout or "")):
+        return "already-absent"
+    raise F1KContinueError(
+        "F1K_DELETE_OP",
+        "instances delete failed/outage (rc=%d): %s — cap stays armed"
+        % (r.returncode, (r.stderr or "").strip()[:200]))
+
+
+def _require_cap_probe_green():
+    """BLOCKING oracle item: a real provisioning call MUST be preceded by a
+    recorded GREEN sub-dollar CAP-PROBE (env KOT_F1K_CAP_PROBE_EVIDENCE ->
+    kot-f1k-cap-probe/1). Refuses fail-closed if the evidence is absent, not
+    GREEN, or tampered. The probe RUNNER (which writes the evidence) is the
+    separate maintainer-gated step; this gate makes 'no ordinary create before
+    a green probe' machine-enforced, not a runbook promise."""
+    path = os.environ.get("KOT_F1K_CAP_PROBE_EVIDENCE", "")
+    if not path:
+        die("F1K_CAP_PROBE", "KOT_F1K_CAP_PROBE_EVIDENCE unset — no ordinary "
+            "provisioning call may precede a recorded GREEN CAP-PROBE "
+            "(build-review; native-cap surface must be live-verified first)")
+    try:
+        record = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        die("F1K_CAP_PROBE", "CAP-PROBE evidence unreadable/not JSON: %s" % exc)
+    try:
+        f1k_ops.validate_cap_probe_evidence(record)
+    except f1k_ops.F1KOpsError as exc:
+        die("F1K_CAP_PROBE", "CAP-PROBE evidence not GREEN (%s)" % exc)
 
 
 # ---------------------------------------------------------------------------
@@ -576,8 +639,10 @@ def cmd_provision() -> None:
         die("F1K_SINGLE_VM_SPOT", str(exc))
     verify_pins()
     _gate()
+    _require_cap_probe_green()   # BLOCKING oracle item: no real create pre-probe
     if vm_exists():
-        die("F1K_VM_EXISTS", "%s already exists in %s — teardown or reuse"
+        die("F1K_VM_EXISTS", "%s already exists (or presence is UNKNOWN) in %s "
+            "— teardown or reuse; ambiguity refuses fail-closed"
             % (INSTANCE_NAME, ZONE))
     STATE_DIR.mkdir(parents=True, exist_ok=True)
     ssd = []
@@ -589,20 +654,21 @@ def cmd_provision() -> None:
     )
 
     def create_fn(cap):
-        # DESIGN QUESTION (CAP-PROBE, PROPOSED-CC-13): the exact gcloud flag
-        # spellings for the absolute runtime limit + local-SSD discard are
-        # doc-inferred (`--termination-time`, `--discard-local-ssds-at-
-        # termination`); the probe confirms them at the real API. cloud-platform
-        # is the OAuth ceiling only; least-privilege IAM still grants
-        # compute.instances.get/delete + Billing Catalog read.
+        # BLOCKING-2: CAP-PROBE-VERIFIED create flags — the documented absolute
+        # runtime limit (`--termination-time`), unified STOP action, and the
+        # local-SSD discard flag (`--discard-local-ssds-at-termination-
+        # timestamp=true`). _require_cap_probe_green() above proves these were
+        # verified at the live API before this call. cloud-platform is the OAuth
+        # ceiling only; least-privilege IAM grants get/delete + Catalog read.
         gcloud("compute", "instances", "create", INSTANCE_NAME,
                "--zone", ZONE, "--machine-type", MACHINE_TYPE,
                "--provisioning-model", cap["provisioning_model"],
                "--instance-termination-action",
                cap["instance_termination_action"],
                "--termination-time", cap["termination_time"],
-               "--discard-local-ssds-at-termination=%s"
-               % ("true" if cap["discard_local_ssds_at_termination"]
+               "--discard-local-ssds-at-termination-timestamp=%s"
+               % ("true"
+                  if cap["discard_local_ssds_at_termination_timestamp"]
                   else "false"),
                "--image-family", IMAGE_FAMILY, "--image-project", IMAGE_PROJECT,
                "--boot-disk-size", "%dGB" % BOOT_GB,
@@ -613,18 +679,12 @@ def cmd_provision() -> None:
         return f1k_ops._gcloud_compute_get(
             project_id=PROJECT, zone=ZONE, instance_name=INSTANCE_NAME)
 
-    def delete_fn():
-        # blocking delete waits for the zonal op to complete (errors if it
-        # fails); present_fn then confirms absence.
-        gcloud("compute", "instances", "delete", INSTANCE_NAME, "--zone", ZONE,
-               check=False)
-        return None
-
     try:
         res = _provision_execute(
             now_fn=f1k_ops._utc_now_z, mirror=_gsutil_mirror(),
-            create_fn=create_fn, describe_fn=describe_fn, delete_fn=delete_fn,
-            present_fn=vm_exists, local_epoch_path=EPOCH_LOCAL_PATH,
+            create_fn=create_fn, describe_fn=describe_fn,
+            delete_fn=_blocking_delete, presence_fn=_describe_presence,
+            local_epoch_path=EPOCH_LOCAL_PATH,
             binding_path=EPOCH_BINDING_PATH)
     except (F1KContinueError, f1k_ops.F1KOpsError) as exc:
         print(str(exc), file=sys.stderr)
@@ -655,11 +715,6 @@ def cmd_teardown() -> None:
     -> verify ABSENCE -> ONLY THEN remove external cleanup machinery. A
     VM-delete failure LEAVES every cap armed and exits nonzero; the epoch
     mirror is NEVER deleted (historical record). Firm and ordered."""
-    def delete_fn():
-        gcloud("compute", "instances", "delete", INSTANCE_NAME, "--zone", ZONE,
-               check=False)
-        return None
-
     def remove_cleanup_fn():
         # Best-effort removal of the optional off-box cleanup entry, if any.
         # The native cap needs no external machinery; nothing to remove for the
@@ -668,16 +723,16 @@ def cmd_teardown() -> None:
 
     try:
         res = _teardown_execute(
-            present_fn=vm_exists, delete_fn=delete_fn,
+            presence_fn=_describe_presence, delete_fn=_blocking_delete,
             remove_cleanup_fn=remove_cleanup_fn)
     except (F1KContinueError, f1k_ops.F1KOpsError) as exc:
         print(str(exc), file=sys.stderr)
         sys.exit(2)
     if res.get("deleted"):
-        print("deleted %s + attached local SSD (absence verified)"
+        print("deleted %s + attached local SSD (genuine-404 absence verified)"
               % INSTANCE_NAME)
     else:
-        print("no VM %s to delete" % INSTANCE_NAME)
+        print("no VM %s to delete (confirmed absent)" % INSTANCE_NAME)
 
 
 def cmd_affordability() -> None:
@@ -1138,42 +1193,48 @@ _ABSENCE_SLEEP_S = 10
 EPOCH_BINDING_KEY = "epoch-binding"
 
 
-def _verified_delete(*, delete_fn, present_fn, poll_fn=None, name,
-                     order=None, sleep_fn=None):
-    """LC-11v3 / LC-14: delete -> poll the zonal op to DONE (error-checked) ->
-    verify instance ABSENCE. Returns True ONLY when absence is confirmed;
-    retries the absence check; raises on delete/op error or if the instance is
-    still present after all retries. NEVER proceeds past a still-present VM."""
+def _verified_delete(*, delete_fn, presence_fn, name, order=None,
+                     sleep_fn=None):
+    """BLOCKING-1: the real delete -> poll-op-to-DONE -> API-confirmed-404
+    sequence.
+
+    delete_fn(): submits the delete AND waits for the zonal operation to
+      complete (error-checked); returns 'deleted' or 'already-absent'; RAISES
+      F1KContinueError on ANY op error / outage / permission failure.
+    presence_fn(): a TRISTATE 'present' | 'absent' | 'unknown' where 'absent'
+      is a GENUINE confirmed 404 ONLY.
+
+    Confirms absence ONLY on a genuine 404; a transport outage/permission/
+    timeout ('unknown') is NEVER treated as absence. On failure it raises with
+    the cap left armed — never a silent 'success'."""
     sleep_fn = sleep_fn or time.sleep
     if order is not None:
         order.append("delete")
-    op = delete_fn()
-    if poll_fn is not None:
-        done = poll_fn(op)
-        if order is not None:
-            order.append("poll-done")
-        if isinstance(done, dict) and done.get("error"):
-            raise F1KContinueError(
-                "F1K_DELETE_OP", "delete operation reported error: %r"
-                % done["error"])
-    for attempt in range(_ABSENCE_RETRIES):
-        if not present_fn():
+    outcome = delete_fn()   # raises on op error / outage
+    if order is not None:
+        order.append("delete-%s" % outcome)
+    last = None
+    for _ in range(_ABSENCE_RETRIES):
+        last = presence_fn()
+        if last == "absent":                      # GENUINE confirmed 404
             if order is not None:
                 order.append("absence")
             return True
         if order is not None:
-            order.append("absence-retry")
+            order.append("absence-retry-%s" % last)   # present OR unknown
         sleep_fn(_ABSENCE_SLEEP_S)
     raise F1KContinueError(
         "F1K_DELETE_ABSENCE",
-        "instance %s still present after delete + %d absence checks — never "
-        "proceeds past a still-present VM" % (name, _ABSENCE_RETRIES))
+        "instance %s absence NOT confirmed (last presence=%s) after delete + "
+        "%d checks — outage/permission/timeout is never treated as absence; "
+        "the cap stays armed" % (name, last, _ABSENCE_RETRIES))
 
 
 def _provision_execute(*, now_fn, mirror, create_fn, describe_fn,
-                       delete_fn, present_fn, poll_fn=None,
+                       delete_fn, presence_fn,
                        local_epoch_path, binding_path, order=None,
-                       instance_name=None, zone=None, project_id=None):
+                       instance_name=None, zone=None, project_id=None,
+                       sleep_fn=None):
     """LC-10v3: the spend-safety-critical provision cap sequence.
 
     Ordering is the point: capture the epoch and durably persist it (+ the
@@ -1198,7 +1259,8 @@ def _provision_execute(*, now_fn, mirror, create_fn, describe_fn,
         "termination_time": deadline,                 # T_cap (conservative)
         "instance_termination_action": f1k_ops.CAP_ACTION,   # unified STOP
         "provisioning_model": "SPOT",
-        "discard_local_ssds_at_termination": True,
+        # BLOCKING-2: the documented create flag (CAP-PROBE-verified).
+        "discard_local_ssds_at_termination_timestamp": True,
     }
     create_fn(cap_flags)
     order.append("create")
@@ -1231,12 +1293,25 @@ def _provision_execute(*, now_fn, mirror, create_fn, describe_fn,
                                    "epoch-binding mirror read-back mismatch")
     except Exception as exc:  # noqa: BLE001 — fail closed, then delete
         order.append("faildelete")
-        _verified_delete(delete_fn=delete_fn, present_fn=present_fn,
-                         poll_fn=poll_fn, name=instance_name, order=order)
+        # BLOCKING-1: verified-to-completion delete (poll-to-DONE + genuine-404
+        # confirmed). If the delete/confirmation itself fails (op error / outage
+        # / unconfirmed absence), THIS raises too — the new VM is NOT declared
+        # gone, the cap stays armed, and provision exits nonzero surfacing an
+        # UNCAPPED-VM hazard requiring manual teardown.
+        try:
+            _verified_delete(delete_fn=delete_fn, presence_fn=presence_fn,
+                             name=instance_name, order=order, sleep_fn=sleep_fn)
+        except F1KContinueError as del_exc:
+            raise F1KContinueError(
+                "F1K_PROVISION_READBACK",
+                "post-create cap read-back failed (%s) AND the fail-closed "
+                "delete could NOT complete (%s) — an UNCAPPED VM may still be "
+                "running; the cap stays armed, MANUAL teardown required"
+                % (exc, del_exc)) from del_exc
         raise F1KContinueError(
             "F1K_PROVISION_READBACK",
             "post-create cap read-back/persistence failed (%s) — the new VM "
-            "was deleted fail-closed (verified to completion)" % exc)
+            "was deleted fail-closed (genuine-404 verified)" % exc)
     order.append("bound")
     return {"launch_utc": launch, "deadline_utc": deadline,
             "instance_id": inst_id}
@@ -1583,7 +1658,15 @@ def _build_construction_handoff(*, ready, gate, binding, cap, preflight,
                                 rate_evidence_ref, now_utc, deadline,
                                 licensed_rate, project_id):
     """Produce the /2 handoff. The cap block is populated ONLY from the LC-5
-    composite (preflight['cap']) — never an echoed provisioning flag (wonu)."""
+    composite (preflight['cap']) — never an echoed provisioning flag (wonu).
+    BLOCKING-4: `cap` MUST be a real verify_cap_armed composite carrying a
+    `provenance` object; an arbitrary hand-built cap dict is refused here (the
+    producer cannot be fed a bare {mechanism, action, 2 timestamps} block)."""
+    if not (isinstance(cap, dict) and isinstance(cap.get("provenance"), dict)):
+        raise F1KContinueError(
+            "F1K_CONTINUE_CAP_PROVENANCE",
+            "cap is not a verify_cap_armed composite (no provenance) — the "
+            "handoff cap block is populated only from the live composite")
     started_dt = f1k_ops._utc_datetime(now_utc, field="now", code=CONTINUE_ERR)
     dl_dt = f1k_ops._utc_datetime(deadline, field="deadline", code=CONTINUE_ERR)
     armed = f1k_ops._hours_ceiling(started_dt, dl_dt)
@@ -1635,6 +1718,7 @@ def _build_construction_handoff(*, ready, gate, binding, cap, preflight,
                 "action": f1k_ops.CAP_ACTION,
                 "termination_time_utc": cap["termination_time_utc"],
                 "termination_timestamp_utc": cap["termination_timestamp_utc"],
+                "provenance": cap["provenance"],   # BLOCKING-4: LC-5 composite
             },
             "cleanup": {
                 "mechanism": f1k_ops.CLEANUP_MECHANISM,
@@ -1679,21 +1763,22 @@ def _build_prior_spend(*, launch, now_utc, licensed_rate, instance):
         licensed_rate=licensed_rate, instance_id=instance["instance_id"])
 
 
-def _teardown_execute(*, present_fn, delete_fn, remove_cleanup_fn,
-                      poll_fn=None, order=None, name=None, sleep_fn=None):
-    """LC-11v3 frozen ordering: delete VM -> poll op DONE -> verify absence ->
-    ONLY THEN remove external cleanup machinery. Any VM-delete failure LEAVES
-    every cap armed + exits nonzero; the epoch mirror is NEVER deleted (it is a
-    historical record). cleanup-removal can NEVER precede confirmed absence."""
+def _teardown_execute(*, presence_fn, delete_fn, remove_cleanup_fn,
+                      order=None, name=None, sleep_fn=None):
+    """LC-11v3 frozen ordering: delete VM -> poll op DONE -> GENUINE-404
+    absence -> ONLY THEN remove external cleanup machinery. Any VM-delete
+    failure or outage LEAVES every cap armed + raises; the epoch mirror is
+    NEVER deleted. cleanup-removal can NEVER precede a confirmed 404, and an
+    ambiguous 'unknown' presence is never treated as absence (BLOCKING-1)."""
     order = order if order is not None else []
     name = name or INSTANCE_NAME
-    if not present_fn():
+    if presence_fn() == "absent":       # GENUINE 404 only; 'unknown' proceeds to delete
         order.append("no-vm")
         remove_cleanup_fn()
         order.append("cleanup-removed")
         return {"deleted": False}
-    _verified_delete(delete_fn=delete_fn, present_fn=present_fn,
-                     poll_fn=poll_fn, name=name, order=order, sleep_fn=sleep_fn)
+    _verified_delete(delete_fn=delete_fn, presence_fn=presence_fn,
+                     name=name, order=order, sleep_fn=sleep_fn)
     remove_cleanup_fn()
     order.append("cleanup-removed")
     return {"deleted": True}
@@ -1726,7 +1811,11 @@ def _real_transports():
         return _ssh("cat /proc/sys/kernel/random/boot_id")
 
     def systemctl(*, action, unit):
-        # DESIGN QUESTION: exact systemctl-show property mapping (validate live).
+        # CAP-PROBE-VERIFIED: exact systemctl-show property mapping. NOTE: the
+        # `oncalendar` value comes from TimersCalendar (which the probe confirms
+        # renders as the bare "OnCalendar=<spec>" the verifier expects); if the
+        # probe finds it needs post-parsing, adjust here — the $0 oracle fakes
+        # the returned strings.
         q = {
             "is-active": "systemctl is-active %s" % unit,
             "oncalendar": "systemctl show -p TimersCalendar --value %s" % unit,
@@ -1738,12 +1827,21 @@ def _real_transports():
         return _ssh(q)
 
     def iam(*, project_id, zone, instance_name, permissions):
-        # DESIGN QUESTION: gcloud/API surface for instances.testIamPermissions
-        # from the VM's own credentials (validate live).
+        # BLOCKING-2c: use the documented REST instances.testIamPermissions
+        # method (there is NO `gcloud compute instances test-iam-permissions`
+        # command). Invoked from the VM with its own SA token, deletes nothing.
+        body = json.dumps({"permissions": list(permissions)}).replace("'", "")
+        url = ("https://compute.googleapis.com/compute/v1/projects/%s/zones/"
+               "%s/instances/%s/testIamPermissions"
+               % (project_id, zone, instance_name))
         out = _ssh(
-            "gcloud compute instances test-iam-permissions %s --zone %s "
-            "--permissions %s --format=json" % (instance_name, zone,
-                                                ",".join(permissions)))
+            "TOK=$(curl -s -H 'Metadata-Flavor: Google' "
+            "http://metadata.google.internal/computeMetadata/v1/instance/"
+            "service-accounts/default/token | "
+            "python3 -c 'import sys,json;print(json.load(sys.stdin)[\"access_"
+            "token\"])'); "
+            "curl -s -X POST -H \"Authorization: Bearer $TOK\" "
+            "-H 'Content-Type: application/json' -d '%s' %s" % (body, url))
         return json.loads(out) if out else {"permissions": []}
 
     def budget(*, action, resource_name):
@@ -1834,18 +1932,19 @@ def cmd_cap_reaper():
             break
         time.sleep(min(300.0, (dl - now).total_seconds()))
 
-    def delete_fn():
-        gcloud("compute", "instances", "delete", INSTANCE_NAME, "--zone", ZONE,
-               check=False)
-        return None
     while True:
         try:
-            _verified_delete(delete_fn=delete_fn, present_fn=vm_exists,
+            _verified_delete(delete_fn=_blocking_delete,
+                             presence_fn=_describe_presence,
                              name=INSTANCE_NAME)
-            print("cap-reaper: %s absence confirmed after T_cap" % INSTANCE_NAME)
+            print("cap-reaper: %s genuine-404 absence confirmed after T_cap"
+                  % INSTANCE_NAME)
             return
         except F1KContinueError as exc:
-            print("cap-reaper: %s; retrying whole delete in 60s" % exc,
+            # delete-op error / outage / unconfirmed absence -> retry the WHOLE
+            # verified delete; unbounded until a genuine 404 is confirmed
+            # (BLOCKING-1: an 'unknown' presence never ends the loop).
+            print("cap-reaper: %s; retrying whole verified delete in 60s" % exc,
                   file=sys.stderr)
             time.sleep(60)
 
@@ -1853,6 +1952,15 @@ def cmd_cap_reaper():
 # ---------------------------------------------------------------------------
 # $0 oracles (injectable fakes only; NO gcloud/SSH/GCS/VM/spend)
 # ---------------------------------------------------------------------------
+def _sysexit(fn):
+    """Run fn; return the SystemExit code die() raised, or 0 if it did not."""
+    try:
+        fn()
+        return 0
+    except SystemExit as exc:
+        return exc.code if exc.code is not None else 0
+
+
 def _min_catalog():
     import copy as _copy
     cs = f1k_ops._COMPUTE_SERVICE
@@ -1964,7 +2072,7 @@ def _continue_selftest():
                     "provisioningModel": model,
                     "instanceTerminationAction": action,
                     "terminationTime": t,
-                    f1k_ops.DISCARD_LOCAL_SSD_KEY: discard},
+                    "onInstanceStopAction": {"discardLocalSsd": discard}},
             }
         return tr
 
@@ -2167,6 +2275,65 @@ def _continue_selftest():
         "G3 service.exec_argv is the direct guard --handoff argv")
     check(Decimal(h["provider"]["armed_hours_decimal"]) <= Decimal("899"),
           "G11 armed_hours <= 899")
+    check("provenance" in h["provider"]["cap"]
+          and h["provider"]["cap"]["provenance"]["schema"]
+          == "kot-f1k-cap-attestation/1",
+          "G38 produced handoff cap carries the LC-5 composite provenance")
+
+    # --- BLOCKING-4: hand-built cap (no composite) is refused ---
+    def hand_built_handoff():
+        bad = json.loads(json.dumps(h))
+        bad["provider"]["cap"] = {           # bare constant-string cap block
+            "mechanism": "gce-termination-time", "action": "STOP",
+            "termination_time_utc": deadline,
+            "termination_timestamp_utc": deadline}
+        bad["created_at_utc"] = h["created_at_utc"]
+        f1k_ops.validate_handoff(bad, now_utc=now)
+    check(refuses("F1K_HANDOFF", hand_built_handoff),
+          "G38 (BLOCKING-4) hand-built cap block (no provenance) -> refused")
+    check(refuses("F1K_CONTINUE_CAP_PROVENANCE", lambda: (
+        _build_construction_handoff(
+            ready=ready, gate=gate,
+            binding=f1k_ops.validate_ready_gate_binding(ready, gate),
+            cap={"termination_time_utc": deadline,
+                 "termination_timestamp_utc": deadline},   # not a composite
+            preflight={"budget_resource_name": BUDGET_RESOURCE},
+            rate_evidence_ref={"path": f1k_ops.RATE_EVIDENCE_PATH,
+                               "sha256": "8" * 64,
+                               "schema": f1k_ops.RATE_EVIDENCE_SCHEMA,
+                               "observed_at_utc": now},
+            now_utc=now, deadline=deadline, licensed_rate="0.219",
+            project_id=inst["project_id"]))),
+        "G38 (BLOCKING-4) producer refuses a non-composite cap dict")
+
+    # --- CAP-PROBE gate (build-review): no real create pre-green-probe ---
+    def probe_rec(**over):
+        checks = {k: "PASS" for k in f1k_ops.CAP_PROBE_CHECKS}
+        rec = {"schema": f1k_ops.CAP_PROBE_SCHEMA, "verdict": "GREEN",
+               "checks": checks, "observed_at_utc": "2026-07-24T00:00:00Z"}
+        rec.update(over)
+        rec["sha256"] = hashlib.sha256(f1k_ops.canonical_json_bytes(
+            {k: rec[k] for k in rec if k != "sha256"})).hexdigest()
+        return rec
+    saved_probe = os.environ.pop("KOT_F1K_CAP_PROBE_EVIDENCE", None)
+    try:
+        check(_sysexit(_require_cap_probe_green) == 2,
+              "CAP-PROBE gate: cmd_provision refuses with no evidence env")
+        gp = os.path.join(tempfile.mkdtemp(), "probe.json")
+        Path(gp).write_text(json.dumps(probe_rec()))
+        os.environ["KOT_F1K_CAP_PROBE_EVIDENCE"] = gp
+        check(_require_cap_probe_green() is None,
+              "CAP-PROBE gate: a GREEN evidence record permits provisioning")
+        bp = os.path.join(tempfile.mkdtemp(), "probe-red.json")
+        Path(bp).write_text(json.dumps(probe_rec(verdict="RED")))
+        os.environ["KOT_F1K_CAP_PROBE_EVIDENCE"] = bp
+        check(_sysexit(_require_cap_probe_green) == 2,
+              "CAP-PROBE gate: a non-GREEN probe refuses provisioning")
+    finally:
+        if saved_probe is not None:
+            os.environ["KOT_F1K_CAP_PROBE_EVIDENCE"] = saved_probe
+        else:
+            os.environ.pop("KOT_F1K_CAP_PROBE_EVIDENCE", None)
 
     # --- G4/5/6/7 rate equality ---
     check(f1k_ops.canonical_decimal("0.2190", field="x")
@@ -2350,136 +2517,189 @@ def _provision_oracle(check, *, launch):
         dl = f1k_ops.compute_selfdelete_deadline(launch_utc=launch)
         return {"id": made["id"], "scheduling": {
             "provisioningModel": "SPOT", "instanceTerminationAction": "STOP",
-            "terminationTime": dl, f1k_ops.DISCARD_LOCAL_SSD_KEY: True}}
+            "terminationTime": dl,
+            "onInstanceStopAction": {"discardLocalSsd": True}}}
 
     def create_fn(cap):
         order.append("create")
-        present["v"] = True
+        present["v"] = "present"
         made["cap"] = cap
 
     def delete_fn():
         order.append("delete")
-        present["v"] = False
-        return None
+        present["v"] = "absent"
+        return "deleted"
     d = tempfile.mkdtemp()
     res = _provision_execute(
         now_fn=now_fn, mirror=mirror, create_fn=create_fn,
         describe_fn=describe_ok, delete_fn=delete_fn,
-        present_fn=lambda: present["v"], local_epoch_path=os.path.join(d, "e.json"),
+        presence_fn=lambda: present["v"], local_epoch_path=os.path.join(d, "e.json"),
         binding_path=os.path.join(d, "b.json"), order=order,
         instance_name="kot-f1k-run", zone="us-central1-a",
-        project_id="test-project")
+        project_id="test-project", sleep_fn=lambda s: None)
     check(order.index("epoch-persist") < order.index("create")
           and res["deadline_utc"] == f1k_ops.compute_selfdelete_deadline(
               launch_utc=launch),
           "G21/28 epoch persisted + cap-in-request BEFORE create; T_cap deadline")
     check(made["cap"]["termination_time"] == res["deadline_utc"]
           and made["cap"]["instance_termination_action"] == "STOP"
-          and made["cap"]["discard_local_ssds_at_termination"] is True,
-          "G28 create request carries T_cap + STOP + discard-local-SSD")
+          and made["cap"]["discard_local_ssds_at_termination_timestamp"] is True,
+          "G28 create request carries T_cap + STOP + discard-local-SSD flag")
 
-    # G29: post-create read-back mismatch -> fail-closed verified delete
-    order2 = []
-    present2 = {"v": False}
-    store2 = {}
+    # G29: post-create read-back mismatch -> fail-closed verified delete, with
+    # the delete polling to a GENUINE-404 absence (not merely 'no longer seen').
+    def _mk_provision(*, describe_fn, delete_fn, presence_seq, order):
+        st = {"i": 0}
 
-    def mirror2(*, action, key, data=None):
-        if action == "put":
-            store2[key] = data
-            return None
-        return store2.get(key)
+        def presence_fn():
+            v = presence_seq[min(st["i"], len(presence_seq) - 1)]
+            st["i"] += 1
+            return v
+        store2 = {}
+
+        def mirror2(*, action, key, data=None):
+            if action == "put":
+                store2[key] = data
+                return None
+            return store2.get(key)
+        d2 = tempfile.mkdtemp()
+        return _provision_execute(
+            now_fn=lambda: launch, mirror=mirror2, create_fn=lambda c: None,
+            describe_fn=describe_fn, delete_fn=delete_fn,
+            presence_fn=presence_fn, local_epoch_path=os.path.join(d2, "e.json"),
+            binding_path=os.path.join(d2, "b.json"), order=order,
+            instance_name="kot-f1k-run", zone="us-central1-a",
+            project_id="test-project", sleep_fn=lambda s: None)
 
     def describe_bad():
         return {"id": made["id"], "scheduling": {
             "provisioningModel": "SPOT",
             "instanceTerminationAction": "DELETE",   # mis-provisioned cap
             "terminationTime": f1k_ops.compute_selfdelete_deadline(
-                launch_utc=launch), f1k_ops.DISCARD_LOCAL_SSD_KEY: True}}
-
-    def create2(cap):
-        order2.append("create")
-        present2["v"] = True
-
-    def delete2():
-        order2.append("delete")
-        present2["v"] = False
-        return None
-    d2 = tempfile.mkdtemp()
+                launch_utc=launch),
+            "onInstanceStopAction": {"discardLocalSsd": True}}}
+    order2 = []
     refused = False
     try:
-        _provision_execute(
-            now_fn=lambda: launch, mirror=mirror2, create_fn=create2,
-            describe_fn=describe_bad, delete_fn=delete2,
-            present_fn=lambda: present2["v"],
-            local_epoch_path=os.path.join(d2, "e.json"),
-            binding_path=os.path.join(d2, "b.json"), order=order2,
-            instance_name="kot-f1k-run", zone="us-central1-a",
-            project_id="test-project")
+        _mk_provision(describe_fn=describe_bad,
+                      delete_fn=lambda: "deleted",
+                      presence_seq=["absent"], order=order2)
     except F1KContinueError as exc:
         refused = exc.code == "F1K_PROVISION_READBACK"
     check(refused and order2.index("create") < order2.index("faildelete")
           < order2.index("delete") < order2.index("absence"),
-          "G29 read-back mismatch -> fail-closed delete + poll-to-absence")
+          "G29 read-back mismatch -> fail-closed delete + genuine-404 confirm")
+
+    # G29-OUTAGE (BLOCKING-1): read-back bad, then the delete op itself ERRORS /
+    # the control plane is OUTAGE. The VM is NOT declared gone; provision raises
+    # and never reports a bound success.
+    order3 = []
+    outage_refused = None
+
+    def delete_outage():
+        order3.append("delete")
+        raise F1KContinueError("F1K_DELETE_OP", "control-plane outage")
+    try:
+        _mk_provision(describe_fn=describe_bad, delete_fn=delete_outage,
+                      presence_seq=["unknown"], order=order3)
+    except F1KContinueError as exc:
+        outage_refused = exc.code
+    check(outage_refused == "F1K_PROVISION_READBACK"
+          and "absence" not in order3,
+          "G29-OUTAGE delete-op error during faildelete -> raise, NEVER "
+          "declares absence (uncapped-VM hazard surfaced)")
+
+    # G29-404-AMBIGUITY: read-back bad, delete succeeds, but describe returns an
+    # OUTAGE ('unknown') forever -> absence NEVER confirmed -> raise (a transport
+    # outage is not a 404).
+    order4 = []
+    amb_refused = None
+    try:
+        _mk_provision(describe_fn=describe_bad, delete_fn=lambda: "deleted",
+                      presence_seq=["unknown"], order=order4)
+    except F1KContinueError as exc:
+        amb_refused = exc.code
+    check(amb_refused == "F1K_PROVISION_READBACK"
+          and "absence" not in order4,
+          "G29-AMBIGUITY describe-OUTAGE after delete != 404 -> never "
+          "declares absence")
 
 
 def _teardown_oracle(check):
-    # G32: delete -> absence -> cleanup-removed; VM-delete failure keeps caps.
+    # G32: delete -> genuine-404 absence -> cleanup-removed.
     order = []
-    present = {"v": True}
+    present = {"v": "present"}
     removed = {"v": False}
 
     def delete_fn():
         order.append("delete")
-        present["v"] = False
-        return None
-    _teardown_execute(present_fn=lambda: present["v"], delete_fn=delete_fn,
+        present["v"] = "absent"
+        return "deleted"
+    _teardown_execute(presence_fn=lambda: present["v"], delete_fn=delete_fn,
                       remove_cleanup_fn=lambda: (order.append("cleanup"),
                                                  removed.__setitem__("v", True)),
                       order=order, sleep_fn=lambda s: None)
     check(order.index("delete") < order.index("absence")
           < order.index("cleanup") and removed["v"],
-          "G32 teardown order: delete < absence < cleanup-removal")
+          "G32 teardown order: delete < genuine-404 absence < cleanup-removal")
 
+    # G32-FAIL: delete errors -> raise, cleanup NOT removed (caps armed).
     order2 = []
-    present2 = {"v": True}
     removed2 = {"v": False}
 
     def delete_fail():
         order2.append("delete")
-        return None   # delete does NOT clear presence -> still present
-    failed = False
+        raise F1KContinueError("F1K_DELETE_OP", "delete op error")
+    failed = None
     try:
-        _teardown_execute(present_fn=lambda: present2["v"], delete_fn=delete_fail,
+        _teardown_execute(presence_fn=lambda: "present", delete_fn=delete_fail,
                           remove_cleanup_fn=lambda: removed2.__setitem__(
                               "v", True), order=order2, name="kot-f1k-run",
                           sleep_fn=lambda s: None)
     except F1KContinueError as exc:
-        failed = exc.code == "F1K_DELETE_ABSENCE"
-    check(failed and removed2["v"] is False,
-          "G32 VM-delete failure leaves cleanup NOT removed (caps armed)")
+        failed = exc.code
+    check(failed == "F1K_DELETE_OP" and removed2["v"] is False,
+          "G32 VM-delete op error leaves cleanup NOT removed (caps armed)")
+
+    # G32-OUTAGE (BLOCKING-1): delete 'succeeds' but presence stays 'unknown'
+    # (describe outage) -> absence never confirmed -> raise, cleanup NOT removed.
+    order3 = []
+    removed3 = {"v": False}
+    outage = None
+    try:
+        _teardown_execute(presence_fn=lambda: "unknown",
+                          delete_fn=lambda: "deleted",
+                          remove_cleanup_fn=lambda: removed3.__setitem__(
+                              "v", True), order=order3, name="kot-f1k-run",
+                          sleep_fn=lambda s: None)
+    except F1KContinueError as exc:
+        outage = exc.code
+    check(outage == "F1K_DELETE_ABSENCE" and removed3["v"] is False
+          and "absence" not in order3,
+          "G32-OUTAGE describe-outage != absence -> raise, cleanup NOT removed")
 
 
 def _reaper_oracle(check):
-    # G37: reaper deletes a TERMINATED-state instance -> poll DONE -> absence,
-    # transient delete failure -> retry-until-absent (exercises the delete path).
+    # G37: reaper deletes a TERMINATED-state instance; a transient delete-op
+    # ERROR -> retry the WHOLE verified delete until a genuine 404 is confirmed.
     order = []
-    state = {"present": True, "attempts": 0}
+    state = {"present": "present", "attempts": 0}
 
     def delete_fn():
         order.append("delete")
         state["attempts"] += 1
-        if state["attempts"] >= 2:      # first delete transiently no-ops
-            state["present"] = False
-        return None
+        if state["attempts"] < 2:       # first delete op transiently errors
+            raise F1KContinueError("F1K_DELETE_OP", "transient op error")
+        state["present"] = "absent"
+        return "deleted"
     result = {"ok": False}
 
     def loop():
         for _ in range(5):
             try:
                 _verified_delete(
-                    delete_fn=delete_fn, present_fn=lambda: state["present"],
-                    name="kot-f1k-run", order=order,
-                    sleep_fn=lambda s: None)
+                    delete_fn=delete_fn, presence_fn=lambda: state["present"],
+                    name="kot-f1k-run", order=order, sleep_fn=lambda s: None)
                 result["ok"] = True
                 return
             except F1KContinueError:
@@ -2487,7 +2707,20 @@ def _reaper_oracle(check):
     loop()
     check(result["ok"] and order.count("delete") >= 2
           and order[-1] == "absence",
-          "G37 reaper retries the delete path until absence is confirmed")
+          "G37 reaper retries the whole verified delete until 404 absence")
+
+    # G37-OUTAGE: describe stays 'unknown' forever -> absence never confirmed
+    # (best-effort loop would retry unbounded; one _verified_delete raises).
+    order5 = []
+    amb = None
+    try:
+        _verified_delete(delete_fn=lambda: "deleted",
+                         presence_fn=lambda: "unknown", name="kot-f1k-run",
+                         order=order5, sleep_fn=lambda s: None)
+    except F1KContinueError as exc:
+        amb = exc.code
+    check(amb == "F1K_DELETE_ABSENCE" and "absence" not in order5,
+          "G37-OUTAGE persistent describe-outage never confirms absence")
 
 
 def _reaper_selftest():

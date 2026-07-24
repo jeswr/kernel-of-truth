@@ -75,13 +75,101 @@ CAP_MECHANISM = "gce-termination-time"
 CAP_ACTION = "STOP"
 CLEANUP_MECHANISM = "control-box-reaper"
 CLEANUP_ACTION = "DELETE"
-# DESIGN QUESTION (flagged for the CAP-PROBE, PROPOSED-CC-13): the exact GCE
-# scheduling field that reflects "discard Local SSD at STOP-termination" is
-# doc-inferred, not yet API-confirmed. verify_provider_cap reads THIS key from
-# the live scheduling block and requires a truthy value. The CAP-PROBE settles
-# the real field name before build freeze; the fake supplies this key in the
-# $0 oracle. If the probe finds a different field, change this one constant.
-DISCARD_LOCAL_SSD_KEY = "discardLocalSsdsAtTermination"
+# GCE REST scheduling shape for "discard Local SSD at STOP-termination": the
+# documented representation is NESTED — scheduling.onInstanceStopAction.
+# discardLocalSsd (NOT a flat scheduling.discardLocalSsdsAtTermination).
+# [instances.insert REST schema, build-review 2026-07-24]. verify_provider_cap
+# reads the nested boolean and requires True. The corresponding create flag is
+# --discard-local-ssds-at-termination-timestamp=true (f1k_gcp cmd_provision).
+# ALL of this native-cap surface is CAP-PROBE-VERIFIED-BEFORE-ANY-REAL-CALL
+# (PROPOSED-CC-13): create-body atomicity, read-back shape, effective
+# terminationTime, STOP-at-time, past-time restart refusal, Local-SSD behaviour,
+# and VM-credential testIamPermissions are pinned by a green probe before any
+# ordinary provisioning call (validate_cap_probe_evidence + the cmd_provision
+# gate). The $0 oracle supplies the nested shape in its fakes.
+_ONSTOP_KEY = "onInstanceStopAction"
+_DISCARD_KEY = "discardLocalSsd"
+# The composite cap attestation (LC-5) provenance carried into the /2 handoff so
+# a hand-built cap block (constant strings + equal timestamps only) is refused.
+CAP_ATTESTATION_SCHEMA = "kot-f1k-cap-attestation/1"
+CAP_PROBE_SCHEMA = "kot-f1k-cap-probe/1"
+CAP_PROBE_CHECKS = (
+    "create_body_atomic", "readback_shape", "stop_at_time",
+    "restart_past_time_refused", "local_ssd_discard", "testiampermissions",
+)
+
+
+def _scheduling_discard(scheduling):
+    """Return the nested discard-Local-SSD-at-termination boolean, or None."""
+    on_stop = scheduling.get(_ONSTOP_KEY)
+    if not isinstance(on_stop, dict):
+        return None
+    return on_stop.get(_DISCARD_KEY)
+
+
+def make_cap_provenance(*, target, deadline_utc, oncalendar, guest_target=None):
+    """Build the composite cap-attestation provenance (LC-5). Bundles the leg
+    FACTS that only a passing verify_cap_armed run establishes (SPOT, unified
+    STOP, discard-local-SSD, the guest restart/fallback + OnCalendar, the
+    deletion-IAM grant, the one deadline) under a self-hashing digest. Emitted
+    by verify_cap_armed and required by validate_handoff, so a hand-built cap
+    with only constant strings + equal timestamps LACKS this object and is
+    refused. HONEST LIMIT: a pure validator cannot cryptographically prove the
+    composite ran (every fact is public), so this is defense-in-depth — the
+    official launcher re-probes the live composite before spend."""
+    facts = {
+        "schema": CAP_ATTESTATION_SCHEMA,
+        "mechanism": CAP_MECHANISM,
+        "action": CAP_ACTION,
+        "provisioning_model": "SPOT",
+        "discard_local_ssd": True,
+        "target": target,
+        "termination_time_utc": deadline_utc,
+        "guest": {
+            "restart_policy": "on-failure",
+            "fallback": "poweroff-f",
+            "oncalendar": oncalendar,
+            "target": guest_target or target,
+        },
+        "iam": {"permissions": ["compute.instances.delete"]},
+    }
+    facts["digest"] = hashlib.sha256(canonical_json_bytes(facts)).hexdigest()
+    return facts
+
+
+def _verify_cap_provenance(prov, *, cap_deadline, code):
+    """Require a self-consistent LC-5 composite provenance (BLOCKING-4): a
+    closed attestation whose digest recomputes over its bound leg facts, whose
+    deadline matches the cap block, and whose facts are the passing-composite
+    facts. A hand-built cap block lacks this object entirely and is refused."""
+    obj = _closed_contract_object(
+        prov, field="handoff.provider.cap.provenance", keys=(
+            "schema", "mechanism", "action", "provisioning_model",
+            "discard_local_ssd", "target", "termination_time_utc", "guest",
+            "iam", "digest"), code=code)
+    unhashed = {k: obj[k] for k in obj if k != "digest"}
+    if not isinstance(obj["digest"], str) or obj["digest"] != \
+            hashlib.sha256(canonical_json_bytes(unhashed)).hexdigest():
+        raise F1KOpsError(code, "cap provenance digest does not recompute")
+    guest = _closed_contract_object(
+        obj["guest"], field="cap.provenance.guest", keys=(
+            "restart_policy", "fallback", "oncalendar", "target"), code=code)
+    iam = _closed_contract_object(
+        obj["iam"], field="cap.provenance.iam", keys=("permissions",),
+        code=code)
+    if (obj["schema"] != CAP_ATTESTATION_SCHEMA
+            or obj["mechanism"] != CAP_MECHANISM
+            or obj["action"] != CAP_ACTION
+            or obj["provisioning_model"] != "SPOT"
+            or obj["discard_local_ssd"] is not True
+            or obj["termination_time_utc"] != cap_deadline
+            or guest["restart_policy"] != "on-failure"
+            or guest["fallback"] != "poweroff-f"
+            or not isinstance(iam["permissions"], list)
+            or "compute.instances.delete" not in iam["permissions"]):
+        raise F1KOpsError(
+            code, "cap provenance is not a passing verify_cap_armed composite")
+    return obj
 READY_GATE_BINDING_SCHEMA = "kot-f1k-ready-gate-binding/1"
 RUNTIME_LICENSE_SCHEMA = "kot-f1k-runtime-license/1"
 RATE_EVIDENCE_SCHEMA = "kot-f1k-rate-evidence/1"
@@ -3073,6 +3161,7 @@ def validate_handoff(record, *, now_utc=None):
             "action",
             "termination_time_utc",
             "termination_timestamp_utc",
+            "provenance",
         ),
         code=code,
     )
@@ -3096,6 +3185,10 @@ def validate_handoff(record, *, now_utc=None):
             "provider cap is not the read-back native STOP terminationTime "
             "(mechanism=%s action=STOP intended==read-back)" % CAP_MECHANISM,
         )
+    # BLOCKING-4: the cap block MUST carry the LC-5 composite provenance; a
+    # hand-built {mechanism, action, 2 timestamps} block is refused here.
+    _verify_cap_provenance(cap["provenance"], cap_deadline=cap_intended,
+                           code=code)
 
     cleanup = _closed_contract_object(
         provider["cleanup"],
@@ -3542,6 +3635,38 @@ def build_runtime_license(ready, gate, handoff, *, now_utc=None):
         "service":
             copy.deepcopy(handoff["service"]),
     }
+
+
+def validate_cap_probe_evidence(record) -> dict:
+    """Machine-enforced CAP-PROBE gate (build-review oracle item): a real
+    provisioning call MUST be preceded by a recorded GREEN sub-dollar probe
+    that verified the native-cap surface at the live API. Requires schema
+    kot-f1k-cap-probe/1, verdict GREEN, every CAP_PROBE_CHECKS item PASS, and a
+    self-recomputing sha256. Fails closed on any tamper/missing check."""
+    code = "F1K_CAP_PROBE"
+    obj = _closed_contract_object(
+        record, field="cap-probe", keys=(
+            "schema", "verdict", "checks", "observed_at_utc", "sha256"),
+        code=code)
+    if obj["schema"] != CAP_PROBE_SCHEMA:
+        raise F1KOpsError(code, "cap-probe schema is not %s" % CAP_PROBE_SCHEMA)
+    unhashed = {k: obj[k] for k in obj if k != "sha256"}
+    if not isinstance(obj["sha256"], str) or obj["sha256"] != \
+            hashlib.sha256(canonical_json_bytes(unhashed)).hexdigest():
+        raise F1KOpsError(code, "cap-probe sha256 does not recompute")
+    _contract_timestamp(obj["observed_at_utc"], field="cap-probe.observed_at_utc",
+                        code=code)
+    checks = obj["checks"]
+    if not isinstance(checks, dict) or set(checks) != set(CAP_PROBE_CHECKS):
+        raise F1KOpsError(
+            code, "cap-probe checks must be exactly %s"
+            % (sorted(CAP_PROBE_CHECKS),))
+    failed = [k for k in CAP_PROBE_CHECKS if checks.get(k) != "PASS"]
+    if obj["verdict"] != "GREEN" or failed:
+        raise F1KOpsError(
+            code, "cap-probe is not GREEN (verdict=%r failed=%s)"
+            % (obj["verdict"], failed))
+    return {"verdict": "GREEN", "observed_at_utc": obj["observed_at_utc"]}
 
 
 PRIOR_SPEND_SCHEMA = "kot-f1k-prior-spend/1"
@@ -4555,6 +4680,13 @@ def selftest_b0() -> int:
                         "2026-08-24T23:00:00Z",
                     "termination_timestamp_utc":
                         "2026-08-24T23:00:00Z",
+                    "provenance": make_cap_provenance(
+                        target=(
+                            "test-project/us-central1-a/"
+                            "kot-f1k-run"),
+                        deadline_utc="2026-08-24T23:00:00Z",
+                        oncalendar=_oncalendar(
+                            "2026-08-24T23:00:00Z")),
                 },
                 "cleanup": {
                     "mechanism":
@@ -6197,12 +6329,13 @@ def verify_provider_cap(
             "live terminationTime %r != T_cap %r"
             % (live_deadline, expected_deadline),
         )
-    discard = scheduling.get(DISCARD_LOCAL_SSD_KEY)
+    discard = _scheduling_discard(scheduling)
     if discard is not True:
         raise F1KOpsError(
             "F1K_B_CAP_DISCARD",
-            "scheduling.%s is not set true — a STOP cap on a local-SSD VM "
-            "requires discard-local-SSD-at-termination" % DISCARD_LOCAL_SSD_KEY,
+            "scheduling.%s.%s is not True — a STOP cap on a local-SSD VM "
+            "requires discard-local-SSD-at-termination (nested REST shape)"
+            % (_ONSTOP_KEY, _DISCARD_KEY),
         )
     return {
         "armed": True,
@@ -6309,6 +6442,9 @@ def verify_cap_armed(
             "layers must arm the ONE T_cap"
             % (l1["termination_time_utc"], l2["deadline_utc"]),
         )
+    provenance = make_cap_provenance(
+        target=l1["target"], deadline_utc=l1["termination_time_utc"],
+        oncalendar=l2["oncalendar"], guest_target=l2["target"])
     return {
         "armed": True,
         "mechanism": CAP_MECHANISM,
@@ -6320,6 +6456,7 @@ def verify_cap_armed(
         "l1": l1,
         "l2": l2,
         "iam": iam,
+        "provenance": provenance,
         "cleanup": {
             "mechanism": CLEANUP_MECHANISM,
             "action": CLEANUP_ACTION,
@@ -6330,14 +6467,15 @@ def verify_cap_armed(
 
 # Narrowing budgetFilter keys that MUST be absent (R3.3): a budget scoped to
 # specific services / labels / resource ancestors / subaccounts / specific
-# credit types is NOT a project-wide $300 tripwire and is REFUSED.
+# credit types is NOT a project-wide $300 tripwire and is REFUSED. The API
+# field for the subaccount scope is `subaccounts` (NOT `subaccountsBudgetScope`)
+# [Budgets REST v1, build-review 2026-07-24].
 _BUDGET_NARROWING_KEYS = (
     "services",
     "labels",
     "resourceAncestors",
-    "subaccountsBudgetScope",
+    "subaccounts",
     "creditTypes",
-    "calendarPeriodBudgetScope",
 )
 _BUDGET_DEFAULT_CREDIT_TREATMENT = "INCLUDE_ALL_CREDITS"
 
@@ -6498,13 +6636,38 @@ def assure_billing_budget(
             % (treatment,),
         )
     has_calendar = bool(bfilter.get("calendarPeriod"))
-    has_custom = bool(bfilter.get("customPeriod"))
+    custom = bfilter.get("customPeriod")
+    has_custom = isinstance(custom, dict) and bool(custom)
     if has_calendar == has_custom:
         raise F1KOpsError(
             "F1K_B_BUDGET_PERIOD",
             "budgetFilter must carry exactly one explicit period "
             "(calendarPeriod XOR customPeriod)",
         )
+    # BLOCKING-3: a truthy-but-EXPIRED customPeriod is NOT an active tripwire
+    # (expired budgets are no longer processed). Require the end date, if
+    # present, to be today or later.
+    if has_custom:
+        end = custom.get("endDate")
+        if isinstance(end, dict):
+            try:
+                end_dt = datetime(
+                    int(end["year"]), int(end["month"]), int(end["day"]),
+                    tzinfo=timezone.utc)
+            except (KeyError, TypeError, ValueError) as exc:
+                raise F1KOpsError(
+                    "F1K_B_BUDGET_PERIOD",
+                    "customPeriod.endDate is malformed: %s" % exc,
+                ) from exc
+            today = datetime.now(timezone.utc).replace(
+                hour=0, minute=0, second=0, microsecond=0)
+            if end_dt < today:
+                raise F1KOpsError(
+                    "F1K_B_BUDGET_PERIOD",
+                    "customPeriod.endDate %04d-%02d-%02d is in the past — an "
+                    "expired budget is not an active tripwire"
+                    % (end_dt.year, end_dt.month, end_dt.day),
+                )
 
     thresholds = budget.get("thresholdRules")
     if not isinstance(thresholds, list) or not thresholds:
@@ -6549,6 +6712,15 @@ def assure_billing_budget(
             raise F1KOpsError(
                 "F1K_B_BUDGET_NOTIFY",
                 "channel %r returned a non-object" % (channel,),
+            )
+        # BLOCKING-3: the fetched channel's returned name MUST equal the
+        # requested channel (a transport returning some OTHER verified channel
+        # can no longer satisfy a broken/misrouted reference).
+        if info.get("name") != channel:
+            raise F1KOpsError(
+                "F1K_B_BUDGET_NOTIFY",
+                "channel fetch returned name %r != requested %r"
+                % (info.get("name"), channel),
             )
         if (
             info.get("verificationStatus") != "VERIFIED"
@@ -6862,7 +7034,7 @@ def selftest_b1() -> int:
             if t_term is not None:
                 sched["terminationTime"] = t_term
             if discard is not None:
-                sched[DISCARD_LOCAL_SSD_KEY] = discard
+                sched[_ONSTOP_KEY] = {_DISCARD_KEY: discard}
             return {"scheduling": sched}
         return transport
 
@@ -6877,7 +7049,7 @@ def selftest_b1() -> int:
         name="billingAccounts/012345-6789AB-CDEF01/budgets/f1k",
         units="300", nanos=0, currency="USD",
         projects=("projects/test-project",), narrowing=None,
-        treatment=None, period="calendar", rules=None,
+        treatment=None, period="calendar", custom_end=None, rules=None,
         channels=("projects/test-project/notificationChannels/ch0",),
         absent=False,
     ):
@@ -6894,9 +7066,10 @@ def selftest_b1() -> int:
             if period == "calendar":
                 bfilter["calendarPeriod"] = "MONTH"
             elif period == "custom":
-                bfilter["customPeriod"] = {
-                    "startDate": {"year": 2026, "month": 7, "day": 1}
-                }
+                cp = {"startDate": {"year": 2026, "month": 7, "day": 1}}
+                if custom_end is not None:
+                    cp["endDate"] = custom_end
+                bfilter["customPeriod"] = cp
             if treatment is not None:
                 bfilter["creditTypesTreatment"] = treatment
             if narrowing:
@@ -7184,6 +7357,17 @@ def selftest_b1() -> int:
                           lambda: prov_cap(term="2026-08-26T12:00:00Z")))
     check("LC-3 refuses a missing discard-local-SSD flag", lambda: refuses(
         "F1K_B_CAP_DISCARD", lambda: prov_cap(discard=None)))
+    check("LC-3 (build-review) refuses a FLAT discard shape (nested required)",
+          lambda: refuses(
+        "F1K_B_CAP_DISCARD",
+        lambda: verify_provider_cap(
+            instance_name="kot-f1k-run", zone="us-central1-a",
+            project_id="test-project", deadline_utc=deadline,
+            compute_transport=lambda **k: {"scheduling": {
+                "provisioningModel": "SPOT",
+                "instanceTerminationAction": "STOP",
+                "terminationTime": deadline,
+                "discardLocalSsdsAtTermination": True}})))
     check("LC-3 refuses without a compute transport", lambda: refuses(
         "F1K_B_CAP",
         lambda: verify_provider_cap(
@@ -7235,6 +7419,43 @@ def selftest_b1() -> int:
         "F1K_B_IAM_DELETE",
         lambda: cap_armed(iam_transport=fake_iam(
             granted=("compute.instances.get",)))))
+    check("LC-5 (BLOCKING-4) composite carries a self-consistent provenance "
+          "digest", lambda: (
+        "provenance" in cap_armed()
+        and cap_armed()["provenance"]["digest"]
+        == make_cap_provenance(
+            target="test-project/us-central1-a/kot-f1k-run",
+            deadline_utc=deadline,
+            oncalendar=_oncalendar(deadline),
+            guest_target="test-project/us-central1-a/kot-f1k-run")["digest"]))
+
+    # --- CAP-PROBE evidence gate (build-review oracle item) ---------------
+    def cap_probe(**over):
+        checks = {k: "PASS" for k in CAP_PROBE_CHECKS}
+        rec = {"schema": CAP_PROBE_SCHEMA, "verdict": "GREEN",
+               "checks": checks, "observed_at_utc": "2026-07-24T00:00:00Z"}
+        rec.update(over)
+        rec["sha256"] = hashlib.sha256(
+            canonical_json_bytes({k: rec[k] for k in rec
+                                  if k != "sha256"})).hexdigest()
+        return rec
+    check("CAP-PROBE gate accepts a GREEN all-PASS probe record",
+          lambda: validate_cap_probe_evidence(cap_probe())["verdict"] == "GREEN")
+    check("CAP-PROBE gate refuses a non-GREEN verdict", lambda: refuses(
+        "F1K_CAP_PROBE",
+        lambda: validate_cap_probe_evidence(cap_probe(verdict="RED"))))
+    check("CAP-PROBE gate refuses a failed check", lambda: refuses(
+        "F1K_CAP_PROBE",
+        lambda: validate_cap_probe_evidence(cap_probe(checks={
+            **{k: "PASS" for k in CAP_PROBE_CHECKS}, "stop_at_time": "FAIL"}))))
+
+    def cap_probe_tampered():
+        rec = cap_probe()
+        rec["verdict"] = "RED"          # break the sha without recompute
+        return rec
+    check("CAP-PROBE gate refuses a tampered sha", lambda: refuses(
+        "F1K_CAP_PROBE", lambda: validate_cap_probe_evidence(
+            cap_probe_tampered())))
 
     # --- B3: billing budget (LC-6v3 exact-resource attestation) -----------
     def assure(**kw):
@@ -7266,9 +7487,32 @@ def selftest_b1() -> int:
     check("B3 refuses a services-narrowed budget", lambda: refuses(
         "F1K_B_BUDGET_FILTER",
         lambda: assure(narrowing={"services": ["services/6F81-5844-456A"]})))
+    check("B3 (build-review) refuses a subaccounts-narrowed budget",
+          lambda: refuses("F1K_B_BUDGET_FILTER",
+                          lambda: assure(narrowing={"subaccounts": [
+                              "billingAccounts/012345-6789AB-CDEF01"]})))
     check("B3 refuses a non-default credit treatment", lambda: refuses(
         "F1K_B_BUDGET_FILTER",
         lambda: assure(treatment="EXCLUDE_ALL_CREDITS")))
+    check("B3 (build-review) refuses an EXPIRED customPeriod", lambda: refuses(
+        "F1K_B_BUDGET_PERIOD",
+        lambda: assure(period="custom", custom_end={
+            "year": 2020, "month": 1, "day": 1})))
+    check("B3 accepts a future-dated customPeriod endDate",
+          lambda: assure(period="custom", custom_end={
+              "year": 2099, "month": 1, "day": 1})["period"] == "custom")
+    check("B3 (build-review) refuses a channel whose returned name mismatches",
+          lambda: refuses("F1K_B_BUDGET_NOTIFY",
+                          lambda: assure_billing_budget(
+                              billing_account=BILLING_ACCOUNT,
+                              budget_resource_name=BUDGET_RESOURCE,
+                              project_id="test-project",
+                              budget_transport=budget(),
+                              channel_transport=lambda **k: {
+                                  "name": "projects/x/notificationChannels/"
+                                          "OTHER", "verificationStatus":
+                                  "VERIFIED", "enabled": True},
+                              linkage_transport=fake_linkage())))
     check("B3 refuses a budget with no explicit period", lambda: refuses(
         "F1K_B_BUDGET_PERIOD", lambda: assure(period=None)))
     check("B3 refuses a budget with no threshold rules", lambda: refuses(

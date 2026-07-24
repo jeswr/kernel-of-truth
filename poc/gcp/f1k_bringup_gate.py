@@ -1373,9 +1373,9 @@ def _probe_engagement(engine_cmd, env, layers, rundir):
 
 def _guard_live_transports():
     """On-VM transports for the guard's step-3' live checks (VM credentials).
-    DESIGN QUESTIONS (validate live / CAP-PROBE): exact systemctl-show property
-    parsing + gcloud test-iam-permissions surface. The $0 selftest injects
-    fakes; none of this runs at $0."""
+    CAP-PROBE-VERIFIED: exact systemctl-show property parsing + the REST
+    instances.testIamPermissions surface. The $0 selftest injects fakes; none
+    of this runs at $0."""
     def systemctl(*, action, unit):
         q = {"is-active": ["is-active", unit],
              "oncalendar": ["show", "-p", "TimersCalendar", "--value", unit],
@@ -1387,13 +1387,24 @@ def _guard_live_transports():
         return r.stdout.strip()
 
     def iam(*, project_id, zone, instance_name, permissions):
-        r = subprocess.run(
-            ["gcloud", "compute", "instances", "test-iam-permissions",
-             instance_name, "--zone", zone, "--permissions",
-             ",".join(permissions), "--format=json"],
-            capture_output=True, text=True)
-        return json.loads(r.stdout) if r.returncode == 0 and r.stdout else {
-            "permissions": []}
+        # BLOCKING-2c: REST instances.testIamPermissions (there is no
+        # `gcloud compute instances test-iam-permissions` command). VM SA token.
+        import urllib.request
+        tok = json.loads(subprocess.run(
+            ["curl", "-s", "-H", "Metadata-Flavor: Google",
+             "http://metadata.google.internal/computeMetadata/v1/instance/"
+             "service-accounts/default/token"],
+            capture_output=True, text=True).stdout)["access_token"]
+        url = ("https://compute.googleapis.com/compute/v1/projects/%s/zones/"
+               "%s/instances/%s/testIamPermissions"
+               % (project_id, zone, instance_name))
+        req = urllib.request.Request(
+            url, data=json.dumps({"permissions": list(permissions)}).encode(),
+            headers={"Authorization": "Bearer %s" % tok,
+                     "Content-Type": "application/json"}, method="POST")
+        with urllib.request.urlopen(req, timeout=20) as resp:
+            body = json.loads(resp.read().decode())
+        return body if isinstance(body, dict) else {"permissions": []}
 
     return {
         "compute": lambda **k: f1k_ops._gcloud_compute_get(**k),
@@ -1525,23 +1536,6 @@ def _guard_handoff_selftest(check, td):
     now = "2026-07-24T06:00:00Z"
     deadline = f1k_ops.compute_selfdelete_deadline(launch_utc=launch)
     binding = f1k_ops.validate_ready_gate_binding(ready, gate)
-    cap = {"termination_time_utc": deadline, "termination_timestamp_utc": deadline}
-    ev_ref = {"path": f1k_ops.RATE_EVIDENCE_PATH, "sha256": "8" * 64,
-              "schema": f1k_ops.RATE_EVIDENCE_SCHEMA, "observed_at_utc": now}
-    handoff = G._build_construction_handoff(
-        ready=ready, gate=gate, binding=binding, cap=cap,
-        preflight={"budget_resource_name":
-                   "billingAccounts/012345-6789AB-CDEF01/budgets/f1k"},
-        rate_evidence_ref=ev_ref, now_utc=now, deadline=deadline,
-        licensed_rate="0.219", project_id=inst["project_id"])
-    ready_bytes = f1k_ops.canonical_json_bytes(ready)
-    gate_bytes = f1k_ops.canonical_json_bytes(gate)
-    hpath = td / "construction-handoff.json"
-    hpath.write_text(json.dumps(handoff))
-
-    def reader(p):
-        return {f1k_ops.CONSTRUCTION_READY_PATH: ready_bytes,
-                f1k_ops.BRINGUP_GATE_PATH: gate_bytes}[p]
 
     def fc(*, project_id, zone, instance_name):
         base = "https://www.googleapis.com/compute/v1/projects/%s" \
@@ -1556,7 +1550,8 @@ def _guard_handoff_selftest(check, td):
                 "scheduling": {"provisioningModel": "SPOT",
                                "instanceTerminationAction": "STOP",
                                "terminationTime": deadline,
-                               f1k_ops.DISCARD_LOCAL_SSD_KEY: True}}
+                               "onInstanceStopAction": {
+                                   "discardLocalSsd": True}}}
     md = {"instance/id": inst["instance_id"], "instance/name": inst["name"],
           "project/project-id": inst["project_id"],
           "project/numeric-project-id": inst["project_number"],
@@ -1577,6 +1572,28 @@ def _guard_handoff_selftest(check, td):
           "bootid": lambda: inst["boot_id"], "systemctl": sysctl,
           "iam": lambda **k: {"permissions": ["compute.instances.delete"]},
           "catalog": G._min_catalog()}
+    # BLOCKING-4: the cap MUST be a real verify_cap_armed composite so its
+    # provenance flows into the handoff (the producer refuses a hand-built cap).
+    cap = f1k_ops.verify_cap_armed(
+        instance_name=inst["name"], zone=inst["zone"],
+        project_id=inst["project_id"], deadline_utc=deadline,
+        compute_transport=fc, systemctl_transport=sysctl, iam_transport=tr["iam"])
+    ev_ref = {"path": f1k_ops.RATE_EVIDENCE_PATH, "sha256": "8" * 64,
+              "schema": f1k_ops.RATE_EVIDENCE_SCHEMA, "observed_at_utc": now}
+    handoff = G._build_construction_handoff(
+        ready=ready, gate=gate, binding=binding, cap=cap,
+        preflight={"budget_resource_name":
+                   "billingAccounts/012345-6789AB-CDEF01/budgets/f1k"},
+        rate_evidence_ref=ev_ref, now_utc=now, deadline=deadline,
+        licensed_rate="0.219", project_id=inst["project_id"])
+    ready_bytes = f1k_ops.canonical_json_bytes(ready)
+    gate_bytes = f1k_ops.canonical_json_bytes(gate)
+    hpath = td / "construction-handoff.json"
+    hpath.write_text(json.dumps(handoff))
+
+    def reader(p):
+        return {f1k_ops.CONSTRUCTION_READY_PATH: ready_bytes,
+                f1k_ops.BRINGUP_GATE_PATH: gate_bytes}[p]
 
     def mk_args():
         return argparse.Namespace(
