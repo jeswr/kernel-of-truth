@@ -16,7 +16,7 @@ import os
 import json
 
 SIM = "/home/ec2-user/css/kernel/kernel-of-truth/poc/99a-sim"
-OUTDIR = os.path.join(SIM, "results", "frozen-run", "grid-run")
+OUTDIR = os.path.join(SIM, "results", "frozen-run", "grid-run-v2")
 
 TAU_FWER = 0.055
 TAU_TERM0 = 0.055

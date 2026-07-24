@@ -1,0 +1,3471 @@
+{
+  "note": "99a v2 durable grid (jesse-70413). 100/114 cells hit the frozen exact-REML LinAlgError at full R; 14 OK. Verdict on OK cells only.",
+  "base_seed": 990066001,
+  "n_cells": 114,
+  "n_ok": 14,
+  "n_error": 100,
+  "R_fwer": 40000,
+  "R_power": 10000,
+  "R_gatecal": 40000,
+  "results": [
+    {
+      "config_index": 0,
+      "_kind": "fwer",
+      "label": "F1",
+      "rho": 0.0,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 5168.300995826721
+    },
+    {
+      "config_index": 1,
+      "_kind": "fwer",
+      "label": "F1",
+      "rho": 0.1,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 8-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 327, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 208, in deviance_fast",
+        "File \"/root/sim/reml_composite.py\", line 176, in _vmean_prep",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 8-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 6573.966701745987
+    },
+    {
+      "config_index": 2,
+      "_kind": "fwer",
+      "label": "F1",
+      "rho": 0.5,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 350.7948577404022
+    },
+    {
+      "config_index": 3,
+      "_kind": "fwer",
+      "label": "F1",
+      "rho": 0.8,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 17019.70381641388
+    },
+    {
+      "config_index": 4,
+      "_kind": "fwer",
+      "label": "F1",
+      "rho": 0.0,
+      "regime": "beta",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 724.5176978111267
+    },
+    {
+      "config_index": 5,
+      "_kind": "fwer",
+      "label": "F1",
+      "rho": 0.1,
+      "regime": "beta",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 1890.2825815677643
+    },
+    {
+      "config_index": 6,
+      "_kind": "fwer",
+      "label": "F1",
+      "rho": 0.5,
+      "regime": "beta",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 5372.887385606766
+    },
+    {
+      "config_index": 7,
+      "_kind": "fwer",
+      "label": "F1",
+      "rho": 0.8,
+      "regime": "beta",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 1828.4937286376953
+    },
+    {
+      "config_index": 8,
+      "_kind": "fwer",
+      "label": "F1",
+      "rho": 0.0,
+      "regime": "block",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 10054.944295167923
+    },
+    {
+      "config_index": 9,
+      "_kind": "fwer",
+      "label": "F2",
+      "rho": 0.0,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 1649.2078578472137
+    },
+    {
+      "config_index": 10,
+      "_kind": "fwer",
+      "label": "F2",
+      "rho": 0.1,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 327, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 3731.9704999923706
+    },
+    {
+      "config_index": 11,
+      "_kind": "fwer",
+      "label": "F2",
+      "rho": 0.5,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 327, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 1270.2989518642426
+    },
+    {
+      "config_index": 12,
+      "_kind": "fwer",
+      "label": "F2",
+      "rho": 0.8,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 6422.760480880737
+    },
+    {
+      "config_index": 13,
+      "_kind": "fwer",
+      "label": "F2",
+      "rho": 0.0,
+      "regime": "beta",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 327, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 8180.91154384613
+    },
+    {
+      "config_index": 14,
+      "_kind": "fwer",
+      "label": "F2",
+      "rho": 0.1,
+      "regime": "beta",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 877.553305387497
+    },
+    {
+      "config_index": 15,
+      "_kind": "fwer",
+      "label": "F2",
+      "rho": 0.5,
+      "regime": "beta",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 327, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 4848.801628828049
+    },
+    {
+      "config_index": 16,
+      "_kind": "fwer",
+      "label": "F2",
+      "rho": 0.8,
+      "regime": "beta",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 15307.060278177261
+    },
+    {
+      "config_index": 17,
+      "label": "F2",
+      "kind": "fwer",
+      "rho": 0.0,
+      "regime": "block",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "R": 40000,
+      "truth_set": [
+        "C-CON-SUP-A1",
+        "C-CON-SUP-A2",
+        "C-CON-SUP-A2IR",
+        "C-CON-SUP-H",
+        "C-DEF-NSUP",
+        "C-DEF-SUP"
+      ],
+      "fwer_events": 75,
+      "fwer_hat": 0.001875,
+      "fwer_mcse": 0.00021630328100840266,
+      "fwer_cp_upper95": 0.0022716767657095737,
+      "claim_rej_rate": {
+        "C-VAL": 0.997625,
+        "C-DEF-NSUP": 0.00115,
+        "C-DEF-SUP": 0.0,
+        "C-CON-SUP-H": 0.00015,
+        "C-CON-SUP-A2IR": 0.000125,
+        "C-CON-SUP-A2": 0.000325,
+        "C-CON-SUP-A1": 0.00015,
+        "C-GRAPH": 7.5e-05,
+        "C-FMT-H": 2.5e-05,
+        "C-FMT-A2IR": 0.0,
+        "C-FMT-A2": 5e-05,
+        "C-FMT-A1": 0.0
+      },
+      "stage2_rate": 0.000725,
+      "elapsed_s": 19432.969851732254,
+      "sec_per_rep": 0.48582424629330634,
+      "_kind": "fwer",
+      "_wall_s": 19432.970417022705
+    },
+    {
+      "config_index": 18,
+      "_kind": "fwer",
+      "label": "F2",
+      "rho": 0.0,
+      "regime": "gaussian",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 17065.44239139557
+    },
+    {
+      "config_index": 19,
+      "_kind": "fwer",
+      "label": "F2",
+      "rho": 0.1,
+      "regime": "gaussian",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 4655.6712210178375
+    },
+    {
+      "config_index": 20,
+      "_kind": "fwer",
+      "label": "F2",
+      "rho": 0.5,
+      "regime": "gaussian",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 895.9055454730988
+    },
+    {
+      "config_index": 21,
+      "_kind": "fwer",
+      "label": "F2",
+      "rho": 0.8,
+      "regime": "gaussian",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 514.8467175960541
+    },
+    {
+      "config_index": 22,
+      "_kind": "fwer",
+      "label": "F2",
+      "rho": 0.0,
+      "regime": "beta",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 7953.262449979782
+    },
+    {
+      "config_index": 23,
+      "_kind": "fwer",
+      "label": "F2",
+      "rho": 0.1,
+      "regime": "beta",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 327, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 6763.853151798248
+    },
+    {
+      "config_index": 24,
+      "_kind": "fwer",
+      "label": "F2",
+      "rho": 0.5,
+      "regime": "beta",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 327, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 8932.292001724243
+    },
+    {
+      "config_index": 25,
+      "_kind": "fwer",
+      "label": "F2",
+      "rho": 0.8,
+      "regime": "beta",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 6468.692702054977
+    },
+    {
+      "config_index": 26,
+      "_kind": "fwer",
+      "label": "F3",
+      "rho": 0.0,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 342.7042236328125
+    },
+    {
+      "config_index": 27,
+      "_kind": "fwer",
+      "label": "F3",
+      "rho": 0.1,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 327, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 12674.322493076324
+    },
+    {
+      "config_index": 28,
+      "_kind": "fwer",
+      "label": "F3",
+      "rho": 0.5,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 13127.454809188843
+    },
+    {
+      "config_index": 29,
+      "_kind": "fwer",
+      "label": "F3",
+      "rho": 0.8,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 1298.604698896408
+    },
+    {
+      "config_index": 30,
+      "_kind": "fwer",
+      "label": "F3",
+      "rho": 0.0,
+      "regime": "beta",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 3015.5064673423767
+    },
+    {
+      "config_index": 31,
+      "_kind": "fwer",
+      "label": "F3",
+      "rho": 0.1,
+      "regime": "beta",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 2442.979773044586
+    },
+    {
+      "config_index": 32,
+      "_kind": "fwer",
+      "label": "F3",
+      "rho": 0.5,
+      "regime": "beta",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 5032.279766798019
+    },
+    {
+      "config_index": 33,
+      "_kind": "fwer",
+      "label": "F3",
+      "rho": 0.8,
+      "regime": "beta",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 4703.317042589188
+    },
+    {
+      "config_index": 34,
+      "_kind": "fwer",
+      "label": "F3",
+      "rho": 0.0,
+      "regime": "block",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 1322.5532445907593
+    },
+    {
+      "config_index": 35,
+      "_kind": "fwer",
+      "label": "F3",
+      "rho": 0.0,
+      "regime": "gaussian",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 4971.470769643784
+    },
+    {
+      "config_index": 36,
+      "_kind": "fwer",
+      "label": "F3",
+      "rho": 0.1,
+      "regime": "gaussian",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 550.7343759536743
+    },
+    {
+      "config_index": 37,
+      "_kind": "fwer",
+      "label": "F3",
+      "rho": 0.5,
+      "regime": "gaussian",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 6150.76827955246
+    },
+    {
+      "config_index": 38,
+      "_kind": "fwer",
+      "label": "F3",
+      "rho": 0.8,
+      "regime": "gaussian",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 1821.6288621425629
+    },
+    {
+      "config_index": 39,
+      "_kind": "fwer",
+      "label": "F3",
+      "rho": 0.0,
+      "regime": "beta",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 3811.6403093338013
+    },
+    {
+      "config_index": 40,
+      "_kind": "fwer",
+      "label": "F3",
+      "rho": 0.1,
+      "regime": "beta",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 1788.4863667488098
+    },
+    {
+      "config_index": 41,
+      "_kind": "fwer",
+      "label": "F3",
+      "rho": 0.5,
+      "regime": "beta",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 3398.3491463661194
+    },
+    {
+      "config_index": 42,
+      "_kind": "fwer",
+      "label": "F3",
+      "rho": 0.8,
+      "regime": "beta",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 5449.527315378189
+    },
+    {
+      "config_index": 43,
+      "_kind": "fwer",
+      "label": "F4",
+      "rho": 0.1,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 327, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 807.1133301258087
+    },
+    {
+      "config_index": 44,
+      "_kind": "fwer",
+      "label": "F4",
+      "rho": 0.8,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 5591.58357834816
+    },
+    {
+      "config_index": 45,
+      "_kind": "fwer",
+      "label": "F5",
+      "rho": 0.1,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 7843.941599607468
+    },
+    {
+      "config_index": 46,
+      "_kind": "fwer",
+      "label": "F5",
+      "rho": 0.8,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 6399.661631822586
+    },
+    {
+      "config_index": 47,
+      "_kind": "fwer",
+      "label": "F6",
+      "rho": 0.1,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 4265.697625398636
+    },
+    {
+      "config_index": 48,
+      "_kind": "fwer",
+      "label": "F6",
+      "rho": 0.8,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 2362.1421682834625
+    },
+    {
+      "config_index": 49,
+      "_kind": "fwer",
+      "label": "F7",
+      "rho": 0.1,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 327, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 2263.5808107852936
+    },
+    {
+      "config_index": 50,
+      "_kind": "fwer",
+      "label": "F7",
+      "rho": 0.8,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 4049.529670715332
+    },
+    {
+      "config_index": 51,
+      "_kind": "fwer",
+      "label": "F8",
+      "rho": 0.1,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 453.9208776950836
+    },
+    {
+      "config_index": 52,
+      "_kind": "fwer",
+      "label": "F8",
+      "rho": 0.8,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 2934.3336956501007
+    },
+    {
+      "config_index": 53,
+      "_kind": "fwer",
+      "label": "F9",
+      "rho": 0.1,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 327, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 2882.9073939323425
+    },
+    {
+      "config_index": 54,
+      "_kind": "fwer",
+      "label": "F9",
+      "rho": 0.8,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 8687.321403980255
+    },
+    {
+      "config_index": 55,
+      "_kind": "fwer",
+      "label": "F10",
+      "rho": 0.1,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 327, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 297.9997615814209
+    },
+    {
+      "config_index": 56,
+      "label": "F10",
+      "kind": "fwer",
+      "rho": 0.8,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "R": 40000,
+      "truth_set": [
+        "C-CON-SUP-A1",
+        "C-CON-SUP-A2",
+        "C-CON-SUP-A2IR",
+        "C-CON-SUP-H",
+        "C-DEF-NSUP",
+        "C-DEF-SUP",
+        "C-GRAPH"
+      ],
+      "fwer_events": 443,
+      "fwer_hat": 0.011075,
+      "fwer_mcse": 0.0005232672446991117,
+      "fwer_cp_upper95": 0.011975021698280455,
+      "claim_rej_rate": {
+        "C-VAL": 0.997875,
+        "C-DEF-NSUP": 0.0,
+        "C-DEF-SUP": 0.0,
+        "C-CON-SUP-H": 0.003,
+        "C-CON-SUP-A2IR": 0.0028,
+        "C-CON-SUP-A2": 0.002925,
+        "C-CON-SUP-A1": 0.003525,
+        "C-GRAPH": 2.5e-05,
+        "C-FMT-H": 0.00015,
+        "C-FMT-A2IR": 0.000175,
+        "C-FMT-A2": 7.5e-05,
+        "C-FMT-A1": 0.000175
+      },
+      "stage2_rate": 0.011075,
+      "elapsed_s": 21116.81639790535,
+      "sec_per_rep": 0.5279204099476338,
+      "rung0": {
+        "label": "F10",
+        "config_index": 56,
+        "R": 40000,
+        "termination_rate": 0.0,
+        "mcse": 0.0,
+        "cp_upper95": 7.489050240515667e-05,
+        "tau_term0": 0.055,
+        "tau_term": 0.025,
+        "envelope_coverage": {
+          "A1": 0.999525,
+          "A2": 0.99935,
+          "A2IR": 0.999475,
+          "H": 0.99945
+        }
+      },
+      "_kind": "fwer",
+      "_wall_s": 21176.69570875168
+    },
+    {
+      "config_index": 57,
+      "_kind": "fwer",
+      "label": "F11",
+      "rho": 0.0,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 1791.2835743427277
+    },
+    {
+      "config_index": 58,
+      "_kind": "fwer",
+      "label": "F11",
+      "rho": 0.1,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 12129.990192651749
+    },
+    {
+      "config_index": 59,
+      "_kind": "fwer",
+      "label": "F11",
+      "rho": 0.5,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 7091.181836366653
+    },
+    {
+      "config_index": 60,
+      "_kind": "fwer",
+      "label": "F11",
+      "rho": 0.8,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 12800.223281621933
+    },
+    {
+      "config_index": 61,
+      "_kind": "fwer",
+      "label": "F11",
+      "rho": 0.0,
+      "regime": "beta",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 8214.306330680847
+    },
+    {
+      "config_index": 62,
+      "_kind": "fwer",
+      "label": "F11",
+      "rho": 0.1,
+      "regime": "beta",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 10628.963469743729
+    },
+    {
+      "config_index": 63,
+      "label": "F11",
+      "kind": "fwer",
+      "rho": 0.5,
+      "regime": "beta",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "R": 40000,
+      "truth_set": [
+        "C-CON-SUP-A1",
+        "C-CON-SUP-A2",
+        "C-CON-SUP-A2IR",
+        "C-CON-SUP-H",
+        "C-DEF-NSUP",
+        "C-DEF-SUP",
+        "C-FMT-A1",
+        "C-FMT-A2",
+        "C-FMT-A2IR",
+        "C-FMT-H",
+        "C-GRAPH",
+        "C-VAL"
+      ],
+      "fwer_events": 0,
+      "fwer_hat": 0.0,
+      "fwer_mcse": 0.0,
+      "fwer_cp_upper95": 7.489050240515667e-05,
+      "claim_rej_rate": {
+        "C-VAL": 0.0,
+        "C-DEF-NSUP": 0.0,
+        "C-DEF-SUP": 0.0,
+        "C-CON-SUP-H": 0.0,
+        "C-CON-SUP-A2IR": 0.0,
+        "C-CON-SUP-A2": 0.0,
+        "C-CON-SUP-A1": 0.0,
+        "C-GRAPH": 0.0,
+        "C-FMT-H": 0.0,
+        "C-FMT-A2IR": 0.0,
+        "C-FMT-A2": 0.0,
+        "C-FMT-A1": 0.0
+      },
+      "stage2_rate": 0.0,
+      "elapsed_s": 19205.030643463135,
+      "sec_per_rep": 0.48012576608657836,
+      "_kind": "fwer",
+      "_wall_s": 19259.220284461975
+    },
+    {
+      "config_index": 64,
+      "_kind": "fwer",
+      "label": "F11",
+      "rho": 0.8,
+      "regime": "beta",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 10438.65380358696
+    },
+    {
+      "config_index": 65,
+      "_kind": "fwer",
+      "label": "F11",
+      "rho": 0.0,
+      "regime": "block",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 5339.233157634735
+    },
+    {
+      "config_index": 66,
+      "_kind": "fwer",
+      "label": "F11",
+      "rho": 0.0,
+      "regime": "gaussian",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 825.1209967136383
+    },
+    {
+      "config_index": 67,
+      "_kind": "fwer",
+      "label": "F11",
+      "rho": 0.1,
+      "regime": "gaussian",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 5503.38823723793
+    },
+    {
+      "config_index": 68,
+      "_kind": "fwer",
+      "label": "F11",
+      "rho": 0.5,
+      "regime": "gaussian",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 3121.448076725006
+    },
+    {
+      "config_index": 69,
+      "_kind": "fwer",
+      "label": "F11",
+      "rho": 0.8,
+      "regime": "gaussian",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 1142.3805012702942
+    },
+    {
+      "config_index": 70,
+      "_kind": "fwer",
+      "label": "F11",
+      "rho": 0.0,
+      "regime": "beta",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 6920.662550449371
+    },
+    {
+      "config_index": 71,
+      "_kind": "fwer",
+      "label": "F11",
+      "rho": 0.1,
+      "regime": "beta",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 941.4521224498749
+    },
+    {
+      "config_index": 72,
+      "_kind": "fwer",
+      "label": "F11",
+      "rho": 0.5,
+      "regime": "beta",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 1498.5820710659027
+    },
+    {
+      "config_index": 73,
+      "_kind": "fwer",
+      "label": "F11",
+      "rho": 0.8,
+      "regime": "beta",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 514.3202934265137
+    },
+    {
+      "config_index": 74,
+      "_kind": "power",
+      "label": "P1",
+      "rho": 0.1,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 4636.368528366089
+    },
+    {
+      "config_index": 75,
+      "_kind": "power",
+      "label": "P1",
+      "rho": 0.5,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 327, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 3767.4798440933228
+    },
+    {
+      "config_index": 76,
+      "label": "P1",
+      "kind": "power",
+      "rho": 0.8,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "R": 10000,
+      "truth_set": [
+        "C-CON-SUP-A1",
+        "C-CON-SUP-A2",
+        "C-CON-SUP-A2IR",
+        "C-CON-SUP-H",
+        "C-DEF-SUP"
+      ],
+      "fwer_events": 0,
+      "fwer_hat": 0.0,
+      "fwer_mcse": 0.0,
+      "fwer_cp_upper95": 0.0002995283597766119,
+      "claim_rej_rate": {
+        "C-VAL": 0.9979,
+        "C-DEF-NSUP": 0.1202,
+        "C-DEF-SUP": 0.0,
+        "C-CON-SUP-H": 0.0,
+        "C-CON-SUP-A2IR": 0.0,
+        "C-CON-SUP-A2": 0.0,
+        "C-CON-SUP-A1": 0.0,
+        "C-GRAPH": 0.0,
+        "C-FMT-H": 0.0,
+        "C-FMT-A2IR": 0.0,
+        "C-FMT-A2": 0.0,
+        "C-FMT-A1": 0.0
+      },
+      "stage2_rate": 0.0,
+      "elapsed_s": 5822.486724615097,
+      "sec_per_rep": 0.5822486724615097,
+      "paths": {
+        "CVAL_DEFNSUP": {
+          "rate": 0.1202,
+          "mcse": 0.003251952644181646,
+          "cp_lower95": 0.11488325200588359
+        },
+        "CVAL_CONSUPH_GRAPH": {
+          "rate": 0.0,
+          "mcse": 0.0,
+          "cp_lower95": 0.0
+        },
+        "CDEFSUP": {
+          "rate": 0.0,
+          "mcse": 0.0,
+          "cp_lower95": 0.0
+        },
+        "CCONSUP_A1": {
+          "rate": 0.0,
+          "mcse": 0.0,
+          "cp_lower95": 0.0
+        },
+        "CFMTH_given_conH": {
+          "rate": null,
+          "n_cond": 0
+        }
+      },
+      "_kind": "power",
+      "_wall_s": 5822.487553834915
+    },
+    {
+      "config_index": 77,
+      "label": "P1",
+      "kind": "power",
+      "rho": 0.1,
+      "regime": "gaussian",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "R": 10000,
+      "truth_set": [
+        "C-CON-SUP-A1",
+        "C-CON-SUP-A2",
+        "C-CON-SUP-A2IR",
+        "C-CON-SUP-H",
+        "C-DEF-SUP"
+      ],
+      "fwer_events": 0,
+      "fwer_hat": 0.0,
+      "fwer_mcse": 0.0,
+      "fwer_cp_upper95": 0.0002995283597766119,
+      "claim_rej_rate": {
+        "C-VAL": 0.9978,
+        "C-DEF-NSUP": 0.1179,
+        "C-DEF-SUP": 0.0,
+        "C-CON-SUP-H": 0.0,
+        "C-CON-SUP-A2IR": 0.0,
+        "C-CON-SUP-A2": 0.0,
+        "C-CON-SUP-A1": 0.0,
+        "C-GRAPH": 0.0,
+        "C-FMT-H": 0.0,
+        "C-FMT-A2IR": 0.0,
+        "C-FMT-A2": 0.0,
+        "C-FMT-A1": 0.0
+      },
+      "stage2_rate": 0.0,
+      "elapsed_s": 7516.137337446213,
+      "sec_per_rep": 0.7516137337446213,
+      "paths": {
+        "CVAL_DEFNSUP": {
+          "rate": 0.1179,
+          "mcse": 0.003224896742533007,
+          "cp_lower95": 0.11262824834045698
+        },
+        "CVAL_CONSUPH_GRAPH": {
+          "rate": 0.0,
+          "mcse": 0.0,
+          "cp_lower95": 0.0
+        },
+        "CDEFSUP": {
+          "rate": 0.0,
+          "mcse": 0.0,
+          "cp_lower95": 0.0
+        },
+        "CCONSUP_A1": {
+          "rate": 0.0,
+          "mcse": 0.0,
+          "cp_lower95": 0.0
+        },
+        "CFMTH_given_conH": {
+          "rate": null,
+          "n_cond": 0
+        }
+      },
+      "_kind": "power",
+      "_wall_s": 7516.138184309006
+    },
+    {
+      "config_index": 78,
+      "_kind": "power",
+      "label": "P1",
+      "rho": 0.5,
+      "regime": "gaussian",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 2242.965019226074
+    },
+    {
+      "config_index": 79,
+      "_kind": "power",
+      "label": "P1",
+      "rho": 0.8,
+      "regime": "gaussian",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 995.7983331680298
+    },
+    {
+      "config_index": 80,
+      "_kind": "power",
+      "label": "P2",
+      "rho": 0.1,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 1626.4892146587372
+    },
+    {
+      "config_index": 81,
+      "label": "P2",
+      "kind": "power",
+      "rho": 0.5,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "R": 10000,
+      "truth_set": [
+        "C-CON-SUP-A1",
+        "C-CON-SUP-A2",
+        "C-CON-SUP-A2IR",
+        "C-CON-SUP-H"
+      ],
+      "fwer_events": 0,
+      "fwer_hat": 0.0,
+      "fwer_mcse": 0.0,
+      "fwer_cp_upper95": 0.0002995283597766119,
+      "claim_rej_rate": {
+        "C-VAL": 0.9974,
+        "C-DEF-NSUP": 0.9974,
+        "C-DEF-SUP": 0.4487,
+        "C-CON-SUP-H": 0.0,
+        "C-CON-SUP-A2IR": 0.0,
+        "C-CON-SUP-A2": 0.0,
+        "C-CON-SUP-A1": 0.0,
+        "C-GRAPH": 0.1438,
+        "C-FMT-H": 0.0,
+        "C-FMT-A2IR": 0.0,
+        "C-FMT-A2": 0.0,
+        "C-FMT-A1": 0.0
+      },
+      "stage2_rate": 0.0,
+      "elapsed_s": 5736.726135730743,
+      "sec_per_rep": 0.5736726135730743,
+      "paths": {
+        "CVAL_DEFNSUP": {
+          "rate": 0.9974,
+          "mcse": 0.0005092386473943279,
+          "cp_lower95": 0.9963941573345081
+        },
+        "CVAL_CONSUPH_GRAPH": {
+          "rate": 0.0,
+          "mcse": 0.0,
+          "cp_lower95": 0.0
+        },
+        "CDEFSUP": {
+          "rate": 0.4487,
+          "mcse": 0.004973613475130531,
+          "cp_lower95": 0.44048094420979556
+        },
+        "CCONSUP_A1": {
+          "rate": 0.0,
+          "mcse": 0.0,
+          "cp_lower95": 0.0
+        },
+        "CFMTH_given_conH": {
+          "rate": null,
+          "n_cond": 0
+        }
+      },
+      "_kind": "power",
+      "_wall_s": 5736.727093696594
+    },
+    {
+      "config_index": 82,
+      "_kind": "power",
+      "label": "P2",
+      "rho": 0.8,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 1507.386065006256
+    },
+    {
+      "config_index": 83,
+      "_kind": "power",
+      "label": "P2",
+      "rho": 0.1,
+      "regime": "gaussian",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 409.2372522354126
+    },
+    {
+      "config_index": 84,
+      "_kind": "power",
+      "label": "P2",
+      "rho": 0.5,
+      "regime": "gaussian",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 580.9869737625122
+    },
+    {
+      "config_index": 85,
+      "_kind": "power",
+      "label": "P2",
+      "rho": 0.8,
+      "regime": "gaussian",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 218.71419954299927
+    },
+    {
+      "config_index": 86,
+      "_kind": "power",
+      "label": "P3",
+      "rho": 0.1,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 327, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 56.22542428970337
+    },
+    {
+      "config_index": 87,
+      "_kind": "power",
+      "label": "P3",
+      "rho": 0.5,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 469.69964241981506
+    },
+    {
+      "config_index": 88,
+      "label": "P3",
+      "kind": "power",
+      "rho": 0.8,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "R": 10000,
+      "truth_set": [
+        "C-CON-SUP-A1",
+        "C-CON-SUP-A2",
+        "C-CON-SUP-A2IR",
+        "C-DEF-NSUP",
+        "C-DEF-SUP"
+      ],
+      "fwer_events": 2,
+      "fwer_hat": 0.0002,
+      "fwer_mcse": 0.00014140721339450828,
+      "fwer_cp_upper95": 0.0006294441486871455,
+      "claim_rej_rate": {
+        "C-VAL": 0.9975,
+        "C-DEF-NSUP": 0.0,
+        "C-DEF-SUP": 0.0,
+        "C-CON-SUP-H": 0.2704,
+        "C-CON-SUP-A2IR": 0.0,
+        "C-CON-SUP-A2": 0.0001,
+        "C-CON-SUP-A1": 0.0001,
+        "C-GRAPH": 0.0196,
+        "C-FMT-H": 0.0105,
+        "C-FMT-A2IR": 0.0,
+        "C-FMT-A2": 0.0,
+        "C-FMT-A1": 0.0
+      },
+      "stage2_rate": 0.2706,
+      "elapsed_s": 5897.0304527282715,
+      "sec_per_rep": 0.5897030452728271,
+      "paths": {
+        "CVAL_DEFNSUP": {
+          "rate": 0.0,
+          "mcse": 0.0,
+          "cp_lower95": 0.0
+        },
+        "CVAL_CONSUPH_GRAPH": {
+          "rate": 0.0196,
+          "mcse": 0.001386212104982495,
+          "cp_lower95": 0.017374159482173857
+        },
+        "CDEFSUP": {
+          "rate": 0.0,
+          "mcse": 0.0,
+          "cp_lower95": 0.0
+        },
+        "CCONSUP_A1": {
+          "rate": 0.0001,
+          "mcse": 9.999499987499375e-05,
+          "cp_lower95": 5.129316283767304e-06
+        },
+        "CFMTH_given_conH": {
+          "rate": 0.03883136094674556,
+          "n_cond": 2704
+        }
+      },
+      "_kind": "power",
+      "_wall_s": 5897.031433343887
+    },
+    {
+      "config_index": 89,
+      "_kind": "power",
+      "label": "P3",
+      "rho": 0.1,
+      "regime": "gaussian",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 3907.133888244629
+    },
+    {
+      "config_index": 90,
+      "_kind": "power",
+      "label": "P3",
+      "rho": 0.5,
+      "regime": "gaussian",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 853.2980935573578
+    },
+    {
+      "config_index": 91,
+      "_kind": "power",
+      "label": "P3",
+      "rho": 0.8,
+      "regime": "gaussian",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 160.6729302406311
+    },
+    {
+      "config_index": 92,
+      "_kind": "power",
+      "label": "P4",
+      "rho": 0.1,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 3728.1780755519867
+    },
+    {
+      "config_index": 93,
+      "_kind": "power",
+      "label": "P4",
+      "rho": 0.5,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 5501.068850040436
+    },
+    {
+      "config_index": 94,
+      "label": "P4",
+      "kind": "power",
+      "rho": 0.8,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "R": 10000,
+      "truth_set": [
+        "C-CON-SUP-A1",
+        "C-CON-SUP-A2",
+        "C-CON-SUP-A2IR",
+        "C-DEF-NSUP",
+        "C-DEF-SUP"
+      ],
+      "fwer_events": 2,
+      "fwer_hat": 0.0002,
+      "fwer_mcse": 0.00014140721339450828,
+      "fwer_cp_upper95": 0.0006294441486871455,
+      "claim_rej_rate": {
+        "C-VAL": 0.9979,
+        "C-DEF-NSUP": 0.0,
+        "C-DEF-SUP": 0.0,
+        "C-CON-SUP-H": 0.2732,
+        "C-CON-SUP-A2IR": 0.0001,
+        "C-CON-SUP-A2": 0.0001,
+        "C-CON-SUP-A1": 0.0,
+        "C-GRAPH": 0.0219,
+        "C-FMT-H": 0.0077,
+        "C-FMT-A2IR": 0.0,
+        "C-FMT-A2": 0.0,
+        "C-FMT-A1": 0.0
+      },
+      "stage2_rate": 0.2733,
+      "elapsed_s": 5882.301359176636,
+      "sec_per_rep": 0.5882301359176636,
+      "paths": {
+        "CVAL_DEFNSUP": {
+          "rate": 0.0,
+          "mcse": 0.0,
+          "cp_lower95": 0.0
+        },
+        "CVAL_CONSUPH_GRAPH": {
+          "rate": 0.0219,
+          "mcse": 0.001463570633758412,
+          "cp_lower95": 0.019546363150963638
+        },
+        "CDEFSUP": {
+          "rate": 0.0,
+          "mcse": 0.0,
+          "cp_lower95": 0.0
+        },
+        "CCONSUP_A1": {
+          "rate": 0.0,
+          "mcse": 0.0,
+          "cp_lower95": 0.0
+        },
+        "CFMTH_given_conH": {
+          "rate": 0.028184480234260616,
+          "n_cond": 2732
+        }
+      },
+      "_kind": "power",
+      "_wall_s": 5882.3021948337555
+    },
+    {
+      "config_index": 95,
+      "_kind": "power",
+      "label": "P4",
+      "rho": 0.1,
+      "regime": "gaussian",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 406.0533797740936
+    },
+    {
+      "config_index": 96,
+      "_kind": "power",
+      "label": "P4",
+      "rho": 0.5,
+      "regime": "gaussian",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 4566.4716374874115
+    },
+    {
+      "config_index": 97,
+      "_kind": "power",
+      "label": "P4",
+      "rho": 0.8,
+      "regime": "gaussian",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 374.1979036331177
+    },
+    {
+      "config_index": 98,
+      "_kind": "power",
+      "label": "P5",
+      "rho": 0.1,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 327, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 1501.1961970329285
+    },
+    {
+      "config_index": 99,
+      "_kind": "power",
+      "label": "P5",
+      "rho": 0.5,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 5406.673956871033
+    },
+    {
+      "config_index": 100,
+      "label": "P5",
+      "kind": "power",
+      "rho": 0.8,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "R": 10000,
+      "truth_set": [
+        "C-CON-SUP-A2",
+        "C-CON-SUP-A2IR",
+        "C-CON-SUP-H",
+        "C-DEF-NSUP",
+        "C-DEF-SUP"
+      ],
+      "fwer_events": 2,
+      "fwer_hat": 0.0002,
+      "fwer_mcse": 0.00014140721339450828,
+      "fwer_cp_upper95": 0.0006294441486871455,
+      "claim_rej_rate": {
+        "C-VAL": 0.998,
+        "C-DEF-NSUP": 0.0,
+        "C-DEF-SUP": 0.0,
+        "C-CON-SUP-H": 0.0001,
+        "C-CON-SUP-A2IR": 0.0001,
+        "C-CON-SUP-A2": 0.0,
+        "C-CON-SUP-A1": 0.2812,
+        "C-GRAPH": 0.0159,
+        "C-FMT-H": 0.0,
+        "C-FMT-A2IR": 0.0,
+        "C-FMT-A2": 0.0,
+        "C-FMT-A1": 0.0102
+      },
+      "stage2_rate": 0.2813,
+      "elapsed_s": 5877.728362321854,
+      "sec_per_rep": 0.5877728362321853,
+      "paths": {
+        "CVAL_DEFNSUP": {
+          "rate": 0.0,
+          "mcse": 0.0,
+          "cp_lower95": 0.0
+        },
+        "CVAL_CONSUPH_GRAPH": {
+          "rate": 0.0,
+          "mcse": 0.0,
+          "cp_lower95": 0.0
+        },
+        "CDEFSUP": {
+          "rate": 0.0,
+          "mcse": 0.0,
+          "cp_lower95": 0.0
+        },
+        "CCONSUP_A1": {
+          "rate": 0.2812,
+          "mcse": 0.004495848751904361,
+          "cp_lower95": 0.2738027434601348
+        },
+        "CFMTH_given_conH": {
+          "rate": 0.0,
+          "n_cond": 1
+        }
+      },
+      "_kind": "power",
+      "_wall_s": 5877.729184150696
+    },
+    {
+      "config_index": 101,
+      "_kind": "power",
+      "label": "P5",
+      "rho": 0.1,
+      "regime": "gaussian",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 22.506855726242065
+    },
+    {
+      "config_index": 102,
+      "_kind": "power",
+      "label": "P5",
+      "rho": 0.5,
+      "regime": "gaussian",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 1337.9030451774597
+    },
+    {
+      "config_index": 103,
+      "_kind": "power",
+      "label": "P5",
+      "rho": 0.8,
+      "regime": "gaussian",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 3476.3060994148254
+    },
+    {
+      "config_index": 104,
+      "_kind": "power",
+      "label": "P6",
+      "rho": 0.1,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 327, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 1656.5893602371216
+    },
+    {
+      "config_index": 105,
+      "_kind": "power",
+      "label": "P6",
+      "rho": 0.5,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 4539.129413366318
+    },
+    {
+      "config_index": 106,
+      "_kind": "power",
+      "label": "P6",
+      "rho": 0.8,
+      "regime": "gaussian",
+      "n_nat": 48,
+      "n_nonce": 96,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 2179.560403585434
+    },
+    {
+      "config_index": 107,
+      "_kind": "power",
+      "label": "P6",
+      "rho": 0.1,
+      "regime": "gaussian",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 65, in run_replication",
+        "uct_anova = reml_composite.get_uct(t); uct_anova.fit(Yuct)",
+        "File \"/root/sim/reml_composite.py\", line 327, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 10-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 1942.9187870025635
+    },
+    {
+      "config_index": 108,
+      "_kind": "power",
+      "label": "P6",
+      "rho": 0.5,
+      "regime": "gaussian",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "ERROR": "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite",
+      "error_frames": [
+        "res = pipeline.run_replication(t, ss, use_futility=use_futility,",
+        "File \"/root/sim/pipeline.py\", line 66, in run_replication",
+        "comp_anova = reml_composite.get_comp(t); comp_anova.fit(Ycomp)",
+        "File \"/root/sim/reml_composite.py\", line 319, in fit",
+        "File \"/root/sim/reml_composite.py\", line 315, in obj",
+        "File \"/root/sim/reml_composite.py\", line 220, in deviance_fast",
+        "raise LinAlgError(\"%d-th leading minor of the array is not positive \"",
+        "numpy.linalg.LinAlgError: 5-th leading minor of the array is not positive definite"
+      ],
+      "_wall_s": 7652.968402385712
+    },
+    {
+      "config_index": 109,
+      "label": "P6",
+      "kind": "power",
+      "rho": 0.8,
+      "regime": "gaussian",
+      "n_nat": 96,
+      "n_nonce": 160,
+      "R": 10000,
+      "truth_set": [
+        "C-CON-SUP-A1",
+        "C-CON-SUP-A2",
+        "C-CON-SUP-A2IR",
+        "C-DEF-NSUP",
+        "C-DEF-SUP"
+      ],
+      "fwer_events": 0,
+      "fwer_hat": 0.0,
+      "fwer_mcse": 0.0,
+      "fwer_cp_upper95": 0.0002995283597766119,
+      "claim_rej_rate": {
+        "C-VAL": 0.999,
+        "C-DEF-NSUP": 0.0,
+        "C-DEF-SUP": 0.0,
+        "C-CON-SUP-H": 0.3131,
+        "C-CON-SUP-A2IR": 0.0,
+        "C-CON-SUP-A2": 0.0,
+        "C-CON-SUP-A1": 0.0,
+        "C-GRAPH": 0.0235,
+        "C-FMT-H": 0.0102,
+        "C-FMT-A2IR": 0.0,
+        "C-FMT-A2": 0.0,
+        "C-FMT-A1": 0.0
+      },
+      "stage2_rate": 0.3131,
+      "elapsed_s": 7933.882634401321,
+      "sec_per_rep": 0.7933882634401321,
+      "paths": {
+        "CVAL_DEFNSUP": {
+          "rate": 0.0,
+          "mcse": 0.0,
+          "cp_lower95": 0.0
+        },
+        "CVAL_CONSUPH_GRAPH": {
+          "rate": 0.0235,
+          "mcse": 0.001514851477868375,
+          "cp_lower95": 0.021061635109803873
+        },
+        "CDEFSUP": {
+          "rate": 0.0,
+          "mcse": 0.0,
+          "cp_lower95": 0.0
+        },
+        "CCONSUP_A1": {
+          "rate": 0.0,
+          "mcse": 0.0,
+          "cp_lower95": 0.0
+        },
+        "CFMTH_given_conH": {
+          "rate": 0.03257745129351645,
+          "n_cond": 3131
+        }
+      },
+      "rung0": {
+        "label": "P6",
+        "config_index": 109,
+        "R": 10000,
+        "termination_rate": 0.0,
+        "mcse": 0.0,
+        "cp_upper95": 0.0002995283597766119,
+        "tau_term0": 0.055,
+        "tau_term": 0.025,
+        "envelope_coverage": {
+          "A1": 0.9997,
+          "A2": 0.9995,
+          "A2IR": 0.999,
+          "H": 0.9998
+        }
+      },
+      "_kind": "power",
+      "_wall_s": 7950.114450931549
+    },
+    {
+      "config_index": 110,
+      "rho": 0.1,
+      "n_nonce": 96,
+      "R": 40000,
+      "pi0": 0.6,
+      "arms": {
+        "H": {
+          "emp_sd_pihat": 0.09059996827191816,
+          "mean_boot_null_sd": 0.10985361659303565,
+          "sd_ratio": 1.2125127490478962,
+          "sd_ratio_flag": "ok(>=1)",
+          "floor_binding_s": 0.9035,
+          "floor_binding_r": 0.8666,
+          "rho_tilde_quartiles": {
+            "c": [
+              0.43671233177185065,
+              0.5127238845825196,
+              0.5857690143585204
+            ],
+            "s": [
+              0.15,
+              0.15,
+              0.15
+            ],
+            "r": [
+              0.15,
+              0.15,
+              0.15
+            ]
+          },
+          "gamma": {
+            "0.02500": {
+              "rej_rate": 0.007575,
+              "rej_count": 303,
+              "mcse": 0.000433521031064238,
+              "cp_upper95": 0.008327750386770631,
+              "bar_1.25g": 0.03125,
+              "pass": true
+            },
+            "0.00625": {
+              "rej_rate": 0.0014,
+              "rej_count": 56,
+              "mcse": 0.0001869518654627442,
+              "cp_upper95": 0.0017487043968163396,
+              "bar_1.25g": 0.0078125,
+              "pass": true
+            }
+          }
+        },
+        "A2IR": {
+          "emp_sd_pihat": 0.09063132975110164,
+          "mean_boot_null_sd": 0.10984179693432293,
+          "sd_ratio": 1.2119627642668211,
+          "sd_ratio_flag": "ok(>=1)",
+          "floor_binding_s": 0.9062,
+          "floor_binding_r": 0.86665,
+          "rho_tilde_quartiles": {
+            "c": [
+              0.43789016246795653,
+              0.5134729671478271,
+              0.5860437870025635
+            ],
+            "s": [
+              0.15,
+              0.15,
+              0.15
+            ],
+            "r": [
+              0.15,
+              0.15,
+              0.15
+            ]
+          },
+          "gamma": {
+            "0.02500": {
+              "rej_rate": 0.0074,
+              "rej_count": 296,
+              "mcse": 0.00042852187808792216,
+              "cp_upper95": 0.008144547720279961,
+              "bar_1.25g": 0.03125,
+              "pass": true
+            },
+            "0.00625": {
+              "rej_rate": 0.000725,
+              "rej_count": 29,
+              "mcse": 0.00013458030827353607,
+              "cp_upper95": 0.0009883940453287872,
+              "bar_1.25g": 0.0078125,
+              "pass": true
+            }
+          }
+        },
+        "A2": {
+          "emp_sd_pihat": 0.09006997120099271,
+          "mean_boot_null_sd": 0.10984099726928646,
+          "sd_ratio": 1.2195074096801293,
+          "sd_ratio_flag": "ok(>=1)",
+          "floor_binding_s": 0.9039,
+          "floor_binding_r": 0.86445,
+          "rho_tilde_quartiles": {
+            "c": [
+              0.437039442062378,
+              0.5138038158416749,
+              0.5858440160751344
+            ],
+            "s": [
+              0.15,
+              0.15,
+              0.15
+            ],
+            "r": [
+              0.15,
+              0.15,
+              0.15
+            ]
+          },
+          "gamma": {
+            "0.02500": {
+              "rej_rate": 0.007325,
+              "rej_count": 293,
+              "mcse": 0.0004263608910008046,
+              "cp_upper95": 0.008066001989304876,
+              "bar_1.25g": 0.03125,
+              "pass": true
+            },
+            "0.00625": {
+              "rej_rate": 0.000925,
+              "rej_count": 37,
+              "mcse": 0.00015199871504391083,
+              "cp_upper95": 0.0012167095114354678,
+              "bar_1.25g": 0.0078125,
+              "pass": true
+            }
+          }
+        },
+        "A1": {
+          "emp_sd_pihat": 0.09039914050898634,
+          "mean_boot_null_sd": 0.10986144881799237,
+          "sd_ratio": 1.2152930680471605,
+          "sd_ratio_flag": "ok(>=1)",
+          "floor_binding_s": 0.90535,
+          "floor_binding_r": 0.865175,
+          "rho_tilde_quartiles": {
+            "c": [
+              0.4377357196807862,
+              0.5146617794036867,
+              0.5858420300483702
+            ],
+            "s": [
+              0.15,
+              0.15,
+              0.15
+            ],
+            "r": [
+              0.15,
+              0.15,
+              0.15
+            ]
+          },
+          "gamma": {
+            "0.02500": {
+              "rej_rate": 0.0071,
+              "rej_count": 284,
+              "mcse": 0.0004198091828438249,
+              "cp_upper95": 0.007830252157329156,
+              "bar_1.25g": 0.03125,
+              "pass": true
+            },
+            "0.00625": {
+              "rej_rate": 0.000925,
+              "rej_count": 37,
+              "mcse": 0.00015199871504391083,
+              "cp_upper95": 0.0012167095114354678,
+              "bar_1.25g": 0.0078125,
+              "pass": true
+            }
+          }
+        }
+      },
+      "_kind": "gatecal",
+      "label": "GATECAL",
+      "_wall_s": 1190.3405783176422
+    },
+    {
+      "config_index": 111,
+      "rho": 0.1,
+      "n_nonce": 160,
+      "R": 40000,
+      "pi0": 0.6,
+      "arms": {
+        "H": {
+          "emp_sd_pihat": 0.08769071034131797,
+          "mean_boot_null_sd": 0.10726040795222498,
+          "sd_ratio": 1.2231672834526714,
+          "sd_ratio_flag": "ok(>=1)",
+          "floor_binding_s": 0.903725,
+          "floor_binding_r": 0.89635,
+          "rho_tilde_quartiles": {
+            "c": [
+              0.4545730209350586,
+              0.5183501815795899,
+              0.576409103870392
+            ],
+            "s": [
+              0.15,
+              0.15,
+              0.15
+            ],
+            "r": [
+              0.15,
+              0.15,
+              0.15
+            ]
+          },
+          "gamma": {
+            "0.02500": {
+              "rej_rate": 0.0078,
+              "rej_count": 312,
+              "mcse": 0.0004398624785089085,
+              "cp_upper95": 0.00856315568466848,
+              "bar_1.25g": 0.03125,
+              "pass": true
+            },
+            "0.00625": {
+              "rej_rate": 0.001125,
+              "rej_count": 45,
+              "mcse": 0.00016761073764827837,
+              "cp_upper95": 0.0014421434499803552,
+              "bar_1.25g": 0.0078125,
+              "pass": true
+            }
+          }
+        },
+        "A2IR": {
+          "emp_sd_pihat": 0.08742773811101501,
+          "mean_boot_null_sd": 0.10724785852118236,
+          "sd_ratio": 1.2267028844438357,
+          "sd_ratio_flag": "ok(>=1)",
+          "floor_binding_s": 0.90515,
+          "floor_binding_r": 0.89555,
+          "rho_tilde_quartiles": {
+            "c": [
+              0.4561716556549072,
+              0.519260015487671,
+              0.5772545671463013
+            ],
+            "s": [
+              0.15,
+              0.15,
+              0.15
+            ],
+            "r": [
+              0.15,
+              0.15,
+              0.15
+            ]
+          },
+          "gamma": {
+            "0.02500": {
+              "rej_rate": 0.007825,
+              "rej_count": 313,
+              "mcse": 0.0004405612719872232,
+              "cp_upper95": 0.008589302304297212,
+              "bar_1.25g": 0.03125,
+              "pass": true
+            },
+            "0.00625": {
+              "rej_rate": 0.001175,
+              "rej_count": 47,
+              "mcse": 0.0001712906429872922,
+              "cp_upper95": 0.0014981444206168186,
+              "bar_1.25g": 0.0078125,
+              "pass": true
+            }
+          }
+        },
+        "A2": {
+          "emp_sd_pihat": 0.08776671493071125,
+          "mean_boot_null_sd": 0.10725153145436804,
+          "sd_ratio": 1.2220069024918998,
+          "sd_ratio_flag": "ok(>=1)",
+          "floor_binding_s": 0.903875,
+          "floor_binding_r": 0.8936,
+          "rho_tilde_quartiles": {
+            "c": [
+              0.45493190765380875,
+              0.5177917575836182,
+              0.5754790592193604
+            ],
+            "s": [
+              0.15,
+              0.15,
+              0.15
+            ],
+            "r": [
+              0.15,
+              0.15,
+              0.15
+            ]
+          },
+          "gamma": {
+            "0.02500": {
+              "rej_rate": 0.00785,
+              "rej_count": 314,
+              "mcse": 0.0004412589234225184,
+              "cp_upper95": 0.008615447052222704,
+              "bar_1.25g": 0.03125,
+              "pass": true
+            },
+            "0.00625": {
+              "rej_rate": 0.0012,
+              "rej_count": 48,
+              "mcse": 0.00017310112651279888,
+              "cp_upper95": 0.0015260975796961187,
+              "bar_1.25g": 0.0078125,
+              "pass": true
+            }
+          }
+        },
+        "A1": {
+          "emp_sd_pihat": 0.08804747461676862,
+          "mean_boot_null_sd": 0.10719981704570147,
+          "sd_ratio": 1.2175229046863008,
+          "sd_ratio_flag": "ok(>=1)",
+          "floor_binding_s": 0.907625,
+          "floor_binding_r": 0.89395,
+          "rho_tilde_quartiles": {
+            "c": [
+              0.45636687040328977,
+              0.5190637493133547,
+              0.5764582872390747
+            ],
+            "s": [
+              0.15,
+              0.15,
+              0.15
+            ],
+            "r": [
+              0.15,
+              0.15,
+              0.15
+            ]
+          },
+          "gamma": {
+            "0.02500": {
+              "rej_rate": 0.007675,
+              "rej_count": 307,
+              "mcse": 0.0004363511881214488,
+              "cp_upper95": 0.008432394196504076,
+              "bar_1.25g": 0.03125,
+              "pass": true
+            },
+            "0.00625": {
+              "rej_rate": 0.001275,
+              "rej_count": 51,
+              "mcse": 0.00017842185789583071,
+              "cp_upper95": 0.0016097790749724714,
+              "bar_1.25g": 0.0078125,
+              "pass": true
+            }
+          }
+        }
+      },
+      "_kind": "gatecal",
+      "label": "GATECAL",
+      "_wall_s": 1854.022826910019
+    },
+    {
+      "config_index": 112,
+      "rho": 0.8,
+      "n_nonce": 96,
+      "R": 40000,
+      "pi0": 0.6,
+      "arms": {
+        "H": {
+          "emp_sd_pihat": 0.09065465401848505,
+          "mean_boot_null_sd": 0.10982512437832206,
+          "sd_ratio": 1.2114670291050698,
+          "sd_ratio_flag": "ok(>=1)",
+          "floor_binding_s": 0.90415,
+          "floor_binding_r": 0.86525,
+          "rho_tilde_quartiles": {
+            "c": [
+              0.4358151149749756,
+              0.5132360458374025,
+              0.5858218193054198
+            ],
+            "s": [
+              0.15,
+              0.15,
+              0.15
+            ],
+            "r": [
+              0.15,
+              0.15,
+              0.15
+            ]
+          },
+          "gamma": {
+            "0.02500": {
+              "rej_rate": 0.0087,
+              "rej_count": 348,
+              "mcse": 0.0004643358159780484,
+              "cp_upper95": 0.009503314109208013,
+              "bar_1.25g": 0.03125,
+              "pass": true
+            },
+            "0.00625": {
+              "rej_rate": 0.000975,
+              "rej_count": 39,
+              "mcse": 0.0001560488204857698,
+              "cp_upper95": 0.0012733033350164524,
+              "bar_1.25g": 0.0078125,
+              "pass": true
+            }
+          }
+        },
+        "A2IR": {
+          "emp_sd_pihat": 0.09037879778461468,
+          "mean_boot_null_sd": 0.109839835861534,
+          "sd_ratio": 1.215327472304928,
+          "sd_ratio_flag": "ok(>=1)",
+          "floor_binding_s": 0.9041,
+          "floor_binding_r": 0.868675,
+          "rho_tilde_quartiles": {
+            "c": [
+              0.43682495117187503,
+              0.5127444458007814,
+              0.5857690143585204
+            ],
+            "s": [
+              0.15,
+              0.15,
+              0.15
+            ],
+            "r": [
+              0.15,
+              0.15,
+              0.15
+            ]
+          },
+          "gamma": {
+            "0.02500": {
+              "rej_rate": 0.007625,
+              "rej_count": 305,
+              "mcse": 0.00043493848343760066,
+              "cp_upper95": 0.00838007618178211,
+              "bar_1.25g": 0.03125,
+              "pass": true
+            },
+            "0.00625": {
+              "rej_rate": 0.00105,
+              "rej_count": 42,
+              "mcse": 0.00016193343539862298,
+              "cp_upper95": 0.0013578894174981363,
+              "bar_1.25g": 0.0078125,
+              "pass": true
+            }
+          }
+        },
+        "A2": {
+          "emp_sd_pihat": 0.09055467566143695,
+          "mean_boot_null_sd": 0.10981574084472243,
+          "sd_ratio": 1.2127009460593527,
+          "sd_ratio_flag": "ok(>=1)",
+          "floor_binding_s": 0.90585,
+          "floor_binding_r": 0.867725,
+          "rho_tilde_quartiles": {
+            "c": [
+              0.43734575748443605,
+              0.5148617839813232,
+              0.5864381885528565
+            ],
+            "s": [
+              0.15,
+              0.15,
+              0.15
+            ],
+            "r": [
+              0.15,
+              0.15,
+              0.15
+            ]
+          },
+          "gamma": {
+            "0.02500": {
+              "rej_rate": 0.008625,
+              "rej_count": 345,
+              "mcse": 0.00046234752554220513,
+              "cp_upper95": 0.009425051430527537,
+              "bar_1.25g": 0.03125,
+              "pass": true
+            },
+            "0.00625": {
+              "rej_rate": 0.001225,
+              "rej_count": 49,
+              "mcse": 0.00017489277965370667,
+              "cp_upper95": 0.0015540204779185796,
+              "bar_1.25g": 0.0078125,
+              "pass": true
+            }
+          }
+        },
+        "A1": {
+          "emp_sd_pihat": 0.09053238294640793,
+          "mean_boot_null_sd": 0.10986420985196009,
+          "sd_ratio": 1.2135349393928572,
+          "sd_ratio_flag": "ok(>=1)",
+          "floor_binding_s": 0.90355,
+          "floor_binding_r": 0.86615,
+          "rho_tilde_quartiles": {
+            "c": [
+              0.4373086071014405,
+              0.5135650253295898,
+              0.5858400440216063
+            ],
+            "s": [
+              0.15,
+              0.15,
+              0.15
+            ],
+            "r": [
+              0.15,
+              0.15,
+              0.15
+            ]
+          },
+          "gamma": {
+            "0.02500": {
+              "rej_rate": 0.008175,
+              "rej_count": 327,
+              "mcse": 0.00045022686989450107,
+              "cp_upper95": 0.008955162380460052,
+              "bar_1.25g": 0.03125,
+              "pass": true
+            },
+            "0.00625": {
+              "rej_rate": 0.00105,
+              "rej_count": 42,
+              "mcse": 0.00016193343539862298,
+              "cp_upper95": 0.0013578894174981363,
+              "bar_1.25g": 0.0078125,
+              "pass": true
+            }
+          }
+        }
+      },
+      "_kind": "gatecal",
+      "label": "GATECAL",
+      "_wall_s": 3417.481739759445
+    },
+    {
+      "config_index": 113,
+      "rho": 0.8,
+      "n_nonce": 160,
+      "R": 40000,
+      "pi0": 0.6,
+      "arms": {
+        "H": {
+          "emp_sd_pihat": 0.08763270438644238,
+          "mean_boot_null_sd": 0.1072353764790604,
+          "sd_ratio": 1.2236912831786433,
+          "sd_ratio_flag": "ok(>=1)",
+          "floor_binding_s": 0.906125,
+          "floor_binding_r": 0.894275,
+          "rho_tilde_quartiles": {
+            "c": [
+              0.4552298116683961,
+              0.5181501770019532,
+              0.5764276790618896
+            ],
+            "s": [
+              0.15,
+              0.15,
+              0.15
+            ],
+            "r": [
+              0.15,
+              0.15,
+              0.15
+            ]
+          },
+          "gamma": {
+            "0.02500": {
+              "rej_rate": 0.0075,
+              "rej_count": 300,
+              "mcse": 0.0004313858481684349,
+              "cp_upper95": 0.008249246938794242,
+              "bar_1.25g": 0.03125,
+              "pass": true
+            },
+            "0.00625": {
+              "rej_rate": 0.00075,
+              "rej_count": 30,
+              "mcse": 0.00013687928075497769,
+              "cp_upper95": 0.0010171267398856527,
+              "bar_1.25g": 0.0078125,
+              "pass": true
+            }
+          }
+        },
+        "A2IR": {
+          "emp_sd_pihat": 0.08785403884069468,
+          "mean_boot_null_sd": 0.10722288252787189,
+          "sd_ratio": 1.2204661725603605,
+          "sd_ratio_flag": "ok(>=1)",
+          "floor_binding_s": 0.9061,
+          "floor_binding_r": 0.893025,
+          "rho_tilde_quartiles": {
+            "c": [
+              0.45530668258666995,
+              0.5181529808044435,
+              0.576409571170807
+            ],
+            "s": [
+              0.15,
+              0.15,
+              0.15
+            ],
+            "r": [
+              0.15,
+              0.15,
+              0.15
+            ]
+          },
+          "gamma": {
+            "0.02500": {
+              "rej_rate": 0.007025,
+              "rej_count": 281,
+              "mcse": 0.0004176017652920064,
+              "cp_upper95": 0.007751630354498001,
+              "bar_1.25g": 0.03125,
+              "pass": true
+            },
+            "0.00625": {
+              "rej_rate": 0.0009,
+              "rej_count": 36,
+              "mcse": 0.0001499324848056618,
+              "cp_upper95": 0.0011883468588308505,
+              "bar_1.25g": 0.0078125,
+              "pass": true
+            }
+          }
+        },
+        "A2": {
+          "emp_sd_pihat": 0.08770598226040316,
+          "mean_boot_null_sd": 0.10733343051871054,
+          "sd_ratio": 1.2237868814926736,
+          "sd_ratio_flag": "ok(>=1)",
+          "floor_binding_s": 0.903225,
+          "floor_binding_r": 0.8932,
+          "rho_tilde_quartiles": {
+            "c": [
+              0.4547174167633057,
+              0.5177151203155519,
+              0.5761026716232299
+            ],
+            "s": [
+              0.15,
+              0.15,
+              0.15
+            ],
+            "r": [
+              0.15,
+              0.15,
+              0.15
+            ]
+          },
+          "gamma": {
+            "0.02500": {
+              "rej_rate": 0.00785,
+              "rej_count": 314,
+              "mcse": 0.0004412589234225184,
+              "cp_upper95": 0.008615447052222704,
+              "bar_1.25g": 0.03125,
+              "pass": true
+            },
+            "0.00625": {
+              "rej_rate": 0.001025,
+              "rej_count": 41,
+              "mcse": 0.00015999604487299053,
+              "cp_upper95": 0.0013297327022315543,
+              "bar_1.25g": 0.0078125,
+              "pass": true
+            }
+          }
+        },
+        "A1": {
+          "emp_sd_pihat": 0.08749850993274907,
+          "mean_boot_null_sd": 0.10727614295493845,
+          "sd_ratio": 1.2260339408909977,
+          "sd_ratio_flag": "ok(>=1)",
+          "floor_binding_s": 0.90545,
+          "floor_binding_r": 0.89075,
+          "rho_tilde_quartiles": {
+            "c": [
+              0.4537519741058349,
+              0.5174284315109254,
+              0.5758496284484864
+            ],
+            "s": [
+              0.15,
+              0.15,
+              0.15
+            ],
+            "r": [
+              0.15,
+              0.15,
+              0.15
+            ]
+          },
+          "gamma": {
+            "0.02500": {
+              "rej_rate": 0.007325,
+              "rej_count": 293,
+              "mcse": 0.0004263608910008046,
+              "cp_upper95": 0.008066001989304876,
+              "bar_1.25g": 0.03125,
+              "pass": true
+            },
+            "0.00625": {
+              "rej_rate": 0.00115,
+              "rej_count": 46,
+              "mcse": 0.00016946072553839723,
+              "cp_upper95": 0.0014701600460361283,
+              "bar_1.25g": 0.0078125,
+              "pass": true
+            }
+          }
+        }
+      },
+      "_kind": "gatecal",
+      "label": "GATECAL",
+      "_wall_s": 1854.5618088245392
+    }
+  ]
+}

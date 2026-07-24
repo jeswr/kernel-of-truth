@@ -59,6 +59,7 @@ def _compute_cell(arg):
     if "/root/sim" not in sys.path:
         sys.path.insert(0, "/root/sim")
     os.chdir("/root/sim")
+    import traceback
     import grid
     import driver
     import rung0
@@ -69,25 +70,40 @@ def _compute_cell(arg):
     R_fwer = R_override if R_override else pins.R_FWER
     R_power = R_override if R_override else pins.R_POWER
     t0 = time.time()
-    if kind == "gatecal":
-        res = gcb.run_cell(rho, n_nonce, R_fwer)
-        res["_kind"] = "gatecal"
-        res["config_index"] = idx
-        res["label"] = label
-    else:
-        t = grid.resolve_cell(label, rho, regime, n_nat, n_nonce, kind=kind)
-        if kind == "fwer":
-            res = driver.run_cell(idx, t, R=R_fwer, want_paths=False)
-            if label == "F10":
-                res["rung0"] = rung0.run_rung0_cell(idx, t, R=R_fwer)
+    # CELL-LEVEL EXCEPTION ISOLATION (restores v1 return_exceptions behaviour):
+    # a cell that raises (e.g. the frozen exact-REML estimator's LinAlgError on
+    # some rep at full R) is recorded DURABLY as an ERROR cell so the batch keeps
+    # going and passing cells still bank.  This does NOT alter the science: a
+    # failed cell is marked unevaluable (fit-failure), NEVER pass/fail; how to
+    # handle such a rep is a Fable design decision (S8 "fit-failure rates").
+    try:
+        if kind == "gatecal":
+            res = gcb.run_cell(rho, n_nonce, R_fwer)
+            res["_kind"] = "gatecal"
+            res["config_index"] = idx
+            res["label"] = label
         else:
-            res = driver.run_cell(idx, t, R=R_power, want_paths=True)
-            if label == "P6":
-                res["rung0"] = rung0.run_rung0_cell(idx, t, R=R_power)
-        res["_kind"] = kind
-        res["regime"] = regime
-    res["_wall_s"] = time.time() - t0
-    return res
+            t = grid.resolve_cell(label, rho, regime, n_nat, n_nonce, kind=kind)
+            if kind == "fwer":
+                res = driver.run_cell(idx, t, R=R_fwer, want_paths=False)
+                if label == "F10":
+                    res["rung0"] = rung0.run_rung0_cell(idx, t, R=R_fwer)
+            else:
+                res = driver.run_cell(idx, t, R=R_power, want_paths=True)
+                if label == "P6":
+                    res["rung0"] = rung0.run_rung0_cell(idx, t, R=R_power)
+            res["_kind"] = kind
+            res["regime"] = regime
+        res["_wall_s"] = time.time() - t0
+        return res
+    except Exception as e:
+        frames = [ln.strip() for ln in traceback.format_exc().splitlines()
+                  if ("reml_composite" in ln or "pipeline" in ln or "driver" in ln
+                      or "gate" in ln or "Error" in ln)]
+        return {"config_index": idx, "_kind": kind, "label": label, "rho": rho,
+                "regime": regime, "n_nat": n_nat, "n_nonce": n_nonce,
+                "ERROR": f"{type(e).__module__}.{type(e).__name__}: {e}",
+                "error_frames": frames[-8:], "_wall_s": time.time() - t0}
 
 
 def _batch_impl(specs, n_workers, R_override):
@@ -121,7 +137,7 @@ def _batch_impl(specs, n_workers, R_override):
     return {"done_before": sorted(done), "ran": sorted(ran), "n_total": len(specs)}
 
 
-@app.function(cpu=32.0, memory=16384, timeout=21600, volumes={"/vol": VOL}, retries=2)
+@app.function(cpu=32.0, memory=32768, timeout=28800, volumes={"/vol": VOL}, retries=2)
 def run_grid_batch(specs, n_workers: int = 30, R_override: int = 0):
     return _batch_impl(specs, n_workers, R_override or None)
 
@@ -132,7 +148,7 @@ def tiny_batch(specs, n_workers: int = 2, R_override: int = 50):
 
 
 @app.function(volumes={"/vol": VOL})
-def collect():
+def collect(full: bool = False):
     """DECOUPLED collection: read all durable cell files from the Volume."""
     import os
     import json
@@ -142,7 +158,62 @@ def collect():
         for f in sorted(os.listdir(CELLDIR)):
             if f.startswith("cell_") and f.endswith(".json"):
                 out.append(json.load(open(os.path.join(CELLDIR, f))))
-    return {"n_cells": len(out), "config_indices": sorted(c["config_index"] for c in out)}
+    res = {"n_cells": len(out), "config_indices": sorted(c["config_index"] for c in out)}
+    if full:
+        res["cells"] = out
+    return res
+
+
+@app.function(cpu=8.0, timeout=3600)
+def repro_frozen(labels: str = "", R: int = 8000, pin_threads: int = 1):
+    """Instrument-check on the PINNED image (numpy 2.1.3), FROZEN path only
+    (pipeline -> reml_composite; NO harness Pool).  Reproduces the crash
+    condition (BLAS threads=1 by default) and COUNTS the per-cell raise RATE over
+    R reps (does NOT break on first) -> quantifies scope (rare vs pervasive)."""
+    import os
+    if pin_threads:
+        for v in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS",
+                  "NUMEXPR_NUM_THREADS", "VECLIB_MAXIMUM_THREADS"):
+            os.environ[v] = str(pin_threads)
+    import sys
+    import traceback
+    if "/root/sim" not in sys.path:
+        sys.path.insert(0, "/root/sim")
+    os.chdir("/root/sim")
+    import numpy
+    import scipy
+    import grid
+    import seeds
+    import pipeline
+    import dgm
+    cells = grid.enumerate_cells()
+    want = set(labels.split(",")) if labels else None
+    # representative sample: 3 power + 3 FWER cells spanning rho/n-levels
+    sample_idx = {74, 79, 91, 0, 27, 42} if want is None else None
+    scan = [c for c in cells if (c[2] in want if want else c[0] in sample_idx)]
+    out = {"numpy": numpy.__version__, "scipy": scipy.__version__, "R": R,
+           "pin_threads": pin_threads, "cells": []}
+    for (idx, kind, label, rho, regime, n_nat, n_nonce) in scan:
+        t = grid.resolve_cell(label, rho, regime, n_nat, n_nonce, kind=kind)
+        thr = dgm.compute_gate_thresholds(t, idx)
+        n_raise = 0
+        first = None
+        for r in range(R):
+            ss = seeds.rep_substreams(idx, r)
+            try:
+                pipeline.run_replication(t, ss, gate_thr=thr)
+            except Exception as e:
+                n_raise += 1
+                if first is None:
+                    frames = [ln.strip() for ln in traceback.format_exc().splitlines()
+                              if ("reml_composite" in ln or "pipeline" in ln
+                                  or "Error" in ln)]
+                    first = {"rep": r, "error": f"{type(e).__module__}.{type(e).__name__}: {e}",
+                             "frames": frames[-5:]}
+        out["cells"].append({"config_index": idx, "kind": kind, "label": label,
+                             "rho": rho, "n": [n_nat, n_nonce], "R": R,
+                             "n_raise": n_raise, "raise_rate": n_raise / R, "first": first})
+    return out
 
 
 @app.function(volumes={"/vol": VOL})
@@ -159,7 +230,7 @@ def clear_vol():
 
 
 @app.local_entrypoint()
-def main(mode: str = "tinyvalidate"):
+def main(mode: str = "tinyvalidate", repro_r: int = 3000):
     """tinyvalidate: durable-write + resume-skip green test on 2 cells @ R=50."""
     import sys
     import json
@@ -167,6 +238,9 @@ def main(mode: str = "tinyvalidate"):
     import grid
     cells = grid.enumerate_cells()
     by = {c[2]: c for c in cells}  # label -> first spec
+    if mode == "repro":
+        print(json.dumps(repro_frozen.remote("", repro_r), indent=2, default=str))
+        return
     if mode == "tinyvalidate":
         tiny = [list(by["F3"]), list(by["P3"])]  # one FWER + one power cell
         print("clearing volume ...", flush=True)
@@ -183,3 +257,39 @@ def main(mode: str = "tinyvalidate"):
         ok = (sorted(r1["ran"]) == sorted(c1["config_indices"])
               and r2["ran"] == [] and sorted(r2["done_before"]) == sorted(r1["ran"]))
         print("TINY-VALIDATION:", "GREEN" if ok else "RED", flush=True)
+    elif mode == "full":
+        import os
+
+        def _est(c):
+            # est core-seconds: SHORTEST first -> cells bank early (crash-resilient
+            # + real progress signal). Power R=10k < gate-cal/FWER R=40k; esc last.
+            idx, kind, label, rho, regime, n_nat, n_nonce = c
+            R = 10000 if kind == "power" else 40000
+            per = 0.131 if (n_nat, n_nonce) == (96, 160) else 0.094
+            return R * per
+        specs = [list(c) for c in sorted(cells, key=_est)]
+        print(f"[v2-full] launching {len(specs)} cells (SHORTEST-first) on ONE "
+              f"cpu=32 container (durable Volume kot-99a-grid-vol, resumable) ...",
+              flush=True)
+        try:
+            summary = run_grid_batch.remote(specs, 30, 0)
+            print("[v2-full] run_grid_batch summary:", json.dumps(summary), flush=True)
+        except Exception as e:
+            print("[v2-full] run_grid_batch raised (completed cells still durable "
+                  "in Volume; resume by re-running):", repr(e), flush=True)
+        # collect from the durable Volume regardless of the run outcome
+        c = collect.remote(True)
+        print(f"[v2-full] collected {c['n_cells']} cells from Volume", flush=True)
+        outdir = os.path.join(SIM_LOCAL, "results", "frozen-run", "grid-run-v2")
+        os.makedirs(outdir, exist_ok=True)
+        combined = {
+            "note": "99a frozen full-grid raw results (v2 durable harness, jesse-70413). "
+                    "Mechanical verdict via verdict_99a.py.",
+            "base_seed": 990066001, "n_cells": c["n_cells"],
+            "config_indices": c["config_indices"],
+            "R_fwer": 40000, "R_power": 10000, "R_gatecal": 40000,
+            "results": c.get("cells", []),
+        }
+        with open(os.path.join(outdir, "grid-results.json"), "w") as f:
+            json.dump(combined, f, indent=2, default=str)
+        print(f"[v2-full] WROTE {outdir}/grid-results.json ({c['n_cells']}/114 cells)", flush=True)
