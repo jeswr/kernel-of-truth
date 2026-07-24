@@ -3659,19 +3659,24 @@ CAP_PROBE_MAX_AGE_DAYS = 14
 
 
 def validate_cap_probe_evidence(record, *, project_id=None, zone=None,
-                                source_commit=None, now_utc=None,
+                                source_commit=None, gcloud_version=None,
+                                now_utc=None,
                                 max_age_days=CAP_PROBE_MAX_AGE_DAYS) -> dict:
     """Machine-enforced CAP-PROBE gate: a real provisioning call MUST be
     preceded by a recorded GREEN sub-dollar probe that actually RAN against
-    THIS project/zone at a known source commit + CLI version, recently.
+    THIS project/zone at a known source commit + the INSTALLED CLI version,
+    recently.
 
-    BLOCKING-2 (re-review): a public self-hash alone is a hand-buildable
-    record; the evidence is now BOUND to project_id + zone + source_commit +
-    gcloud_version and a freshness window (observed_at within [now -
-    max_age_days, now]; a stale 2000-01-01 or a future-dated record is
-    refused). The caller supplies the EXPECTED project/zone/commit so the
-    record must demonstrate a probe ran against this deployment, not just be a
-    well-formed JSON blob."""
+    THREAT MODEL (coordinator decision, re-review ISSUE-3): the deployment is
+    ONE TRUSTED OPERATOR running one experiment. A maliciously hand-built
+    evidence record is OUT of scope — authenticity ultimately rests on the
+    executor actually RUNNING the probe. What this validator prevents is
+    ACCIDENTAL stale / wrong-project / wrong-zone / wrong-commit / wrong-CLI
+    reuse: the evidence is BOUND to project_id + zone + source_commit +
+    gcloud_version (compared to the caller's expected/installed values) and a
+    freshness window (observed_at within [now - max_age_days, now]). It is NOT
+    a keyed/unforgeable-signature scheme by design (that would be
+    disproportionate to a single-operator threat model)."""
     code = "F1K_CAP_PROBE"
     obj = _closed_contract_object(
         record, field="cap-probe", keys=(
@@ -3713,6 +3718,10 @@ def validate_cap_probe_evidence(record, *, project_id=None, zone=None,
     if source_commit is not None and obj["source_commit"] != source_commit:
         raise F1KOpsError(code, "cap-probe source_commit %r != expected %r"
                           % (obj["source_commit"], source_commit))
+    if gcloud_version is not None and obj["gcloud_version"] != gcloud_version:
+        raise F1KOpsError(
+            code, "cap-probe gcloud_version %r != INSTALLED %r (accidental "
+            "wrong-CLI reuse)" % (obj["gcloud_version"], gcloud_version))
     # freshness window (reject stale / future-dated / hand-built).
     now_ts = _utc_timestamp(
         now_utc if now_utc is not None else _utc_now_z(),
@@ -7125,7 +7134,8 @@ def selftest_b1() -> int:
         name="billingAccounts/012345-6789AB-CDEF01/budgets/f1k",
         units="300", nanos=0, currency="USD",
         projects=("projects/test-project",), narrowing=None,
-        treatment=None, period="calendar", custom_end=None, rules=None,
+        treatment=None, period="calendar", custom_start=None, custom_end=None,
+        rules=None,
         channels=("projects/test-project/notificationChannels/ch0",),
         absent=False,
     ):
@@ -7142,7 +7152,8 @@ def selftest_b1() -> int:
             if period == "calendar":
                 bfilter["calendarPeriod"] = "MONTH"
             elif period == "custom":
-                cp = {"startDate": {"year": 2026, "month": 7, "day": 1}}
+                cp = {"startDate": custom_start if custom_start is not None
+                      else {"year": 2026, "month": 7, "day": 1}}
                 if custom_end is not None:
                     cp["endDate"] = custom_end
                 bfilter["customPeriod"] = cp
@@ -7524,7 +7535,8 @@ def selftest_b1() -> int:
 
     def cp_validate(rec, **kw):
         common = dict(project_id="test-project", zone="us-central1-a",
-                      source_commit=PROBE_COMMIT, now_utc=PROBE_NOW)
+                      source_commit=PROBE_COMMIT, gcloud_version="500.0.0",
+                      now_utc=PROBE_NOW)
         common.update(kw)
         return validate_cap_probe_evidence(rec, **common)
     check("CAP-PROBE gate accepts a GREEN, project/zone/commit-bound, fresh "
@@ -7554,6 +7566,10 @@ def selftest_b1() -> int:
     check("CAP-PROBE gate (BLOCKING-2) refuses a missing gcloud_version",
           lambda: refuses("F1K_CAP_PROBE",
                           lambda: cp_validate(cap_probe(gcloud_version=""))))
+    check("CAP-PROBE gate (re-review) refuses a gcloud_version != INSTALLED",
+          lambda: refuses("F1K_CAP_PROBE",
+                          lambda: cp_validate(cap_probe(
+                              gcloud_version="HAND-BUILT-NOT-A-REAL-VERSION"))))
 
     def cap_probe_tampered():
         rec = cap_probe()
@@ -7603,6 +7619,13 @@ def selftest_b1() -> int:
         "F1K_B_BUDGET_PERIOD",
         lambda: assure(period="custom", custom_end={
             "year": 2020, "month": 1, "day": 1})))
+    check("B3 (re-review) refuses a FUTURE-START customPeriod", lambda: refuses(
+        "F1K_B_BUDGET_PERIOD",
+        lambda: assure(period="custom", custom_start={
+            "year": 2099, "month": 1, "day": 1})))
+    check("B3 (re-review) refuses a customPeriod with no startDate",
+          lambda: refuses("F1K_B_BUDGET_PERIOD",
+                          lambda: assure(period="custom", custom_start=False)))
     check("B3 accepts a future-dated customPeriod endDate",
           lambda: assure(period="custom", custom_end={
               "year": 2099, "month": 1, "day": 1})["period"] == "custom")
