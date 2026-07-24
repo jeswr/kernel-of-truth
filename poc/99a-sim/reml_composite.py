@@ -371,60 +371,74 @@ class CompositeREML:
 
         _OPTS = {"ftol": 1e-15, "gtol": 1e-10, "maxiter": 500}
 
-        def _admissible(res):
-            """A candidate is ADMISSIBLE iff its returned phi is COMPUTABLE
-            (deviance_fast does not raise) AND its objective is finite.  This
-            is the fail-closed qualifier that fixes the GPT-5.6 review item-1
-            escapes (a penalty-region / non-computable / non-finite point can
-            NEVER be returned as an estimate).
+        def _converged(res):
+            """A candidate QUALIFIES iff it is COMPUTABLE + finite AND meets the
+            S4.2 REGISTERED convergence tests (Rev3 — GPT-5.6 review item 1).
+            The registered rule (proposal S4.2, `tol_dev`/`tol_par`) is
+            'relative deviance change <= tol_dev AND max relative parameter
+            change <= tol_par'; it is evaluated DIRECTLY here, not proxied by
+            bare computability (which is fail-open) alone.
 
-            [STIPULATED — measurement-grounded, deviates from the review's
-            literal 'require res.success']: the raw optimizer success flag is
-            NOT the admissibility test.  [MEASURED] on the fixture cell (F1
-            config-0), the reps whose FIRST start reports success=False all
-            terminate with 'ABNORMAL_TERMINATION_IN_LNSRCH' AT the true
-            optimum (res1.fun == res2.fun to ~1e-10, res1.x == res2.x to
-            >4 dp, computable, interior) — a benign line-search stall, NOT a
-            fail-open escape; and the deviance-lowest point is res1 itself.
-            Requiring success would (a) break bit-identity on those reps
-            (perturbing SE by up to ~3.5e-6 against the ~3.4e-6 family-A
-            fixture margin, 1e-5 tol) for no statistical gain, and (b) risk
-            DISCARDING valid boundary optima (which the R10a pin (iv)
-            explicitly retains) whenever the projected-gradient test fails to
-            certify a boundary solution.  Qualifying by computability instead
-            is fail-closed on the REAL defect while preserving the registered
-            'lowest REML deviance' selection bit-for-bit on every valid fit."""
-            return np.isfinite(res.fun) and self._domain_ok(res.x, data)
+            - `res.success` (True) => L-BFGS-B certified gtol=1e-10 projected-
+              gradient (first-order KKT) convergence AND ftol=1e-15 relative
+              deviance change, both STRICTLY TIGHTER than the registered
+              tol_dev/tol_par => converged.  (Applying the polish test below to
+              a success-certified fit would spuriously fail valid FLAT/boundary
+              optima on ~5e-6 flat-direction wandering — [MEASURED] — so
+              success is trusted for the deviance+parameter criterion it
+              already subsumes; the frozen code likewise used res.success.)
+            - `res.success` (False): apply the tol_dev+tol_par tests DIRECTLY.
+              A verification refinement (a fresh L-BFGS-B polish started AT
+              res.x) must be a STATIONARY no-op: relative deviance change
+              <= tol_dev AND max relative parameter change <= tol_par.  A
+              benign ABNORMAL_TERMINATION_IN_LNSRCH AT the optimum passes
+              ([MEASURED]: the polish is a bit-exact no-op, rel_dev = rel_par =
+              0); a genuine non-convergence (maxiter / abnormal AWAY from the
+              optimum) FAILS ([MEASURED]: rel_par >= ~0.7).  This closes every
+              review item-1 escape (two unsuccessful-but-finite endpoints, an
+              unsuccessful endpoint below a successful retry, maxiter/abnormal)
+              while preserving bit-identity on valid fits."""
+            if not (np.isfinite(res.fun) and self._domain_ok(res.x, data)):
+                return False
+            if res.success:
+                return True
+            pol = minimize(obj, np.maximum(res.x, floor), method="L-BFGS-B",
+                           bounds=[(0.0, None)] * 6, options=_OPTS)
+            if not (np.isfinite(pol.fun) and self._domain_ok(pol.x, data)):
+                return False
+            xr = np.maximum(res.x, floor); xp = np.maximum(pol.x, floor)
+            rel_dev = abs(pol.fun - res.fun) / max(abs(res.fun), 1.0)
+            rel_par = float(np.max(np.abs(xp - xr) / np.maximum(np.abs(xr), scale)))
+            return (rel_dev <= tol_dev) and (rel_par <= tol_par)
 
         # R10a: profiled REML over nonneg variances; start-1 = clipped moments.
         res1 = minimize(obj, x0, method="L-BFGS-B",
                         bounds=[(0.0, None)] * 6, options=_OPTS)
         candidates = [res1]
         # S4.2 pinned retry rule: run the equal-split second start whenever the
-        # first start is not success-certified OR is non-admissible (penalty /
-        # non-computable / non-finite).  This is a SUPERSET of the registered
-        # 'retry iff not res.success' trigger, so a valid first start (success
-        # AND admissible) never triggers a retry and its selection is
-        # bit-identical; a first start that fell in the guard region always
+        # first start is not success-certified OR is non-computable.  This is a
+        # SUPERSET of the registered 'retry iff not res.success' trigger, so a
+        # valid success-certified first start never triggers a retry and its
+        # selection is bit-identical; any first start needing certification
         # gets the pinned second start before any FitFailure.
-        if (not res1.success) or (not _admissible(res1)):
+        if (not res1.success) or (not self._domain_ok(res1.x, data)):
             tot = float(np.var(Ycomp))
             x1 = np.array([tot / 6] * 6)          # pinned equal-split second start
             candidates.append(minimize(obj, x1, method="L-BFGS-B",
                                        bounds=[(0.0, None)] * 6, options=_OPTS))
-        admissible = [rc for rc in candidates if _admissible(rc)]
-        if not admissible:
-            # Neither pinned start produced a COMPUTABLE, finite REML solution
-            # (both landed in the non-PD guard region): the registered retry
-            # rule is exhausted -> counted fit-failure (driver counts it per
-            # cell + scores conservatively).
-            raise FitFailure("no pinned start produced a computable, finite "
-                             "REML solution (retry rule exhausted)",
-                             stage="optimize")
-        # REGISTERED selection: lowest REML deviance among admissible
-        # candidates — identical to the frozen rule restricted to the
-        # computable domain, so bit-identical on every valid fit.
-        best = min(admissible, key=lambda rc: rc.fun)
+        qualifying = [rc for rc in candidates if _converged(rc)]
+        if not qualifying:
+            # Neither pinned start CONVERGED to a computable REML solution (the
+            # registered convergence tests failed for both): the retry rule is
+            # exhausted -> counted fit-failure (driver counts it per cell +
+            # scores conservatively).  This closes the review item-1 fail-open.
+            raise FitFailure("no pinned start produced a converged "
+                             "(tol_dev/tol_par) computable REML solution "
+                             "(retry rule exhausted)", stage="optimize")
+        # REGISTERED selection: lowest REML deviance among CONVERGED candidates
+        # — identical to the frozen rule restricted to converged fits, so
+        # bit-identical on every valid fit ([MEASURED]).
+        best = min(qualifying, key=lambda rc: rc.fun)
         phi = np.maximum(best.x, floor)
 
         # observed information = Hessian of the REML deviance at phi; FULLY
@@ -449,6 +463,24 @@ class CompositeREML:
         if not np.all(np.isfinite(Hinv)):
             raise FitFailure("non-finite information inverse (Hinv) at the "
                              "fitted phi", stage="hessian")
+        # POSITIVE-DEFINITENESS gate (Rev3 — GPT-5.6 review item 2): the
+        # observed information H must be PD at a genuine REML minimum.  An
+        # INDEFINITE / degenerate H (a saddle or a numerically singular
+        # information) would make the Satterthwaite gCg = g^T (2 Hinv) g
+        # unreliable and could trigger the N-p df fallback in
+        # _nu_monitor()/contrast() — a SILENT mislabel.  Reject it here as a
+        # FitFailure(hessian); nu-hat is never fabricated from a degenerate
+        # inverse.  [MEASURED] valid fits have min-eig ~4e3-1.5e4 (cond
+        # <= ~1.4e7), so w.min() <= 0 rejects ONLY a genuinely non-PD H and
+        # never a valid fit (bit-identity preserved).
+        w = np.linalg.eigvalsh(0.5 * (H + H.T))
+        if (not np.all(np.isfinite(w))) or (w.min() <= 0.0):
+            raise FitFailure("observed information not positive-definite at "
+                             "the fitted phi (min eig %.3e)" % float(w.min()),
+                             stage="hessian")
+        # With H PD, gCg > 0 for the fixed nonzero contrast gradient, so the
+        # Satterthwaite df below is the REAL formula (the N-p fallback in
+        # _nu_monitor/contrast is now provably unreachable for the stored fit).
         if not np.all(np.isfinite(self._nu_monitor(phi, Hinv))):
             raise FitFailure("non-finite Satterthwaite df at the fitted phi",
                              stage="hessian")
@@ -542,10 +574,13 @@ class CompositeREML:
         se = float(np.sqrt(var))
         # constant gradient g = (0, 2/I, 0, 2/S, kappa/n_rev, 2/(I*S))
         g = np.array([0.0, 2.0 / I, 0.0, 2.0 / S, kappa / n_rev, 2.0 / (I * S)])
-        # Cov(phi_hat) = 2 * Hinv (observed info = H/2); nu = 2 Var^2 / (g^T Cov g)
+        # Cov(phi_hat) = 2 * Hinv (observed info = H/2); nu = 2 Var^2 / (g^T Cov g).
+        # fit() has PD-gated Hinv and g is a FIXED nonzero vector, so gCg > 0
+        # strictly (Rev3 — GPT-5.6 review item 2): the former silent N-p df
+        # fallback is REMOVED; a degenerate/indefinite information is rejected
+        # at fit time as FitFailure(hessian), never mapped here to N-p df.
         gCg = float(g @ (2.0 * Hinv) @ g)
-        nu = (2.0 * var * var / gCg) if gCg > 1e-300 else float(self.N - self.p)
-        nu = max(nu, 1.0)
+        nu = max(2.0 * var * var / gCg, 1.0)
         return ContrastFit(theta_hat=theta, se=se, nu=float(nu))
 
     # ---------- dense reference (correctness cross-check) ------------------

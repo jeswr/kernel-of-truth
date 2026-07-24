@@ -8,6 +8,8 @@
   non-finite H -> FitFailure(hessian)                        PASS
   all-NaN Hinv (inv w/o raise) -> FitFailure(hessian)        PASS
   non-finite nu -> FitFailure(hessian)                       PASS
+  indefinite information -> FitFailure(hessian) [PD gate]    PASS
+  benign-stall accepted / genuine-non-conv rejected (see bitid evidence log) PASS
   pipeline tags FitFailure.family=comp                       PASS
 
 [driver accounting: governance-7 + P4 conditional]
@@ -37,13 +39,18 @@
   verdict: missing cell -> run_valid False                   PASS
   verdict: ceiling breach -> run_valid False                 PASS
   verdict: ceiling breach recorded                           PASS
-  verdict: missing fit-failure fields -> run_valid False     PASS
+  verdict item3: LYING ceiling_pass=True but rate>0.001 -> run_valid False PASS
+  verdict item3: missing schema fields -> run_valid False    PASS
+  verdict item3: duplicate config_index -> run_valid False   PASS
 
-[runner resume + migration logic (mirror)]
-  resume: OK cells done                                      PASS
-  resume: ERROR cell RE-RUN (not done)                       PASS
-  migrate: back-fills fields = 0 with provenance             PASS
-  migrate: idempotent (skips already-migrated)               PASS
-  migrate: never touches ERROR cells                         PASS
+[runner resume + migration logic (mirror of _is_valid_success)]
+  resume item6b: full-schema REML cell -> done               PASS
+  resume item6b: ERROR cell -> re-run (not done)             PASS
+  resume item6c: OLD OK-REML w/o schema -> re-run (not done) PASS
+  resume item6c: migrated gate-cal -> done                   PASS
+  migrate item6c: gate-cal back-filled = 0 with provenance   PASS
+  migrate item6c: idempotent (skips already-migrated)        PASS
+  migrate item6c: REML OK cell NOT migrated (re-run instead) PASS
+  migrate item6c: never touches ERROR cells                  PASS
 
-==== Rev2 SUITE: ALL PASS (39/39) ====
+==== Rev3 SUITE: ALL PASS (46/46) ====

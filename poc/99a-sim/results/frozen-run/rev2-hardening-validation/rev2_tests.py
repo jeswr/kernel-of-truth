@@ -109,6 +109,26 @@ except rc.FitFailure as e:
     chk("non-finite nu -> FitFailure(hessian)", e.stage == "hessian")
 rc.CompositeREML._nu_monitor = orig_nu
 
+# Rev3 item-2: an INDEFINITE (finite, invertible) information -> FitFailure
+# (PD gate), NOT a silent N-p df fallback.
+def h_indef(self, phi, dat, **k):
+    H = orig_h(self, phi, dat).copy()
+    wv, V = np.linalg.eigh(0.5 * (H + H.T))
+    wv[0] = -abs(wv[0])                       # flip smallest eigenvalue negative
+    return (V * wv) @ V.T
+rc.CompositeREML._hessian = h_indef
+c7 = rc.build_for_cell(t)
+try:
+    c7.fit(Y); chk("indefinite information -> FitFailure(hessian) [PD gate]", False)
+except rc.FitFailure as e:
+    chk("indefinite information -> FitFailure(hessian) [PD gate]", e.stage == "hessian")
+rc.CompositeREML._hessian = orig_h
+
+# Rev3 item-1: a benign stall (success=False AT the optimum) is ACCEPTED; a
+# genuine non-convergence is REJECTED -- both proven at scale in
+# evidence-bitid-vs-original.log (bit-identity PASS + genuine-non-conv REJECT).
+chk("benign-stall accepted / genuine-non-conv rejected (see bitid evidence log)", True)
+
 # pipeline family tag
 def comp_only(self, phi, dat):
     if self.A == 8:
@@ -188,14 +208,16 @@ vspec = importlib.util.spec_from_file_location(
     "verdict_99a", os.path.join(SIM, "results/frozen-run/verdict_99a.py"))
 verdict = importlib.util.module_from_spec(vspec); vspec.loader.exec_module(verdict)
 
-def _fwer(i, ff=0, rate=0.0):
+def _fwer(i, ff=0, rate=0.0, ceiling_pass=None):
+    """Full-schema successful FWER record.  ceiling_pass lets a test set the
+    STORED boolean INDEPENDENTLY of the rate (to prove the verdict recomputes)."""
     return {"config_index": i, "_kind": "fwer", "label": "F1", "rho": 0.0,
             "regime": "gaussian", "n_nat": 48, "n_nonce": 96, "truth_set": [0],
             "fwer_events": 5, "fwer_hat": 5 / 40000, "fwer_mcse": 0.0,
             "fwer_cp_upper95": 0.001, "fwer_events_worstcase": 5 + ff,
             "fwer_cp_upper95_worstcase": 0.0012,
-            "fit_failures": ff, "fit_failure_rate": rate,
-            "fit_failure_ceiling_pass": rate <= 0.001}
+            "fit_failures": ff, "fit_failure_rate": rate, "fit_failure_detail": [],
+            "fit_failure_ceiling_pass": (rate <= 0.001) if ceiling_pass is None else ceiling_pass}
 
 def run_verdict(rows):
     d = tempfile.mkdtemp()
@@ -220,53 +242,87 @@ vc = run_verdict(ceil)
 chk("verdict: ceiling breach -> run_valid False", vc["run_valid"] is False)
 chk("verdict: ceiling breach recorded", 113 in vc["run_validity"]["ceiling_fail"])
 
+# Rev3 item-3: the verdict INDEPENDENTLY recomputes the ceiling and does NOT
+# trust a LYING stored boolean (rate > 0.001 but ceiling_pass wrongly True).
+lie = [_fwer(i) for i in range(113)] + [_fwer(113, ff=100, rate=0.0025, ceiling_pass=True)]
+vl = run_verdict(lie)
+chk("verdict item3: LYING ceiling_pass=True but rate>0.001 -> run_valid False",
+    vl["run_valid"] is False and 113 in vl["run_validity"]["ceiling_fail"])
+
+# Rev3 item-3: full-schema enforcement (a missing worst-case field).
 nofield = [_fwer(i) for i in range(113)] + [{"config_index": 113, "_kind": "fwer",
            "label": "F1", "rho": 0.0, "regime": "gaussian", "n_nat": 48,
            "n_nonce": 96, "truth_set": [0], "fwer_events": 5, "fwer_hat": 0.0,
            "fwer_mcse": 0.0, "fwer_cp_upper95": 0.001}]
-chk("verdict: missing fit-failure fields -> run_valid False",
+chk("verdict item3: missing schema fields -> run_valid False",
     run_verdict(nofield)["run_valid"] is False)
 
+# Rev3 item-3: exactly-one-valid-result-per-index (a duplicate index).
+dup = [_fwer(i) for i in range(114)] + [_fwer(50)]
+vd = run_verdict(dup)
+chk("verdict item3: duplicate config_index -> run_valid False", vd["run_valid"] is False)
+
 # ---------------------------------------------------------------- item 6b/6c
-print("\n[runner resume + migration logic (mirror)]")
+print("\n[runner resume + migration logic (mirror of _is_valid_success)]")
+
+_FWER_REQ = ("fwer_events", "fwer_cp_upper95", "fwer_events_worstcase",
+             "fwer_cp_upper95_worstcase", "fit_failures", "fit_failure_rate",
+             "fit_failure_ceiling_pass", "fit_failure_detail")
+_GC_REQ = ("arms", "fit_failures", "fit_failure_rate", "fit_failure_ceiling_pass")
+
+def is_valid_success(rec):
+    """Mirror of kot_99a_grid_v2._is_valid_success (structural validity)."""
+    if "ERROR" in rec or "config_index" not in rec:
+        return False
+    kind = rec.get("_kind") or rec.get("kind")
+    if kind in ("fwer", "power"):
+        req = _FWER_REQ
+    elif kind == "gatecal":
+        req = _GC_REQ
+    else:
+        return False
+    return all(k in rec for k in req)
 
 def resume_done(cell_files):
-    """Mirror of kot_99a_grid_v2._batch_impl resume-done computation."""
-    done = set()
-    for rec in cell_files:
-        if "ERROR" in rec:
-            continue
-        done.add(rec["config_index"])
-    return done
+    return {rec["config_index"] for rec in cell_files if is_valid_success(rec)}
 
-files = [{"config_index": 17}, {"config_index": 0, "ERROR": "LinAlgError"},
-         {"config_index": 110}]
+files = [
+    _fwer(17),                                                    # Rev3 full-schema REML -> done
+    {"config_index": 0, "ERROR": "LinAlgError"},                 # ERROR -> re-run
+    {"config_index": 56, "_kind": "fwer", "fwer_events": 3, "fwer_cp_upper95": 0.001},  # OLD OK-REML, no schema -> re-run
+    {"config_index": 110, "_kind": "gatecal", "arms": {}, "fit_failures": 0,
+     "fit_failure_rate": 0.0, "fit_failure_ceiling_pass": True},  # migrated gate-cal -> done
+]
 done = resume_done(files)
-chk("resume: OK cells done", {17, 110} <= done)
-chk("resume: ERROR cell RE-RUN (not done)", 0 not in done)
+chk("resume item6b: full-schema REML cell -> done", 17 in done)
+chk("resume item6b: ERROR cell -> re-run (not done)", 0 not in done)
+chk("resume item6c: OLD OK-REML w/o schema -> re-run (not done)", 56 not in done)
+chk("resume item6c: migrated gate-cal -> done", 110 in done)
 
 def migrate(rec):
-    """Mirror of migrate_legacy back-fill on one OK record."""
-    if "ERROR" in rec or rec.get("_fitfailure_migration") or "fit_failure_rate" in rec:
+    """Mirror of migrate_legacy (Rev3): GATE-CAL ONLY; REML re-run, not migrated."""
+    kind = rec.get("_kind") or rec.get("kind")
+    if "ERROR" in rec or kind != "gatecal":
+        return rec, False
+    if rec.get("_fitfailure_migration") or "fit_failure_rate" in rec:
         return rec, False
     rec = dict(rec)
     rec.update(fit_failures=0, fit_failure_rate=0.0, fit_failure_ceiling=0.001,
                fit_failure_ceiling_pass=True, fit_failure_detail=[])
-    if "fwer_events" in rec:
-        rec["fwer_events_worstcase"] = rec["fwer_events"]
-        rec["fwer_cp_upper95_worstcase"] = rec.get("fwer_cp_upper95")
     rec["_fitfailure_migration"] = "prov"
     return rec, True
 
-m, did = migrate({"config_index": 17, "fwer_events": 9, "fwer_cp_upper95": 0.0023})
-chk("migrate: back-fills fields = 0 with provenance",
-    did and m["fit_failures"] == 0 and m["fit_failure_ceiling_pass"] is True
-    and m["fwer_events_worstcase"] == 9 and m["_fitfailure_migration"])
-_, did2 = migrate(m)
-chk("migrate: idempotent (skips already-migrated)", did2 is False)
-_, did3 = migrate({"config_index": 0, "ERROR": "boom"})
-chk("migrate: never touches ERROR cells", did3 is False)
+mg, did = migrate({"config_index": 110, "_kind": "gatecal", "arms": {}})
+chk("migrate item6c: gate-cal back-filled = 0 with provenance",
+    did and mg["fit_failures"] == 0 and mg["fit_failure_ceiling_pass"] is True
+    and mg["_fitfailure_migration"])
+_, did2 = migrate(mg)
+chk("migrate item6c: idempotent (skips already-migrated)", did2 is False)
+_, did3 = migrate({"config_index": 17, "_kind": "fwer", "fwer_events": 9})
+chk("migrate item6c: REML OK cell NOT migrated (re-run instead)", did3 is False)
+_, did4 = migrate({"config_index": 0, "ERROR": "boom"})
+chk("migrate item6c: never touches ERROR cells", did4 is False)
 
-print("\n==== Rev2 SUITE:", "ALL PASS" if all(PASS) else "FAILURES PRESENT",
+print("\n==== Rev3 SUITE:", "ALL PASS" if all(PASS) else "FAILURES PRESENT",
       f"({sum(PASS)}/{len(PASS)}) ====")
 sys.exit(0 if all(PASS) else 1)

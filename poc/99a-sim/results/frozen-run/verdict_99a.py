@@ -39,41 +39,89 @@ FLOORED = {"P1": "CVAL_DEFNSUP", "P3": "CVAL_CONSUPH_GRAPH", "P4": "CFMTH_given_
 REPORTED = {"P2": "CDEFSUP", "P5": "CCONSUP_A1"}
 
 
+# REQUIRED schema per kind (Rev3 — GPT-5.6 item 3: full-schema enforcement).
+_FWER_POWER_REQUIRED = ("fwer_events", "fwer_hat", "fwer_cp_upper95",
+                        "fwer_events_worstcase", "fwer_cp_upper95_worstcase",
+                        "fit_failures", "fit_failure_rate",
+                        "fit_failure_ceiling_pass", "fit_failure_detail")
+_GATECAL_REQUIRED = ("arms", "fit_failures", "fit_failure_rate",
+                     "fit_failure_ceiling_pass")
+
+
+def _valid_success(rec):
+    """Structural validity of ONE successful cell record (Rev3 item 3).
+    Returns (ok, reason).  A record is valid iff: no ERROR key; a known kind;
+    the FULL kind-appropriate schema is present; and the fit-failure rate is a
+    number.  The CEILING is recomputed INDEPENDENTLY by the caller (the stored
+    boolean is never trusted)."""
+    if "ERROR" in rec:
+        return False, "error"
+    kind = rec.get("_kind") or rec.get("kind")
+    if kind in ("fwer", "power"):
+        req = _FWER_POWER_REQUIRED
+    elif kind == "gatecal":
+        req = _GATECAL_REQUIRED
+    else:
+        return False, "unknown-kind"
+    miss = [k for k in req if k not in rec]
+    if miss:
+        return False, "missing:" + ",".join(miss)
+    if not isinstance(rec.get("fit_failure_rate"), (int, float)):
+        return False, "bad-fit_failure_rate"
+    return True, "ok"
+
+
 def main():
     src = os.path.join(OUTDIR, "grid-results.json")
     data = json.load(open(src))
     rows = data["results"]
-    by_idx = {r["config_index"]: r for r in rows if "config_index" in r}
+    from collections import defaultdict
+    idx_rows = defaultdict(list)
+    for r in rows:
+        if "config_index" in r:
+            idx_rows[r["config_index"]].append(r)
+    by_idx = {i: l[0] for i, l in idx_rows.items()}
 
     fwer_rows, power_rows, gate_rows = [], [], []
     fwer_fail, power_floor_fail, gate_fail = [], [], []
     term_rows = []
-    # RUN-VALIDITY accumulators (Rev2 — separate from S6/S7 acceptance)
+    # RUN-VALIDITY accumulators (Rev2/Rev3 — separate from S6/S7 acceptance)
     error_cells = []          # cells that raised (durable ERROR record)
-    ceiling_fail = []         # cells whose fit-failure rate > S4.2 ceiling
-    missing_fields = []       # fwer/power cells lacking the fit-failure fields
+    ceiling_fail = []         # cells whose INDEPENDENTLY-recomputed rate > ceiling
+    invalid_cells = []        # (idx, reason): schema/duplicate/unknown-kind breaches
     wc_max_cp_upper = 0.0     # worst-case (failures-as-events) CP-upper, disclosed
 
-    def _check_ceiling(r, idx):
-        """Enforce the S4.2 per-cell fit-failure ceiling on a REML-bearing
-        (fwer/power) cell; flag a missing field as a validity breach."""
-        if "fit_failure_ceiling_pass" not in r or "fit_failure_rate" not in r:
-            missing_fields.append(idx)
-            return
-        if not r["fit_failure_ceiling_pass"]:
-            ceiling_fail.append(idx)
+    # ---- INDEPENDENT run-validity pass over EVERY expected index (Rev3) ----
+    # Requires exactly ONE structurally-valid successful record per index in
+    # 0..N-1, the full schema on each, and recomputes the ceiling from the
+    # numeric rate (never the stored boolean).
+    missing_cells = [i for i in range(N_EXPECTED_CELLS) if i not in idx_rows]
+    for i in range(N_EXPECTED_CELLS):
+        recs = idx_rows.get(i, [])
+        if len(recs) == 0:
+            continue                          # counted in missing_cells
+        if len(recs) != 1:
+            invalid_cells.append((i, "duplicate x%d" % len(recs)))
+            continue
+        rec = recs[0]
+        if "ERROR" in rec:
+            error_cells.append(i)
+            print("ERROR CELL (run-invalidating):", i, rec.get("ERROR"))
+            continue
+        ok, why = _valid_success(rec)
+        if not ok:
+            invalid_cells.append((i, why))
+            continue
+        # INDEPENDENT ceiling recompute (do NOT trust fit_failure_ceiling_pass)
+        if float(rec["fit_failure_rate"]) > FIT_FAILURE_CEILING:
+            ceiling_fail.append(i)
 
     for r in rows:
         idx = r.get("config_index")
         if "ERROR" in r:
-            # Rev2: an ERROR cell is UNEVALUABLE -> the run is INVALID until it
-            # is re-run to a successful result (the resumable runner re-runs it).
-            error_cells.append(idx)
-            print("ERROR CELL (run-invalidating):", idx, r["ERROR"])
-            continue
+            continue                          # already recorded above
         kind = r.get("_kind") or r.get("kind")
         if kind == "fwer":
-            _check_ceiling(r, idx)
             cpu = r["fwer_cp_upper95"]                 # REGISTERED gate (observed)
             passed = cpu <= TAU_FWER
             cpu_wc = r.get("fwer_cp_upper95_worstcase", cpu)  # NON-GATING sensitivity
@@ -92,7 +140,6 @@ def main():
                 if not tp:
                     fwer_fail.append(f"{idx}-term")
         elif kind == "power":
-            _check_ceiling(r, idx)
             label = r["label"]
             n = (r["n_nat"], r["n_nonce"])
             esc = (n == (96, 160))
@@ -192,21 +239,25 @@ def main():
         print(f"{idx:>3} {rho:>4} {nn:>7} {msd:>10.3f} {w25:>13.5f} {w06:>15.5f} "
               f"{'PASS' if p else 'FAIL *****'}  (bars 0.03125 / 0.0078)")
 
-    # ---- RUN VALIDITY (Rev2 — gates whether S6/S7 verdicts are an acceptance) ----
-    present = set(by_idx.keys())
-    missing_cells = sorted(set(range(N_EXPECTED_CELLS)) - present)
+    # ---- RUN VALIDITY (Rev2/Rev3 — gates whether S6/S7 verdicts are an acceptance) ----
+    present = set(idx_rows.keys())
+    n_valid_success = (N_EXPECTED_CELLS - len(missing_cells) - len(error_cells)
+                       - len(invalid_cells))
     run_valid = (not error_cells and not missing_cells
-                 and not missing_fields and not ceiling_fail)
+                 and not invalid_cells and not ceiling_fail
+                 and n_valid_success == N_EXPECTED_CELLS)
 
-    print("\n================ RUN VALIDITY (S4.2 / Rev2) ================")
+    print("\n================ RUN VALIDITY (S4.2 / Rev3) ================")
     print(f"cells present: {len(present)}/{N_EXPECTED_CELLS}"
           + ("" if not missing_cells else f"  MISSING: {missing_cells}"))
+    print(f"exactly-one-valid-success per index: {n_valid_success}/{N_EXPECTED_CELLS}")
     print(f"ERROR (unevaluable) cells: {len(error_cells)}"
           + ("" if not error_cells else f"  {sorted(x for x in error_cells if x is not None)}"))
-    print(f"fit-failure ceiling ({FIT_FAILURE_CEILING:g}) breaches: {len(ceiling_fail)}"
+    print(f"structurally-invalid (schema/duplicate) cells: {len(invalid_cells)}"
+          + ("" if not invalid_cells else f"  {invalid_cells}"))
+    print(f"fit-failure ceiling ({FIT_FAILURE_CEILING:g}) breaches "
+          f"[INDEPENDENTLY recomputed from fit_failure_rate]: {len(ceiling_fail)}"
           + ("" if not ceiling_fail else f"  {ceiling_fail}"))
-    print(f"cells missing fit-failure fields: {len(missing_fields)}"
-          + ("" if not missing_fields else f"  {missing_fields}"))
     print(f"RUN VALID: {run_valid}"
           + ("" if run_valid else "  -> S6/S7 verdicts below are NOT an acceptance"))
 
@@ -235,9 +286,11 @@ def main():
         "run_valid": run_valid,
         "run_validity": {
             "cells_present": len(present), "n_expected": N_EXPECTED_CELLS,
+            "n_valid_success": n_valid_success,
             "missing_cells": missing_cells,
             "error_cells": sorted(x for x in error_cells if x is not None),
-            "ceiling_fail": ceiling_fail, "missing_fields": missing_fields,
+            "invalid_cells": invalid_cells,
+            "ceiling_fail": ceiling_fail,
         },
         "fwer": {"n": n_fwer, "n_pass": n_fwer_pass, "fails": fwer_fail,
                  "max_cp_upper": max((x[9] for x in fwer_rows), default=None),

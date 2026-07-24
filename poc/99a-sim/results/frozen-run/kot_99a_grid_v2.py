@@ -45,6 +45,33 @@ app = modal.App("kot-99a-grid-v2", image=image)
 
 CELLDIR = "/vol/cells"
 
+# Required schema per kind for a record to count as a STRUCTURALLY-VALID
+# SUCCESSFUL result (Rev3 — GPT-5.6 review items 6b/6c).  A record that lacks
+# these (e.g. the 10 banked OK-REML cells produced BEFORE the convergence-test
+# qualifier + fit-failure schema) is NOT "done" and MUST be re-run.
+_FWER_POWER_REQUIRED = ("fwer_events", "fwer_cp_upper95", "fwer_events_worstcase",
+                        "fwer_cp_upper95_worstcase", "fit_failures",
+                        "fit_failure_rate", "fit_failure_ceiling_pass",
+                        "fit_failure_detail")
+_GATECAL_REQUIRED = ("arms", "fit_failures", "fit_failure_rate",
+                     "fit_failure_ceiling_pass")
+
+
+def _is_valid_success(rec):
+    """True iff rec is a structurally-valid SUCCESSFUL cell record (no ERROR,
+    known kind, full kind-appropriate schema).  Shared by the resume 'done'
+    test and the migration; kept in lockstep with verdict_99a._valid_success."""
+    if not isinstance(rec, dict) or "ERROR" in rec or "config_index" not in rec:
+        return False
+    kind = rec.get("_kind") or rec.get("kind")
+    if kind in ("fwer", "power"):
+        req = _FWER_POWER_REQUIRED
+    elif kind == "gatecal":
+        req = _GATECAL_REQUIRED
+    else:
+        return False
+    return all(k in rec for k in req)
+
 
 def _compute_cell(arg):
     """Top-level worker (picklable): compute ONE cell.  arg = (spec, R_override).
@@ -114,25 +141,23 @@ def _batch_impl(specs, n_workers, R_override):
     import multiprocessing as mp
     os.makedirs(CELLDIR, exist_ok=True)
     VOL.reload()
-    # RESUME (Rev2 fix for GPT-5.6 review item 6b): only a SUCCESSFUL result
-    # counts as "done".  A cell file carrying an "ERROR" record (the 100
-    # fit-failure cells from the pre-Rev2 run) is UNEVALUABLE and MUST be
-    # re-run under the hardened estimator -> it is NOT added to `done`.
+    # RESUME (Rev3 fix for GPT-5.6 review items 6b/6c): a cell counts as "done"
+    # ONLY if it holds a STRUCTURALLY-VALID SUCCESSFUL record (full schema, no
+    # ERROR) -- NOT merely "no ERROR key".  Consequence: the 100 ERROR cells AND
+    # the 10 banked OK-REML cells (produced before the convergence-test
+    # qualifier, so lacking the fit-failure schema and possibly containing
+    # PREVIOUSLY-ACCEPTED NON-CONVERGED fits) are BOTH re-run; only the 4
+    # gate-cal cells (no exact-REML; migrated to carry the schema) are done.
     done = set()
     for f in os.listdir(CELLDIR):
         if not (f.startswith("cell_") and f.endswith(".json")):
             continue
-        p = os.path.join(CELLDIR, f)
         try:
-            rec = json.load(open(p))
+            rec = json.load(open(os.path.join(CELLDIR, f)))
         except Exception:
             continue
-        if "ERROR" in rec:
-            continue                        # re-run ERROR cells
-        try:
-            done.add(int(rec.get("config_index", int(f[5:8]))))
-        except (ValueError, TypeError):
-            pass
+        if _is_valid_success(rec):
+            done.add(int(rec["config_index"]))
     todo = [(tuple(s), R_override) for s in specs if s[0] not in done]
     ran = []
     if todo:
@@ -229,18 +254,21 @@ def repro_frozen(labels: str = "", R: int = 8000, pin_threads: int = 1):
 
 
 _MIGRATION_PROV = (
-    "Rev2 legacy back-fill: this cell was banked as a SUCCESSFUL result under "
-    "the pre-Rev2 estimator, which RAISED LinAlgError (durable ERROR record) on "
-    "ANY non-PD probe.  A completed OK cell therefore had ZERO fit-failures BY "
-    "CONSTRUCTION; the fit-failure fields are back-filled = 0, not re-measured.")
+    "Rev3 legacy back-fill: GATE-CAL ONLY.  Gate-cal cells run the bootstrap "
+    "gate test, NEVER the exact-REML estimator, so they are UNAFFECTED by the "
+    "convergence-test qualifier and had zero exact-REML fit-failures by "
+    "construction; the fit-failure fields are back-filled = 0, not re-measured.")
 
 
 @app.function(volumes={"/vol": VOL})
 def migrate_legacy():
-    """BLOCKING-6c: back-fill the new fit-failure fields (= 0) on the banked
-    SUCCESSFUL cells that predate Rev2, with explicit provenance.  Idempotent:
-    skips cells already migrated or already carrying the fields; never touches
-    ERROR cells (those are re-run, not migrated).  Commits durably."""
+    """BLOCKING-6c (Rev3): back-fill the fit-failure fields (= 0) ONLY on the
+    banked GATE-CAL cells (structurally exempt: no exact-REML).  The 10 banked
+    OK-REML cells are NOT migrated -- under the pre-Rev3 code they were selected
+    WITHOUT the tol_dev/tol_par convergence tests and may hold previously-
+    accepted NON-CONVERGED fits, so they are RE-RUN (they lack the schema, so
+    the resume 'done' test excludes them automatically).  Idempotent; never
+    touches ERROR or REML cells.  Commits durably."""
     import os
     import json
     VOL.reload()
@@ -250,8 +278,13 @@ def migrate_legacy():
             continue
         p = os.path.join(CELLDIR, f)
         rec = json.load(open(p))
+        kind = rec.get("_kind") or rec.get("kind")
         if "ERROR" in rec:
-            skipped.append((rec.get("config_index"), "error-cell"))
+            skipped.append((rec.get("config_index"), "error-cell (re-run)"))
+            continue
+        if kind != "gatecal":
+            # REML OK cells (fwer/power) are RE-RUN, not migrated.
+            skipped.append((rec.get("config_index"), "reml-cell (re-run, not migrated)"))
             continue
         if rec.get("_fitfailure_migration") or "fit_failure_rate" in rec:
             skipped.append((rec.get("config_index"), "already-migrated"))
@@ -261,11 +294,6 @@ def migrate_legacy():
         rec["fit_failure_ceiling"] = 0.001
         rec["fit_failure_ceiling_pass"] = True
         rec["fit_failure_detail"] = []
-        # FWER cells: worst-case sensitivity == observed (zero failures).
-        if "fwer_events" in rec:
-            rec["fwer_events_worstcase"] = rec["fwer_events"]
-            rec["fwer_hat_worstcase"] = rec.get("fwer_hat")
-            rec["fwer_cp_upper95_worstcase"] = rec.get("fwer_cp_upper95")
         rec["_fitfailure_migration"] = _MIGRATION_PROV
         with open(p, "w") as fh:
             json.dump(rec, fh, default=str)
@@ -332,14 +360,15 @@ def main(mode: str = "tinyvalidate", repro_r: int = 3000):
             per = 0.131 if (n_nat, n_nonce) == (96, 160) else 0.094
             return R * per
         specs = [list(c) for c in sorted(cells, key=_est)]
-        # Rev2: back-fill fit-failure fields on the banked OK cells first
-        # (idempotent), THEN resume — the resume re-runs the 100 ERROR cells
-        # under the hardened estimator and skips the 14 migrated OK cells.
-        print("[v2-full] migrating legacy OK cells ...", flush=True)
-        print("[v2-full] migrate_legacy:", json.dumps(migrate_legacy.remote(), default=str), flush=True)
-        print(f"[v2-full] launching {len(specs)} cells (SHORTEST-first) on ONE "
+        # Rev3: migrate ONLY the 4 gate-cal cells (zero-failure back-fill),
+        # THEN resume — the resume re-runs the 100 ERROR + 10 OK-REML = 110
+        # cells under the hardened convergence-qualified estimator and skips
+        # only the 4 migrated gate-cal cells.
+        print("[v3-full] migrating legacy gate-cal cells ...", flush=True)
+        print("[v3-full] migrate_legacy:", json.dumps(migrate_legacy.remote(), default=str), flush=True)
+        print(f"[v3-full] launching {len(specs)} cells (SHORTEST-first) on ONE "
               f"cpu=32 container (durable Volume kot-99a-grid-vol, resumable; "
-              f"ERROR cells re-run, OK cells skipped) ...",
+              f"100 ERROR + 10 OK-REML re-run, 4 gate-cal skipped) ...",
               flush=True)
         try:
             summary = run_grid_batch.remote(specs, 30, 0)
