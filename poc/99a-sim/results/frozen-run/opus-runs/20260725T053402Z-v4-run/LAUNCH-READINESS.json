@@ -1,0 +1,48 @@
+{
+  "role": "experiment-runner (Opus execution) kern/opus-runner-1",
+  "task": "99a v4 rep-parallel full-grid — BUILT + MOCK-GREEN + DRY-PLAN. HOLDING for explicit coordinator launch GO (Option A confirmed; driver refactor provisionally signed off).",
+  "prepared_utc": "20260725T053402Z",
+  "runner_agent_id": "kern/opus-runner-1",
+  "executor_model": "claude-opus-4-8",
+  "status": "READY — NOT LAUNCHED. Awaiting coordinator GO + their independent bit-identity confirmation.",
+
+  "harness": {
+    "file": "poc/99a-sim/results/frozen-run/kot_99a_grid_v4.py",
+    "app": "kot-99a-grid-v4",
+    "topology": "Option A: Modal .map over 114 cells -> ONE container/cell (cpu=8, memory=16384, timeout=28800s/8h, retries=2, order_outputs=False); rep_parallel_cell (8 workers, BLAS=1) WITHIN each; F10/P6 sequential rung0; gate-cal bootstrap battery.",
+    "science_primitives": "calls the FROZEN driver.run_one_rep / driver.aggregate_cell UNCHANGED (bit-identical refactor at HEAD 7c0ec551); resume validators (_is_valid_success etc.) copied VERBATIM from v3.",
+    "durability": "each container writes its ONE cell durably to kot-99a-grid-v4-vol + VOL.commit() BEFORE returning; order_outputs=False; resumable-skip (list_done structural validation + in-container defensive re-check)."
+  },
+
+  "mock_green": {
+    "app": "ap-ec9UOpc8rTwc7crECgoiqO",
+    "result": "GREEN — RUN1 computed [0(fwer),74(power)] @ R=50 durably (24.5s / 36.9s, cpu=2/2 workers); collect n_cells=2; list_done [0,74]; RUN2 both skipped-valid (resume-skip via BOTH list_done filter and in-container defensive check).",
+    "note": "the R=50 mock cells were WIPED by clear_vol after the mock; the v4 Volume is verified EMPTY before any full launch."
+  },
+
+  "dry_plan_pin_check_zero_dollar": {
+    "HEAD": "7c0ec5518392b68a987e9d0d6831b05ca99ece1b",
+    "driver_py_clean_vs_HEAD": true,
+    "estimator_reml_composite_blob": "f2850f1fb4d3932c509d54fb258bcf46741d7b02 (== b13f22e0; estimator UNCHANGED)",
+    "seeds_S2_R8g": "BASE_SEED 990066001; R_FWER 40000; R_POWER 10000 (registered, unchanged)",
+    "fresh_volume": "kot-99a-grid-v4-vol cleared + verified EMPTY (0 cell files) before launch",
+    "reuse_gate": "N/A — 99a is a SIM-SPEC acceptance artifact, not a kot-reg experiment (no registry/experiments/99a.json; no 99a cell in results-log/artifact-ledger; cited from the frozen v3 launch-manifest 20260723T092250Z). Estimator + harness changed -> re-run mandatory by design.",
+    "worst_case_usd": "~34-45 (open Modal); under the prior frozen $50 hard-stop and the standing grid-autonomy envelope"
+  },
+
+  "final_estimate": {
+    "measured_single_core_s_per_rep_pinned_image": {"fwer_base": 0.603, "fwer_esc": 0.850,
+                                                     "power_base": 0.629, "power_esc": 0.860, "rung0": 0.0016},
+    "rep_parallel_efficiency_cpu8": "0.878-0.896 (speedup 7.03-7.18x)",
+    "single_core_work_core_h": 638.9,
+    "billed_core_h": "~720",
+    "wall_clock": "longest cell (FWER-esc) ~1.34h << 8h/cell timeout; full-grid wall ~1.5-2.5h with ~100-114 concurrent containers",
+    "projected_usd": "~34-45"
+  },
+
+  "launch_command_on_GO": "cd poc/99a-sim/results/frozen-run/opus-runs/20260725T053402Z-v4-run && setsid nohup ./run-full.sh > full-run.log 2>&1 < /dev/null &   (detached; Modal-side banks durably even if the local driver dies)",
+  "poll_command": "set -a; source ~/.config/kot/modal3.env; set +a; MODAL=poc/99a-sim/venv/bin/modal; $MODAL volume ls kot-99a-grid-v4-vol /cells | grep -c cell_   # 114 == complete",
+  "collect_command": "$MODAL run poc/99a-sim/results/frozen-run/kot_99a_grid_v4.py::collect",
+  "resume_command": "cd poc/99a-sim/results/frozen-run && $MODAL run kot_99a_grid_v4.py::main --mode full   # resume-skips banked valid cells (switch to modal4.env if modal3 caps)",
+  "fable_interpretive_assessed": "pending"
+}
