@@ -48,18 +48,41 @@ from inference import ContrastFit
 # but extreme computable phi can carry a genuine deviance far above this value).
 PENALTY_DEV = 1e12
 
-# Rev4 convergence-certificate + information-conditioning tolerances (GPT-5.6
-# review items 1/2).  All [STIPULATED], each calibrated to a MEASURED margin on
-# the fixture cells (F1 config-0 + F2 esc):
+# Convergence-certificate + information-conditioning tolerances.  All
+# [STIPULATED], each calibrated to a MEASURED margin on the fixture cells
+# (F1 config-0 + F2 esc):
 #   TOL_KKT   scaled central-FD projected-gradient (KKT) residual bound; valid
 #             fits measured <= 6.6e-7, non-stationary/perturbed points >= 1.8e-4,
 #             so 1e-5 sits ~15x above every valid fit and ~18x below every
-#             non-stationary point (clean separation).
+#             non-stationary point (clean separation).  Rev5 (cross-vendor
+#             adjudication of Rev4): the KKT residual is an ADDITIONAL,
+#             independent fail-closed anti-stall gate — it does NOT replace the
+#             REGISTERED tol_par displacement test (R10a pins BOTH rel_dev <=
+#             1e-12 AND rel_par <= 1e-9).  The reviewer's valid-fixture
+#             counterexample (F1/config-0/rep-0, fitted phi0*(1-1e-5):
+#             rel_dev=6.16e-13, pg=1.44e-7 -> Rev4-certificate ACCEPT, yet
+#             displacement rel_par=1.07e-5) PROVED the KKT residual does not
+#             subsume tol_par; the registered test is restored in _certify().
 #   TOL_COND  observed-information condition-number ceiling; valid fits measured
 #             cond <= ~1.4e7, so 1e12 clears them by ~5 orders while rejecting an
 #             astronomically ill-conditioned information.
 TOL_KKT = 1e-5
 TOL_COND = 1e12
+# Rev5 [STIPULATED]: cap on verification-polish passes inside the REGISTERED
+# convergence test (R10a: rel_dev <= tol_dev AND rel_par <= tol_par), realised
+# by bounded ITERATIVE REFINEMENT — when a polish pass MOVES the point beyond
+# tol_par, the candidate point is NOT converged; optimization CONTINUES from
+# the polished point and the test repeats.  [MEASURED] on the 320-fit fixture
+# evidence (evidence-bitid-vs-original-rev5.log): 92/320 fits needed
+# refinement, all certifying within 4 refinement advances (worst case comp
+# idx25; the reviewer's F2/UCT esc rep-4 needs 1: pass-1 rel_par=1.3066e-6,
+# pass-2 rel_par=0 rel_dev=0), so 10 gives a 2.5x margin.  The cap ONLY bounds
+# compute and guarantees termination — acceptance ALWAYS additionally requires
+# the registered no-op test + the KKT gate at the final point, so a generous
+# cap is fail-closed-safe.  Hitting the cap without BOTH registered tolerances
+# satisfied leaves the candidate NON-CONVERGED (fail-closed -> registered
+# retry, then FitFailure); a non-converged point is NEVER accepted.
+MAX_POLISH_PASSES = 10
 
 
 class FitFailure(RuntimeError):
@@ -403,86 +426,113 @@ class CompositeREML:
                 pg = max(pg, abs(pj))
             return pg * scale / max(1.0, abs(f0))
 
-        def _converged(res):
-            """A candidate QUALIFIES iff it is COMPUTABLE + finite AND passes a
-            DIRECT convergence certificate evaluated on EVERY candidate (success
-            or not) — Rev4, GPT-5.6 review item 1.  NEITHER `res.success` NOR a
-            polish-no-op is trusted as a certificate (both are fail-open: L-BFGS-B
-            stops on ftol OR gtol, gtol does not bound the parameter step; and a
-            fresh polish can repeat a finite-difference blind spot at a
-            non-optimum — the reviewer's success=True, x=0.497, rel_par=0.4966
-            counterexample).  The three registered/rigorous conditions, ALL
-            required:
+        def _certify(res):
+            """Rev5 convergence certificate — the REGISTERED R10a numerical
+            test, IMPLEMENTED (not substituted; cross-vendor adjudication of
+            Rev4, which applied only rel_dev + KKT and was REFUTED by the
+            valid-fixture counterexample F1/config-0/rep-0 phi0*(1-1e-5):
+            rel_dev=6.16e-13 and pg=1.44e-7 -> Rev4 ACCEPT, yet displacement
+            rel_par=1.07e-5 >> 1e-9).  A candidate point is CONVERGED iff one
+            verification-polish pass from it is a NO-OP under BOTH registered
+            tolerances, evaluated on EVERY candidate (success or not —
+            `res.success` is never trusted; L-BFGS-B stops on ftol OR gtol and
+            gtol does not bound the parameter step):
 
-              (a) DEVIANCE-OPTIMALITY [rel_dev <= tol_dev]: a fresh polish from
-                  res.x cannot lower the REML deviance beyond tol_dev.  [MEASURED
-                  valid <= 3e-14 << 1e-12.]  Catches any deviance-improvable
-                  non-convergence.
-              (b) FIRST-ORDER KKT STATIONARITY [proj-grad <= TOL_KKT]: the scaled
-                  central-FD projected-gradient residual at res.x is ~0 — no
-                  feasible parameter step reduces the deviance.  This is the
-                  DIRECT parameter-optimality test; being central-FD it does NOT
-                  share the optimizer's blind spot, so it REJECTS the reviewer's
-                  counterexample class (a non-optimum has a large projected
-                  gradient).  [MEASURED valid <= 6.6e-7; perturbed/non-stationary
-                  >= 1.8e-4 — clean separation at TOL_KKT=1e-5.]
-              (c) COMPUTABLE + finite at res.x.
+              (a) rel_dev <= tol_dev = 1e-12 — relative deviance change of the
+                  polish pass (the registered deviance test);
+              (b) rel_par <= tol_par = 1e-9 — max relative parameter change of
+                  the polish pass, elementwise |dx_j| / max(|x_j|, scale) (the
+                  registered displacement test, the measured-evidence
+                  definition);
 
-            The registered `tol_par`=1e-9 is NOT applied as a literal
-            parameter-DISPLACEMENT gate: [MEASURED] genuinely-converged fixture
-            fits have last-successive-step rel_par up to 1.6e-5 and free-polish
-            rel_par up to 5e-6 (flat/under-identified likelihood directions), so a
-            1e-9 displacement gate would REJECT valid fixture fits; and, per the
-            reviewer's own counterexample, a displacement gate is BLIND to a
-            polish-no-op at a non-optimum.  The KKT residual (b) is the correct,
-            blind-spot-robust, STRICTLY STRONGER realisation of parameter
-            convergence (it certifies no feasible descent direction remains).
-            rel_dev, rel_par, the projected-gradient norm, message and interiority
-            are RECORDED for every candidate in the evidence log."""
+            and the accepted point must ADDITIONALLY satisfy
+
+              (c) scaled central-FD projected-gradient KKT residual <= TOL_KKT
+                  — an independent anti-stall gate (central-FD with a
+                  controlled step, so it shares no blind spot with the
+                  optimizer's forward-FD; rejects a polish-no-op at a
+                  non-optimum).  ADDITIVE ONLY: (c) never replaces (b).
+
+            REALISATION — bounded ITERATIVE REFINEMENT: if the polish pass
+            MOVES the point (fails (a) or (b)), the candidate point itself is
+            NOT converged and is never accepted; optimization CONTINUES from
+            the polished point and the test repeats, up to MAX_POLISH_PASSES
+            polish runs.  [MEASURED] valid flat/under-identified fixture fits
+            settle within 4 refinement advances (320-fit evidence; F2/UCT esc
+            rep-4 needs 1: pass-1 rel_par=1.3066e-6, pass-2 rel_par=0
+            rel_dev=0), so the registered test is satisfiable on every valid
+            fit; a point that keeps moving (cap exhausted) or fails the KKT
+            gate is REJECTED (fail-closed -> fit() applies the registered
+            retry rule, then FitFailure).
+
+            Returns dict(x, fun, passes, rel_dev, rel_par, pg) at the CERTIFIED
+            point (x already floored; passes = refinement advances taken), or
+            None (candidate not converged)."""
             if not (np.isfinite(res.fun) and self._domain_ok(res.x, data)):
-                return False
-            xr = np.maximum(res.x, floor)
-            pol = minimize(obj, xr, method="L-BFGS-B",
-                           bounds=[(0.0, None)] * 6, options=_OPTS)
-            if not (np.isfinite(pol.fun) and self._domain_ok(pol.x, data)):
-                return False
-            rel_dev = abs(pol.fun - res.fun) / max(abs(res.fun), 1.0)
-            if rel_dev > tol_dev:
-                return False
-            return _proj_grad_norm(xr) <= TOL_KKT
+                return None
+            x_cur = np.maximum(res.x, floor)
+            f_cur = res.fun
+            for k in range(MAX_POLISH_PASSES):
+                pol = minimize(obj, x_cur, method="L-BFGS-B",
+                               bounds=[(0.0, None)] * 6, options=_OPTS)
+                if not (np.isfinite(pol.fun) and self._domain_ok(pol.x, data)):
+                    return None
+                x_pol = np.maximum(pol.x, floor)
+                rel_dev = abs(pol.fun - f_cur) / max(abs(f_cur), 1.0)
+                rel_par = float(np.max(np.abs(x_pol - x_cur)
+                                       / np.maximum(np.abs(x_cur), scale)))
+                if rel_dev <= tol_dev and rel_par <= tol_par:
+                    # REGISTERED test holds at x_cur; apply the ADDITIVE KKT
+                    # anti-stall gate at the same (certified) point.
+                    pg = _proj_grad_norm(x_cur)
+                    if pg <= TOL_KKT:
+                        return dict(x=x_cur, fun=f_cur, passes=k,
+                                    rel_dev=rel_dev, rel_par=rel_par, pg=pg)
+                    return None          # KKT anti-stall gate -> fail-closed
+                x_cur, f_cur = x_pol, pol.fun   # refine: continue optimizing
+            # cap exhausted without BOTH registered tolerances -> NON-CONVERGED
+            return None
 
         # R10a: profiled REML over nonneg variances; start-1 = clipped moments.
         res1 = minimize(obj, x0, method="L-BFGS-B",
                         bounds=[(0.0, None)] * 6, options=_OPTS)
-        q1 = _converged(res1)
-        candidates = [(res1, q1)]
+        cert1 = _certify(res1)
+        certs = [cert1]
         # Registered retry rule: run the equal-split second start whenever the
-        # first start is not success-certified OR does not pass the direct
-        # convergence certificate.  A valid, converged first start never
-        # triggers a retry, so its selection is bit-identical; a spurious
-        # success (the reviewer's success-but-unconverged class) DOES trigger
-        # the pinned second start before any FitFailure.
-        if (not res1.success) or (not q1):
+        # first start is not success-certified OR does not pass the registered
+        # convergence test.  A valid, converged first start never triggers a
+        # retry, so its selection is bit-identical; a spurious success (the
+        # success-but-unconverged class) DOES trigger the pinned second start
+        # before any FitFailure.
+        if (not res1.success) or (cert1 is None):
             tot = float(np.var(Ycomp))
             x1 = np.array([tot / 6] * 6)          # pinned equal-split second start
             res2 = minimize(obj, x1, method="L-BFGS-B",
                             bounds=[(0.0, None)] * 6, options=_OPTS)
-            candidates.append((res2, _converged(res2)))
-        qualifying = [rc for (rc, q) in candidates if q]
+            certs.append(_certify(res2))
+        qualifying = [c for c in certs if c is not None]
         if not qualifying:
-            # Neither pinned start passed the direct convergence certificate
-            # (rel_dev <= tol_dev AND projected-gradient KKT <= TOL_KKT): the
+            # Neither pinned start reached the REGISTERED convergence test
+            # (rel_dev <= tol_dev AND rel_par <= tol_par, iteratively refined
+            # within the polish cap) + the additive KKT anti-stall gate: the
             # registered retry rule is exhausted -> counted fit-failure (driver
-            # counts it per cell + scores conservatively).  Closes the review
-            # item-1 fail-open on EVERY candidate, success or not.
-            raise FitFailure("no pinned start passed the direct convergence "
-                             "certificate (rel_dev/tol_dev + KKT); retry rule "
-                             "exhausted", stage="optimize")
+            # counts it per cell + scores conservatively).  Fail-closed: a
+            # non-converged fit is NEVER accepted.
+            raise FitFailure("no pinned start passed the registered convergence "
+                             "test (rel_dev<=%g AND rel_par<=%g, refined within "
+                             "%d polish passes) + KKT anti-stall gate; retry "
+                             "rule exhausted" % (tol_dev, tol_par,
+                                                 MAX_POLISH_PASSES),
+                             stage="optimize")
         # REGISTERED selection: lowest REML deviance among CONVERGED candidates
-        # — identical to the frozen rule restricted to converged fits, so
-        # bit-identical on every valid fit ([MEASURED]).
-        best = min(qualifying, key=lambda rc: rc.fun)
-        phi = np.maximum(best.x, floor)
+        # — identical to the frozen rule restricted to converged fits.  A
+        # pass-0 certification returns x = max(res.x, floor) and fun = res.fun
+        # unchanged, so every fit that already satisfies the registered test at
+        # its optimizer endpoint is selected BIT-IDENTICALLY ([MEASURED]); a
+        # refined certification returns the (lower-deviance) settled point —
+        # the mandated realisation of the registered test, never a relaxation.
+        best = min(qualifying, key=lambda c: c["fun"])
+        phi = best["x"]
 
         # observed information = Hessian of the REML deviance at phi; FULLY
         # FAIL-CLOSED (Rev2 fix for review item 3): a raised LinAlgError, a
@@ -532,11 +582,12 @@ class CompositeREML:
         if not np.all(np.isfinite(self._nu_monitor(phi, Hinv))):
             raise FitFailure("non-finite / degenerate Satterthwaite df at the "
                              "fitted phi", stage="hessian")
-        # the stored fit PASSED the direct convergence certificate above, so it
-        # is converged by construction (Rev4 — corrects the prior
-        # best.success mislabel for polish-qualified stalls).
+        # the stored fit PASSED the registered convergence test (+ KKT gate)
+        # above, so it is converged by construction; the certification
+        # diagnostics (passes/rel_dev/rel_par/pg) are carried for the evidence
+        # log and the regression suite.
         self._last = dict(phi=phi, Hinv=Hinv, data=data, Ybar=data[0],
-                          converged=True)
+                          converged=True, cert=dict(best))
         return self
 
     def _hessian_at(self, phi, data, h):

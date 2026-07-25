@@ -13,6 +13,14 @@
   _nu_monitor returns NaN (not N-p) on underflowed gCg       PASS
   ill-conditioned H -> FitFailure(hessian) [cond gate]       PASS
   benign-stall accepted / genuine-non-conv rejected (see bitid evidence log) PASS
+
+[Rev5 R5-1: REGISTERED tol_par implemented (not substituted); KKT additive]
+  R5-1 CE1: Rev4-certificate quantities ACCEPT perturbed point (refuted subsumption) PASS
+  R5-1 CE1: REGISTERED rel_par test REJECTS it (rel_par~1.07e-5 > 1e-9) PASS
+  R5-1 CE1: fit() at perturbed start NEVER accepts the point (refined; no-op rel_par<=1e-9 at accepted phi) PASS
+  R5-1 CE2: valid flat F2/UCT esc rep-4 ACCEPTED by iterative refinement (passes>=1, final rel_par<=1e-9 rel_dev<=1e-12 pg<=TOL_KKT) PASS
+  R5-1 cap: never-settling polish -> FitFailure(optimize) [fail-closed] PASS
+  R5-1 KKT additive: pg gate genuinely gates (TOL_KKT=1e-12 -> FitFailure) PASS
   pipeline tags FitFailure.family=comp                       PASS
 
 [driver accounting: governance-7 + P4 conditional]
@@ -49,15 +57,64 @@
   verdict: missing cell -> run_valid False                   PASS
   verdict: duplicate config_index -> run_valid False         PASS
 
-[runner resume + migration (mirror of _is_valid_success, kind-aware)]
+[Rev5 R5-3/R5-4: exact gate-arm set + gamma PASS recomputed from raw]
+  verdict R5-3: one-arm {H} gate-cal record -> run_valid False PASS
+  verdict R5-3: extra-arm gate-cal record -> run_valid False PASS
+  verdict R6-1: gate-cal MISSING regime -> run_valid False   PASS
+  verdict R6-1: gate-cal MISSING n_nat -> run_valid False    PASS
+  verdict R6-1: gate-cal WRONG regime (beta masquerade) -> run_valid False PASS
+  verdict R6-1: gate-cal WRONG n_nat -> run_valid False      PASS
+  verdict R6-1: gate-cal WRONG label -> run_valid False      PASS
+  verdict R6-1: gate-cal MISSING label -> run_valid False    PASS
+  verdict R6-1: gate-cal WRONG rho -> run_valid False        PASS
+  verdict R6-1: gate-cal MISSING rho -> run_valid False      PASS
+  verdict R6-1: gate-cal WRONG n_nonce -> run_valid False    PASS
+  verdict R6-1: gate-cal MISSING n_nonce -> run_valid False  PASS
+  verdict R5-4: lying pass=True cp=1.0 sd=0.5 record is structurally valid PASS
+  verdict R5-4: ... but tabulates gate-cal FAIL (PASS recomputed from raw) PASS
+  verdict R5-4: sd_ratio<1 alone -> gate-cal FAIL (sd_ratio in allpass) PASS
+  verdict R5-4: lying pass=False but good raw -> gate-cal PASS (boolean ignored) PASS
+
+[runner resume + migration (REAL kot_99a_grid_v2._is_valid_success)]
+
+[Rev6 R6-1a/R6-2: battery six-field identity + self-sufficient v2 record]
+  R6-1a: battery serializes all six identity fields (label,rho,regime,n_nat,n_nonce) PASS
+  R6-2: battery record ALONE lacks the fit-failure schema (needs finalize) PASS
+  R6-2: finalized v2 gate-cal record is SELF-SUFFICIENT (valid w/o migration) PASS
+  R6-2: finalize is idempotent-safe (setdefault, fresh detail list) PASS
   resume item3d: FWER record at gate-cal index -> NOT done   PASS
   resume item3d: correct gate-cal record at gate-cal index -> done PASS
   resume item6c: OLD OK-REML w/o schema -> re-run (not done) PASS
   resume item6b: ERROR record -> re-run (not done)           PASS
   resume item3: rate-inconsistent record -> not done         PASS
-  migrate item6c: gate-cal back-filled = 0 with provenance   PASS
+
+[Rev5 R5-2/R5-3: resume FULL config identity + exact gate-arm set]
+  resume R5-2: correct(kind,label) + wrong(rho,regime,n_nat,n_nonce) -> NOT done PASS
+  resume R5-2: wrong rho alone -> NOT done                   PASS
+  resume R5-2: wrong regime alone -> NOT done                PASS
+  resume R5-2: wrong n_nat alone -> NOT done                 PASS
+  resume R5-2: wrong n_nonce alone -> NOT done               PASS
+  resume R5-2: fully-matching record -> done                 PASS
+  resume R5-2: wrong label alone -> NOT done                 PASS
+  resume R5-3: one-arm {H} gate-cal -> NOT done              PASS
+  resume R5-3: extra-arm gate-cal -> NOT done                PASS
+  resume R5-2: gate-cal wrong rho -> NOT done                PASS
+  resume R5-2: gate-cal wrong n_nonce -> NOT done            PASS
+  resume R6-1: full six-field gate-cal record -> done        PASS
+  resume R6-1: gate-cal MISSING regime+n_nat (reviewer's exact case) -> NOT done PASS
+  resume R6-1: gate-cal MISSING regime -> NOT done           PASS
+  resume R6-1: gate-cal MISSING n_nat -> NOT done            PASS
+  resume R6-1: gate-cal MISSING label -> NOT done            PASS
+  resume R6-1: gate-cal WRONG regime (beta masquerade) -> NOT done PASS
+  resume R6-1: gate-cal WRONG n_nat -> NOT done              PASS
+  resume R7: wrong-but-present identity REFUSED on the WIRED path (exp supplied) PASS
+  resume R7: wrong-but-present identity REFUSED with exp=None (fail closed, no identity-skip) PASS
+  resume R7: even a faithful record is NOT done with exp=None (no optional accept path) PASS
+  resume R7: exp is MANDATORY (call w/o exp raises, no optional skip) PASS
+  migrate R6-1c: legacy gate-cal missing identity -> re-run (not migrated) PASS
+  migrate item6c: full-identity gate-cal back-filled = 0 with provenance PASS
   migrate item6c: idempotent                                 PASS
   migrate item6c: REML OK cell NOT migrated (re-run)         PASS
   migrate item6c: never touches ERROR cells                  PASS
 
-==== Rev4 SUITE: ALL PASS (53/53) ====
+==== Rev7 SUITE: ALL PASS (102/102) ====

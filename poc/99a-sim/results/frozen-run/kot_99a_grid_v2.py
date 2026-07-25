@@ -56,9 +56,47 @@ _FWER_POWER_REQUIRED = ("fwer_events", "fwer_cp_upper95", "fwer_events_worstcase
                         "fit_failure_detail", "R")
 _GATECAL_REQUIRED = ("arms", "R", "fit_failures", "fit_failure_rate",
                      "fit_failure_ceiling_pass")
+# Rev6 (review finding 1): the six-field config identity a VALID gate-cal
+# record MUST carry.  Required PRESENT and matched WITHOUT substitution — a
+# record with regime / n_nat ABSENT is REJECTED (never assumed to equal the
+# expected value), closing the beta/n_nat-masquerade fail-open.
+_GATECAL_IDENTITY = ("label", "rho", "regime", "n_nat", "n_nonce")
 _RUNG0_LABELS = {"F10", "P6"}
 _POWER_PATHS = ("CVAL_DEFNSUP", "CVAL_CONSUPH_GRAPH", "CDEFSUP", "CCONSUP_A1",
                 "CFMTH_given_conH")
+# Pinned S4.4 gate-cal arm set + gamma keys (Rev5 — cross-vendor review
+# finding 2): a gate-cal record is valid ONLY with EXACTLY these four arms
+# (a one-arm {"H": ...} record, or any missing/extra arm, is NOT done) and
+# per-(arm, gamma) numeric RAW content.  Kept in lockstep with
+# verdict_99a._valid_success.
+_PINNED_GATE_ARMS = frozenset(("H", "A2IR", "A2", "A1"))
+_GATE_GAMMAS = ("0.02500", "0.00625")
+
+
+def _gate_arms_ok(arms):
+    """EXACT pinned arm set + numeric raw per-(arm,gamma) content (Rev5).
+    cp_upper95 must be numeric + finite; sd_ratio numeric + non-NaN (the
+    battery emits +inf for a degenerate zero empirical SD)."""
+    import math
+    if not (isinstance(arms, dict) and set(arms.keys()) == set(_PINNED_GATE_ARMS)):
+        return False
+    for a in arms.values():
+        if not isinstance(a, dict):
+            return False
+        sd = a.get("sd_ratio")
+        if not (isinstance(sd, (int, float)) and not isinstance(sd, bool)
+                and not math.isnan(sd)):
+            return False
+        g = a.get("gamma")
+        if not (isinstance(g, dict) and all(k in g for k in _GATE_GAMMAS)):
+            return False
+        for k in _GATE_GAMMAS:
+            gg = g[k]
+            cpu = gg.get("cp_upper95") if isinstance(gg, dict) else None
+            if not (isinstance(cpu, (int, float)) and not isinstance(cpu, bool)
+                    and math.isfinite(cpu)):
+                return False
+    return True
 
 
 def _rate_consistent(rec):
@@ -74,20 +112,41 @@ def _rate_consistent(rec):
     return abs(rate - ff / R) <= 1e-9
 
 
-def _is_valid_success(rec, exp_kind=None, exp_label=None):
-    """True iff rec is a structurally-valid SUCCESSFUL cell record: no ERROR,
-    the EXPECTED kind for its index (item 3d — a full-schema FWER record at a
-    gate-cal index must NOT count as done), full kind-appropriate schema,
-    kind-appropriate content (power paths / F10-P6 rung-0), and a fit-failure
-    rate CONSISTENT with fit_failures/R.  Kept in lockstep with
-    verdict_99a._valid_success.  exp_kind/exp_label from grid.enumerate_cells()."""
+def _is_valid_success(rec, exp):
+    """True iff rec is a structurally-valid SUCCESSFUL cell record for the
+    EXPECTED cell exp = (kind, label, rho, regime, n_nat, n_nonce) from
+    grid.enumerate_cells().  Rev5 (cross-vendor review finding 1): the FULL
+    config identity is checked — a record with the correct (kind, label) but
+    the WRONG rho / regime / n_nat / n_nonce must NOT count as done for the
+    requested cell (it would suppress the correct cell).  Also required: no
+    ERROR, the expected kind for the index (item 3d — a full-schema FWER
+    record at a gate-cal index must NOT count as done), full kind-appropriate
+    schema, kind-appropriate content (power paths / F10-P6 rung-0 / the EXACT
+    pinned gate-cal arm set, review finding 2), and a fit-failure rate
+    CONSISTENT with fit_failures/R.  Kept in lockstep with
+    verdict_99a._valid_success.
+
+    Rev7 (cross-vendor review): `exp` is MANDATORY — there is NO validator path
+    that skips the identity match.  The Rev5/Rev6 `exp=None` default with
+    `exp is not None`-guarded identity checks was a latent fail-open (an
+    omitted-`exp` call accepted a wrong-but-present identity record, e.g. an
+    index-110 record carrying regime="beta"/n_nat=999); `exp` is now required
+    and `exp is None` fails closed, so the omitted-`exp` path matches the wired
+    production path (kot_99a_grid_v2:_batch_impl passes exp=expected[idx])."""
+    if exp is None:
+        return False                          # Rev7: fail closed, no identity-skip path
     if not isinstance(rec, dict) or "ERROR" in rec or "config_index" not in rec:
         return False
     kind = rec.get("_kind") or rec.get("kind")
-    if exp_kind is not None and kind != exp_kind:
+    exp_kind, exp_label, exp_rho, exp_regime, exp_nnat, exp_nnonce = exp
+    if kind != exp_kind or rec.get("label") != exp_label:
         return False
     if kind in ("fwer", "power"):
         if not all(k in rec for k in _FWER_POWER_REQUIRED):
+            return False
+        # FULL config identity (Rev5): EVERY config field must match.
+        if (rec.get("rho") != exp_rho or rec.get("regime") != exp_regime
+                or rec.get("n_nat") != exp_nnat or rec.get("n_nonce") != exp_nnonce):
             return False
         if kind == "power" and not (isinstance(rec.get("paths"), dict)
                                     and all(k in rec["paths"] for k in _POWER_PATHS)):
@@ -97,11 +156,43 @@ def _is_valid_success(rec, exp_kind=None, exp_label=None):
     elif kind == "gatecal":
         if not all(k in rec for k in _GATECAL_REQUIRED):
             return False
-        if not (isinstance(rec.get("arms"), dict) and rec["arms"]):
+        # FULL SIX-FIELD config identity (Rev6 finding 1): ALL of label, rho,
+        # regime, n_nat, n_nonce must be PRESENT and MATCH the enumeration.
+        # A MISSING regime / n_nat is REJECTED — NEVER substituted with the
+        # expected value (the Rev5 `.get(fld, expected)` default was the
+        # fail-open: a beta / wrong-n_nat payload with the fields absent
+        # masqueraded as the required Gaussian/48 cell).
+        if not all(k in rec for k in _GATECAL_IDENTITY):
+            return False
+        if (rec["label"] != exp_label or rec["rho"] != exp_rho
+                or rec["regime"] != exp_regime or rec["n_nat"] != exp_nnat
+                or rec["n_nonce"] != exp_nnonce):
+            return False
+        if not _gate_arms_ok(rec.get("arms")):
             return False
     else:
         return False
     return _rate_consistent(rec)
+
+
+def _finalize_gatecal(res, idx, label):
+    """Rev6 (review item 2): stamp a freshly-computed gate-cal battery result
+    with its _kind, index/label, and the structurally-exempt ZERO fit-failure
+    schema, so a v2 gate-cal record is SELF-SUFFICIENT — it carries the full
+    _GATECAL_REQUIRED schema WITHOUT relying on the legacy-migration back-fill.
+    A gate-cal cell runs the bootstrap gate test ONLY (it NEVER touches the
+    exact-REML estimator), so zero fit-failures is exact BY CONSTRUCTION, not a
+    measurement.  setdefault -> never overwrites a value the battery carries;
+    fresh list per call (no shared-mutable aliasing)."""
+    res["_kind"] = "gatecal"
+    res["config_index"] = idx
+    res["label"] = label
+    res.setdefault("fit_failures", 0)
+    res.setdefault("fit_failure_rate", 0.0)
+    res.setdefault("fit_failure_ceiling", 0.001)
+    res.setdefault("fit_failure_ceiling_pass", True)
+    res.setdefault("fit_failure_detail", [])
+    return res
 
 
 def _compute_cell(arg):
@@ -136,10 +227,14 @@ def _compute_cell(arg):
     # handle such a rep is a Fable design decision (S8 "fit-failure rates").
     try:
         if kind == "gatecal":
-            res = gcb.run_cell(rho, n_nonce, R_fwer)
-            res["_kind"] = "gatecal"
-            res["config_index"] = idx
-            res["label"] = label
+            # Pass the spec's regime so the battery runs + serializes the
+            # AUTHENTIC regime for this cell (Rev6 finding 1); n_nat is
+            # constructed inside the battery from n_nonce and serialized there.
+            # _finalize_gatecal stamps _kind/index/label + the structurally-
+            # exempt zero fit-failure schema (Rev6 item 2) so the record is
+            # self-sufficient.
+            res = _finalize_gatecal(gcb.run_cell(rho, n_nonce, R_fwer, regime=regime),
+                                    idx, label)
         else:
             t = grid.resolve_cell(label, rho, regime, n_nat, n_nonce, kind=kind)
             if kind == "fwer":
@@ -173,15 +268,18 @@ def _batch_impl(specs, n_workers, R_override):
     import grid
     os.makedirs(CELLDIR, exist_ok=True)
     VOL.reload()
-    # RESUME (Rev3/Rev4 fix for GPT-5.6 items 6b/6c + 3d): a cell counts as
-    # "done" ONLY if it holds a STRUCTURALLY-VALID SUCCESSFUL record of the
-    # EXPECTED KIND for its index (a full-schema FWER record at a gate-cal index
-    # must NOT suppress the required cell), with full schema + content + a
-    # consistent fit-failure rate -- NOT merely "no ERROR key".  Consequence:
-    # the 100 ERROR cells AND the 10 banked OK-REML cells (pre-certificate,
-    # lacking the schema and possibly holding NON-CONVERGED fits) are BOTH
-    # re-run; only the 4 gate-cal cells (migrated to carry the schema) are done.
-    expected = {c[0]: (c[1], c[2]) for c in grid.enumerate_cells()}  # idx -> (kind, label)
+    # RESUME (Rev3/Rev4 items 6b/6c + 3d; Rev5 review findings 1 + 2): a cell
+    # counts as "done" ONLY if it holds a STRUCTURALLY-VALID SUCCESSFUL record
+    # whose FULL config identity (kind, label, rho, regime, n_nat, n_nonce)
+    # matches the enumeration for its index — a record with the right
+    # (kind, label) but the WRONG rho/regime/n_nat/n_nonce, or a gate-cal
+    # record without EXACTLY the pinned 4-arm set, must NOT suppress the
+    # required cell — with full schema + content + a consistent fit-failure
+    # rate; NOT merely "no ERROR key".  Consequence: the 100 ERROR cells AND
+    # the 10 banked OK-REML cells (pre-certificate, lacking the schema and
+    # possibly holding NON-CONVERGED fits) are BOTH re-run.
+    # idx -> (kind, label, rho, regime, n_nat, n_nonce): the FULL config map.
+    expected = {c[0]: tuple(c[1:]) for c in grid.enumerate_cells()}
     done = set()
     for f in os.listdir(CELLDIR):
         if not (f.startswith("cell_") and f.endswith(".json")):
@@ -193,8 +291,7 @@ def _batch_impl(specs, n_workers, R_override):
         idx = rec.get("config_index")
         if idx not in expected:
             continue                          # unexpected index -> not done
-        ek, el = expected[idx]
-        if _is_valid_success(rec, exp_kind=ek, exp_label=el):
+        if _is_valid_success(rec, exp=expected[idx]):
             done.add(int(idx))
     todo = [(tuple(s), R_override) for s in specs if s[0] not in done]
     ran = []
@@ -298,6 +395,37 @@ _MIGRATION_PROV = (
     "construction; the fit-failure fields are back-filled = 0, not re-measured.")
 
 
+def _migrate_gatecal_record(rec):
+    """PURE per-record legacy back-fill decision (Rev3 + Rev6), shared by
+    migrate_legacy and the validation suite so neither drifts.  Returns
+    (rec_out, migrated, reason).  Rules: ERROR + REML (fwer/power) cells are
+    RE-RUN, never migrated; a gate-cal record lacking the full six-field
+    identity is NOT migrated (Rev6 finding 1c — cannot be authenticated, so it
+    is re-run under the fixed battery; back-filling identity from the
+    enumeration is exactly the substitution the validators now forbid); an
+    already-migrated record is an idempotent no-op; only a full-identity,
+    not-yet-migrated gate-cal record is back-filled with the zero fit-failure
+    schema.  Never mutates the input on a no-op; returns a fresh dict on
+    migrate."""
+    kind = rec.get("_kind") or rec.get("kind")
+    if "ERROR" in rec:
+        return rec, False, "error-cell (re-run)"
+    if kind != "gatecal":
+        return rec, False, "reml-cell (re-run, not migrated)"
+    if not all(k in rec for k in _GATECAL_IDENTITY):
+        return rec, False, "legacy gate-cal missing identity (re-run under fixed battery)"
+    if rec.get("_fitfailure_migration") or "fit_failure_rate" in rec:
+        return rec, False, "already-migrated"
+    out = dict(rec)
+    out["fit_failures"] = 0
+    out["fit_failure_rate"] = 0.0
+    out["fit_failure_ceiling"] = 0.001
+    out["fit_failure_ceiling_pass"] = True
+    out["fit_failure_detail"] = []
+    out["_fitfailure_migration"] = _MIGRATION_PROV
+    return out, True, "migrated"
+
+
 @app.function(volumes={"/vol": VOL})
 def migrate_legacy():
     """BLOCKING-6c (Rev3): back-fill the fit-failure fields (= 0) ONLY on the
@@ -306,7 +434,15 @@ def migrate_legacy():
     WITHOUT the tol_dev/tol_par convergence tests and may hold previously-
     accepted NON-CONVERGED fits, so they are RE-RUN (they lack the schema, so
     the resume 'done' test excludes them automatically).  Idempotent; never
-    touches ERROR or REML cells.  Commits durably."""
+    touches ERROR or REML cells.  Commits durably.
+
+    Rev6 (review finding 1c): a legacy gate-cal record that lacks the full
+    six-field config identity (regime / n_nat absent) is NOT migrated -- it
+    CANNOT be authenticated (an absent regime/n_nat is indistinguishable from a
+    beta / wrong-n_nat masquerade), so it is left to be RE-RUN under the fixed
+    battery (which now serializes all six identity fields + the zero
+    fit-failure schema).  Back-filling identity from the enumeration is exactly
+    the substitution the validators now forbid, so it is NOT done here."""
     import os
     import json
     VOL.reload()
@@ -316,26 +452,13 @@ def migrate_legacy():
             continue
         p = os.path.join(CELLDIR, f)
         rec = json.load(open(p))
-        kind = rec.get("_kind") or rec.get("kind")
-        if "ERROR" in rec:
-            skipped.append((rec.get("config_index"), "error-cell (re-run)"))
-            continue
-        if kind != "gatecal":
-            # REML OK cells (fwer/power) are RE-RUN, not migrated.
-            skipped.append((rec.get("config_index"), "reml-cell (re-run, not migrated)"))
-            continue
-        if rec.get("_fitfailure_migration") or "fit_failure_rate" in rec:
-            skipped.append((rec.get("config_index"), "already-migrated"))
-            continue
-        rec["fit_failures"] = 0
-        rec["fit_failure_rate"] = 0.0
-        rec["fit_failure_ceiling"] = 0.001
-        rec["fit_failure_ceiling_pass"] = True
-        rec["fit_failure_detail"] = []
-        rec["_fitfailure_migration"] = _MIGRATION_PROV
-        with open(p, "w") as fh:
-            json.dump(rec, fh, default=str)
-        migrated.append(rec.get("config_index"))
+        out, did, reason = _migrate_gatecal_record(rec)
+        if did:
+            with open(p, "w") as fh:
+                json.dump(out, fh, default=str)
+            migrated.append(out.get("config_index"))
+        else:
+            skipped.append((rec.get("config_index"), reason))
     VOL.commit()
     return {"migrated": sorted(x for x in migrated if x is not None),
             "skipped": skipped}
@@ -398,15 +521,21 @@ def main(mode: str = "tinyvalidate", repro_r: int = 3000):
             per = 0.131 if (n_nat, n_nonce) == (96, 160) else 0.094
             return R * per
         specs = [list(c) for c in sorted(cells, key=_est)]
-        # Rev3: migrate ONLY the 4 gate-cal cells (zero-failure back-fill),
-        # THEN resume — the resume re-runs the 100 ERROR + 10 OK-REML = 110
-        # cells under the hardened convergence-qualified estimator and skips
-        # only the 4 migrated gate-cal cells.
-        print("[v3-full] migrating legacy gate-cal cells ...", flush=True)
+        # Rev6: migrate_legacy is now a no-op on the 4 legacy gate-cal cells —
+        # they lack the six-field identity the fixed validators require, so they
+        # are NOT authenticated but RE-RUN under the fixed battery (which
+        # serializes all six identity fields + the zero fit-failure schema).
+        # The resume therefore re-runs ALL banked cells (100 ERROR + 10 OK-REML
+        # + 4 legacy gate-cal) under the hardened estimator + fixed battery;
+        # migrate_legacy is retained as a defensive idempotent pass (it will
+        # only ever back-fill a record that ALREADY carries full identity).
+        print("[v3-full] migrating legacy gate-cal cells (Rev6: no-op unless a "
+              "record already carries full six-field identity) ...", flush=True)
         print("[v3-full] migrate_legacy:", json.dumps(migrate_legacy.remote(), default=str), flush=True)
         print(f"[v3-full] launching {len(specs)} cells (SHORTEST-first) on ONE "
               f"cpu=32 container (durable Volume kot-99a-grid-vol, resumable; "
-              f"100 ERROR + 10 OK-REML re-run, 4 gate-cal skipped) ...",
+              f"100 ERROR + 10 OK-REML + 4 legacy gate-cal re-run under the "
+              f"fixed battery) ...",
               flush=True)
         try:
             summary = run_grid_batch.remote(specs, 30, 0)

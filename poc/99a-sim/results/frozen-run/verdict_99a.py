@@ -50,6 +50,10 @@ _RUNG0_LABELS = {"F10", "P6"}
 _POWER_PATHS = ("CVAL_DEFNSUP", "CVAL_CONSUPH_GRAPH", "CDEFSUP", "CCONSUP_A1",
                 "CFMTH_given_conH")
 _GATE_GAMMAS = ("0.02500", "0.00625")
+# Pinned S4.4 gate-cal arm set (Rev5 — cross-vendor review finding 2): a
+# gate-cal record is valid ONLY with EXACTLY these four arms; a one-arm
+# {"H": ...} record, or any missing/extra arm, is structurally INVALID.
+_PINNED_GATE_ARMS = frozenset(("H", "A2IR", "A2", "A1"))
 
 # REQUIRED base schema per kind (Rev3/Rev4 — full-schema + content enforcement).
 _FWER_POWER_REQUIRED = ("fwer_events", "fwer_hat", "fwer_cp_upper95",
@@ -59,6 +63,9 @@ _FWER_POWER_REQUIRED = ("fwer_events", "fwer_hat", "fwer_cp_upper95",
                         "R", "truth_set")
 _GATECAL_REQUIRED = ("arms", "R", "fit_failures", "fit_failure_rate",
                      "fit_failure_ceiling_pass")
+# Rev6 (review finding 1): the six-field config identity a VALID gate-cal
+# record MUST carry, required PRESENT and matched WITHOUT substitution.
+_GATECAL_IDENTITY = ("label", "rho", "regime", "n_nat", "n_nonce")
 
 
 def _num(x):
@@ -121,7 +128,17 @@ def _valid_success(rec, exp):
         miss = [k for k in _GATECAL_REQUIRED if k not in rec]
         if miss:
             return False, "missing:" + ",".join(miss)
-        if rec.get("rho") != exp_rho or rec.get("n_nonce") != exp_nnonce:
+        # FULL SIX-FIELD config identity (Rev6 finding 1): label, rho, regime,
+        # n_nat, n_nonce ALL PRESENT and MATCHING — a MISSING regime / n_nat is
+        # REJECTED, NEVER substituted with the expected value (the Rev5
+        # `.get(fld, expected)` default let a beta / wrong-n_nat payload with
+        # the fields absent tabulate as the required Gaussian/48 cell).
+        id_miss = [k for k in _GATECAL_IDENTITY if k not in rec]
+        if id_miss:
+            return False, "missing-identity:" + ",".join(id_miss)
+        if (rec["label"] != exp_label or rec["rho"] != exp_rho
+                or rec["regime"] != exp_regime or rec["n_nat"] != exp_nnat
+                or rec["n_nonce"] != exp_nnonce):
             return False, "config-mismatch"
         R = rec.get("R")
         if not (isinstance(R, int) and R > 0):
@@ -129,13 +146,29 @@ def _valid_success(rec, exp):
         if not _rate_ok(rec, R):
             return False, "rate-inconsistent"
         arms = rec.get("arms")
-        if not (isinstance(arms, dict) and arms):
-            return False, "no-arms"
+        # EXACT pinned arm set (Rev5 finding 2): a missing OR extra arm is
+        # invalid — a one-arm {"H": ...} record must be refused.
+        if not (isinstance(arms, dict)
+                and set(arms.keys()) == set(_PINNED_GATE_ARMS)):
+            return False, "gate-arms!=pinned{H,A2IR,A2,A1}"
         for a in arms.values():
-            g = a.get("gamma") if isinstance(a, dict) else None
-            if not (isinstance(g, dict) and all(k in g for k in _GATE_GAMMAS)
-                    and "sd_ratio" in a):
+            if not isinstance(a, dict):
                 return False, "bad-gate-arm"
+            sd = a.get("sd_ratio")
+            # numeric, non-NaN (the battery emits +inf on a degenerate zero
+            # empirical SD; NaN is fail-closed invalid)
+            if not (_num(sd) and not math.isnan(sd)):
+                return False, "bad-gate-arm"
+            g = a.get("gamma")
+            if not (isinstance(g, dict) and all(k in g for k in _GATE_GAMMAS)):
+                return False, "bad-gate-arm"
+            for k in _GATE_GAMMAS:
+                gg = g[k]
+                cpu = gg.get("cp_upper95") if isinstance(gg, dict) else None
+                # the RAW value the verdict recomputes PASS from must be a
+                # finite number (Rev5 finding 3 depends on it)
+                if not (_num(cpu) and math.isfinite(cpu)):
+                    return False, "bad-gate-arm"
         return True, "ok"
     return False, "unknown-kind %r" % kind
 
@@ -259,10 +292,18 @@ def main():
             worst = {"0.02500": 0.0, "0.00625": 0.0}
             allpass = True
             for a in arms.values():
+                # Rev5 (review finding 3): PASS is RECOMPUTED from the stored
+                # RAW values — (cp_upper95 <= 1.25*gamma) AND (sd_ratio >= 1)
+                # — the stored `pass` boolean is NEVER trusted (a lying
+                # pass=True with cp_upper95=1.0 / sd_ratio=0.5 must tabulate
+                # FAIL), and the R9a SD-ratio mechanism check is part of
+                # allpass, not a side column.
+                allpass = allpass and (a["sd_ratio"] >= 1.0)
                 for g in ("0.02500", "0.00625"):
                     gg = a["gamma"][g]
-                    worst[g] = max(worst[g], gg["cp_upper95"])
-                    allpass = allpass and gg["pass"]
+                    cpu = gg["cp_upper95"]
+                    worst[g] = max(worst[g], cpu)
+                    allpass = allpass and (cpu <= 1.25 * float(g))
             gate_rows.append((idx, r["rho"], r["n_nonce"], min_sd,
                               worst["0.02500"], worst["0.00625"], allpass))
             if not allpass:

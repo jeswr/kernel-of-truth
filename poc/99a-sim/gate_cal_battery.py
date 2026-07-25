@@ -63,7 +63,16 @@ def run_cell(rho, n_nonce, R, regime='gaussian'):
                 if p <= g:
                     counts[a][g] += 1
 
-    result = {'config_index': idx, 'rho': rho, 'n_nonce': n_nonce, 'R': R,
+    # Serialize the FULL SIX-FIELD config identity (Rev6 — cross-vendor review
+    # finding 1): label, rho, regime, n_nat, n_nonce (kind is added as _kind by
+    # the v2 wrapper).  Emitting regime + n_nat is load-bearing: without them a
+    # beta-generated / wrong-n_nat payload labelled as this cell is
+    # indistinguishable from the required Gaussian/48 cell, so the resume +
+    # verdict validators can no longer substitute a missing field with the
+    # expected value.  These are the AUTHENTIC values the cell actually ran
+    # under (regime from the arg, n_nat constructed above), never back-filled.
+    result = {'config_index': idx, 'label': 'GATECAL', 'rho': rho,
+              'regime': regime, 'n_nat': t.n_nat, 'n_nonce': n_nonce, 'R': R,
               'pi0': pins.PI0, 'arms': {}}
     for a in arms:
         emp_sd = float(np.std(pihat[a]))
