@@ -1,0 +1,25 @@
+{
+  "role": "experiment-runner kern/opus-runner-1",
+  "event": "99a v4 rep-parallel full-grid LAUNCHED on coordinator GO",
+  "launch_utc": "20260725T053402Z",
+  "confirmed_utc": "20260725T055109Z",
+  "app_id": "ap-3qjPh8Fd5HumayW5cFFnBb",
+  "local_driver_pid": 4046867,
+  "workspace": "modal3 / jesse-70413 (jmwright-045)",
+  "volume": "kot-99a-grid-v4-vol",
+  "cells_dir": "/cells (mounted /vol/cells)",
+  "pre_launch_pins": "ALL PASS (fail-closed gate=0): HEAD 6bf80840, driver.py + v4 clean, estimator blob f2850f1 (b13f22e0), Volume EMPTY, modal3 authed",
+  "topology": "Option A: .map over 114 cells, one cpu=8 container/cell, 8 rep-workers within, order_outputs=False, retries=2, durable per-cell write + commit",
+  "launch_verification": {
+    "map_submitted": "114 todo (0 already-valid)",
+    "running_tasks_at_ramp": 100,
+    "first_cells_landed_durably": "4 cells at ~13min (power cells 74,80,87,92 — shortest-first); durable-writing CONFIRMED on the full run",
+    "preemption_note": "occasional Modal container preemption (11 events in first ~13min); running-task count recovers to 100; retries=2 + durable per-cell writes + resumable-skip absorb it; cells completing (progress confirmed). NOT pervasive thrashing.",
+    "driver_alive": "yes"
+  },
+  "poll_command": "set -a; source ~/.config/kot/modal3.env; set +a; poc/99a-sim/venv/bin/modal volume ls kot-99a-grid-v4-vol /cells | grep -c cell_   # 114 == complete",
+  "collect_command": "poc/99a-sim/venv/bin/modal run poc/99a-sim/results/frozen-run/kot_99a_grid_v4.py::collect",
+  "resume_command": "cd poc/99a-sim/results/frozen-run && poc/99a-sim/venv/bin/modal run kot_99a_grid_v4.py::main --mode full   # resume-skips banked valid cells (switch to modal4.env if modal3 caps)",
+  "post_completion": "coordinator watchdogs the Volume + triggers verdict_99a.py after all 114 land; mechanical verdict + Codex audit NOT run by this task",
+  "fable_interpretive_assessed": "pending"
+}
