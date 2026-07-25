@@ -194,8 +194,8 @@ RUNTIME_LICENSE_SCHEMA = "kot-f1k-runtime-license/1"
 RATE_EVIDENCE_SCHEMA = "kot-f1k-rate-evidence/1"
 
 CONSTRUCTION_BUILDER_SHA256 = (
-    "a92be3e4fe535c1dfefc41e2a422e010"
-    "d25e8e40cf8e4cc123e7d829d63e9e61"
+    "91baba62649ad81217a4dd51cfcb5753"
+    "6c81b50e7f38ce8e622a161c1056835b"
 )
 CONSTRUCTION_READY_PATH = (
     "/home/ubuntu/f1k-gate/construction-ready.json"

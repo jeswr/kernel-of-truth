@@ -1694,7 +1694,10 @@ def cmd_guard(args):
     # matching full names only let --engine-c / --engine-cm /
     # --tokenizer-c / --tokenizer-cm (space AND = forms) through. The
     # rule below EQUALS argparse's resolution for THIS parser's option
-    # set (pinned bytes a92be3e4, construct subparser; [MEASURED],
+    # set (pinned bytes 91baba62 — seq-4 generator re-pin; the r3 diff
+    # 0065349e touches run_dump + selftest only, ZERO add_argument/
+    # add_parser deltas vs a92be3e4, so the a92be3e4-basis measurement
+    # carries over unchanged; construct subparser; [MEASURED],
     # oracle case 20c): the only other construct options on the
     # "--engine-" stem are --engine-weights-sha/--engine-weights-
     # artifact (diverging at "c" vs "w") and on "--tokenizer-" are

@@ -20,7 +20,7 @@
 #      AUTHORITATIVE inertness proof is the FUNCTIONAL gate below.
 #   4. DUMP BRING-UP GATE — the 3 PATCH-NOTES preconditions on the REAL binary:
 #        (b) unarmed byte-identity vs the KaE-only engine + test_kae 44/44 +
-#            test_kae_dump 43/43 + objdump per-function inertness on PRODUCTION
+#            test_kae_dump 64/64 + objdump per-function inertness on PRODUCTION
 #            flags  [dump-patch/real-checks.sh, run here against the pinned
 #            KaE tree built above];
 #        (a) tiny real dump completes + kot-f1k-tok/1 token-id consistency;
@@ -192,9 +192,9 @@ sys.path.insert(0, here)
 import f1k_ops
 from f1k_bringup_gate import _read_sample_results
 
-BUILDER_PIN = "a92be3e4fe535c1dfefc41e2a422e010d25e8e40cf8e4cc123e7d829d63e9e61"
+BUILDER_PIN = "91baba62649ad81217a4dd51cfcb57536c81b50e7f38ce8e622a161c1056835b"
 SOURCE_PIN = "a8cb3a8aee9730107bf04749988cb7d3438132a39ad19095cecd5283109f906c"
-DUMP_PATCH_PIN = "fb5d2f3558351f608afccb29ab974aac2a62182ad67f27ec5c3c5f3e9eab0097"
+DUMP_PATCH_PIN = "e4e04177068d0d8563ecdd24a4bc1f2c25be93a97992c173207ae760f7543887"
 SHA_RE = re.compile(r"[0-9a-f]{64}\Z")
 RFC3339_RE = re.compile(
     r"[0-9]{4}-[0-9]{2}-[0-9]{2}T"
@@ -411,7 +411,7 @@ def main():
     )
     dump_log_raw = dump_log.read_bytes()
     if b"test_kae: 44/44" not in dump_log_raw \
-            or b"test_kae_dump: 43/43" not in dump_log_raw:
+            or b"test_kae_dump: 64/64" not in dump_log_raw:
         refuse("dump real-check evidence is incomplete")
     functional_path = strict_path(
         os.fspath(gate_dir / "functional-inertness.json"), kind="file"
@@ -958,7 +958,7 @@ for name in (
 )
 (gate / "dump-realchecks.log").write_text(
     "test_kae: 44/44\n"
-    "test_kae_dump: 43/43\n"
+    "test_kae_dump: 64/64\n"
     "CHECKS OK\n",
     encoding="ascii",
 )
@@ -1124,7 +1124,7 @@ ok = (
         fixture / "home/f1k/poc/glm52-probe/f1k-harness/build_carriers.py"
     )
     and record["builder"]["sha256"]
-        == "a92be3e4fe535c1dfefc41e2a422e010d25e8e40cf8e4cc123e7d829d63e9e61"
+        == "91baba62649ad81217a4dd51cfcb57536c81b50e7f38ce8e622a161c1056835b"
     and record["builder"]["argv_base"][0].startswith("/")
     and record["builder"]["argv_base"][1:3]
         == [record["builder"]["path"], "construct"]
@@ -1372,7 +1372,7 @@ hb "kae-bringup-ok"
 
 step "4/5 build CONSTRUCTION engine (KaE + dump patch) + DUMP bring-up gate (b)"
 # real-checks.sh applies KaE THEN the dump patch on a pristine tree, builds,
-# test_kae 44/44 + test_kae_dump 43/43, objdump per-function inertness.
+# test_kae 44/44 + test_kae_dump 64/64, objdump per-function inertness.
 # OPS (bead kernel-of-truth-f2uk / ASM-2503 amendment / resolution memo §5):
 # real-checks.sh's FINAL step (6/6 objdump per-function equivalence at
 # -O2 -march=x86-64-v3) is gcc-VERSION-brittle — MEASURED for the KaE patch
@@ -1381,7 +1381,7 @@ step "4/5 build CONSTRUCTION engine (KaE + dump patch) + DUMP bring-up gate (b)"
 # that ONE failure signature is demoted to ADVISORY (logged to
 # $GATE/objdump-dump-advisory.log, bring-up continues): rc!=0 is tolerated
 # ONLY IF steps 1-5 provably passed (patch shas + build + test_kae 44/44 +
-# test_kae_dump 43/43 lines present) AND the only ERR is the step-6
+# test_kae_dump 64/64 lines present) AND the only ERR is the step-6
 # "functions differ OUTSIDE the allowed set" spill (NOT "functions REMOVED").
 # real-checks.sh itself is UNTOUCHED (gate-0-reviewed); its step-6 proof
 # stands fail-closed OFF-BOX on the gcc-11.5 measurement basis. ANY other
@@ -1419,7 +1419,7 @@ if [ "$RC_B" -eq 0 ]; then
   grep -qiE "REAL-SOURCE CHECKS OK|CHECKS OK" "$GATE/dump-realchecks.log" \
     || die "dump bring-up precondition (b): rc=0 but no OK banner (real-checks.sh)"
 elif grep -q "test_kae: 44/44" "$GATE/dump-realchecks.log" \
-  && grep -q "test_kae_dump: 43/43" "$GATE/dump-realchecks.log" \
+  && grep -q "test_kae_dump: 64/64" "$GATE/dump-realchecks.log" \
   && grep -q "functions differ OUTSIDE the allowed set" "$GATE/dump-realchecks.log" \
   && ! grep -q "functions REMOVED by the patch" "$GATE/dump-realchecks.log" \
   && [ "$(grep -c 'ERR_F1K_DUMP_CHECK' "$GATE/dump-realchecks.log")" -eq 1 ]; then

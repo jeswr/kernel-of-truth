@@ -2,7 +2,10 @@
 """f1k_gcp.py — GCP-Spot orchestrator for the FROZEN F1-K correctness run.
 
 OPUS EXECUTION-role harness (kern/opus-runner-<N>). It RUNS the already-frozen
-F1-K experiment (registry/experiments/f1k.json, frozen_sha256 35372275…) on the
+F1-K experiment (registry/experiments/f1k.json, frozen_sha256 7897dd0a… once
+the review-gated kot-correction/1 seq-4 generator re-pin splice lands; the
+pre-splice record is 35372275… and verify_pins REFUSES to launch against it —
+see poc/gcp/F1K-GENERATOR-REPIN.md) on the
 coordinator-resolved compute target (bead pzb6): a GCP **Spot** n2d-highmem-8
 (8 vCPU / 64 GB) + 2×375 GiB local SSD (750 GiB NVMe), zone us-central1-a.
 It designs NOTHING and concludes NOTHING: the science (kernel, model, engine,
@@ -71,9 +74,14 @@ WORKER_FLAT_FILES = (
 )
 
 # ---------------------------------------------------------------------------
-# FROZEN PINS (registry/experiments/f1k.json 35372275…; verified at launch)
+# FROZEN PINS (registry/experiments/f1k.json; verified at launch). The value
+# below is the POST-seq-4 frozen hash (generator re-pin a92be3e4 -> 91baba62,
+# deterministic canonical splice — poc/gcp/f1k_generator_repin_splice.py):
+# until the review-gated splice lands, frozen-drift still reports 35372275…
+# and verify_pins dies F1K_PIN_FROZEN — deliberately FAIL-CLOSED so the r3
+# harness pins below can never license a launch against the un-amended record.
 # ---------------------------------------------------------------------------
-FROZEN_SHA256 = "35372275354c7d3841dcf627b70edf64ffbe15190a0669658c5b6df082dc9b9c"
+FROZEN_SHA256 = "7897dd0a8fbb432768d70e959a77abdd80c16c78ab93702ff6f1671828bf7802"
 COLIBRI_COMMIT = "a78a06fc5acc4b0dc0f9ef03987c66b0559d1250"
 ESTATE_REPO = "mateogrgic/GLM-5.2-colibri-int4-with-int8-mtp"
 ESTATE_GB = 383.8
@@ -81,13 +89,13 @@ PINS = {
     "analysis/f1k.py":
         "126129b9ce78e398122b3d3bf0855b7e551a892ba43d7d1a8d072a1245fb3326",
     "build_carriers.py":
-        "a92be3e4fe535c1dfefc41e2a422e010d25e8e40cf8e4cc123e7d829d63e9e61",
+        "91baba62649ad81217a4dd51cfcb57536c81b50e7f38ce8e622a161c1056835b",
     "kae-add-path.patch":
         "11f8b45884878111480192ee086c92b22acaa1aaf3238b2d46c47f952e9dd9cb",
     "kot-f1k-dump.patch":
-        "fb5d2f3558351f608afccb29ab974aac2a62182ad67f27ec5c3c5f3e9eab0097",
+        "e4e04177068d0d8563ecdd24a4bc1f2c25be93a97992c173207ae760f7543887",
     "kae_dump.h":
-        "6ce7760129a64ab749d55ab5b0701d91d41130b233057c90fbea873aec6e304a",
+        "485cd4973cedffd11a2d1420c4e51a719531af99d0c95dbceaced3e5203707ea",
     "construction-manifest.jsonl":
         "a8cb3a8aee9730107bf04749988cb7d3438132a39ad19095cecd5283109f906c",
 }
@@ -329,7 +337,7 @@ def _bringup_deploy_selftest() -> int:
     check(bool(rels) and all(p.is_file() for p in payload),
           "construction payload is nonempty and every listed file exists")
     check(builder in relset and builder_sha == PINS["build_carriers.py"],
-          "build_carriers.py present and sha a92be3e4...")
+          "build_carriers.py present and sha 91baba62...")
     check(Path("poc/glm52-probe/f1k-harness/f1k_driver.py") in relset,
           "f1k_driver.py present")
     check(Path("poc/gcp/f1k_bringup_gate.py") in relset,
@@ -373,18 +381,43 @@ def _bringup_deploy_selftest() -> int:
 # ---------------------------------------------------------------------------
 def verify_pins() -> dict:
     out = {}
-    # frozen record integrity (self-hash via the repo's own tool)
+    # frozen record integrity (self-hash via the repo's own tool). FAIL-CLOSED
+    # on three signals (Rev2 blocker 3): (a) the flag form `--frozen-drift`
+    # (the bare positional `frozen-drift` is swallowed into hook_args and is a
+    # no-op selector); (b) the checker's RETURN CODE (nonzero => drift or an
+    # un-amended record — never accepted); (c) the FULL expected hash read from
+    # the authoritative frozen-index (the checker prints only an 8-hex prefix,
+    # so a prefix line match alone can be forged by an unrelated record and is
+    # NOT sufficient; frozen-drift returncode==0 already proves in-record
+    # frozen_sha256 == frozen-index == recomputed hash for f1k, so binding the
+    # full frozen-index value closes the prefix gap).
     rc = subprocess.run(
         [sys.executable, str(REPO / "tools" / "registry" / "registry-check.py"),
-         "frozen-drift"], cwd=str(REPO), capture_output=True, text=True)
+         "--frozen-drift"], cwd=str(REPO), capture_output=True, text=True)
+    if rc.returncode != 0:
+        die("F1K_PIN_FROZEN",
+            "registry-check --frozen-drift exit %d (frozen bytes changed or "
+            "record un-amended). stdout tail:\n%s"
+            % (rc.returncode, "\n".join(rc.stdout.splitlines()[-8:])))
     f1k_ok = any(line.strip().startswith("ok frozen-drift: f1k")
                  and FROZEN_SHA256[:8] in line
                  for line in rc.stdout.splitlines())
     if not f1k_ok:
         die("F1K_PIN_FROZEN",
-            "registry-check frozen-drift did not confirm f1k (%s). stdout tail:\n%s"
+            "registry-check --frozen-drift did not confirm f1k (%s). stdout "
+            "tail:\n%s"
             % (FROZEN_SHA256[:8], "\n".join(rc.stdout.splitlines()[-8:])))
-    out["f1k_frozen_drift"] = "ok (%s)" % FROZEN_SHA256[:8]
+    index_path = REPO / "registry" / "frozen-index.json"
+    try:
+        idx = json.loads(index_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        die("F1K_PIN_FROZEN", "cannot read frozen-index.json: %s" % exc)
+    if idx.get("f1k") != FROZEN_SHA256:
+        die("F1K_PIN_FROZEN",
+            "frozen-index f1k %r != expected full %s — the review-gated "
+            "seq-4 re-freeze has not landed"
+            % (idx.get("f1k"), FROZEN_SHA256))
+    out["f1k_frozen_drift"] = "ok (%s)" % FROZEN_SHA256
     # file-content pins
     for name, want in PINS.items():
         p = PIN_PATHS[name]
@@ -396,6 +429,101 @@ def verify_pins() -> dict:
                 "%s sha256 %s != frozen %s" % (name, got, want))
         out[name] = "ok (%s)" % want[:8]
     return out
+
+
+def _asm_registered(asm_path, asm_id) -> bool:
+    """Rev3/Rev4 blocker 2: fully fail-closed registration check. Returns True
+    IFF the WHOLE ledger parses (every non-empty line a JSON OBJECT) AND
+    EXACTLY ONE object has id == asm_id. Any of: a read error, a malformed or
+    non-object line ANYWHERE (before OR after the match — the whole file is
+    scanned, never an early return), zero matches, or >1 match (a duplicate
+    target id is ambiguity) -> False. NOT a substring test."""
+    try:
+        text = Path(asm_path).read_text(encoding="utf-8")
+    except OSError:
+        return False
+    count = 0
+    for line in text.splitlines():
+        s = line.strip()
+        if not s:
+            continue
+        try:
+            obj = json.loads(s)
+        except ValueError:
+            return False  # a malformed line ANYWHERE fails closed
+        if not isinstance(obj, dict):
+            return False  # a non-object (record) line fails closed
+        if obj.get("id") == asm_id:
+            count += 1
+    return count == 1
+
+
+def _frozen_governance(repo, expect_frozen, checker=None):
+    """Rev2 blockers 1+2: fail-closed registry-GOVERNANCE gate for the paid
+    launcher. Parameterised on `repo` (so the $0 oracle can drive it against a
+    sandbox) and on `checker` (injectable subprocess.run for the returncode
+    path). Refuses (die -> SystemExit 2) unless ALL hold:
+
+      1. registry-check (FULL suite) exits 0 — an incomplete/inconsistent
+         registry (drift, account-lint, chain, corpus-pins, …) blocks launch;
+      2. frozen-index[f1k] == the FULL expected hash (not a prefix);
+      3. the kot-correction/1 seq-4 record is installed and bound
+         (refrozen_sha256 == expected, seq == 4) — so a half-applied splice
+         that wrote record+index but not the correction is NOT launchable;
+      4. ASM-2525 is registered in registry/assumptions.jsonl — so a landing
+         with the re-freeze but without its assumption is NOT launchable.
+
+    (3)+(4) are what the splice writes/requires BEFORE the index (the launch
+    marker); re-checking them here is defence-in-depth against a hand-forced
+    index."""
+    repo = Path(repo)
+    run = checker or subprocess.run
+    rc = run(
+        [sys.executable, str(repo / "tools" / "registry" / "registry-check.py")],
+        cwd=str(repo), capture_output=True, text=True)
+    if rc.returncode != 0:
+        die("F1K_REGISTRY_CHECK",
+            "registry-check exit %d — registry governance is incomplete; "
+            "refusing to launch. tail:\n%s"
+            % (rc.returncode, "\n".join((rc.stdout or "").splitlines()[-8:])))
+    index_path = repo / "registry" / "frozen-index.json"
+    try:
+        idx = json.loads(index_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        die("F1K_PIN_FROZEN", "cannot read frozen-index.json: %s" % exc)
+    if idx.get("f1k") != expect_frozen:
+        die("F1K_PIN_FROZEN",
+            "frozen-index f1k %r != expected full %s (re-freeze not landed)"
+            % (idx.get("f1k"), expect_frozen))
+    corr_path = (repo / "registry" / "corrections" / "f1k"
+                 / "4-generator-repin.json")
+    if not corr_path.is_file():
+        die("F1K_GOV_CORRECTION",
+            "seq-4 correction record missing at %s — half-applied splice; "
+            "refusing to launch" % corr_path)
+    try:
+        corr = json.loads(corr_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        die("F1K_GOV_CORRECTION", "seq-4 correction unreadable: %s" % exc)
+    if corr.get("refrozen_sha256") != expect_frozen or corr.get("seq") != 4:
+        die("F1K_GOV_CORRECTION",
+            "seq-4 correction not bound to %s (seq=%r, refrozen_sha256=%r)"
+            % (expect_frozen, corr.get("seq"), corr.get("refrozen_sha256")))
+    asm_path = repo / "registry" / "assumptions.jsonl"
+    if not _asm_registered(asm_path, "ASM-2525"):
+        die("F1K_GOV_ASM",
+            "no assumptions.jsonl entry with id==ASM-2525 (the seq-4 re-freeze "
+            "assumption) — refusing to launch")
+
+
+def _construction_launch_gate() -> None:
+    """The complete pre-mutation, pre-spend gate for `construction-continue`
+    (Rev2 blocker 1). Binds the paid launcher to the LANDED frozen record +
+    seq-4 correction + ASM-2525 + all file pins — not merely the on-VM
+    READY/GREEN artifacts (which bind only the builder SHA). ANY failure is a
+    fail-closed STOP before a single mutation or dollar."""
+    verify_pins()                          # file pins + frozen f1k (module REPO)
+    _frozen_governance(REPO, FROZEN_SHA256)  # registry integrity + correction + ASM
 
 
 def _gate(reuse: bool = True) -> None:
@@ -775,6 +903,12 @@ def cmd_provision() -> None:
     verified-completion delete on ANY read-back/persistence failure. The guest
     max-life startup script stays as the bring-up backstop (continue later
     retires it). No VM can exist, even transiently, without its cap."""
+    # Rev3 blocker 1: provision CREATES THE PAID SPOT VM (starts billing), so it
+    # must pass the COMPLETE governance gate — not just verify_pins() — BEFORE
+    # any mutation or GCP call. verify_pins alone inspects neither the seq-4
+    # correction / ASM nor the full registry, so a governance-incomplete tree
+    # with the executable pins installed could otherwise start billing here.
+    _construction_launch_gate()
     try:
         provision = _provision_plan(
             on_demand=BRINGUP_ONDEMAND,
@@ -785,7 +919,6 @@ def cmd_provision() -> None:
         )
     except ValueError as exc:
         die("F1K_SINGLE_VM_SPOT", str(exc))
-    verify_pins()
     _gate()
     _require_cap_probe_green()   # BLOCKING oracle item: no real create pre-probe
     if vm_exists():
@@ -1011,7 +1144,10 @@ def cmd_bringup_deploy() -> None:
     import shutil, tempfile
     if "--selftest" in sys.argv[2:]:
         sys.exit(_bringup_deploy_selftest())
-    verify_pins()
+    # Rev3 blocker 1: bringup-deploy LAUNCHES THE DETACHED PAID WORKER, so it
+    # must pass the COMPLETE governance gate (not just verify_pins) BEFORE any
+    # GCP op or payload staging — same reasoning as provision.
+    _construction_launch_gate()
     construction_files = _construction_payload_files()
     if not vm_exists():
         die("F1K_DEPLOY", "no VM %s in %s — run provision first"
@@ -2037,6 +2173,12 @@ def cmd_construction_continue():
     maintainer spend-GO (#55) and is NOT invoked here."""
     if "--selftest" in sys.argv[2:]:
         sys.exit(_continue_selftest())
+    # Rev2 blocker 1: RE-RUN the full frozen-record + registry-governance +
+    # file-pin gate BEFORE any argparse-side effect, env mutation, artifact
+    # read, or launch. READY/GREEN bind the new builder SHA but NOT the landed
+    # seq-4 re-freeze / correction / ASM — so this is the ONLY thing that stops
+    # a launch when registry governance is incomplete.
+    _construction_launch_gate()
     import argparse
     ap = argparse.ArgumentParser(prog="f1k_gcp.py construction-continue")
     ap.add_argument("--gate", required=True)
@@ -2760,9 +2902,336 @@ def _continue_selftest():
     # --- G37 reaper on a stopped instance ---
     _reaper_oracle(check)
 
+    # --- Rev2 blockers 1/2/3: the money-path governance gate ---------------
+    _launch_gate_oracle(check)
+
     print("CONSTRUCTION-CONTINUE SELFTEST: %d/%d %s"
           % (passed, total, "PASS" if passed == total else "FAILED"))
     return 0 if passed == total else 2
+
+
+def _launch_gate_oracle(check):
+    """$0 proof that `construction-continue`'s pre-launch gate is fail-closed
+    (Rev2). Exercises: (1) LANDED-AWARE live-tree checks — post-splice the
+    frozen-pin axis (frozen-index == FROZEN_SHA256 == 7897dd0a) ACCEPTS via
+    verify_pins() and the launch-gate frozen axis; these read the live registry
+    and are the REVERT-DETECTORS (a splice revert flips them red); (2) a
+    registry-check returncode!=0 REFUSES; (3) a HALF-APPLIED splice
+    (frozen-index at POST but the seq-4 correction / ASM-2525 absent) REFUSES;
+    (3c) the pre-splice frozen-index (PRE hash) REFUSES — the deterministic
+    fixture that keeps the REFUSAL path covered in BOTH tree states;
+    (4) the FULLY-applied state PASSES (the gate is not a tautological refuse).
+    (2)-(4) run against a throwaway sandbox with an injected checker — no
+    repo mutation, no GCP, $0."""
+    import shutil
+
+    POST = "7897dd0a8fbb432768d70e959a77abdd80c16c78ab93702ff6f1671828bf7802"
+
+    def refuses_gate(fn):
+        try:
+            fn()
+        except SystemExit as exc:
+            return exc.code == 2
+        return False
+
+    def passes(fn):
+        try:
+            fn()
+            return True
+        except SystemExit:
+            return False
+
+    class _RC:
+        def __init__(self, code, out=""):
+            self.returncode = code
+            self.stdout = out
+            self.stderr = ""
+
+    def ok_checker(*a, **k):
+        return _RC(0, "registry-check: PASS\n")
+
+    def bad_checker(*a, **k):
+        return _RC(99, "registry-check: 1 violation(s)\n")
+
+    # (1) LANDED-AWARE live-tree checks. The coordinator has LANDED the seq-4
+    #     re-freeze, so the live frozen-index is now 7897dd0a…. These read the
+    #     LIVE registry and assert the frozen-pin axis ACCEPTS — which makes
+    #     them the REVERT-DETECTORS: if anyone reverts the splice (frozen-index
+    #     back to the pre-splice 35372275…), each flips red. The pre-splice
+    #     REFUSAL path stays covered deterministically by fixture (3c) below,
+    #     so the selftest is meaningful in BOTH tree states.
+    live_idx = json.loads(
+        (REPO / "registry" / "frozen-index.json").read_text(encoding="utf-8"))
+    check(live_idx.get("f1k") == FROZEN_SHA256 == POST,
+          "LANDED live tree: frozen-index f1k == FROZEN_SHA256 == 7897dd0a "
+          "(re-freeze landed; a splice revert makes this go red)")
+    check(passes(verify_pins),
+          "verify_pins() PASSES on the landed live tree "
+          "(--frozen-drift rc0 + full 7897dd0a bind + file pins); "
+          "a revert to the pre-splice record flips it red")
+    check(passes(lambda: _frozen_governance(
+            REPO, FROZEN_SHA256, checker=ok_checker)),
+          "launch-gate frozen axis (live frozen-index + seq-4 correction + "
+          "ASM-2525) PASSES on the landed tree with the full registry-check "
+          "stubbed; a revert flips it red")
+
+    sandbox = Path(tempfile.mkdtemp(prefix="f1k-launch-gate-"))
+    try:
+        reg = sandbox / "registry"
+        (reg / "corrections" / "f1k").mkdir(parents=True)
+        # fully-applied fixture
+        (reg / "frozen-index.json").write_text(
+            json.dumps({"f1k": POST}), encoding="utf-8")
+        corr = {"experiment": "f1k", "seq": 4, "refrozen_sha256": POST,
+                "schema_version": "kot-correction/1"}
+        (reg / "corrections" / "f1k" / "4-generator-repin.json").write_text(
+            json.dumps(corr), encoding="utf-8")
+        (reg / "assumptions.jsonl").write_text(
+            '{"id": "ASM-2525", "tag": "STIPULATED"}\n', encoding="utf-8")
+
+        # (2) returncode!=0 from registry-check => REFUSE (blocker 3 code path).
+        check(refuses_gate(
+            lambda: _frozen_governance(sandbox, POST, checker=bad_checker)),
+            "registry-check returncode!=0 REFUSES launch "
+            "(F1K_REGISTRY_CHECK, not fail-open on rc)")
+
+        # (4) fully-applied + clean registry-check => PASS (positive control:
+        #     the gate is not a tautological refuse).
+        passed_ok = True
+        try:
+            _frozen_governance(sandbox, POST, checker=ok_checker)
+        except SystemExit:
+            passed_ok = False
+        check(passed_ok,
+              "fully-applied sandbox (index@POST + seq-4 correction + "
+              "ASM-2525) PASSES the governance gate")
+
+        # (3a) HALF-APPLIED: index written at POST but the seq-4 correction
+        #      never copied => REFUSE (blocker 2: index alone is not the
+        #      launch marker; correction must be present).
+        (reg / "corrections" / "f1k" / "4-generator-repin.json").unlink()
+        check(refuses_gate(
+            lambda: _frozen_governance(sandbox, POST, checker=ok_checker)),
+            "half-applied splice (index@POST, seq-4 correction ABSENT) "
+            "REFUSES launch (F1K_GOV_CORRECTION)")
+        (reg / "corrections" / "f1k" / "4-generator-repin.json").write_text(
+            json.dumps(corr), encoding="utf-8")
+
+        # (3b) HALF-APPLIED: correction present but ASM-2525 not registered
+        #      => REFUSE (blocker 2: ASM is part of the landing).
+        (reg / "assumptions.jsonl").write_text(
+            '{"id": "ASM-2400", "tag": "STIPULATED"}\n', encoding="utf-8")
+        check(refuses_gate(
+            lambda: _frozen_governance(sandbox, POST, checker=ok_checker)),
+            "half-applied splice (correction present, ASM-2525 UNregistered) "
+            "REFUSES launch (F1K_GOV_ASM)")
+
+        # (3b') Rev3 blocker 2: a FOREIGN entry that merely QUOTES the string
+        #       "ASM-2525" (id is something else) must NOT count as registered.
+        (reg / "assumptions.jsonl").write_text(
+            '{"id": "ASM-2400", "notes": "supersedes ASM-2525 discussion"}\n',
+            encoding="utf-8")
+        check(refuses_gate(
+            lambda: _frozen_governance(sandbox, POST, checker=ok_checker)),
+            "foreign record QUOTING \"ASM-2525\" (id!=ASM-2525) does NOT "
+            "count as registered — REFUSES (id-parse, not substring)")
+        # positive: a real id==ASM-2525 entry among decoys IS accepted.
+        (reg / "assumptions.jsonl").write_text(
+            '{"id": "ASM-2400", "notes": "ASM-2525"}\n'
+            '{"id": "ASM-2525", "tag": "STIPULATED"}\n', encoding="utf-8")
+        ok_asm = True
+        try:
+            _frozen_governance(sandbox, POST, checker=ok_checker)
+        except SystemExit:
+            ok_asm = False
+        check(ok_asm,
+              "a real id==ASM-2525 entry (with a decoy quoting it) IS "
+              "accepted (id-parse positive control)")
+
+        # (3b'') Rev4 blocker 1: _asm_registered is FULLY fail-closed — the
+        #        whole ledger must parse, and a malformed line BEFORE a valid
+        #        ASM-2525, AFTER it, or a DUPLICATE target id all REFUSE.
+        (reg / "assumptions.jsonl").write_text(
+            'not-json-at-all\n{"id": "ASM-2525", "tag": "STIPULATED"}\n',
+            encoding="utf-8")
+        check(refuses_gate(
+            lambda: _frozen_governance(sandbox, POST, checker=ok_checker)),
+            "malformed line BEFORE a valid ASM-2525 REFUSES "
+            "(whole-file parse, no false-True)")
+        (reg / "assumptions.jsonl").write_text(
+            '{"id": "ASM-2525", "tag": "STIPULATED"}\nnot-json-at-all\n',
+            encoding="utf-8")
+        check(refuses_gate(
+            lambda: _frozen_governance(sandbox, POST, checker=ok_checker)),
+            "malformed line AFTER a valid ASM-2525 REFUSES "
+            "(no early-return on first match)")
+        (reg / "assumptions.jsonl").write_text(
+            '{"id": "ASM-2525", "tag": "STIPULATED"}\n'
+            '{"id": "ASM-2525", "note": "dup"}\n', encoding="utf-8")
+        check(refuses_gate(
+            lambda: _frozen_governance(sandbox, POST, checker=ok_checker)),
+            "DUPLICATE id==ASM-2525 REFUSES (ambiguity detected, exactly-one)")
+        # reset to a single valid entry for the remaining checks
+        (reg / "assumptions.jsonl").write_text(
+            '{"id": "ASM-2525", "tag": "STIPULATED"}\n', encoding="utf-8")
+
+        # (3c) index at the PRE hash (record written but index not advanced,
+        #      or vice-versa) => REFUSE on the full-hash bind.
+        (reg / "frozen-index.json").write_text(
+            json.dumps({"f1k": "35372275354c7d3841dcf627b70edf64"
+                               "ffbe15190a0669658c5b6df082dc9b9c"}),
+            encoding="utf-8")
+        check(refuses_gate(
+            lambda: _frozen_governance(sandbox, POST, checker=ok_checker)),
+            "frozen-index still at the PRE hash REFUSES launch "
+            "(F1K_PIN_FROZEN full-hash bind)")
+    finally:
+        shutil.rmtree(sandbox, ignore_errors=True)
+
+    # ---- Rev3/Rev4 END-TO-END wiring proof: each SPEND-CAPABLE command hits
+    #      the FULL governance gate BEFORE any cloud op — proven in BOTH
+    #      directions. Rev4 correction 2: every command is given valid fake
+    #      args + env + readable artifacts so it actually REACHES its launch
+    #      boundary, and EVERY direct provider surface (gcloud, vm_exists,
+    #      cap-probe, provision-execute, the GCS mirror, the paid orchestrator
+    #      _construction_continue, f1k_ops._gcloud_compute_get, the catalog
+    #      HTTP list, blocking-delete/describe-presence) is sentineled. Non-
+    #      cloud local guards (_gate reuse-check, payload assembly, transports/
+    #      ops constructors) are no-op'd so they cannot early-exit and mask the
+    #      boundary. Then: (present) the real gate raises GATE -> outcome=gate;
+    #      (absent) the gate is stubbed away -> the command reaches a cloud
+    #      sentinel -> outcome=gcp. A regression that dropped the gate would
+    #      flip the present leg to gcp; a sentinel gap would flip the absent
+    #      leg away from gcp — either fails the check.
+    _wiring_oracle(check)
+
+
+class _GateReached(Exception):
+    pass
+
+
+class _GcpReached(Exception):
+    pass
+
+
+def _wiring_oracle(check):
+    import tempfile, shutil
+    g = globals()
+
+    def _raise_gate(*a, **k):
+        raise _GateReached()
+
+    def _raise_gcp(*a, **k):
+        raise _GcpReached()
+
+    # cloud / paid boundaries — ANY of these means a real spend would begin
+    cloud = {
+        "gcloud": _raise_gcp,
+        "vm_exists": _raise_gcp,
+        "_require_cap_probe_green": _raise_gcp,
+        "_provision_execute": _raise_gcp,
+        "_gsutil_mirror": _raise_gcp,
+        "_blocking_delete": _raise_gcp,
+        "_describe_presence": _raise_gcp,
+        "_construction_continue": _raise_gcp,   # cc's paid orchestrator
+    }
+    # non-cloud local guards that could otherwise die/early-exit and mask the
+    # boundary in the gate-ABSENT leg
+    # (_provision_plan is pure and is left REAL — it never touches the cloud.)
+    local_noops = {
+        "_gate": (lambda *a, **k: None),
+        "_construction_payload_files": (lambda *a, **k: []),
+        "RealContinueOps": (lambda *a, **k: object()),
+        "_real_transports": (lambda *a, **k: {}),
+    }
+    # direct provider surfaces on the f1k_ops module (defensive: no unstubbed
+    # cloud call can slip through even if call order changes)
+    ops_cloud = {
+        "_gcloud_compute_get": _raise_gcp,
+        "_catalog_http_list": _raise_gcp,
+    }
+
+    base = dict(cloud)
+    base.update(local_noops)
+    saved = {k: g.get(k) for k in base}
+    # the three governance-gate functions are patched inside the legs below;
+    # capture their originals up front so the finally-block restores them.
+    gate_saved = {k: g.get(k) for k in (
+        "verify_pins", "_frozen_governance", "_construction_launch_gate")}
+    ops_saved = {k: getattr(f1k_ops, k, None) for k in ops_cloud}
+    old_argv = sys.argv
+    old_env = {k: os.environ.get(k) for k in (
+        "KOT_F1K_BUCKET", "KOT_GCP_PROJECT", "KOT_GCP_BILLING_ACCOUNT",
+        "KOT_F1K_BUDGET_RESOURCE")}
+    tmp = Path(tempfile.mkdtemp(prefix="f1k-wiring-"))
+    (tmp / "gate.json").write_text("{}", encoding="utf-8")
+    (tmp / "ready.json").write_text("{}", encoding="utf-8")
+
+    cc_argv = ["f1k_gcp.py", "construction-continue",
+               "--gate", str(tmp / "gate.json"),
+               "--ready", str(tmp / "ready.json")]
+    commands = (
+        ("provision", cmd_provision, ["f1k_gcp.py", "provision"]),
+        ("bringup-deploy", cmd_bringup_deploy, ["f1k_gcp.py", "bringup-deploy"]),
+        ("construction-continue", cmd_construction_continue, cc_argv),
+    )
+
+    def outcome(cmd_fn, argv):
+        sys.argv = argv
+        try:
+            cmd_fn()
+            return "returned-without-boundary"
+        except _GateReached:
+            return "gate"
+        except _GcpReached:
+            return "gcp"
+        except SystemExit as e:
+            return "exit(%s)" % e.code
+        except BaseException as e:  # noqa: BLE001
+            return "other:%r" % e
+
+    try:
+        for k, v in base.items():
+            g[k] = v
+        for k, v in ops_cloud.items():
+            setattr(f1k_ops, k, v)
+        for k, v in old_env.items():
+            os.environ[k] = "wiring-fake"
+
+        # present leg: real gate, but verify_pins passes and _frozen_governance
+        # raises the GATE sentinel — the wired command must hit it FIRST.
+        g["verify_pins"] = (lambda *a, **k: {})
+        g["_frozen_governance"] = _raise_gate
+        for name, fn, argv in commands:
+            res = outcome(fn, argv)
+            check(res == "gate",
+                  "[gate PRESENT] spend-capable `%s` hits the governance gate "
+                  "BEFORE any cloud op (outcome=%s)" % (name, res))
+
+        # absent leg: the gate is stubbed AWAY (simulating a wiring regression)
+        # — each command must then REACH a cloud sentinel, proving the sentinel
+        # sits at the real launch boundary (not masked by an early exit).
+        g["_construction_launch_gate"] = (lambda *a, **k: None)
+        for name, fn, argv in commands:
+            res = outcome(fn, argv)
+            check(res == "gcp",
+                  "[gate ABSENT] spend-capable `%s` REACHES a cloud sentinel "
+                  "at its launch boundary (outcome=%s)" % (name, res))
+    finally:
+        for k, v in saved.items():
+            g[k] = v
+        for k, v in gate_saved.items():
+            g[k] = v
+        for k, v in ops_saved.items():
+            if v is not None:
+                setattr(f1k_ops, k, v)
+        for k, v in old_env.items():
+            if v is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = v
+        sys.argv = old_argv
+        shutil.rmtree(tmp, ignore_errors=True)
 
 
 def _drifted_catalog_skus():
