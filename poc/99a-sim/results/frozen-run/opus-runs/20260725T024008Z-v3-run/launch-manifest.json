@@ -91,6 +91,15 @@
     "note": "$MODAL = the modal_bin above; run from repo root unless a relative harness path is used."
   },
 
-  "status": "FULL GRID LAUNCHED 20260725T024008Z (detached PID 3917179, setsid; Modal-side run_grid_batch banks durably even if the local driver dies). migrate_legacy no-op on empty Volume; run_grid_batch launching 114 cells shortest-first. Cells land durably ~15-20 min after container cold-start (power R=10k cells first). Coordinator polls the Volume; verdict_99a.py mechanical verdict + Codex audit are POST-completion (not this task).",
+  "launch_verification": {
+    "checked_utc": "20260725T025804Z (~17.5 min post-launch)",
+    "local_driver": "PID 3917179 ALIVE, PPID 1 (setsid-detached), STAT Ssl",
+    "modal_app": "ap-43yteAMTNslFJ21evxed6t EPHEMERAL, 1 running task (the cpu=32 container actively computing)",
+    "durable_cells_at_check": 0,
+    "first_cell_eta": "the initial ~15-20 min estimate was WRONG: v2 MEASURED the in-container per-rep rate at ~4x the isolated warm bench (Pool + vCPU contention), so the FIRST (shortest, power R=10k) cell completes ~60 min in, not 15-20; 0 durable cells at ~17.5 min is EXPECTED, not a fault. run_grid_batch prints '[k/114] durable-wrote cell ...' only AFTER each cell completes.",
+    "durable_write_evidence": "durable-writing is PROVEN on this EXACT Volume + harness by the tinyvalidate mock (cells 42/91 landed durably in kot-99a-grid-v3-vol; collect n_cells=2; resume-skip RUN2 ran []). The full run uses the IDENTICAL _batch_impl VOL.commit()-per-cell path, so first-cell landing was NOT waited out (bounded launch scope; coordinator polls the Volume).",
+    "recoverability_reconfirmed": "even if the local driver dies, the Modal-side run_grid_batch container keeps banking durably + resumable."
+  },
+  "status": "FULL GRID LAUNCHED 20260725T024008Z (detached PID 3917179, setsid; Modal-side run_grid_batch banks durably even if the local driver dies). migrate_legacy no-op on empty Volume; run_grid_batch computing 114 cells shortest-first on the cpu=32 container (confirmed 1 running task at 025804Z). First durable cell ~60 min in (contended in-container rate); coordinator polls the Volume; verdict_99a.py mechanical verdict + Codex audit are POST-completion (not this task).",
   "fable_interpretive_assessed": "pending"
 }
