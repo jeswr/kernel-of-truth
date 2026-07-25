@@ -3,6 +3,17 @@ errors / path events, and report point estimates with MC-SE and exact
 one-sided Clopper-Pearson bounds (S6/S7 acceptance rules).
 
 For the MOCK this runs a few hundred to ~2000 reps (NEVER the full R).
+
+REP-PARALLELISM (opus-runner-1, coordinator-directed 2026-07-25): the R reps of
+a cell are INDEPENDENT (each = a fresh registered-seeded dataset + one fit; S2
+guarantees per-rep reproducibility independent of execution order/parallelism).
+run_cell is therefore factored into a PURE per-rep function (run_one_rep) and a
+PURE aggregator (aggregate_cell); run_cell itself is a thin SEQUENTIAL caller
+whose output is BYTE-IDENTICAL to the pre-extraction run_cell (gated by the
+rep-parallel bit-identity check).  A parallel executor calls run_one_rep across
+workers and feeds aggregate_cell — SAME seeds, SAME fits, SAME aggregation, only
+the execution order parallelised.  NO change to the science (arithmetic, seeds,
+CP bounds, fit-failure accounting) — the lines are RELOCATED, not rewritten.
 """
 import time
 import numpy as np
@@ -18,35 +29,39 @@ from stats_util import cp_upper, cp_lower, mc_se
 FIT_FAILURE_CEILING = 0.001
 
 
-def run_cell(config_index, t, R, want_paths=False, progress=False,
-             use_futility=True, use_rung0=True):
-    """Run R reps of resolved cell t (config_index for the seed map).
+def run_one_rep(config_index, t, r, gate_thr, want_paths=False,
+                use_futility=True, use_rung0=True):
+    """ONE replication's raw outcome — the loop body of the original run_cell
+    extracted VERBATIM.  Pure function of (config_index, r) via the registered
+    per-rep seeds (seeds.rep_substreams), independent of execution order (S2), so
+    reps can be dispatched across workers with no change to the science.
 
-    Fit-failure handling (S4.2 pinned + grid-run-v2 hardening; Rev2 governance
-    item 7 — the REGISTERED S6 statistic is UNCHANGED): a rep whose exact-REML
-    fit raises reml_composite.FitFailure (after the in-fit penalty guard AND
-    the pinned second-start retry) is counted durably per cell and never
-    rejects any component (S4.2).  Three SEPARATE quantities are reported:
+    gate_thr is computed ONCE per cell by the caller (dgm.compute_gate_thresholds),
+    exactly as the sequential run_cell does.  Returns either
+    {'rejected': <set>, 'stage2': <bool>} for a completed rep, or
+    {'fitfail': {'family','stage','error'}} when the exact-REML fit raises
+    reml_composite.FitFailure (after the in-fit penalty guard AND the pinned
+    second-start retry).  The rep index r is NOT stored here — the aggregator
+    owns the rep-ordered fit-failure cap (first 50 by ascending rep index)."""
+    ss = seeds.rep_substreams(config_index, r)
+    try:
+        res = pipeline.run_replication(t, ss, use_futility=use_futility,
+                                       use_rung0=use_rung0, gate_thr=gate_thr)
+    except reml_composite.FitFailure as e:
+        return {'fitfail': {'family': e.family, 'stage': e.stage, 'error': str(e)}}
+    return {'rejected': res['rejected'], 'stage2': res['stage2']}
 
-      * REGISTERED S6 GATE = the realised OBSERVED FWER count ('fwer_events')
-        over the completed reps — the pre-registered statistic, NOT altered
-        (S4.2 counts fit-failures separately; S9 forbids changing acceptance).
-      * NON-GATING worst-case SENSITIVITY ('fwer_events_worstcase' =
-        observed + fit_failures): every failure counted as an event, which
-        dominates every completion of a failed rep, so its CP-upper is an
-        upper bound on the true FWER under arbitrary failure/rejection
-        dependence.  DISCLOSED only — never the verdict statistic.
-      * RUN-VALIDITY ceiling ('fit_failure_ceiling_pass'): the S4.2 per-cell
-        fit-failure rate must be <= 0.1%; enforced SEPARATELY by the verdict
-        (a breach makes the run INVALID, not an acceptance).
 
-    Power paths: unconditional estimands keep denominator R (a failure is a
-    miss — conservative).  The one CONDITIONAL estimand P4 (CFMTH | conH) uses
-    the worst-case conditional denominator conH_count + fit_failures with the
-    OBSERVED numerator (Rev2 fix for review item 5)."""
+def aggregate_cell(config_index, t, R, outcomes, want_paths=False, elapsed=0.0):
+    """Aggregate the R per-rep outcomes (outcomes[r] for r in 0..R-1) into the
+    S6/S7 cell record.  Accumulation + CP bounds are IDENTICAL to the sequential
+    run_cell.  ORDER-INVARIANT to the order in which the outcomes were COMPUTED:
+    every counter is an order-independent SUM, and fitfail_detail is built by
+    iterating r in range(R) — the 50 failures with the SMALLEST rep indices,
+    exactly the sequential 'append-until-50 in rep order' behaviour.  Only the
+    two TIMING fields ('elapsed_s','sec_per_rep') are execution-dependent (NOT
+    part of the science; excluded from the bit-identity comparison)."""
     T = truth_set(t)                       # {j : null_j true} — error-counting set
-    # per-cell gate thresholds computed ONCE before replications (S4.4/B4)
-    gate_thr = dgm.compute_gate_thresholds(t, config_index)
     claim_rej = {c: 0 for c in pins.CLAIMS}
     fwer_events = 0                        # >=1 TRUE-null claim rejected
     stage2_count = 0
@@ -55,13 +70,9 @@ def run_cell(config_index, t, R, want_paths=False, progress=False,
              'conH_count': 0, 'CDEFSUP': 0, 'CCONSUP_A1': 0}
     n_fitfail = 0
     fitfail_detail = []                    # capped; durable per-cell record
-    t0 = time.time()
     for r in range(R):
-        ss = seeds.rep_substreams(config_index, r)
-        try:
-            res = pipeline.run_replication(t, ss, use_futility=use_futility,
-                                           use_rung0=use_rung0, gate_thr=gate_thr)
-        except reml_composite.FitFailure as e:
+        o = outcomes[r]
+        if 'fitfail' in o:
             # S4.2 pinned rule: the failure is counted; no component of the
             # rep is rejected.  It does NOT touch the OBSERVED S6 gate count;
             # the accounting below adds it to the worst-case sensitivity
@@ -69,11 +80,12 @@ def run_cell(config_index, t, R, want_paths=False, progress=False,
             # and flags the run-validity ceiling.
             n_fitfail += 1
             if len(fitfail_detail) < 50:
-                fitfail_detail.append({'rep': r, 'family': e.family,
-                                       'stage': e.stage, 'error': str(e)})
+                ff = o['fitfail']
+                fitfail_detail.append({'rep': r, 'family': ff['family'],
+                                       'stage': ff['stage'], 'error': ff['error']})
             continue
-        rej = res['rejected']
-        if res['stage2']:
+        rej = o['rejected']
+        if o['stage2']:
             stage2_count += 1
         for c in rej:
             claim_rej[c] += 1
@@ -92,9 +104,6 @@ def run_cell(config_index, t, R, want_paths=False, progress=False,
                 paths['CDEFSUP'] += 1
             if 'C-CON-SUP-A1' in rej:
                 paths['CCONSUP_A1'] += 1
-        if progress and (r + 1) % 200 == 0:
-            print(f'  ... {r+1}/{R}  fwer_events={fwer_events}', flush=True)
-    elapsed = time.time() - t0
 
     # REGISTERED S6 GATE STATISTIC = the realised OBSERVED FWER count (S4.2 /
     # S9: unchanged by the numerical guard; fit-failures are counted SEPARATELY
@@ -152,6 +161,48 @@ def run_cell(config_index, t, R, want_paths=False, progress=False,
             'numerator': num,
         }
     return out
+
+
+def run_cell(config_index, t, R, want_paths=False, progress=False,
+             use_futility=True, use_rung0=True):
+    """Run R reps of resolved cell t (config_index for the seed map).  Thin
+    SEQUENTIAL caller over run_one_rep + aggregate_cell; behaviour is BYTE-
+    IDENTICAL to the pre-extraction run_cell (proven by the rep-parallel
+    bit-identity gate), the SAME registered S6 statistic.
+
+    Fit-failure handling (S4.2 pinned + grid-run-v2 hardening; Rev2 governance
+    item 7 — the REGISTERED S6 statistic is UNCHANGED): a rep whose exact-REML
+    fit raises reml_composite.FitFailure (after the in-fit penalty guard AND
+    the pinned second-start retry) is counted durably per cell and never
+    rejects any component (S4.2).  Three SEPARATE quantities are reported:
+
+      * REGISTERED S6 GATE = the realised OBSERVED FWER count ('fwer_events')
+        over the completed reps — the pre-registered statistic, NOT altered
+        (S4.2 counts fit-failures separately; S9 forbids changing acceptance).
+      * NON-GATING worst-case SENSITIVITY ('fwer_events_worstcase' =
+        observed + fit_failures): every failure counted as an event, which
+        dominates every completion of a failed rep, so its CP-upper is an
+        upper bound on the true FWER under arbitrary failure/rejection
+        dependence.  DISCLOSED only — never the verdict statistic.
+      * RUN-VALIDITY ceiling ('fit_failure_ceiling_pass'): the S4.2 per-cell
+        fit-failure rate must be <= 0.1%; enforced SEPARATELY by the verdict
+        (a breach makes the run INVALID, not an acceptance).
+
+    Power paths: unconditional estimands keep denominator R (a failure is a
+    miss — conservative).  The one CONDITIONAL estimand P4 (CFMTH | conH) uses
+    the worst-case conditional denominator conH_count + fit_failures with the
+    OBSERVED numerator (Rev2 fix for review item 5)."""
+    # per-cell gate thresholds computed ONCE before replications (S4.4/B4)
+    gate_thr = dgm.compute_gate_thresholds(t, config_index)
+    t0 = time.time()
+    outcomes = []
+    for r in range(R):
+        outcomes.append(run_one_rep(config_index, t, r, gate_thr, want_paths,
+                                    use_futility, use_rung0))
+        if progress and (r + 1) % 200 == 0:
+            print(f'  ... {r+1}/{R}', flush=True)
+    elapsed = time.time() - t0
+    return aggregate_cell(config_index, t, R, outcomes, want_paths, elapsed)
 
 
 def print_report(out):

@@ -1,0 +1,75 @@
+{
+  "role": "experiment-runner (Opus execution) kern/opus-runner-1",
+  "task": "99a rep-parallel RE-PLAN (coordinator-directed 2026-07-25): the hardened exact-REML estimator now does REAL work, so the sequential-rep v3 config is INFEASIBLE (v3 run STOPPED by coordinator, 0 cells banked, zero loss). Add rep-level parallelism WITHIN a cell, PROVE bit-identity, RE-ESTIMATE. REPORT + AWAIT CONFIRMATION — NOT launched.",
+  "record_utc": "20260725T051349Z",
+  "runner_agent_id": "kern/opus-runner-1",
+  "executor_model": "claude-opus-4-8",
+  "status": "AWAITING COORDINATOR CONFIRMATION OF APPROACH + COST BEFORE LAUNCH. No full run launched.",
+
+  "driver_refactor": {
+    "file": "poc/99a-sim/driver.py",
+    "change": "Behavior-preserving extraction of run_cell into a PURE per-rep function run_one_rep(config_index,t,r,gate_thr,...) + a PURE aggregator aggregate_cell(config_index,t,R,outcomes,...); run_cell is now a thin SEQUENTIAL caller over them. The loop body + aggregation lines are RELOCATED VERBATIM (git diff vs b13f22e0 shows only res[...]->o[...] value-identical renames + the fitfail source e.x->ff['x']). NO change to arithmetic, seeds, CP bounds, fit-failure accounting, out-dict key order. The ONLY behavioral delta is the diagnostic `progress` print (default OFF, unused by the harness).",
+    "boundary_note": "This modifies a SCIENCE module (driver.py) — coordinator-directed operational restructuring for parallel dispatch, gated by the bit-identity check below. Flagged for coordinator/Fable review; the bit-identity gate is the objective certificate that the science is unchanged.",
+    "pre_refactor_commit": "b13f22e0 (driver.py blob d68cad74)"
+  },
+
+  "rep_parallel_executor": {
+    "file": "poc/99a-sim/results/frozen-run/kot_99a_repparallel_probe.py (rep_parallel_cell + _rep_chunk_worker) — OPUS operational fan-out",
+    "design": "ONE parallelism level: rep-level within a cell. Round-robin rep assignment across n_workers (reps computed genuinely OUT OF ORDER); each worker sets BLAS threads=1 BEFORE importing numpy, resolves t + gate_thr ONCE per chunk (deterministic), calls driver.run_one_rep for its rep list; parent re-indexes outcomes by rep and calls driver.aggregate_cell. SAME registered per-rep seeds, SAME fits, SAME aggregation — only execution order parallelized.",
+    "rung0": "F10/P6 cells call rung0.run_rung0_cell separately; it uses the closed-form FamilyAnova (NOT exact-REML) -> MEASURED 0.0016 s/rep -> stays SEQUENTIAL (negligible)."
+  },
+
+  "bit_identity_gate": {
+    "environment": "Modal pinned image, numpy 2.1.3 / scipy 1.14.1 (the ACTUAL run science environment)",
+    "check_1_base_cells_R200": {
+      "F1_fwer_n48_96": {"bit_identical": true, "mismatches": 0, "fwer_events": 0, "fit_failures": 0},
+      "P1_power_n48_96": {"bit_identical": true, "mismatches": 0, "fwer_events": 0, "fit_failures": 0},
+      "app": "ap-KheQTnqd6l70grvF065x0x"
+    },
+    "check_2_escalated_cells_R200": {
+      "F2_fwer_n96_160": {"bit_identical": true, "mismatches": 0},
+      "P1esc_power_n96_160": {"bit_identical": true, "mismatches": 0},
+      "app": "ap-pXfF9oFtF4dSi6DOluM8sK"
+    },
+    "check_3_fitfail_detail_order_invariance": {
+      "note": "the ONE order-sensitive field (fit_failure_detail, capped 50 in rep order); synthetic outcomes (no fits): natural order vs shuffled-then-r-reindexed both yield the 50 SMALLEST failing rep indices + identical n_fitfail",
+      "fitfail_order_invariant": true,
+      "app": "ap-FpHFaymt3qDqT3ixX7WHYw"
+    },
+    "verdict": "GREEN — rep-parallel path is BIT-IDENTICAL to sequential driver.run_cell on ALL science fields (only the two execution-dependent timing fields elapsed_s/sec_per_rep differ, excluded by design)."
+  },
+
+  "measured_timing_pinned_image": {
+    "single_core_s_per_rep": {"fwer_base_n48_96": 0.603, "fwer_esc_n96_160": 0.850,
+                              "power_base_n48_96": 0.629, "power_esc_n96_160": 0.860,
+                              "rung0": 0.0016},
+    "key_finding": "Modal pinned-image single-core rate is ~0.60-0.86 s/rep, NOT the ~1.6 s/rep measured on the BOX (box = numpy 2.0.2 + 2 shared cores; ~2.2-2.6x slower). The coordinator's box-based ~1150-1527 core-h estimate is therefore an OVER-estimate for Modal.",
+    "rep_parallel_efficiency_cpu8": "0.878-0.896 (speedup 7.03-7.18x on 8 workers, BLAS threads=1)"
+  },
+
+  "re_estimate_full_114_cell": {
+    "cell_split_source": "v2 launch-manifest: FWER 50 base + 24 esc; Power 18 base + 18 esc; gate-cal 4",
+    "single_core_work_core_h": {
+      "fwer_base": 335.0, "fwer_esc": 226.7, "power_base": 31.5, "power_esc": 43.0,
+      "gatecal": 2.7, "rung0": 0.06, "TOTAL": 638.9},
+    "billed_core_h_rep_parallel": "~720 (single-core work / efficiency ~0.885; ~1.13x overhead)",
+    "projected_usd": "~34-45 (open Modal; ~$0.047-0.06/core-h)",
+    "recommended_topology": {
+      "name": "Option A — cell-per-container map with rep-parallelism WITHIN each container",
+      "level_1": "Modal .map/.starmap over the 114 cells -> ONE container per cell (cpu=8, memory~16GB, timeout=28800s/8h, retries=2, order_outputs=False)",
+      "level_2": "WITHIN each container, rep_parallel_cell runs the cell's R reps across 8 workers (BLAS=1) -> aggregate_cell; F10/P6 add sequential rung0; gate-cal via the existing battery",
+      "controlled_2_level": "per-container workers (8) <= per-container cores (8) -> NO oversubscription (satisfies the coordinator's 'total workers <= cores')",
+      "wall_clock": "longest single cell = FWER-esc = 40000 x 0.850 / 7.03 = ~1.34h << 8h/cell timeout; with ~100-114 concurrent containers, full-grid wall ~1.5-2.5h",
+      "durability": "each container writes its ONE cell durably to a FRESH Volume (kot-99a-grid-v4-vol) + VOL.commit() BEFORE returning; order_outputs=False; resumable-skip (structural validation, same as v3). Addresses BOTH v1 failure modes: total-loss (no client reorder buffer) + churn (cpu=8 on-demand, real work per container, not cpu=1 preemptible thrash).",
+      "peak_cores": "8 x up-to-~100 concurrent = up to ~800 (open Modal)"
+    },
+    "alternative_topology": {
+      "name": "Option B — few big containers (cpu=32), cells sequential within, rep-parallel",
+      "wall_clock": "~6-7h on ~4x cpu=32 (128 cores) with work-balancing; tighter vs 8h timeout; fewer containers (churn-averse) but longer + needs load balancing",
+      "note": "rep-parallelism WITHIN a cell is REQUIRED in BOTH options — without it a single FWER-esc cell is ~10.7h single-core and busts the 8h timeout"
+    }
+  },
+
+  "next_actions_on_confirmation": "Build the v4 run harness (fresh Volume kot-99a-grid-v4-vol, cell-per-container map wrapping rep_parallel_cell + durable per-cell writes + resumable-skip), green a tinyvalidate mock, dry-plan, then LAUNCH the full 114-cell run. NOT done until the coordinator confirms the approach + cost.",
+  "fable_interpretive_assessed": "pending"
+}
