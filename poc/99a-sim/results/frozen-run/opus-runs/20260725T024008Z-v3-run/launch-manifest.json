@@ -1,0 +1,96 @@
+{
+  "role": "experiment-runner (Opus execution) kern/opus-runner-1",
+  "task": "99a acceptance-artifact FWER/power sim — FULL 114-cell RE-RUN on the HARDENED exact-REML estimator (b13f22e0), to a FRESH durable Volume. LAUNCH-ONLY scope (design frozen upstream; no interpretation).",
+  "design_doc": "docs/next/design/kernel-construction-methodology-proposal-99a.md (SIM-SPEC S1-S9, Rev12/R12a)",
+  "launch_utc": "20260725T024008Z",
+  "runner_agent_id": "kern/opus-runner-1",
+  "executor_model": "claude-opus-4-8",
+
+  "estimator_pin": {
+    "commit": "b13f22e0ace52a6c3bf824f29f31d5bf16046a38",
+    "reml_composite_blob_sha": "f2850f1fb4d3932c509d54fb258bcf46741d7b02",
+    "reml_composite_sha256": "1eae46fbcf9f85698cb7face71ea699a15162100c78faca7bdbfd4f96decd2e8",
+    "gate_cal_battery_sha256": "79ffdedbba0f938fd82ccb7f07c863310fd75b228b53ec4b2830d8e1c1bb8be5",
+    "verify": "PASS — working-tree HEAD == b13f22e0; working blob of poc/99a-sim/reml_composite.py == committed blob f2850f1 (git diff vs b13f22e0 empty). Shipped to /root/sim via add_local_dir (results/** excluded, so the OLD 24308-byte results/frozen-run/reml_composite.py is NOT shipped)."
+  },
+
+  "workspace": {
+    "env_file": "~/.config/kot/modal3.env (modal3)",
+    "modal_profile": "jmwright-045",
+    "workspace_created_by": "jesse-70413",
+    "spend_headroom": "PASS — tinyvalidate compute executed on modal3 with no RESOURCE_EXHAUSTED / workspace-disabled; modal4 fallback NOT needed",
+    "full_run_app_id": "ap-43yteAMTNslFJ21evxed6t",
+    "mock_app_id": "ap-GyzTJYGw0BgmeNOaaD6qYx"
+  },
+
+  "harness": {
+    "file": "poc/99a-sim/results/frozen-run/kot_99a_grid_v3.py",
+    "provenance": "copy of the committed kot_99a_grid_v2.py (b13f22e0) with (a) 5 OPERATIONAL renames only: VOL kot-99a-grid-vol -> kot-99a-grid-v3-vol, app kot-99a-grid-v2 -> kot-99a-grid-v3, outdir grid-run-v2 -> grid-run-v3 (2 comment lines + 3 functional lines; diff verified); (b) 1 OPERATIONAL path-fix in _batch_impl (see operational_defect_fixed). NO science module touched (driver/pipeline/reml_composite/gate_cal_battery/grid/seeds/rung0/pins ship byte-identical from poc/99a-sim). NO validator logic, NO image digest change.",
+    "app": "kot-99a-grid-v3",
+    "fanout": "ONE cpu=32 container (run_grid_batch, memory=32768, timeout=28800s, retries=2); in-container spawn Pool of 30 workers, BLAS threads pinned to 1/worker; DURABLE per-cell Volume write + VOL.commit() after EVERY cell; RESUMABLE (structural-validation resume); shortest-first ordering; cell-level exception isolation (a raising cell -> durable ERROR record).",
+    "image": "rocker/r-ver:4.4.1 + add_python 3.12 + pip numpy==2.1.3 scipy==1.14.1 + remotes lme4 1.1-35.5 / lmerTest 3.1-3 (image def BYTE-IDENTICAL to v2 -> Modal cache reuse; the path-fix is Python-only, does not alter the image)."
+  },
+
+  "operational_defect_fixed": {
+    "what": "The b13f22e0 hardening replaced the v2 filename-only resume with a structural-validation resume that imports the sim science modules (grid.enumerate_cells()) in the container-MAIN process (kot_99a_grid_v2.py:268 `import grid`), but the refactor DROPPED the `sys.path.insert(0,'/root/sim')` + chdir setup that the pre-hardening _batch_impl (parent 64253ec6) and _compute_cell (b13f22e0 lines ~206-210) still carry.",
+    "symptom": "tinyvalidate MOCK #1 raised `ModuleNotFoundError: No module named 'grid'` at _batch_impl:268 (Modal task ta-01KYBHR0SPCAD7N6Q6PP3QR7GR).",
+    "fix": "Restored the /root/sim sys.path.insert + os.chdir at the top of _batch_impl in kot_99a_grid_v3.py, mirroring _compute_cell EXACTLY. Pure operational (fan-out/import-path) plumbing; no science/validator/threshold/image change.",
+    "scope_note": "kern/opus-runner-1 change to OPUS operational harness code only. The committed kot_99a_grid_v2.py at b13f22e0 carries the SAME latent regression on its resume path -> filed for the coordinator/Fable.",
+    "revalidation": "tinyvalidate MOCK #2 GREEN."
+  },
+
+  "fresh_path_rationale": {
+    "prior_volume": "kot-99a-grid-vol (grid-run-v2) held 114 banked cells that are ALL INVALID: 100 ERROR (old estimator LinAlgError), 10 OK-REML (pre-convergence-certificate, may hold non-converged fits + lack the Rev3+ schema), 4 gate-cal (lack the Rev6 six-field identity). Prior mechanical-verdict: run_valid=false, n_valid_success=0.",
+    "decision": "Run ALL 114 cells to a FRESH, verified-EMPTY Volume kot-99a-grid-v3-vol; NEVER reuse/resume kot-99a-grid-vol. Durability lesson (kern-modal-grid-durability): never run two constructs on one shared out-path; a stale banked cell must not be skipped. A fresh empty Volume eliminates any resume-skip risk regardless of validator behaviour.",
+    "pre_launch_state": "clear_vol run after the mock; `modal volume ls kot-99a-grid-v3-vol /cells` EMPTY before the full launch (verified)."
+  },
+
+  "mock_first": {
+    "mode": "tinyvalidate (clear_vol -> run F3(idx42)+P3(idx91) @ R=50 -> collect durable -> re-run resume-skip)",
+    "result": "GREEN — RUN1 ran [42,91]; collect n_cells=2 [42,91] durable; RUN2 ran [] (skipped both). Hardened estimator produced valid records at R=50 on the pinned image (no crash). Also caught + fixed the _batch_impl import-path regression above.",
+    "note": "the R=50 mock cells were WIPED by clear_vol before the full launch (verified empty), so the full run does NOT skip them."
+  },
+
+  "seed_registration_S2_R8g": {
+    "base_seed": 990066001,
+    "n_substreams": 13,
+    "per_rep_stream": "SeedSequence([BASE_SEED, config_index, replication_index]).spawn(13) -> Philox Generators",
+    "beta_cal_stream": "SeedSequence([BASE_SEED, config_index, 999999999]) -> Philox",
+    "config_index_range": "0..113 (74 FWER 0..73, 36 power 74..109, 4 gate-cal 110..113)",
+    "note": "REGISTERED seeds unchanged from the frozen S2/R8g entry + the prior v2 launch-manifest; deterministic, execution-order independent."
+  },
+
+  "grid_spec": {
+    "n_cells": 114, "fwer_cells": 74, "power_cells": 36, "gatecal_cells": 4,
+    "R_fwer": 40000, "R_power": 10000, "R_gatecal": 40000,
+    "futility_S4.6": "ON (default)", "rung0_S4.8": "ON (default)"
+  },
+
+  "cost_dry_plan": {
+    "projected_core_hours_billed": "~150-200 (cpu=32 for ~6-8h; hardened estimator now completes cells that previously crashed late in the rep loop + adds bounded iterative refinement on rare non-PD reps)",
+    "projected_usd": "~30-45 (Modal CPU ~$0.135-0.192/core-h + 32 GB memory); worst-case ~$50",
+    "frozen_ledger_cap": "prior v2 frozen cost_dry_plan: ~$40 authorization, under ~$50 hard-stop; standing experiment-autonomy (2026-07-23) authorizes grids ~$20-40 on runner judgment. Projected within cap.",
+    "recoverability": "container timeout 28800s (8h) + retries=2 + durable per-cell Volume writes + resumable = a mid-run cap / timeout / driver death is recoverable by re-launching (or switching to modal4) against the SAME fresh Volume; completed cells are never re-run.",
+    "guard": "coordinator monitors Modal spend; STOP + report if trending toward $50."
+  },
+
+  "reuse_gate": "N/A — 99a is a statistical acceptance-artifact simulation (SIM-SPEC), NOT a registered kot-reg experiment. No registry/experiments/99a.json; no 99a cell in results-log / artifact-ledger (cited from the frozen prior launch-manifest 20260723T092250Z, same rationale). Independently, the estimator changed (b13f22e0 hardening) -> different pin -> re-run is mandatory by design, not a reuse collision.",
+
+  "durable_target": {
+    "volume": "kot-99a-grid-v3-vol",
+    "cells_dir_within_volume": "/cells (mounted at /vol/cells)",
+    "local_outdir_on_completion": "poc/99a-sim/results/frozen-run/grid-run-v3/ (grid-results.json written by main --mode full after collect)"
+  },
+
+  "poll_and_collect_commands": {
+    "env": "set -a; source ~/.config/kot/modal3.env; set +a   # (or modal4.env if switched)",
+    "modal_bin": "/home/ec2-user/css/kernel/kernel-of-truth/poc/99a-sim/venv/bin/modal",
+    "poll_volume": "$MODAL volume ls kot-99a-grid-v3-vol /cells   # count cell_NNN.json files; 114 == complete",
+    "collect_from_volume": "$MODAL run poc/99a-sim/results/frozen-run/kot_99a_grid_v3.py::collect   # decoupled read of all durable cells (return not printed; use poll_volume for count)",
+    "resume_if_interrupted": "set -a; source ~/.config/kot/modal3.env; set +a; cd poc/99a-sim/results/frozen-run; $MODAL run kot_99a_grid_v3.py::main --mode full   # resume-skips banked valid cells, re-runs the remainder; switch to modal4.env if modal3 caps",
+    "note": "$MODAL = the modal_bin above; run from repo root unless a relative harness path is used."
+  },
+
+  "status": "FULL GRID LAUNCHED 20260725T024008Z (detached PID 3917179, setsid; Modal-side run_grid_batch banks durably even if the local driver dies). migrate_legacy no-op on empty Volume; run_grid_batch launching 114 cells shortest-first. Cells land durably ~15-20 min after container cold-start (power R=10k cells first). Coordinator polls the Volume; verdict_99a.py mechanical verdict + Codex audit are POST-completion (not this task).",
+  "fable_interpretive_assessed": "pending"
+}
