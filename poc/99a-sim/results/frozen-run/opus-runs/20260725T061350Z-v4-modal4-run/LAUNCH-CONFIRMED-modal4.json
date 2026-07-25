@@ -1,0 +1,20 @@
+{
+  "role": "experiment-runner kern/opus-runner-1",
+  "event": "99a v4 full-grid RESUMED on modal4 after modal3 spend-disabled at 25/114",
+  "launch_utc": "20260725T061350Z",
+  "confirmed_utc": "20260725T063044Z",
+  "workspace": "modal4 / jeswrsolidserver (LIVE; modal3/jesse-70413 DISABLED mid-run)",
+  "app_id": "ap-KGwLrvhaRv7n9QJfCeQ3xA",
+  "local_driver_pid": 4072932,
+  "volume": "kot-99a-grid-v4-vol (FRESH in modal4 workspace; 0 pre-banked)",
+  "pre_launch_pins": "ALL PASS (fail-closed gate=0): HEAD 84fe00a3, driver.py + v4 clean, estimator blob f2850f1 (b13f22e0)",
+  "cell_trajectory": "modal3 reached 25/114 then workspace DISABLED (FAILED_PRECONDITION spend cap); durable design SAVED those 25 (stranded on modal3 Volume, re-computable ~$8). modal4 fresh run: image built, .map 114 todo, 100 running tasks, 11 cells landed durably @ ~13min (power-first).",
+  "durable_writing_confirmed": "13 cells in kot-99a-grid-v4-vol /cells (power cells first, shortest-first)",
+  "preemption": "only 2 events (modal4 far more stable than modal3's ~11+); retries=2 + durable + resumable regardless",
+  "poll_command": "set -a; source ~/.config/kot/modal4.env; set +a; poc/99a-sim/venv/bin/modal volume ls kot-99a-grid-v4-vol /cells | grep -c cell_   # 114 == complete",
+  "collect_command": "set -a; source ~/.config/kot/modal4.env; set +a; poc/99a-sim/venv/bin/modal run poc/99a-sim/results/frozen-run/kot_99a_grid_v4.py::collect",
+  "resume_command": "cd poc/99a-sim/results/frozen-run && set -a; source ~/.config/kot/modal4.env; set +a; poc/99a-sim/venv/bin/modal run kot_99a_grid_v4.py::main --mode full   # resume-skips banked valid cells",
+  "note": "ALL poll/collect/resume MUST source modal4.env (the Volume is in modal4's workspace, NOT modal3). modal3 stays disabled until maintainer reset.",
+  "post_completion": "coordinator watchdogs the Volume + triggers verdict_99a.py after all 114 land; NOT run by this task",
+  "fable_interpretive_assessed": "pending"
+}
